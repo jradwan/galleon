@@ -116,7 +116,6 @@
         <mkdir dir="${build}/bin" />
         <mkdir dir="${build}/conf" />
         <mkdir dir="${build}/media" />
-        <mkdir dir="${build}/plugins" />
         <mkdir dir="${build}/data" />        
         <mkdir dir="${build}/apps" />        
 
@@ -306,6 +305,7 @@
 
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
+        <copy file="./apps/winamp.jar" tofile="${build}/apps/winamp.jar" />
         
 <!--
         <echo>Creating plugins</echo>
@@ -594,9 +594,6 @@
 
     <target name="package-plugins">
         <echo>Copying plugins</echo>
-        <delete>
-            <fileset dir="${build}/plugins" includes="test.jar" />
-        </delete>
     </target>
 
     <target name="source" depends="init,clean,package-images,package-docs">
@@ -669,7 +666,6 @@
         </copy>        
         
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
-        <copy file="./apps/readme.txt" tofile="${build}/apps/readme.txt" />                                
 
     </target>
 </project>

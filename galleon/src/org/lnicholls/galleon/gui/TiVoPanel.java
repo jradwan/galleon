@@ -236,7 +236,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                 int nextRow = model.getRowCount();
                 model.setValueAt(mNameField.getText(), nextRow, 0);
                 model.setValueAt(mAddressField.getText(), nextRow, 1);
-                model.setValueAt(mCapacityField.getText(), nextRow, 1);
+                model.setValueAt(mCapacityField.getText(), nextRow, 2);
             } catch (Exception ex) {
                 Tools.logException(TiVoPanel.class, ex);
             }
@@ -299,7 +299,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
         }
 
         public int getColumnCount() {
-            return 2;
+            return 3;
         }
 
         public String getColumnName(int column) {

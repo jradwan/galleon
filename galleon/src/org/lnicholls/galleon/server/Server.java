@@ -624,7 +624,7 @@ public class Server {
     
     public List getSkins() 
     {
-        File skinsDirectory = new File(System.getProperty("root")+"/media/skins");
+        File skinsDirectory = new File(System.getProperty("root")+"/media/winamp");
         if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden())
         {
             File[] files = skinsDirectory.listFiles(new FileFilter(){

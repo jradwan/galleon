@@ -180,7 +180,7 @@ public class ToGo extends BApplication {
 
                 for (int i = 0; i < videoArray.length; i++) {
                     Video video = (Video) videoArray[i];
-                    if (video.getStatus()!=Video.STATUS_RECORDING && video.getStatus()!=Video.STATUS_DOWNLOADED)
+                    if (video.getStatus()!=Video.STATUS_RECORDING)
                     {
                         list.add(new ToGoScreen(app, video));
                         totalCount = totalCount + 1;

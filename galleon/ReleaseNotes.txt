@@ -35,7 +35,7 @@ On your TiVo DVR:
 Known issues:
 1. The server needs to be running for the configuration GUI to work.
 2. Most JavaHMO plugins have not been ported to Galleon yet.
-3. HME apps are deployed in the Galleon apps directory. The readme.txt file contains instructions for the Winamp player.
+3. HME apps are deployed in the Galleon apps directory. 
 4. Galleon requires JDK 1.5
 5. Sections of code have been commented out until all of the JavaHMO code is ported.
 6. Weather errors arent handled properly.
@@ -49,6 +49,7 @@ Known issues:
 14. TiVo sometimes reboots after using the Music app for some time.
 15. Music player generates resource not found errors.
 16. Sorting, shuffling not supported yet.
+17. Playlists not supported yet.
 
 
 How to get started:
@@ -61,15 +62,14 @@ How to get started:
 6. Add applications by using the File/New App menu.
 7. For each app you add, you must press the Apply button to save each app's settings.
 8. Exit from the GUI.
-9. If you want to run the Winamp player, follow the intructions in the apps Readme.txt file.
-10. Use your TiVo to pick ToGo recordings to download to your PC.
+9. Use your TiVo to pick ToGo recordings to download to your PC.
 
 
 Winamp skins:
 The project has permission from the author of the Metrix Winamp classic skins (Sven Kistner) to distribute the skins with the Galleon project:
 http://www.winamp.com/skins/browse.php?search=yes&filter=S&query=metrix
 However, for copyright reasons, the skins are not checked into the project CVS. The Galleon build script will add any *.wsz Winamp skin files
-that are in the media/skins directory to a package build. The Galleon GUI will detect any *.wsz files that are in the media/skins directory and will 
+that are in the media/winamp directory to a package build. The Galleon GUI will detect any *.wsz files that are in the media/winamp directory and will 
 allow the user to pick a skin in the music app configuration screen.
 
 Download your favorite Winamp Classic skin from: http://www.winamp.com/skins
@@ -81,8 +81,7 @@ file)
 
 
 Music Player:
-Basic operations such as Play, Pause, Next, Previous and Stop are supported
-in this version:
+Basic operations such as Play, Pause, Next, Previous and Stop are supported in this version:
 Play = Play
 Pause = Pause
 Slow = Stop

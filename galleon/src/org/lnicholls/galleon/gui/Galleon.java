@@ -140,7 +140,7 @@ public final class Galleon implements Constants {
             Thread.currentThread().setContextClassLoader(classLoader);
 
             //mMainFrame = new MainFrame(mServerConfiguration.getVersion());
-            mMainFrame = new MainFrame("0.0.0 beta 2");
+            mMainFrame = new MainFrame(Tools.getVersion());
 
             splashWindow.setVisible(false);
             mMainFrame.setVisible(true);

@@ -48,6 +48,7 @@ set classpath=%classpath%;..\lib\concurrent.jar
 set classpath=%classpath%;..\lib\bananas.jar
 set classpath=%classpath%;..\lib\commons-httpclient.jar
 set classpath=%classpath%;..\lib\commons-codec.jar
+set classpath=%classpath%;..\lib\mp3dings.jar
 set option=
 if exist "%JAVA_HOME%/bin/server" set option=-server
 java %option% -Xms64m -Xmx64m -Djava.awt.fonts="%JAVA_HOME%/lib/fonts" -Dawt.toolkit=com.eteks.awt.PJAToolkit org.lnicholls.galleon.server.Server

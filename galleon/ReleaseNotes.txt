@@ -3,6 +3,14 @@ Galleon
 
 Version 0.1.0 beta 1:
 ---------------------
+Your TiVo needs to be running version 7.1 software.
+On your TiVo DVR:
+
+   1. Turn on HME. Navigate to System Information and press the following four keys in order : CLEAR CLEAR 0 0. Ignore the sounds.
+   2. Return to TiVo Central. Note that Music and Photos changed to Music, Photos and More.
+   3. Enter Music, Photos and More. The samples should be listed.
+
+
 Known issues:
 
 1. GUI does not update server immediately. After making any changes in the GUI, restart the server.

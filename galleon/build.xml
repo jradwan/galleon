@@ -222,6 +222,13 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/togo" excludes="*.java" />
             <fileset dir="./media/images" includes="cinemabackground.jpg" />                        
             <fileset dir="./media/images" includes="icon.png" />                                    
+            <fileset dir="./media/images" includes="yellowball.gif" />                                                
+            <fileset dir="./media/images" includes="yellowball!.gif" />                                                            
+            <fileset dir="./media/images" includes="whiteball.gif" />                                                            
+            <fileset dir="./media/images" includes="greenball.gif" />                                                            
+            <fileset dir="./media/images" includes="redball.gif" />                                                                        
+            <fileset dir="./media/images" includes="blueball.gif" />                                                                        
+            <fileset dir="./media/images" includes="empty.gif" />                                                                                    
         </jar>
         <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
         

@@ -524,6 +524,8 @@ public class RecordedPanel extends JPanel implements ProgressListener {
                     setIcon(mYellowIcon);
                 else if (show.getIcon().equals("expired-recording"))
                     setIcon(mYellowExclamationIcon);
+                else if (show.getIcon().equals("save-until-i-delete-recording"))
+                    setIcon(mGreenIcon);
                 else
                     setIcon(mEmptyIcon);
 

@@ -460,7 +460,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
             JOptionPane
                     .showMessageDialog(
                             this,
-                            "JavaHMO could not automatically find any TiVo's on your network. Add your TiVo information manually for ToGo downloading to work.",
+                            "Galleon could not automatically find any TiVo's on your network. Add your TiVo information manually for ToGo downloading to work.",
                             "Error", JOptionPane.ERROR_MESSAGE);
         }
     }

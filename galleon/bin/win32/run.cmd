@@ -53,7 +53,9 @@ set classpath=%classpath%;..\lib\mp3dings.jar
 set classpath=%classpath%;..\lib\bananas.jar
 set classpath=%classpath%;..\lib\commons-httpclient.jar
 set path=%path%;..\lib;
-java -server -Xms64m -Xmx64m -XX:NewSize=32m -XX:MaxNewSize=32m -XX:PermSize=10m -XX:MaxPermSize=20m -Djava.awt.fonts=c:/jdk1.5/jre/lib/fonts -Dawt.toolkit=com.eteks.awt.PJAToolkit org.lnicholls.galleon.server.Server
+set option=
+if exist "%JAVA_HOME%/bin/server" set option=-server
+java %option% -Xms64m -Xmx64m -XX:NewSize=32m -XX:MaxNewSize=32m -XX:PermSize=10m -XX:MaxPermSize=20m -Djava.awt.fonts=c:/jdk1.5/jre/lib/fonts -Dawt.toolkit=com.eteks.awt.PJAToolkit org.lnicholls.galleon.server.Server
 set classpath=%oldclasspath%
 
 

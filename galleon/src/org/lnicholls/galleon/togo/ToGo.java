@@ -87,6 +87,7 @@ public class ToGo {
 
                     int total = -1;
                     int counter = 0;
+                    boolean checkedChange = false;
                     do {
                         get = new GetMethod(QUERY_CONTAINER + RECURSE + ITEM_COUNT + MAX + ANCHOR_OFFSET + counter);
                         client.executeMethod(get);
@@ -123,29 +124,32 @@ public class ToGo {
                                     } catch (NumberFormatException ex) {
                                     }
                                 }
-                                log.debug("lastChangedDate="+lastChangedDate);
-                                log.debug("total="+total);
                                 // Only update list if something changed since the last retrieve
-                                if (lastChangedDate.after(tivo.getLastChangedDate()) || total!=tivo.getNumShows())
+                                if (!checkedChange)
                                 {
-                                    ArrayList copy = (ArrayList)shows.clone();
-                                    shows.clear();
-                                    Iterator showIterator = copy.listIterator();
-                                    while (showIterator.hasNext())
+                                    checkedChange = true;
+                                    
+                                    if (lastChangedDate.after(tivo.getLastChangedDate()) || total!=tivo.getNumShows())
                                     {
-                                        Show show = (Show)showIterator.next();
-                                        if (!show.getSource().equals(tivo.getAddress()))
+                                        ArrayList copy = (ArrayList)shows.clone();
+                                        shows.clear();
+                                        Iterator showIterator = copy.listIterator();
+                                        while (showIterator.hasNext())
                                         {
-                                            shows.add(show);
+                                            Show show = (Show)showIterator.next();
+                                            if (!show.getSource().equals(tivo.getAddress()))
+                                            {
+                                                shows.add(show);
+                                            }
                                         }
+                                        tivo.setLastChangedDate(lastChangedDate);
+                                        tivo.setNumShows(0);
                                     }
-                                    tivo.setLastChangedDate(lastChangedDate);
-                                    tivo.setNumShows(0);
-                                }
-                                else
-                                {
-                                    counter = total;
-                                    break;
+                                    else
+                                    {
+                                        counter = total;
+                                        break;
+                                    }
                                 }
                             } else if (child.getName().equals("Item")) {
                                 Show show = new Show();

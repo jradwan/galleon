@@ -30,7 +30,7 @@
 
 #org.lnicholls.hme.winamp.Winamp d:\download\mp3 d:\galleon\apps\Tivo.wsz
 
-#com.tivo.hme.samples.bananas.BananasSample
+com.tivo.hme.samples.bananas.BananasSample
 
 org.lnicholls.galleon.apps.togo.ToGo
 

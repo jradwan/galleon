@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
+import javax.swing.ImageIcon;
+
 import com.tivo.hme.bananas.*;
 import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.togo.Show;
@@ -43,9 +45,31 @@ public class ToGo extends BApplication {
     
     private ToGoList togoList = new ToGoList();
     
+    private Resource mYellowIcon;
+
+    private Resource mYellowExclamationIcon;
+
+    private Resource mWhiteIcon;
+
+    private Resource mGreenIcon;
+
+    private Resource mRedIcon;
+
+    private Resource mBlueIcon;
+    
+    private Resource mEmptyIcon;    
+    
     protected void init(Context context) 
     {
         super.init(context);
+        
+        mYellowIcon = getResource("yellowball.gif");
+        mYellowExclamationIcon = getResource("yellowball!.gif");
+        mWhiteIcon = getResource("whiteball.gif");
+        mGreenIcon = getResource("greenball.gif");
+        mRedIcon = getResource("redball.gif");
+        mBlueIcon = getResource("blueball.gif");
+        mEmptyIcon = getResource("empty.gif");        
         
         push(new ToGoMenuScreen(this), TRANSITION_NONE);
     }
@@ -144,7 +168,20 @@ public class ToGo extends BApplication {
 
             protected void createRow(BView parent, int index)
             {   
-                BText text = new BText(parent, 10, 4, parent.width-40, parent.height - 4);
+                BView icon = new BView(parent, 10, 8, 16, 16);
+                Show show = ((ToGoScreen)get(index)).getShow();
+                if (show.getIcon().equals("in-progress-recording"))
+                    icon.setResource(mRedIcon);
+                else if (show.getIcon().equals("expires-soon-recording"))
+                    icon.setResource(mYellowIcon);
+                else if (show.getIcon().equals("expired-recording"))
+                    icon.setResource(mYellowExclamationIcon);
+                else if (show.getIcon().equals("save-until-i-delete-recording"))
+                    icon.setResource(mGreenIcon);                
+                else
+                    icon.setResource(mEmptyIcon);
+                
+                BText text = new BText(parent, 30, 4, parent.width-40, parent.height - 4);
                 text.setShadow(true);
                 text.setFlags(RSRC_HALIGN_LEFT);
                 text.setValue(get(index).toString());
@@ -386,7 +423,12 @@ public class ToGo extends BApplication {
             } 
             
             return super.handleAction(view, action);
-        }        
+        }
+        
+        public Show getShow()
+        {
+            return mShow;
+        }
         
         public String toString() 
         {

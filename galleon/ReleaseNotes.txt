@@ -1,7 +1,12 @@
 Galleon
 -------
 
-Version 0.1.0 beta 1:
+Version 0.0.0 beta 2:
+---------------------
+ToGo improvements.
+
+
+Version 0.0.0 beta 1:
 ---------------------
 Your TiVo needs to be running version 7.1 software.
 On your TiVo DVR:
@@ -39,8 +44,6 @@ One note for folks installing JDK 1.5 for the first time - when launching Galleo
 Code:
 
 D:\galleon\bin>run.cmd Error: no `server' JVM at `C:\Program Files\Java\jre1.5.0_01\bin\server\jvm.dll'
-
-
 
 The default 1.5 install puts the "server" subfolder under ...Java\jdk1.5.0_01 \bin\server\...
 Just copy the server subfolder that is under the jdk...\bin path and put it under the jre....\bin path. This is the recommended fix from Sun.

@@ -285,9 +285,9 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             Video video = (Video) mShows.get(nRow);
             switch (nCol) {
             case 0:
-                return video.getTitle();
+                return video.getTitle()!=null?video.getTitle():"";
             case 1:
-                return video.getEpisodeTitle();
+                return video.getEpisodeTitle()!=null?video.getEpisodeTitle():"";
             case 2:
                 // Round off to the closest minutes; TiVo seems to start recordings 2 seconds before the scheduled time
                 mCalendar.setTime(video.getDateRecorded());
@@ -309,13 +309,13 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             case 5:
                 return video.getStatusString();
             case 6:
-                return video.getDescription().length() != 0 ? video.getDescription() : " ";
+                return (video.getDescription()!=null && video.getDescription().length() != 0) ? video.getDescription() : " ";
             case 7:
-                return video.getChannel() + " " + video.getStation();
+                return video.getChannel()!=null?video.getChannel():""+ " " + video.getStation()!=null?video.getStation():"";
             case 8:
-                return video.getRating().length() != 0 ? video.getRating() : "No rating";
+                return (video.getRating()!=null && video.getRating().length() != 0) ? video.getRating() : "No rating";
             case 9:
-                return video.getRecordingQuality();
+                return video.getRecordingQuality()!=null?video.getRecordingQuality():"";
             }
             return " ";
         }

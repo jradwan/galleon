@@ -605,6 +605,24 @@ public class Server {
         mDownloadThread.updateVideo(video);
     }
     
+    public AppContext createAppContext(AppDescriptor appDescriptor)
+    {
+        return new AppContext(appDescriptor);
+    }
+    
+    public List getRules() 
+    {
+        return mServerConfiguration.getRules();
+    }
+    
+    public void updateRules(List rules)
+    {
+        mServerConfiguration.setRules(rules);
+        save();
+        mToGoThread.interrupt();
+    }    
+    
+    
     private void createAppClassLoader() {
         File directory = new File(System.getProperty("apps"));
         // TODO Handle reloading; what if list changes?
@@ -615,9 +633,9 @@ public class Server {
         });
         URL urlList[] = new URL[files.length];
         for (int i = 0; i < files.length; ++i) {
-            log.debug("Found app: " + files[i].getAbsolutePath());
             try {
-                urlList[i] = files[i].toURL();
+                urlList[i] = files[i].toURI().toURL();
+                log.debug("Found app: " + urlList[i]);
             } catch (Exception ex) {
                 // should never happen
             }

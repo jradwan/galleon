@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.togo.Rule;
 
 public class ServerConfiguration implements Serializable {
 
@@ -38,6 +39,7 @@ public class ServerConfiguration implements Serializable {
             Tools.logException(Server.class, ex);
         }
         mTiVos = new ArrayList();
+        mRules = new ArrayList();
     }
 
     public void setVersion(String version) {
@@ -185,6 +187,19 @@ public class ServerConfiguration implements Serializable {
         mTiVos.add(tivo);
         return true;
     }
+    
+    public List getRules() {
+        return mRules;
+    }
+    
+    public void setRules(List rules) {
+        mRules = rules;
+    }
+
+    public boolean addRule(Rule rule) {
+        mRules.add(rule);
+        return true;
+    }    
 
     private String mVersion = Tools.getVersion();
 
@@ -211,4 +226,6 @@ public class ServerConfiguration implements Serializable {
     private String mMediaAccessKey = "";
 
     private List mTiVos;
+    
+    private List mRules;
 }

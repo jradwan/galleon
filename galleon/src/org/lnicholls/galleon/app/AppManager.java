@@ -55,10 +55,12 @@ public final class AppManager {
             }
         });
         for (int i = 0; i < files.length; ++i) {
-            log.debug("Found app: " + files[i].getAbsolutePath());
-            mJars.add(files[i]);
             try {
-                AppDescriptor appDescriptor = new AppDescriptor(files[i]);
+                log.debug("Found app: " + files[i].getAbsolutePath());
+                File file = new File(files[i].getCanonicalPath());
+                mJars.add(file);
+                
+                AppDescriptor appDescriptor = new AppDescriptor(file);
                 log.debug("appDescriptor=" + appDescriptor);
                 if (appDescriptor.getClassName()!=null)
                     mAppDescriptors.add(appDescriptor);
@@ -206,6 +208,7 @@ public final class AppManager {
     
     public void createApp(AppContext appContext)
     {
+        log.debug("createApp: "+appContext);
         try {
             AppFactory appFactory = mAppFactory.addApp(appContext);
         } catch (Exception ex) {

@@ -20,7 +20,9 @@ package org.lnicholls.galleon.util;
  * See the file "COPYING" for more details.
  */
 
-public class NameValue {
+import java.io.Serializable;
+
+public class NameValue implements Serializable {
     public NameValue() {
     }
 

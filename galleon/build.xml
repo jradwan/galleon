@@ -146,7 +146,7 @@
             <compilerarg value="-Xlint:deprecation"/>
 -->            
         </javac>
-        <rmic classname="org.lnicholls.galleon.server.ServerControlImpl" base="${build}"/>
+        <rmic classname="org.lnicholls.galleon.server.ServerControlImpl" base="${build}" debug="on"/>
     </target>
     
   <!-- Generate the schemas for all mapping files in our class tree -->
@@ -236,7 +236,7 @@
         
         <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
         <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/alerticon.png" />        
-        <copy file="./media/fonts/casual.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/casual.ttf" />                
+        <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/Dekadens.ttf" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
@@ -258,10 +258,39 @@
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/weather" excludes="*.java" />
             <fileset dir="./media/images/weather" includes="*.png,*.jpg"/>                                                
-            <fileset dir="./media/fonts" includes="casual.ttf"/>
+            <fileset dir="./media/fonts" includes="Dekadens.ttf"/>
         </jar>
         <copy file="${build}/apps/weather.jar" tofile="./apps/weather.jar" />                
         
+        <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/music/icon.png" />        
+        <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/music/alerticon.png" />        
+        <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/music/Dekadens.ttf" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.music.Music"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Music"/>
+            <attribute name="Icon" value="icon.png"/>
+            <attribute name="ReleaseDate" value="06/03/05"/>          
+            <attribute name="Description" value="Music"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.music.MusicOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/music.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/music/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/music" excludes="*.java" />
+            <fileset dir="./media/images" includes="*.png,*.jpg"/>                                                
+            <fileset dir="./media/fonts" includes="Dekadens.ttf"/>
+        </jar>
+        <copy file="${build}/apps/music.jar" tofile="./apps/music.jar" />                        
+
+
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                
         <copy file="./apps/readme.txt" tofile="${build}/apps/readme.txt" />                        
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                

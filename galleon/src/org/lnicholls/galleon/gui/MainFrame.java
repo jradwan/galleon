@@ -397,7 +397,8 @@ public class MainFrame extends JFrame {
             if ("ok".equals(e.getActionCommand())) {
                 AppDescriptor appDescriptor = ((AppDescriptorWrapper) mAppsCombo.getSelectedItem()).mAppDescriptor;
                 try {
-                    AppContext app = new AppContext(appDescriptor);
+                    //AppContext app = new AppContext(appDescriptor);
+                    AppContext app = Galleon.createAppContext(appDescriptor);
                     app.getConfiguration().setName(mNameField.getText());
                     addApp(app);
                 } catch (Exception ex) {

@@ -25,7 +25,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -59,12 +59,6 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-/**
- * @author Owner
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 
         private static Logger log = Logger.getLogger(RulesPanel.class.getName());
@@ -105,7 +99,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 
             setLayout(new BorderLayout());
             
-            mRules = Galleon.getRulesList().load();
+            mRules = Galleon.getRules();
             if (log.isDebugEnabled())
                 log.debug("mRules="+mRules);
             
@@ -295,7 +289,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
                 } catch (Exception ex) {
                     Tools.logException(RulesPanel.class, ex);
                 }
-                Galleon.getRulesList().save(mRules);
+                Galleon.updateRules(mRules);
                 mRecordedPanel.updateTable();
                 mUpdating = false;
             } else if ("modify".equals(e.getActionCommand())) {
@@ -317,7 +311,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
                         }
                         mTable.addRowSelectionInterval(selectedRow, selectedRow);
                         
-                        Galleon.getRulesList().save(mRules);
+                        Galleon.updateRules(mRules);
                         mRecordedPanel.updateTable();
                     }
                 } catch (Exception ex) {
@@ -334,7 +328,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
                             model.removeRow(selectedRows[i]);
                         }
                     }
-                    Galleon.getRulesList().save(mRules);
+                    Galleon.updateRules(mRules);
                     mRecordedPanel.updateTable();
                 } catch (Exception ex) {
                     Tools.logException(RulesPanel.class, ex);
@@ -560,6 +554,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 
         private boolean mUpdating;
         
-        private ArrayList mRules;
+        private List mRules;
+        
         private RecordedPanel mRecordedPanel;
     }

@@ -19,23 +19,17 @@ package org.lnicholls.galleon.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.rmi.RemoteException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.net.*;
 import java.util.Properties;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -47,14 +41,12 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.app.AppManager;
+import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.server.Constants;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.server.ServerControl;
-import org.lnicholls.galleon.togo.RulesList;
-import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.database.*;
 
 import com.jgoodies.plaf.FontSizeHints;
 import com.jgoodies.plaf.LookUtils;
@@ -112,18 +104,14 @@ public final class Galleon implements Constants {
             }
 
             /*
-            mServerConfiguration = new ServerConfiguration();
-            if (mConfigureDir != null) {
-                log.info("Configuration Dir=" + mConfigureDir.getAbsolutePath());
-                new Configurator(mServerConfiguration).load(mAppManager, mConfigureDir);
-            } else
-                new Configurator(mServerConfiguration).load(mAppManager);
-            mAddress = mServerConfiguration.getIPAddress();
-            if (mAddress == null || mAddress.length() == 0)
-                mAddress = "127.0.0.1";
-*/                
+             * mServerConfiguration = new ServerConfiguration(); if (mConfigureDir != null) { log.info("Configuration
+             * Dir=" + mConfigureDir.getAbsolutePath()); new Configurator(mServerConfiguration).load(mAppManager,
+             * mConfigureDir); } else new Configurator(mServerConfiguration).load(mAppManager); mAddress =
+             * mServerConfiguration.getIPAddress(); if (mAddress == null || mAddress.length() == 0) mAddress =
+             * "127.0.0.1";
+             */
             mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099);
-            
+
             File directory = new File(System.getProperty("apps"));
             if (!directory.exists() || !directory.isDirectory()) {
                 String message = "App Class Loader directory not found: " + System.getProperty("apps");
@@ -131,7 +119,7 @@ public final class Galleon implements Constants {
                 log.error(message, exception);
                 throw exception;
             }
-            
+
             File[] files = directory.listFiles(new FileFilter() {
                 public final boolean accept(File file) {
                     return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
@@ -140,7 +128,8 @@ public final class Galleon implements Constants {
             URL urlList[] = new URL[files.length];
             for (int i = 0; i < files.length; ++i) {
                 try {
-                    urlList[i] = files[i].toURL();
+                    urlList[i] = files[i].toURI().toURL();
+                    log.debug(urlList[i]);
                 } catch (Exception ex) {
                     // should never happen
                 }
@@ -148,8 +137,6 @@ public final class Galleon implements Constants {
 
             URLClassLoader classLoader = new URLClassLoader(urlList);
             Thread.currentThread().setContextClassLoader(classLoader);
-            
-            mRulesList = new RulesList();
 
             //mMainFrame = new MainFrame(mServerConfiguration.getVersion());
             mMainFrame = new MainFrame("0.0.0 beta 2");
@@ -168,13 +155,8 @@ public final class Galleon implements Constants {
     }
 
     public static void main(String[] args) {
-        // TODO Get everything throug RMI
         if (args.length > 0) {
-            File configureDir = new File(args[0]);
-            if (configureDir.exists() && configureDir.isDirectory())
-                mConfigureDir = configureDir;
-            if (args.length > 1)
-                mServerAddress = args[1];
+            mServerAddress = args[0];
         }
 
         splashWindow.setVisible(true);
@@ -197,15 +179,6 @@ public final class Galleon implements Constants {
         log.info("Max Memory: " + runtime.maxMemory());
         log.info("Total Memory: " + runtime.totalMemory());
         log.info("Free Memory: " + runtime.freeMemory());
-    }
-/*
-    public static ServerConfiguration getServerConfiguration() {
-        return mServerConfiguration;
-    }
-*/    
-
-    public static RulesList getRulesList() {
-        return mRulesList;
     }
 
     public static MainFrame getMainFrame() {
@@ -237,11 +210,12 @@ public final class Galleon implements Constants {
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not get recordings from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
-    
+
     public static List getTiVos() {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
@@ -249,11 +223,12 @@ public final class Galleon implements Constants {
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not get TiVo's from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
-    
+
     public static void updateTiVos(List tivos) {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
@@ -261,10 +236,11 @@ public final class Galleon implements Constants {
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not update TiVo's on server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }    
-    
+    }
+
     public static List getApps() {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
@@ -272,11 +248,12 @@ public final class Galleon implements Constants {
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not get apps from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
-    
+
     public static List getAppDescriptors() {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
@@ -284,71 +261,112 @@ public final class Galleon implements Constants {
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not get app descriptors from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return null;
-    }    
-    
-    public static void removeApp(AppContext app)
-    {
+    }
+
+    public static void removeApp(AppContext app) {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
             serverControl.removeApp(app);
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not remove app from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }    
-    
-    public static void updateApp(AppContext app)
-    {
+    }
+
+    public static void updateApp(AppContext app) {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
             serverControl.updateApp(app);
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not update app from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
-    
-    public static ServerConfiguration getServerConfiguration()
-    {
+
+    public static ServerConfiguration getServerConfiguration() {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
             return serverControl.getServerConfiguration();
         } catch (Exception ex) {
-            Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: " + mServerAddress);
+            Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: "
+                    + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
-    
-    public static void updateServerConfiguration(ServerConfiguration serverConfiguration)
-    {
+
+    public static void updateServerConfiguration(ServerConfiguration serverConfiguration) {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
             serverControl.updateServerConfiguration(serverConfiguration);
         } catch (Exception ex) {
-            Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: " + mServerAddress);
+            Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: "
+                    + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }    
-    
-    public static void updateVideo(Video video)
-    {
+    }
+
+    public static void updateVideo(Video video) {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
             serverControl.updateVideo(video);
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not update video at server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }    
+    }
+
+    public static AppContext createAppContext(AppDescriptor appDescriptor) {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.createAppContext(appDescriptor);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not create app context at server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+
+    public static List getRules() {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getRules();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get rules from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+
+    public static void updateRules(List tivos) {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            serverControl.updateRules(tivos);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not update rules on server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     private static Logger log;
 
@@ -357,10 +375,6 @@ public final class Galleon implements Constants {
     private static MainFrame mMainFrame;
 
     private static String mAddress;
-
-    private static File mConfigureDir;
-
-    private static RulesList mRulesList;
 
     private static Registry mRegistry;
 

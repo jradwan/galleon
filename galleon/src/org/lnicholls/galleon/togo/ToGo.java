@@ -99,45 +99,43 @@ public class ToGo {
 
                         SAXReader saxReader = new SAXReader();
                         Document document = saxReader.read(get.getResponseBodyAsStream());
+                        
+                        // Get the root element
+                        Element root = document.getRootElement(); //<TiVoContainer>
 
                         Date lastChangedDate = new Date();
-                        Node node = document.selectSingleNode("//TiVoContainer/Details/LastChangeDate");
-                        if (node != null) {
-                            try {
-                                lastChangedDate = Tools.hexDate(node.getText());
-                            } catch (NumberFormatException ex) {
+                        Element detailsElement = root.element("Details");
+                        if (detailsElement!=null)
+                        {
+                            Element totalItemsElement = detailsElement.element("TotalItems");
+                            if (totalItemsElement!=null)
+                            {
+                                try {
+                                    total = Integer.parseInt(totalItemsElement.getText());
+                                } catch (NumberFormatException ex) {
+                                }   
+                            }
+                            Element lastChangeDateElement = detailsElement.element("LastChangeDate");
+                            if (lastChangeDateElement!=null)
+                            {
+                                try {
+                                    lastChangedDate = Tools.hexDate(lastChangeDateElement.getText());
+                                } catch (NumberFormatException ex) {
+                                }    
                             }
                         }
-                        node = document.selectSingleNode("//TiVoContainer/Details/TotalItems");
-                        if (node != null) {
-                            try {
-                                total = Integer.parseInt(node.getText());
-                            } catch (NumberFormatException ex) {
-                            }
-                        }
+                        
                         log.debug("lastChangedDate=" + lastChangedDate);
                         log.debug("tivo.getLastChangedDate()=" + tivo.getLastChangedDate());
                         log.debug("total=" + total);
                         log.debug("tivo.getNumShows()=" + tivo.getNumShows());
                         if (lastChangedDate.after(tivo.getLastChangedDate()) || total != tivo.getNumShows()) {
-                            ArrayList copy = (ArrayList) videos.clone();
-                            videos.clear();
-                            Iterator showIterator = copy.listIterator();
-                            while (showIterator.hasNext()) {
-                                Video video = (Video) showIterator.next();
-                                if (!video.getSource().equals(tivo.getAddress())) {
-                                    videos.add(video);
-                                }
-                            }
                             tivo.setLastChangedDate(lastChangedDate);
                             tivo.setNumShows(0);
                         } else {
                             // Nothing changed
                             break;
                         }
-
-                        // Get the root element
-                        Element root = document.getRootElement(); //<TiVoContainer>
 
                         for (Iterator iterator = root.elementIterator(); iterator.hasNext();) {
                             Element child = (Element) iterator.next();
@@ -197,7 +195,7 @@ public class ToGo {
                                     if (element != null) {
                                         String value = Tools.getAttribute(element, "Url");
                                         if (value != null)
-                                            video.setPath(value);
+                                            video.setUrl(value);
                                     }
 
                                     element = links.element("CustomIcon");
@@ -430,7 +428,7 @@ public class ToGo {
         ArrayList videos = new ArrayList();
         GetMethod get = null;
         try {
-            URL url = new URL(video.getPath());
+            URL url = new URL(video.getUrl());
             Protocol protocol = new Protocol("https", new TiVoSSLProtocolSocketFactory(), 443);
             HttpClient client = new HttpClient();
             // TODO How to get TiVo address??
@@ -438,7 +436,7 @@ public class ToGo {
             Credentials credentials = new UsernamePasswordCredentials("tivo", Tools.decrypt(serverConfiguration
                     .getMediaAccessKey()));
             client.getState().setCredentials("TiVo DVR", url.getHost(), credentials);
-            get = new GetMethod(video.getPath());
+            get = new GetMethod(video.getUrl());
             client.executeMethod(get);
 
             if (get.getStatusCode() == 503)
@@ -472,16 +470,19 @@ public class ToGo {
                     } catch (IOException e) {
                     }
 
-                    if (System.currentTimeMillis()-last>10000)
+                    if ((System.currentTimeMillis()-last>10000) && (total>0))
                     {
                         try {
                             video = VideoManager.retrieveVideo(video.getId());
                             if (video.getStatus()==Video.STATUS_DOWNLOADING)
                             {
-                                video.setDownloadSize(total);
                                 diff = (System.currentTimeMillis() - start) / 1000.0;
-                                video.setDownloadTime((int)diff);
-                                VideoManager.updateVideo(video);
+                                if (diff>0)
+                                {
+                                    video.setDownloadSize(total);
+                                    video.setDownloadTime((int)diff);
+                                    VideoManager.updateVideo(video);
+                                }
                             }
                         } catch (HibernateException ex) {
                             log.error("Video update failed", ex);
@@ -498,15 +499,19 @@ public class ToGo {
             diff = (System.currentTimeMillis() - start) / 1000.0;
             output.close();
             if (diff != 0)
-                log.info("Download rate=" + ((total * 8) / 1024) / diff + " Kbps");
-            video.setPath(file.getAbsolutePath());
-
+                log.info("Download rate=" + (total / 1024) / diff + " KBps");
+            try {
+                video.setPath(file.getAbsolutePath());
+                VideoManager.updateVideo(video);
+            } catch (HibernateException ex) {
+                log.error("Video update failed", ex);
+            }
             get.releaseConnection();
         } catch (MalformedURLException ex) {
-            Tools.logException(ToGo.class, ex, video.getPath());
+            Tools.logException(ToGo.class, ex, video.getUrl());
             return false;
         } catch (Exception ex) {
-            Tools.logException(ToGo.class, ex, video.getPath());
+            Tools.logException(ToGo.class, ex, video.getUrl());
             return false;
         }
         return true;
@@ -579,8 +584,7 @@ public class ToGo {
             List recordings = VideoManager.listAll();
 
             // Use rules to pick recording
-            RulesList rulesList = new RulesList();
-            ArrayList rules = rulesList.load();
+            List rules = Server.getServer().getRules();
 
             Iterator iterator = recordings.iterator();
             while (iterator.hasNext()) {

@@ -95,6 +95,7 @@ See the file "COPYING" for more details.
     <property name="path" type="string" not-null="true" length="1024">        
       <column name="path" index="VIDEO_PATH"/>
     </property>    
+    <property name="url" type="string" length="1024"/>        
     <property name="icon" type="string"/>                    
     <property name="choreographers" type="string"/>                        
     <property name="colorCode" type="int" not-null="true"/>    

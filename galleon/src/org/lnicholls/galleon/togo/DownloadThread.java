@@ -65,7 +65,6 @@ public class DownloadThread extends Thread implements Constants {
                     mCancelThread = new CancelThread(mSelectedVideo);
                     mCancelThread.start();
                     boolean success = mToGo.Download(mSelectedVideo, mCancelThread);
-                    log.debug("Picked5: ");
 
                     if (mCancelThread.isAlive()) {
                         mCancelThread.interrupt();

@@ -55,6 +55,7 @@ import org.xml.sax.SAXParseException;
 
 import org.lnicholls.galleon.app.*;
 import org.lnicholls.galleon.server.*;
+import org.lnicholls.galleon.togo.*;
 
 /**
  * Utility class to read the conf/configure.xml file on startup
@@ -70,7 +71,9 @@ public class Configurator implements Constants {
 
     private static String TAG_APP = "app";
     
-    private static String TAG_TIVO = "tivo";    
+    private static String TAG_TIVO = "tivo";
+    
+    private static String TAG_RULE = "rule";
 
     private static String ATTRIBUTE_VERSION = "version";
 
@@ -396,6 +399,33 @@ public class Configurator implements Constants {
                         } catch (IntrospectionException ex) {
                             log.error("Could not load tivo");
                         }
+                    } else if (node.getNodeName().equals(TAG_RULE)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Found Rule");
+                        try {
+                            BeanReader beanReader = new BeanReader();
+                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.registerBeanClass("rule", Rule.class);
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            OutputFormat of = new OutputFormat("XML", ENCODING, true);
+                            XMLSerializer serializer = new XMLSerializer(bos, of);
+                            serializer.asDOMSerializer();
+                            serializer.serialize((Element) node);
+
+                            log.debug("node=" + bos.toString());
+                            StringReader xmlReader = new StringReader(bos.toString());
+                            bos.close();
+
+                            Rule rule = (Rule) beanReader.parse(xmlReader);
+
+                            serverConfiguration.addRule(rule);
+
+                            if (log.isDebugEnabled())
+                                log.debug("Rule=" + rule);
+                        } catch (IntrospectionException ex) {
+                            log.error("Could not load tivo");
+                        }
                     }
                 }
             }
@@ -550,18 +580,39 @@ public class Configurator implements Constants {
 
                         beanWriter.enablePrettyPrint();
 
-                        // Write example bean as base element 'person'
                         beanWriter.write("tivo", tivo);
 
-                        // Write to System.out
-                        // (We could have used the empty constructor for BeanWriter
-                        // but this way is more instructive)
                         buffer.append(outputWriter.toString());
                     } catch (Exception ex) {
                         Tools.logException(Configurator.class, ex, "Could not save tivo: " + tivo.getName());
                     }
                 }                
                 
+                // Rule
+                Rule rule = null;
+                Iterator ruleIterator = serverConfiguration.getRules().iterator();
+                while (ruleIterator.hasNext()) {
+                    try {
+                        rule = (Rule) ruleIterator.next();
+                        log.debug("Rule: " + rule);
+                        StringWriter outputWriter = new StringWriter();
+
+                        // Create a BeanWriter which writes to our prepared stream
+                        BeanWriter beanWriter = new BeanWriter(outputWriter);
+
+                        AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                        appXMLIntrospector.setAttributesForPrimitives(true);
+                        beanWriter.setXMLIntrospector(appXMLIntrospector);
+
+                        beanWriter.enablePrettyPrint();
+
+                        beanWriter.write("rule", rule);
+
+                        buffer.append(outputWriter.toString());
+                    } catch (Exception ex) {
+                        Tools.logException(Configurator.class, ex, "Could not save rule: " + rule.getCriteriaString());
+                    }
+                }                
 
                 buffer.append("</").append(TAG_CONFIGURATION).append(">\n");
             }

@@ -1,13 +1,21 @@
 Galleon
 -------
 
+I recommend deleting the previous beta before installing this beta.
+
+Version 0.0.0 beta 3:
+---------------------
+ToGo bug fixes.
+Weather app.
+Fixed class loading bug for paths with spaces.
+Added ToGo rules configuration to main configuration file.
+
+
 Version 0.0.0 beta 2:
 ---------------------
 ToGo bug fixes.
 ToGo download status bar and download speed.
 Weather app.
-
-I recommend deleting the previous beta before installing this beta.
 
 
 Version 0.0.0 beta 1:
@@ -17,7 +25,7 @@ On your TiVo DVR:
 
    1. Turn on HME. Navigate to System Information and press the following four keys in order : CLEAR CLEAR 0 0. Ignore the sounds.
    2. Return to TiVo Central. Note that Music and Photos changed to Music, Photos and More.
-   3. Enter Music, Photos and More. The samples should be listed.
+   3. Enter Music, Photos and More. 
 
 
 Known issues:

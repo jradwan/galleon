@@ -97,4 +97,19 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     {
         Server.getServer().updateVideo(video);
     }
+    
+    public AppContext createAppContext(AppDescriptor appDescriptor) throws RemoteException
+    {
+        return Server.getServer().createAppContext(appDescriptor);
+    }
+    
+    public List getRules() throws RemoteException
+    {
+        return Server.getServer().getRules();
+    }
+    
+    public void updateRules(List rules) throws RemoteException
+    {
+        Server.getServer().updateRules(rules);
+    }    
 }

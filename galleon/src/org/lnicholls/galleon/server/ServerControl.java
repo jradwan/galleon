@@ -21,6 +21,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.database.Video;
 
 public interface ServerControl extends Remote {
@@ -46,4 +47,10 @@ public interface ServerControl extends Remote {
     public void removeApp(AppContext app) throws RemoteException;
 
     public void updateVideo(Video video) throws RemoteException;
+    
+    public AppContext createAppContext(AppDescriptor appDescriptor) throws RemoteException;
+    
+    public List getRules() throws RemoteException;
+    
+    public void updateRules(List rules) throws RemoteException;
 }

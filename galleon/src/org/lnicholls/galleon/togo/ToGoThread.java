@@ -52,77 +52,84 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                 log.debug("tivos=" + tivos.size());
 
                 ArrayList downloaded = mToGo.getRecordings(tivos, this);
-
-                List recordings = VideoManager.listAll();
-
-                // Remove recordings that dont exist on TiVo anymore
-                Iterator iterator = recordings.listIterator();
-                while (iterator.hasNext()) {
-                    Video next = (Video) iterator.next();
-
-                    if (next.getStatus() != Video.STATUS_DOWNLOADED) {
+                if (downloaded.size()>0)
+                {
+                    log.debug("downloaded.size()=" + downloaded.size());
+                    List recordings = VideoManager.listAll();
+    
+                    // Remove recordings that dont exist on TiVo anymore
+                    Iterator iterator = recordings.listIterator();
+                    while (iterator.hasNext()) {
+                        Video next = (Video) iterator.next();
+    
+                        if (next.getStatus() != Video.STATUS_DOWNLOADED) {
+                            boolean found = false;
+                            Iterator downloadedIterator = downloaded.iterator();
+                            while (downloadedIterator.hasNext()) {
+                                Video video = (Video) downloadedIterator.next();
+                                if (video.equals(next)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                try {
+                                    VideoManager.deleteVideo(next);
+                                } catch (HibernateException ex) {
+                                    log.error("Video delete failed", ex);
+                                }
+                            }
+                        }
+                    }
+                    recordings.clear();
+                    recordings = VideoManager.listAll();
+    
+                    // Update status of recordings
+                    iterator = downloaded.iterator();
+                    while (iterator.hasNext()) {
+                        Video next = (Video) iterator.next();
+    
                         boolean found = false;
-                        Iterator downloadedIterator = downloaded.iterator();
-                        while (downloadedIterator.hasNext()) {
-                            Video video = (Video) downloadedIterator.next();
+                        Iterator recordingsIterator = recordings.iterator();
+                        while (recordingsIterator.hasNext()) {
+                            Video video = (Video) recordingsIterator.next();
                             if (video.equals(next)) {
+                                try {
+                                    if (video.getStatus() == Video.STATUS_DOWNLOADED
+                                            || video.getStatus() == Video.STATUS_DOWNLOADING
+                                            || video.getStatus() == Video.STATUS_USER_SELECTED
+                                            || video.getStatus() == Video.STATUS_USER_CANCELLED)
+                                        next.setStatus(video.getStatus());
+                                    if (video.getStatus() == Video.STATUS_DOWNLOADED)
+                                    {
+                                        next.setPath(video.getPath());
+                                        next.setDownloadSize(video.getDownloadSize());
+                                        next.setDownloadTime(video.getDownloadTime());
+                                    }
+                                    PropertyUtils.copyProperties(video, next);
+                                    VideoManager.updateVideo(video);
+                                } catch (HibernateException ex) {
+                                    log.error("Video update failed", ex);
+                                } catch (Exception ex) {
+                                    log.error("Video properties update failed", ex);
+                                }
                                 found = true;
                                 break;
                             }
                         }
                         if (!found) {
                             try {
-                                VideoManager.deleteVideo(next);
+                                VideoManager.createVideo(next);
                             } catch (HibernateException ex) {
                                 log.error("Video delete failed", ex);
                             }
                         }
                     }
+                    mToGo.applyRules();
+    
+                    recordings.clear();
+                    downloaded.clear();
                 }
-                recordings.clear();
-                recordings = VideoManager.listAll();
-
-                // Update status of recordings
-                iterator = downloaded.iterator();
-                while (iterator.hasNext()) {
-                    Video next = (Video) iterator.next();
-
-                    boolean found = false;
-                    Iterator recordingsIterator = recordings.iterator();
-                    while (recordingsIterator.hasNext()) {
-                        Video video = (Video) recordingsIterator.next();
-                        if (video.equals(next)) {
-                            try {
-                                if (video.getStatus() == Video.STATUS_DOWNLOADED
-                                        || video.getStatus() == Video.STATUS_DOWNLOADING
-                                        || video.getStatus() == Video.STATUS_USER_SELECTED
-                                        || video.getStatus() == Video.STATUS_USER_CANCELLED)
-                                    next.setStatus(video.getStatus());
-                                if (video.getStatus() == Video.STATUS_DOWNLOADED)
-                                    next.setPath(video.getPath());
-                                PropertyUtils.copyProperties(video, next);
-                                VideoManager.updateVideo(video);
-                            } catch (HibernateException ex) {
-                                log.error("Video update failed", ex);
-                            } catch (Exception ex) {
-                                log.error("Video properties update failed", ex);
-                            }
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        try {
-                            VideoManager.createVideo(next);
-                        } catch (HibernateException ex) {
-                            log.error("Video delete failed", ex);
-                        }
-                    }
-                }
-                mToGo.applyRules();
-
-                recordings.clear();
-                downloaded.clear();
 
                 sleep(1000 * 60 * 10);
             } catch (InterruptedException ex) {

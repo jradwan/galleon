@@ -213,11 +213,11 @@ public class Weather extends BApplication {
             icon = new BView(normal, SAFE_TITLE_H, SAFE_TITLE_V + 30, 256, 256);
             icon.setResource("NA.png");
 
-            Resource font = createFont("casual.ttf", Font.BOLD, 60);
+            Resource font = createFont("Dekadens.ttf", Font.BOLD, 60);
             temperatureText = new BText(normal, border_left, SAFE_TITLE_V + 70, text_width - 70, 70);
             temperatureText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             temperatureText.setFont(font);
-            temperatureText.setColor(Color.GREEN);
+            temperatureText.setColor(new Color(127, 235, 192));
             temperatureText.setShadow(Color.black, 3);
 
             conditionsText = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V + 280, 256, 80);

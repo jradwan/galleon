@@ -109,51 +109,51 @@ public class WeatherData implements Serializable {
                 determineAlerts();
             }
         }.start();
-
-        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-            public void reload() {
-                getAllWeather();
-            }
-        }), 12 * 60);
-
-        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-            public void reload() {
-                getCurrentWeather();
-            }
-        }), 30);
         
         Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
             public void reload() {
-                getForecastWeather();
-            }
-        }), 2*60);        
-
-        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-            public void reload() {
-                determineFip();
-                determineAlerts();
-            }
-        }), 10);
-
-        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-            public void reload() {
-                determineLocalRadar();
                 
-                try {
-                    log.debug("mLocalRadar=" + mLocalRadar);
-                    if (mLocalRadar != null)
-                        Tools.cacheImage(new URL(mLocalRadar), mWidth, mHeight);
-                } catch (MalformedURLException ex) {
-                    log.error("Could not download local radar", ex);
+                if (++mTimeCounter%144==0)  // every 720 mins
+                {
+                    getAllWeather();
+                    mTimeCounter = 0;
                 }
-                try {
-                    if (mNationalRadar != null)
-                        Tools.cacheImage(new URL(mNationalRadar), mWidth, mHeight);
-                } catch (MalformedURLException ex) {
-                    log.error("Could not download national radar", ex);
+                else
+                if (mTimeCounter%24==0)  // every 120 mins
+                {
+                    getForecastWeather();    
+                }
+                if (mTimeCounter%6==0)  // every 30 mins
+                {
+                    getCurrentWeather();    
+                }
+                
+                if (mTimeCounter%3==0)  // every 15 mins
+                {
+                    determineLocalRadar();
+                    
+                    try {
+                        log.debug("mLocalRadar=" + mLocalRadar);
+                        if (mLocalRadar != null)
+                            Tools.cacheImage(new URL(mLocalRadar), mWidth, mHeight);
+                    } catch (MalformedURLException ex) {
+                        log.error("Could not download local radar", ex);
+                    }
+                    try {
+                        if (mNationalRadar != null)
+                            Tools.cacheImage(new URL(mNationalRadar), mWidth, mHeight);
+                    } catch (MalformedURLException ex) {
+                        log.error("Could not download national radar", ex);
+                    }
+                }
+                
+                if (mTimeCounter%2==0)  // every 10 mins
+                {
+                    determineFip();
+                    determineAlerts();
                 }
             }
-        }), 15);
+        }), 5);
     }
 
     public static List getLocations(String zip) {
@@ -1388,4 +1388,6 @@ public class WeatherData implements Serializable {
     private int mWidth = -1;
 
     private int mHeight = -1;
+    
+    private int mTimeCounter = 0;
 }

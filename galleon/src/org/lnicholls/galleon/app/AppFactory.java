@@ -206,6 +206,7 @@ public class AppFactory extends Factory {
     }
     
     public AppFactory addApp(AppContext appContext) {
+        log.debug("addApp: "+appContext);
         AppFactory appFactory = null;
 
         if (mAppManager != null) {

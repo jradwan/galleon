@@ -146,7 +146,7 @@ public class ToGo extends BApplication {
 
                 for (int i = 0; i < videoArray.length; i++) {
                     Video video = (Video) videoArray[i];
-                    if (video.getStatus()!=Video.STATUS_RECORDING)
+                    if (video.getStatus()!=Video.STATUS_RECORDING && video.getStatus()!=Video.STATUS_DOWNLOADED)
                         list.add(new ToGoScreen(app, video));
                 }
             } catch (HibernateException ex) {
@@ -452,11 +452,18 @@ public class ToGo extends BApplication {
                     long rate = (mVideo.getDownloadSize()/1024)/mVideo.getDownloadTime();
                     statusText.setValue(mVideo.getStatusString()+": "+rate+" KB/Sec");
                     //speedText.setValue(rate+" KB/Sec");
-                    float barFraction = mVideo.getDownloadSize()/(float)mVideo.getSize();
-                    if ((statusBarBg.width-4)*barFraction<1)
-                        statusBar.setSize(1,statusBar.height);
+                    if (mVideo.getStatus()==Video.STATUS_DOWNLOADED)
+                    {
+                        statusBar.setSize(statusBarBg.width-4,statusBar.height);
+                    }
                     else
-                        statusBar.setSize((int)(barFraction*(statusBarBg.width-4)),statusBar.height);
+                    {
+                        float barFraction = mVideo.getDownloadSize()/(float)mVideo.getSize();
+                        if ((statusBarBg.width-4)*barFraction<1)
+                            statusBar.setSize(1,statusBar.height);
+                        else
+                            statusBar.setSize((int)(barFraction*(statusBarBg.width-4)),statusBar.height);
+                    }
                 }
                 else
                 {
@@ -480,7 +487,8 @@ public class ToGo extends BApplication {
             else
                 list.set(0, "Save to computer");
             
-            flush();
+            if (ToGoScreen.this.getApp().context != null)
+                flush();
         }
         
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -511,12 +519,13 @@ public class ToGo extends BApplication {
                                 log.error("Video retrieve failed", ex);
                             }
                             catch( Exception ex2){}
+                            return;
                         } catch (InterruptedException ex) {
                             return;
                         } // handle silently for waking up
                         catch (Exception ex2) {
-                            ex2.printStackTrace();
                             Tools.logException(ToGoThread.class, ex2);
+                            return;
                         }
                     }
                 }

@@ -30,7 +30,7 @@
 	</appender>
 	
 	<appender name="GuiFile" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="@logs@/log.txt"/>
+		<param name="File" value="@logs@/gui.txt"/>
 		<param name="Threshold" value="DEBUG"/>
 		<param name="MaxFileSize" value="1000KB"/>
 		<param name="MaxBackupIndex" value="3"/>

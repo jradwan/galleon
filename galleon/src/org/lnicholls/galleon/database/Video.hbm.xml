@@ -71,7 +71,7 @@ See the file "COPYING" for more details.
     public static int STATUS_USER_SELECTED = 128;
     
   </meta>          
-    
+  
 		<!--cache usage="read-write" /-->    
     
     <id name="id" type="int" column="ID">
@@ -104,7 +104,7 @@ See the file "COPYING" for more details.
     <property name="execProducers" type="string"/>                                    
     <property name="programGenre" type="string"/>                                        
     <property name="guestStars" type="string"/>                                            
-    <property name="actors" type="string"/>                                                
+    <property name="actors" type="string" length="512"/>    
     <property name="hosts" type="string"/>                                                
     <property name="episodic" type="true_false"/>            
     <property name="originalAirDate" type="timestamp"/>    
@@ -127,6 +127,12 @@ See the file "COPYING" for more details.
     <property name="mimeType" type="string" not-null="true" length="50"/>    
     <property name="source" type="string"/>                                        
     <property name="bookmarks" type="string"/>            
+    <property name="downloadTime" type="int" not-null="true">    
+      <meta attribute="field-description">Download time in seconds</meta>
+    </property>               
+    <property name="downloadSize" type="long" not-null="true">    
+      <meta attribute="field-description">Download size in bytes</meta>
+    </property>                   
   </class>
 
 </hibernate-mapping>

@@ -3,8 +3,11 @@ Galleon
 
 Version 0.0.0 beta 2:
 ---------------------
-ToGo improvements.
-The server needs to be running for the configuration GUI to work.
+ToGo bug fixes.
+ToGo download status bar and download speed.
+Weather app.
+
+I recommend deleting the previous beta before installing this beta.
 
 
 Version 0.0.0 beta 1:
@@ -19,22 +22,18 @@ On your TiVo DVR:
 
 Known issues:
 
-1. GUI does not update server immediately. After making any changes in the GUI, restart the server.
-2. No JavaHMO plugins have been ported to Galleon yet.
+1. The server needs to be running for the configuration GUI to work.
+2. Most JavaHMO plugins have been ported to Galleon yet.
 3. HME apps are deployed in the Galleon apps directory. The readme.txt file contains instructions for the Winamp player.
 4. Galleon requires JDK 1.5
 5. Sections of code have been commented out until all of the JavaHMO code is ported.
-6. The HME ToGo app does not update the status of the recordings when the server starts downloading. You have to exit the app to get the
-status of the shows updated properly.
-7. Weather errors arent handled properly.
-8. Weather web links need parameters.
-9. Weather app removal does not work.
-10. Weather updates creates duplicates.
-11. Cannot determine TiVo's automatically.
-12. Weather currently only uses zip.
-13. Weather alerts do not show all text.
-14. When you start Galleon, it might take some time before the ToGo list is populated.
-15. Forecast for current day does not always have values.
+6. Weather errors arent handled properly.
+7. Weather web links need parameters.
+8. Weather app removal does not work.
+9. Cannot determine TiVo's automatically.
+10. Weather currently only uses zip.
+11. Weather alerts do not show all text.
+12. When you start Galleon, it might take some time before the ToGo list is populated.
 
 
 How to get started:

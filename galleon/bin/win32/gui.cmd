@@ -54,5 +54,6 @@ set classpath=%classpath%;..\lib\bananas.jar
 set classpath=%classpath%;..\lib\commons-httpclient.jar
 set classpath=%classpath%;..\lib\forms.jar
 set classpath=%classpath%;..\lib\looks.jar
+set classpath=%classpath%;..\lib\browserlauncher.jar
 java -Xms32m -Xmx32m org.lnicholls.galleon.gui.Galleon
 set classpath=%oldclasspath%

@@ -36,6 +36,7 @@ import net.sf.hibernate.HibernateException;
 
 import org.jdom.Element;
 import org.lnicholls.galleon.server.*;
+import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.database.*;
 
@@ -212,8 +213,12 @@ public class ToGo extends BApplication {
 
                 BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
                 name.setShadow(true);
+                if (video.getStatus()==Video.STATUS_DOWNLOADING)
+                    name.setFont("default-24-italic.font");
+                else
+                    name.setFont("default-24.font");
                 name.setFlags(RSRC_HALIGN_LEFT);
-                name.setValue(trim(video.getTitle(),35));
+                name.setValue(trim(video.getTitle(),29));
 
                 mCalendar.setTime(video.getDateRecorded());
                 mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
@@ -263,7 +268,7 @@ public class ToGo extends BApplication {
             super(app);
 
             mDateFormat = new SimpleDateFormat();
-            mDateFormat.applyPattern("EEE M/d hh:mma");
+            mDateFormat.applyPattern("EEE M/d hh:mm a");
             mTimeFormat = new SimpleDateFormat();
             mTimeFormat.applyPattern("H:mm");
             mCalendar = new GregorianCalendar();
@@ -285,9 +290,9 @@ public class ToGo extends BApplication {
 
             start += 45;
 
-            descriptionText = new BText(normal, border_left, start, text_width, 80);
+            descriptionText = new BText(normal, border_left, start, text_width, 90);
             descriptionText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
-            descriptionText.setFont("default-18.font");
+            descriptionText.setFont("default-18-bold.font");
             descriptionText.setShadow(true);
 
             start += 85;
@@ -331,10 +336,28 @@ public class ToGo extends BApplication {
             statusText = new BText(normal, border_left, start, text_width, 30);
             statusText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             statusText.setFont("default-24-bolditalic.font");
-            statusText.setColor(new Color(150, 100, 100));
+            //statusText.setColor(new Color(150, 100, 100));
+            statusText.setColor(Color.ORANGE);
             statusText.setShadow(true);
 
             start += 35;
+            
+            statusBarBg = new BView (normal, width - SAFE_TITLE_H - text_width/3, start , text_width/3, 30);
+            statusBarBg.setResource(Color.WHITE);
+            statusBarBg.setTransparency(.5f);
+            statusBarBg.setVisible(false);
+            statusBar = new BView (normal, width - SAFE_TITLE_H - text_width/3 + 2, start + 2, text_width/3-4, 30 - 4);
+            statusBar.setResource(Color.GREEN);
+            statusBar.setVisible(false);
+            /*
+            speedText = new BText(normal, width - SAFE_TITLE_H - text_width/3, start , text_width/3, 30);
+            speedText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | IHmeProtocol.RSRC_VALIGN_CENTER);
+            speedText.setFont("default-18-bold.font");
+            speedText.setColor(Color.BLACK);
+            speedText.setShadow(Color.DARK_GRAY,1);
+            speedText.setValue(" ");
+            speedText.setVisible(false);
+            */
 
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80,
                     (width - (SAFE_TITLE_H * 2)) / 2, 90, 35);
@@ -365,9 +388,11 @@ public class ToGo extends BApplication {
                     location = 0;
                 }
             }
+            else
+                location = 0;
             titleText.setLocation(border_left + location, top);
 
-            titleText.setValue(mVideo.getTitle()==null?"":trim(mVideo.getTitle(),35));
+            titleText.setValue(mVideo.getTitle()==null?"":trim(mVideo.getTitle(),30));
 
             mCalendar.setTime(mVideo.getOriginalAirDate()==null?new Date():mVideo.getOriginalAirDate());
             mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
@@ -396,17 +421,14 @@ public class ToGo extends BApplication {
                     + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
             mCalendar.set(GregorianCalendar.SECOND, 0);
 
-            dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " " + mVideo.getChannelMajorNumber() + " "
+            dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + mVideo.getChannelMajorNumber() + " "
                     + mVideo.getStation());
 
-            //int duration = Math.round(mVideo.getDuration() / 1000 / 60 + 0.5f);
-            int duration = Math.round(mVideo.getDuration() / 1000 / 60);
-            //mCalendar.setTime(new Date(Math.round((mVideo.getDuration() / 1000 / 60 + 0.5f) / 10) * 10));
-            mCalendar.setTime(new Date(Math.round((mVideo.getDuration() / 1000 / 60) / 10) * 10));
-            mCalendar.set(GregorianCalendar.HOUR_OF_DAY, duration / 60);
+            int duration = (int)Math.rint(mVideo.getDuration() / 1000 / 60.0);
+            mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
             mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
             mCalendar.set(GregorianCalendar.SECOND, 0);
-
+            
             durationText.setValue("Duration: " + mTimeFormat.format(mCalendar.getTime()));
 
             ratingText.setValue("Rated: " + (mVideo.getRating()==null?"N/A":mVideo.getRating()));
@@ -418,21 +440,96 @@ public class ToGo extends BApplication {
             sizeText.setValue("Size: " + mNumberFormat.format(mVideo.getSize() / (1024 * 1024)) + " MB");
 
             statusText.setValue(mVideo.getStatusString());
+            
+            if (mVideo.getStatus()==Video.STATUS_DOWNLOADING || mVideo.getStatus()==Video.STATUS_DOWNLOADED)
+            {
+                statusBarBg.setVisible(true);
+                statusBar.setVisible(true);
+                //speedText.setVisible(true);
+                
+                if (mVideo.getDownloadTime()>0)
+                {
+                    long rate = (mVideo.getDownloadSize()/1024)/mVideo.getDownloadTime();
+                    statusText.setValue(mVideo.getStatusString()+": "+rate+" KB/Sec");
+                    //speedText.setValue(rate+" KB/Sec");
+                    float barFraction = mVideo.getDownloadSize()/(float)mVideo.getSize();
+                    if ((statusBarBg.width-4)*barFraction<1)
+                        statusBar.setSize(1,statusBar.height);
+                    else
+                        statusBar.setSize((int)(barFraction*(statusBarBg.width-4)),statusBar.height);
+                }
+                else
+                {
+                    statusText.setValue(mVideo.getStatusString()+": "+"0 KB/Sec");
+                    //speedText.setValue("0 KB/Sec");
+                    statusBar.setVisible(false);
+                }
+            }
+            else
+            {
+                statusBarBg.setVisible(false);
+                statusBar.setVisible(false);
+                //speedText.setVisible(false);
+            }
+            
+            Boolean status = new Boolean(mVideo.getStatus() == Video.STATUS_RULE_MATCHED
+                    || mVideo.getStatus() == Video.STATUS_USER_SELECTED
+                    || mVideo.getStatus() == Video.STATUS_DOWNLOADING);
+            if (status.booleanValue())
+                list.set(0, "Don't save to computer");
+            else
+                list.set(0, "Save to computer");
+            
+            flush();
         }
         
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn)
-        {
-            // TODO Handle recordings that have been removed
-            try {
-                Video updated = VideoManager.retrieveVideo(mVideo.getId());
-                PropertyUtils.copyProperties(mVideo, updated);
-                updateText();
-            } catch (HibernateException ex) {
-                log.error("Video retrieve failed", ex);
-            } catch (Exception ex) {
-                log.error("Video properties update failed", ex);
-            }            
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            if (mUpdateThread!=null && mUpdateThread.isAlive())
+                mUpdateThread.interrupt();
+            
+            mUpdateThread = new Thread() {
+                public void run()
+                {
+                    int counter = 0;
+                    while (true)
+                    {
+                        if (ToGoScreen.this.getApp().context == null)
+                            return;
+                        
+                        try
+                        {
+                            Video updated = VideoManager.retrieveVideo(mVideo.getId());
+                            PropertyUtils.copyProperties(mVideo, updated);
+                            updateText();
+                            if (counter++<10)
+                                sleep(1000 * 5);
+                            else
+                                sleep(1000 * 10);
+                        } catch (HibernateException ex) {
+                            try
+                            {
+                                log.error("Video retrieve failed", ex);
+                            }
+                            catch( Exception ex2){}
+                        } catch (InterruptedException ex) {
+                            return;
+                        } // handle silently for waking up
+                        catch (Exception ex2) {
+                            ex2.printStackTrace();
+                            Tools.logException(ToGoThread.class, ex2);
+                        }
+                    }
+                }
+            };
+            mUpdateThread.start();
             return super.handleEnter(arg, isReturn);
+        }
+        
+        public boolean handleExit() {
+            if (mUpdateThread!=null && mUpdateThread.isAlive())
+                mUpdateThread.interrupt();
+            mUpdateThread = null;
+            return super.handleExit();
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
@@ -454,16 +551,6 @@ public class ToGo extends BApplication {
             return super.handleKeyPress(code, rawcode);
         }
 
-        private void setRecordButtonText() {
-            Boolean status = new Boolean(mVideo.getStatus() == Video.STATUS_RULE_MATCHED
-                    || mVideo.getStatus() == Video.STATUS_USER_SELECTED
-                    || mVideo.getStatus() == Video.STATUS_DOWNLOADING);
-            if (status.booleanValue())
-                list.set(0, "Don't save to computer");
-            else
-                list.set(0, "Save to computer");
-        }
-
         public boolean handleAction(BView view, Object action) {
             if (action.equals("record")) {
                 Boolean status = new Boolean(mVideo.getStatus() == Video.STATUS_RULE_MATCHED
@@ -477,15 +564,15 @@ public class ToGo extends BApplication {
                     getBApp().play("thumbsup.snd");
                 }
 
-                statusText.setValue(mVideo.getStatusString());
-                setRecordButtonText();
-
                 try {
                     log.debug("video: "+mVideo.toString());
-                    VideoManager.updateVideo(mVideo);
-                } catch (HibernateException ex) {
+                    Server.getServer().updateVideo(mVideo);
+                    mVideo = VideoManager.retrieveVideo(mVideo.getId());
+                } catch (Exception ex) {
                     log.error("Video update failed", ex);
                 }
+                
+                updateText();
 
                 return true;
             }
@@ -542,5 +629,9 @@ public class ToGo extends BApplication {
         private BText videoText;
         private BText genreText;
         private BText sizeText;
+        private BView statusBarBg;
+        private BView statusBar;
+        //private BText speedText;
+        private Thread mUpdateThread;
     }
 }

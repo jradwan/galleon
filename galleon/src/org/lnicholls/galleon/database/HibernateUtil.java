@@ -61,6 +61,7 @@ public class HibernateUtil {
             configuration.addClass(Image.class);
             configuration.addClass(Video.class);
             configuration.addClass(Thumbnail.class);
+            configuration.addClass(PersistentValue.class);
 
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {

@@ -54,7 +54,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import org.lnicholls.galleon.app.*;
-import org.lnicholls.galleon.togo.*;
+import org.lnicholls.galleon.server.*;
 
 /**
  * Utility class to read the conf/configure.xml file on startup
@@ -68,7 +68,7 @@ public class Configurator implements Constants {
 
     private static String TAG_SERVER = "server";
 
-    private static String TAG_PLUGIN = "plugin";
+    private static String TAG_APP = "app";
     
     private static String TAG_TIVO = "tivo";    
 
@@ -79,6 +79,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_PORT = "port";
 
     private static String ATTRIBUTE_TITLE = "title";
+    
+    private static String ATTRIBUTE_NAME = "name";
 
     private static String ATTRIBUTE_CLASS = "class";
 
@@ -100,8 +102,7 @@ public class Configurator implements Constants {
 
     private static String ATTRIBUTE_MEDIA_ACCESS_KEY = "mediaAccessKey";    
 
-    public Configurator(ServerConfiguration serverConfiguration) {
-        mServerConfiguration = serverConfiguration;
+    public Configurator() {
     }
     
     public void load(AppManager appManager) {
@@ -128,6 +129,7 @@ public class Configurator implements Constants {
     }
 
     private void loadDocument(AppManager appManager, File file) {
+        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         // Need to handle previous version of configuration file
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         //factory.setValidating(true);
@@ -154,7 +156,7 @@ public class Configurator implements Constants {
                         log.debug(domNode.getNodeName() + ":" + attribute.getNodeName() + "="
                                 + attribute.getNodeValue());
                     loadDocument(domNode, appManager);
-                    if (!attribute.getNodeValue().equals(mServerConfiguration.getVersion()))
+                    if (!attribute.getNodeValue().equals(serverConfiguration.getVersion()))
                         save(appManager);
                 }
             }
@@ -189,8 +191,9 @@ public class Configurator implements Constants {
     }
 
     private void loadDocument(Node configurationNode, AppManager appManager) {
+        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         try {
-            // <server>, <plugin>
+            // <server>, <app>
             for (int i = 0; i < configurationNode.getChildNodes().getLength(); i++) {
                 Node node = configurationNode.getChildNodes().item(i);
                 if (log.isDebugEnabled())
@@ -210,7 +213,7 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 try {
                                     int reload = Integer.parseInt(attribute.getNodeValue());
-                                    mServerConfiguration.setReload(reload);
+                                    serverConfiguration.setReload(reload);
                                 } catch (NumberFormatException ex) {
                                     log.error("Invalid " + ATTRIBUTE_RELOAD + " for " + TAG_SERVER + ": "
                                             + attribute.getNodeValue());
@@ -223,7 +226,7 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 try {
                                     int port = Integer.parseInt(attribute.getNodeValue());
-                                    mServerConfiguration.setConfiguredPort(port);
+                                    serverConfiguration.setConfiguredPort(port);
                                 } catch (NumberFormatException ex) {
                                     log.error("Invalid " + ATTRIBUTE_PORT + " for " + TAG_SERVER + ": "
                                             + attribute.getNodeValue());
@@ -235,7 +238,7 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                mServerConfiguration.setName(attribute.getNodeValue());
+                                serverConfiguration.setName(attribute.getNodeValue());
                             }
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_IP_ADDRESS);
@@ -245,8 +248,8 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 Node attribute2 = namedNodeMap.getNamedItem(ATTRIBUTE_NET_MASK);
                                 if (attribute2 != null) {
-                                    mServerConfiguration.setIPAddress(attribute.getNodeValue());
-                                    mServerConfiguration.setNetMask(attribute2.getNodeValue());
+                                    serverConfiguration.setIPAddress(attribute.getNodeValue());
+                                    serverConfiguration.setNetMask(attribute2.getNodeValue());
                                 } else
                                     log.error("Missing attribute " + ATTRIBUTE_NET_MASK + " for " + TAG_SERVER);
                             }
@@ -256,7 +259,7 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                mServerConfiguration.setShuffleItems(Boolean.valueOf(attribute.getNodeValue())
+                                serverConfiguration.setShuffleItems(Boolean.valueOf(attribute.getNodeValue())
                                         .booleanValue());
                             }
 
@@ -265,7 +268,7 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                mServerConfiguration.setGenerateThumbnails(Boolean.valueOf(attribute.getNodeValue())
+                                serverConfiguration.setGenerateThumbnails(Boolean.valueOf(attribute.getNodeValue())
                                         .booleanValue());
                             }
 
@@ -274,7 +277,7 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                mServerConfiguration.setUseStreamingProxy(Boolean.valueOf(attribute.getNodeValue())
+                                serverConfiguration.setUseStreamingProxy(Boolean.valueOf(attribute.getNodeValue())
                                         .booleanValue());
                             }
                             
@@ -283,7 +286,7 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                mServerConfiguration.setRecordingsPath(Tools.unEscapeXMLChars(URLDecoder.decode(attribute.getNodeValue(), ENCODING)));
+                                serverConfiguration.setRecordingsPath(Tools.unEscapeXMLChars(URLDecoder.decode(attribute.getNodeValue(), ENCODING)));
                             }
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_MEDIA_ACCESS_KEY);
@@ -291,17 +294,17 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue().length());
-                                mServerConfiguration.setMediaAccessKey(attribute.getNodeValue());
+                                serverConfiguration.setMediaAccessKey(attribute.getNodeValue());
                             }
                         }
-                    } else if (node.getNodeName().equals(TAG_PLUGIN)) {
+                    } else if (node.getNodeName().equals(TAG_APP)) {
                         if (log.isDebugEnabled())
-                            log.debug("Found plugin");
+                            log.debug("Found app");
                         NamedNodeMap namedNodeMap = node.getAttributes();
                         if (namedNodeMap != null) {
                             String title = null;
                             String className = null;
-                            Node attribute = namedNodeMap.getNamedItem(ATTRIBUTE_TITLE);
+                            Node attribute = namedNodeMap.getNamedItem(ATTRIBUTE_NAME);
                             // Check for required attributes
                             if (attribute != null) {
                                 if (log.isDebugEnabled())
@@ -309,7 +312,7 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 title = attribute.getNodeValue();
                             } else
-                                log.error("Missing required " + ATTRIBUTE_TITLE + " attribute for " + TAG_PLUGIN);
+                                log.error("Missing required " + ATTRIBUTE_NAME + " attribute for " + TAG_APP);
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_CLASS);
                             if (attribute != null) {
@@ -318,24 +321,23 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 className = attribute.getNodeValue();
                             } else
-                                log.error("Missing required " + ATTRIBUTE_CLASS + " attribute for " + TAG_PLUGIN);
+                                log.error("Missing required " + ATTRIBUTE_CLASS + " attribute for " + TAG_APP);
 
-                            /*
                             if (title != null && className != null) {
-                                Plugin plugin = null;
-                                Iterator pluginDescriptorIterator = pluginManager.getPluginDescriptors();
-                                while (pluginDescriptorIterator.hasNext()) {
-                                    PluginDescriptor pluginDescriptor = (PluginDescriptor) pluginDescriptorIterator
-                                            .next();
+                                className = className.substring(0,className.length()-"Configuration".length());
+                                AppConfiguration appConfiguration = null;
+                                Iterator appDescriptorIterator = appManager.getAppDescriptors().iterator();
+                                while (appDescriptorIterator.hasNext()) {
+                                    AppDescriptor appDescriptor = (AppDescriptor) appDescriptorIterator.next();
                                     if (log.isDebugEnabled())
-                                        log.debug("Compare " + pluginDescriptor.getClassName() + " with " + className);
-                                    if (pluginDescriptor.getClassName().equals(className)) {
-                                        Class pluginClass = pluginManager.loadPlugin(pluginDescriptor);
-                                        if (pluginClass != null) {
+                                        log.debug("Compare " + appDescriptor.getClassName() + " with " + className);
+                                    if (appDescriptor.getClassName().equals(className)) {
+                                        AppContext appContext = new AppContext(appDescriptor);
+                                        if (appContext.getConfiguration() != null) {
                                             try {
                                                 BeanReader beanReader = new BeanReader();
                                                 beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
-                                                beanReader.registerBeanClass("plugin", pluginClass);
+                                                beanReader.registerBeanClass("app", appContext.getConfiguration().getClass());
 
                                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                                                 OutputFormat of = new OutputFormat("XML", ENCODING, true);
@@ -347,25 +349,25 @@ public class Configurator implements Constants {
                                                 StringReader xmlReader = new StringReader(bos.toString());
                                                 bos.close();
 
-                                                plugin = (Plugin) beanReader.parse(xmlReader);
+                                                appConfiguration = (AppConfiguration) beanReader.parse(xmlReader);
+                                                appContext.setConfiguration(appConfiguration);
 
-                                                pluginManager.addPlugin(plugin);
+                                                appManager.createApp(appContext);
 
                                                 if (log.isDebugEnabled())
-                                                    log.debug("Plugin=" + plugin);
+                                                    log.debug("App=" + appContext);
                                             } catch (IntrospectionException ex) {
-                                                log.error("Could not load plugin " + title + " (" + className + ")");
+                                                log.error("Could not load app " + title + " (" + className + ")");
                                             }
                                         } else
-                                            log.error("Could not find plugin " + title + " (" + className + ")");
+                                            log.error("Could not find app " + title + " (" + className + ")");
                                     }
                                 }
 
-                                if (plugin == null) {
-                                    log.error("Could not find plugin " + title + " (" + className + ")");
+                                if (appConfiguration == null) {
+                                    log.error("Could not find app " + title + " (" + className + ")");
                                 }
                             }
-                            */
                         }
                     } else if (node.getNodeName().equals(TAG_TIVO)) {
                         if (log.isDebugEnabled())
@@ -387,7 +389,7 @@ public class Configurator implements Constants {
 
                             TiVo tivo = (TiVo) beanReader.parse(xmlReader);
 
-                            mServerConfiguration.addTiVo(tivo);
+                            serverConfiguration.addTiVo(tivo);
 
                             if (log.isDebugEnabled())
                                 log.debug("TiVo=" + tivo);
@@ -397,7 +399,6 @@ public class Configurator implements Constants {
                     }
                 }
             }
-        /*
         } catch (SAXParseException spe) {
             // Error generated by the parser
             log.error("Parsing error, line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
@@ -419,7 +420,6 @@ public class Configurator implements Constants {
         } catch (IOException ioe) {
             // I/O error
             Tools.logException(Configurator.class, ioe, "Cannot get context");
-*/            
         } catch (Exception ioe) {
             // I/O error
             Tools.logException(Configurator.class, ioe, "Cannot get context");            
@@ -443,17 +443,19 @@ public class Configurator implements Constants {
     }
 
     public void save(AppManager appManager, File configureDir) {
+        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         // Utility class to control the behavior of Commons Betwixt
-        class PluginXMLIntrospector extends XMLIntrospector {
+        class AppXMLIntrospector extends XMLIntrospector {
             public org.apache.commons.betwixt.Descriptor createXMLDescriptor(
                     org.apache.commons.betwixt.BeanProperty beanProperty) {
-                // Dont save the settings of the plugin interface methods
+                // Dont save the settings of the app interface methods
                 if (beanProperty.getPropertyName().equals("lastModified")
                         || beanProperty.getPropertyName().equals("sourceFormat")
                         || beanProperty.getPropertyName().equals("contentType")
                         || beanProperty.getPropertyName().equals("url")
                         || beanProperty.getPropertyName().equals("group")
                         || beanProperty.getPropertyName().equals("url")
+                        || beanProperty.getPropertyName().equals("modified")
                         || beanProperty.getPropertyName().equals("items"))
                     return null;
 
@@ -480,64 +482,59 @@ public class Configurator implements Constants {
             synchronized (buffer) {
                 buffer.append("<?xml version=\"1.0\" encoding=\"").append(ENCODING).append("\"?>\n");
                 buffer.append("<").append(TAG_CONFIGURATION).append(" ").append(ATTRIBUTE_VERSION).append("=\"")
-                        .append(mServerConfiguration.getVersion()).append("\">\n");
+                        .append(serverConfiguration.getVersion()).append("\">\n");
                 // Server
                 buffer.append("<").append(TAG_SERVER).append(" ").append(ATTRIBUTE_TITLE).append("=\"").append(
-                        mServerConfiguration.getName()).append("\" ").append(ATTRIBUTE_RELOAD).append("=\"").append(
-                        mServerConfiguration.getReload()).append("\" ").append(ATTRIBUTE_PORT).append("=\"").append(
-                        mServerConfiguration.getConfiguredPort()).append("\"");
-                if (mServerConfiguration.getIPAddress() != null && mServerConfiguration.getIPAddress().length() > 0)
+                        serverConfiguration.getName()).append("\" ").append(ATTRIBUTE_RELOAD).append("=\"").append(
+                        serverConfiguration.getReload()).append("\" ").append(ATTRIBUTE_PORT).append("=\"").append(
+                        serverConfiguration.getConfiguredPort()).append("\"");
+                if (serverConfiguration.getIPAddress() != null && serverConfiguration.getIPAddress().length() > 0)
                     buffer.append(" ").append(ATTRIBUTE_IP_ADDRESS).append("=\"").append(
-                            mServerConfiguration.getIPAddress()).append("\" ").append(ATTRIBUTE_NET_MASK).append("=\"")
-                            .append(mServerConfiguration.getNetMask()).append("\"");
+                            serverConfiguration.getIPAddress()).append("\" ").append(ATTRIBUTE_NET_MASK).append("=\"")
+                            .append(serverConfiguration.getNetMask()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_SHUFFLE_ITEMS).append("=\"").append(
-                        mServerConfiguration.getShuffleItems()).append("\"");
+                        serverConfiguration.getShuffleItems()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_GENERATE_THUMBNAILS).append("=\"").append(
-                        mServerConfiguration.getGenerateThumbnails()).append("\"");
+                        serverConfiguration.getGenerateThumbnails()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_USE_STREAMING_PROXY).append("=\"").append(
-                        mServerConfiguration.getUseStreamingProxy()).append("\"");
+                        serverConfiguration.getUseStreamingProxy()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_RECORDINGS_PATH).append("=\"").append(
-                        URLEncoder.encode(Tools.escapeXMLChars(mServerConfiguration.getRecordingsPath()), ENCODING)).append("\"");
+                        URLEncoder.encode(Tools.escapeXMLChars(serverConfiguration.getRecordingsPath()), ENCODING)).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_MEDIA_ACCESS_KEY).append("=\"").append(
-                        mServerConfiguration.getMediaAccessKey()).append("\"");
+                        serverConfiguration.getMediaAccessKey()).append("\"");
                 buffer.append("/>\n");
 
-                // Plugins
-                /*
-                Plugin plugin = null;
+                // Apps
+                AppContext appContext = null;
                 Object[] args = new Object[0];
                 Object value = null;
-                Iterator pluginIterator = pluginManager.getPlugins();
-                while (pluginIterator.hasNext()) {
+                Iterator appIterator = appManager.getApps().iterator();
+                while (appIterator.hasNext()) {
                     try {
-                        plugin = (Plugin) pluginIterator.next();
-                        log.debug("Plugin: " + plugin);
+                        appContext = (AppContext) appIterator.next();
+                        log.debug("App: " + appContext);
                         StringWriter outputWriter = new StringWriter();
 
                         // Create a BeanWriter which writes to our prepared stream
                         BeanWriter beanWriter = new BeanWriter(outputWriter);
 
-                        PluginXMLIntrospector pluginXMLIntrospector = new PluginXMLIntrospector();
-                        pluginXMLIntrospector.setAttributesForPrimitives(true);
-                        beanWriter.setXMLIntrospector(pluginXMLIntrospector);
+                        AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                        appXMLIntrospector.setAttributesForPrimitives(true);
+                        beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                         beanWriter.enablePrettyPrint();
 
-                        // Write example bean as base element 'person'
-                        beanWriter.write("plugin", plugin);
+                        beanWriter.write("app", appContext.getConfiguration());
 
-                        // Write to System.out
-                        // (We could have used the empty constructor for BeanWriter
-                        // but this way is more instructive)
                         buffer.append(outputWriter.toString());
                     } catch (Exception ex) {
-                        Tools.logException(Configurator.class, ex, "Could not save plugin: " + plugin.getClass().getName());
+                        Tools.logException(Configurator.class, ex, "Could not save app: " + appContext.getDescriptor().getClassName());
                     }
                 }
-                */
+                
                 // TiVos
                 TiVo tivo = null;
-                Iterator tivoIterator = mServerConfiguration.getTiVos().iterator();
+                Iterator tivoIterator = serverConfiguration.getTiVos().iterator();
                 while (tivoIterator.hasNext()) {
                     try {
                         tivo = (TiVo) tivoIterator.next();
@@ -547,9 +544,9 @@ public class Configurator implements Constants {
                         // Create a BeanWriter which writes to our prepared stream
                         BeanWriter beanWriter = new BeanWriter(outputWriter);
 
-                        PluginXMLIntrospector pluginXMLIntrospector = new PluginXMLIntrospector();
-                        pluginXMLIntrospector.setAttributesForPrimitives(true);
-                        beanWriter.setXMLIntrospector(pluginXMLIntrospector);
+                        AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                        appXMLIntrospector.setAttributesForPrimitives(true);
+                        beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                         beanWriter.enablePrettyPrint();
 
@@ -575,5 +572,5 @@ public class Configurator implements Constants {
         }
     }
 
-    private ServerConfiguration mServerConfiguration;
+    //private ServerConfiguration mServerConfiguration;
 }

@@ -16,29 +16,29 @@ package org.lnicholls.galleon.server;
  * See the file "COPYING" for more details.
  */
 
-import java.io.File;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.util.Tools;
 
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.togo.*;
-
-public class ServerConfiguration {
+public class ServerConfiguration implements Serializable {
 
     private static Logger log = Logger.getLogger(ServerConfiguration.class.getName());
-    
+
     public ServerConfiguration() {
         try {
             System.setProperty("http.agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
         }
-    }    
+        mTiVos = new ArrayList();
+    }
 
     public void setVersion(String version) {
         mVersion = version;
@@ -166,19 +166,22 @@ public class ServerConfiguration {
         return mMediaAccessKey;
     }
 
-    public ArrayList getTiVos() {
+    public List getTiVos() {
         return mTiVos;
+    }
+    
+    public void setTiVos(List tivos) {
+        mTiVos = tivos;
     }
 
     public boolean addTiVo(TiVo tivo) {
         Iterator iterator = mTiVos.iterator();
-        while (iterator.hasNext())
-        {
-            TiVo known  = (TiVo)iterator.next();
+        while (iterator.hasNext()) {
+            TiVo known = (TiVo) iterator.next();
             if (known.getAddress().equals(tivo.getAddress()))
                 return false;
         }
-        
+
         mTiVos.add(tivo);
         return true;
     }
@@ -207,5 +210,5 @@ public class ServerConfiguration {
 
     private String mMediaAccessKey = "";
 
-    private ArrayList mTiVos = new ArrayList();
+    private List mTiVos;
 }

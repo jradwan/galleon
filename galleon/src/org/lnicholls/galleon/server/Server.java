@@ -18,11 +18,13 @@ package org.lnicholls.galleon.server;
 
 import java.awt.Font;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.rmi.registry.Registry;
@@ -35,6 +37,9 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
+import net.sf.hibernate.HibernateException;
+
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
@@ -44,13 +49,14 @@ import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.app.*;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.media.*;
 import org.lnicholls.galleon.togo.*;
 
 import java.rmi.server.*;
 import java.rmi.*;
 import java.rmi.registry.*;
-
 
 /*
  * Main class. Called by service wrapper to initialise and start Galleon.
@@ -68,6 +74,10 @@ public class Server {
             
             for (int i=0;i<errors.size();i++)
                 log.error(errors.get(i));
+            
+            createAppClassLoader();
+            
+            Thread.currentThread().setContextClassLoader(mAppClassLoader);
             
             mRegistry = LocateRegistry.createRegistry(1099);
             mRegistry.bind("serverControl", new ServerControlImpl());             
@@ -177,6 +187,8 @@ public class Server {
         if (log.isDebugEnabled())
             log.debug("start()");
         try {
+            mTiVoListener = new TiVoListener();
+            
             // Start the database
             NetworkServerManager.initialize();
             
@@ -191,10 +203,10 @@ public class Server {
             mShortTermTimer = new Timer();
 
             // Load apps
-            mAppManager = new AppManager();
+            mAppManager = new AppManager(mAppClassLoader);
             
             // Read the conf/configure.xml file
-            mConfigurator = new Configurator(mServerConfiguration);
+            mConfigurator = new Configurator();
             mConfigurator.load(mAppManager);
             
             mPort = getConfiguredPort();
@@ -361,7 +373,7 @@ public class Server {
 
         // Read the conf/configure.xml file
         mConfigurator = null;
-        mConfigurator = new Configurator(mServerConfiguration);
+        mConfigurator = new Configurator();
         mConfigurator.load(mAppManager);
         
         //mAppManager.startPlugins();
@@ -460,7 +472,7 @@ public class Server {
         if (time <= 0)
             time = getReload();
         try {
-            mShortTermTimer.schedule(task, 1000 * 30, time * 1000 * 60);
+            mShortTermTimer.schedule(task, time * 1000 * 60, time * 1000 * 60);
         } catch (IllegalStateException ex) {
             Tools.logException(Server.class, ex);
             // Try again...
@@ -532,7 +544,87 @@ public class Server {
     
     public ServerConfiguration getServerConfiguration() {
         return mServerConfiguration;
-    }    
+    }
+    
+    public void updateServerConfiguration(ServerConfiguration serverConfiguration)
+    {
+        mServerConfiguration = serverConfiguration;
+        /*
+        try {
+            PropertyUtils.copyProperties(mServerConfiguration, serverConfiguration);
+        } catch (Exception ex) {
+            log.error("Server configuration update failed", ex);
+        }
+        */
+        save();
+        mToGoThread.interrupt();
+    }
+    
+    public List getAppDescriptors()
+    {
+        return mAppManager.getAppDescriptors();
+    }
+    
+    public List getApps()
+    {
+        return mAppManager.getApps();
+    }
+    
+    public List getTiVos() 
+    {
+        //return mTiVoListener.getTiVos();
+        return mServerConfiguration.getTiVos();
+    }
+    
+    public void updateTiVos(List tivos)
+    {
+        mServerConfiguration.setTiVos(tivos);
+        save();
+        mToGoThread.interrupt();
+    }
+    
+    public void removeApp(AppContext app)
+    {
+        mAppManager.removeApp(app);
+        save();
+    }
+    
+    public void updateApp(AppContext app)
+    {
+        mAppManager.updateApp(app);
+        save();
+    }
+    
+    public void updateVideo(Video video)
+    {
+        try {
+            VideoManager.updateVideo(video);
+        } catch (HibernateException ex) {
+            log.error("Video update failed", ex);
+        }
+        mDownloadThread.updateVideo(video);
+    }
+    
+    private void createAppClassLoader() {
+        File directory = new File(System.getProperty("apps"));
+        // TODO Handle reloading; what if list changes?
+        File[] files = directory.listFiles(new FileFilter() {
+            public final boolean accept(File file) {
+                return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
+            }
+        });
+        URL urlList[] = new URL[files.length];
+        for (int i = 0; i < files.length; ++i) {
+            log.debug("Found app: " + files[i].getAbsolutePath());
+            try {
+                urlList[i] = files[i].toURL();
+            } catch (Exception ex) {
+                // should never happen
+            }
+        }
+
+        mAppClassLoader = new URLClassLoader(urlList);
+    }
     
     public static void main(String args[]) {
         Server server = getServer();
@@ -560,4 +652,8 @@ public class Server {
     private DownloadThread mDownloadThread;
     
     private static Registry mRegistry;
+    
+    private static TiVoListener mTiVoListener;
+    
+    private static URLClassLoader mAppClassLoader;
 }

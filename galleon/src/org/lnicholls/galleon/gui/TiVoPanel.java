@@ -25,7 +25,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -51,19 +51,13 @@ import javax.swing.table.TableModel;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.togo.*;
+import org.lnicholls.galleon.server.*;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-/**
- * @author Owner
- * 
- * TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code
- * Templates
- */
 public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 
     private static Logger log = Logger.getLogger(TiVoPanel.class.getName());
@@ -90,7 +84,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 
         setLayout(new BorderLayout());
 
-        mTiVos = Galleon.getServerConfiguration().getTiVos();
+        mTiVos = Galleon.getTiVos();
         if (log.isDebugEnabled())
             log.debug("mTiVos=" + mTiVos);
 
@@ -236,7 +230,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
             } catch (Exception ex) {
                 Tools.logException(TiVoPanel.class, ex);
             }
-            Galleon.save(true);
+            Galleon.updateTiVos(mTiVos);
             mUpdating = false;
         } else if ("modify".equals(e.getActionCommand())) {
             mUpdating = true;
@@ -255,7 +249,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                     }
                     mTable.addRowSelectionInterval(selectedRow, selectedRow);
 
-                    Galleon.save(true);
+                    Galleon.updateTiVos(mTiVos);
                 }
             } catch (Exception ex) {
                 Tools.logException(TiVoPanel.class, ex);
@@ -271,7 +265,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                         model.removeRow(selectedRows[i]);
                     }
                 }
-                Galleon.save(true);
+                Galleon.updateTiVos(mTiVos);
             } catch (Exception ex) {
                 Tools.logException(TiVoPanel.class, ex);
             }
@@ -479,5 +473,5 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 
     private boolean mUpdating;
 
-    private ArrayList mTiVos;
+    private List mTiVos;
 }

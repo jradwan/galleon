@@ -18,6 +18,7 @@ package org.lnicholls.galleon.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -29,7 +30,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -62,6 +63,7 @@ import javax.swing.tree.DefaultTreeModel;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.app.*;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -84,15 +86,13 @@ public class MainFrame extends JFrame {
 
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic('F');
-        /*
-        fileMenu.add(new MenuAction("New Plugin...", null, "", new Integer(KeyEvent.VK_N)) {
+        fileMenu.add(new MenuAction("New App...", null, "", new Integer(KeyEvent.VK_N)) {
 
             public void actionPerformed(ActionEvent event) {
-                new AddPluginDialog(JavaHMO.getMainFrame(), JavaHMO.getAppManager()).setVisible(true);
+                new AddAppDialog(Galleon.getMainFrame()).setVisible(true);
             }
 
         });
-        */
         fileMenu.addSeparator();
         fileMenu.add(new MenuAction("Properties...", null, "", new Integer(KeyEvent.VK_P)) {
 
@@ -128,7 +128,7 @@ public class MainFrame extends JFrame {
                 JOptionPane
                         .showMessageDialog(
                                 Galleon.getMainFrame(),
-                                "Galleon Version "+ Tools.getVersion() + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
+                                "Galleon Version "+ Tools.getVersion() + "\nhttp://galleon.sourceforge.net\nGalleon@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
                                 "About", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -163,20 +163,18 @@ public class MainFrame extends JFrame {
     protected JComponent createContentPane() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        //mOptionsPanelManager = new OptionsPanelManager(this);
-        //mOptionsPanelManager.setMinimumSize(new Dimension(200, 100));
-        //mOptionsPanelManager.setPreferredSize(new Dimension(400, 200));
+        mOptionsPanelManager = new OptionsPanelManager(this);
+        mOptionsPanelManager.setMinimumSize(new Dimension(200, 100));
+        mOptionsPanelManager.setPreferredSize(new Dimension(400, 200));
 
-        InternalFrame navigator = new InternalFrame("Plugins");
-        //mPluginTree = new PluginTree(this, getPlugins());
-        //navigator.setContent(createScrollPane(mPluginTree));
-        navigator.setContent(createScrollPane(new JPanel()));
+        InternalFrame navigator = new InternalFrame("Apps");
+        mAppTree = new AppTree(this, getAppsModel());
+        navigator.setContent(createScrollPane(mAppTree));
         navigator.setSelected(true);
         navigator.setMinimumSize(new Dimension(100, 100));
         navigator.setPreferredSize(new Dimension(150, 400));
 
-        //JSplitPane mainSplitPane = createSplitPane(1, navigator, mOptionsPanelManager, 0.25D);
-        JSplitPane mainSplitPane = createSplitPane(1, navigator, new JPanel(), 0.25D);
+        JSplitPane mainSplitPane = createSplitPane(1, navigator, mOptionsPanelManager, 0.25D);
         mainSplitPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         panel.add(mainSplitPane, "Center");
@@ -205,56 +203,76 @@ public class MainFrame extends JFrame {
         return split;
     }
 
-    /*
-    public void handlePluginSelection(PluginNode pluginNode) {
-        mOptionsPanelManager.setSelectedOptionsPanel(pluginNode);
+    public void handleAppSelection(AppNode appNode) {
+        mOptionsPanelManager.setSelectedOptionsPanel(appNode);
     }
-    */
 
-    public DefaultTreeModel getPlugins() {
+    public DefaultTreeModel getAppsModel() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("ROOT");
-        /*
-        Iterator iterator = JavaHMO.getAppManager().getPlugins();
+        Iterator iterator = Galleon.getApps().iterator();
         while (iterator.hasNext()) {
-            Plugin plugin = (Plugin) iterator.next();
-            root.add(new DefaultMutableTreeNode(getPluginNode(plugin)));
+            AppContext app = (AppContext) iterator.next();
+            root.add(new DefaultMutableTreeNode(getAppNode(app)));
         }
-        */
         return new DefaultTreeModel(root);
     }
-/*
-    private PluginNode getPluginNode(Plugin plugin) {
-        PluginDescriptor pluginDescriptor = JavaHMO.getAppManager().getPluginDescriptor(plugin);
+
+    private AppNode getAppNode(AppContext app) {
+        AppDescriptor appDescriptor = app.getDescriptor();
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        
+        AppConfigurationPanel appConfigurationPanel = null;
+        try {
+            Class configurationPanel = classLoader.loadClass(appDescriptor.getConfigurationPanel());
+            
+            Class[] parameters = new Class[1];
+            parameters[0] = AppConfiguration.class;
+            Constructor constructor = configurationPanel.getConstructor(parameters);
+            AppConfiguration[] values = new AppConfiguration[1];
+            values[0] = app.getConfiguration(); 
+
+            appConfigurationPanel = (AppConfigurationPanel)constructor.newInstance(values);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel " + appDescriptor.getIcon()
+                    + " for app " + appDescriptor.getClassName());
+        }        
+        
         ImageIcon icon = null;
         try {
-            if (pluginDescriptor.getIcon() != null && pluginDescriptor.getIcon().length() > 0) {
-                icon = new ImageIcon(plugin.getClass().getClassLoader().getResource(pluginDescriptor.getIcon()));
+            if (appDescriptor.getIcon() != null && appDescriptor.getIcon().length() > 0) {
+                String pkg = Tools.getPackage(appDescriptor.getClassName());
+                URL url = classLoader.getResource(pkg + "/" + appDescriptor.getIcon());
+                if (url==null)
+                    url = classLoader.getResource(appDescriptor.getIcon());
+                icon = new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
             }
         } catch (Exception ex) {
-            HMOTools.logException(OptionsPanelManager.class, ex, "Could not load icon " + pluginDescriptor.getIcon()
-                    + " for plugin " + pluginDescriptor.getClassName());
+            Tools.logException(OptionsPanelManager.class, ex, "Could not load icon " + appDescriptor.getIcon()
+                    + " for app " + appDescriptor.getClassName());
         }
+        
+        AppNode appNode = new AppNode(app, icon, appConfigurationPanel);
 
-        return new PluginNode(pluginDescriptor, plugin, icon);
+        return appNode;
     }
 
-    public void addPlugin(Plugin plugin) {
+    public void addApp(AppContext app) {
         if (log.isDebugEnabled())
-            log.debug("addPlugin: " + plugin);
-        JavaHMO.getAppManager().addPlugin(plugin);
-        mPluginTree.addPlugin(getPluginNode(plugin));
+            log.debug("addApp: " + app);
+        mAppTree.addApp(getAppNode(app));
     }
 
-    public void removePlugin(Plugin plugin) {
+    public void removeApp(AppContext app) {
         if (log.isDebugEnabled())
-            log.debug("removePlugin: " + plugin);
-        PluginNode pluginNode = getPluginNode(plugin);
-        JavaHMO.getAppManager().removePlugin(plugin);
-        mPluginTree.removePlugin(pluginNode);
+            log.debug("removeApp: " + app);
+        AppNode appNode = getAppNode(app);
+        Galleon.removeApp(app);
+        mAppTree.removeApp(appNode);
     }
-*/
+
     public void refresh() {
-        //mPluginTree.refresh();
+        mAppTree.refresh();
     }
 
     class MenuAction extends AbstractAction {
@@ -268,23 +286,22 @@ public class MainFrame extends JFrame {
         }
     }
 
-/*
-    public class AddPluginDialog extends JDialog implements ActionListener, ItemListener, KeyListener {
+    public class AddAppDialog extends JDialog implements ActionListener, ItemListener, KeyListener {
 
-        class PluginDescriptorWrapper {
-            public PluginDescriptorWrapper(PluginDescriptor pluginDescriptor) {
-                mPluginDescriptor = pluginDescriptor;
+        class AppDescriptorWrapper {
+            public AppDescriptorWrapper(AppDescriptor appDescriptor) {
+                mAppDescriptor = appDescriptor;
             }
 
             public String toString() {
-                return mPluginDescriptor.getName();
+                return mAppDescriptor.getTitle();
             }
 
-            PluginDescriptor mPluginDescriptor;
+            AppDescriptor mAppDescriptor;
         }
 
-        private AddPluginDialog(JFrame frame, PluginManager pluginManager) {
-            super(frame, "New Plugin", true);
+        private AddAppDialog(JFrame frame) {
+            super(frame, "New App", true);
 
             mNameField = new JTextField();
             mNameField.addKeyListener(this);
@@ -300,25 +317,25 @@ public class MainFrame extends JFrame {
             mAuthorHomeField.setEditable(false);
             mDocumentationField = new JTextPane();
             mDocumentationField.setEditable(false);
-            mPluginsCombo = new JComboBox();
-            mPluginsCombo.addItemListener(this);
+            mAppsCombo = new JComboBox();
+            mAppsCombo.addItemListener(this);
 
             JScrollPane paneScrollPane = new JScrollPane(mDocumentationField);
             paneScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             paneScrollPane.setPreferredSize(new Dimension(250, 150));
             paneScrollPane.setMinimumSize(new Dimension(10, 10));
 
-            Iterator iterator = pluginManager.getPluginDescriptors();
+            Iterator iterator = Galleon.getAppDescriptors().iterator();
             String items[] = new String[0];
             while (iterator.hasNext()) {
-                PluginDescriptor pluginDescriptor = (PluginDescriptor) iterator.next();
-                mPluginsCombo.addItem(new PluginDescriptorWrapper(pluginDescriptor));
+                AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
+                mAppsCombo.addItem(new AppDescriptorWrapper(appDescriptor));
             }
 
             getContentPane().setLayout(new BorderLayout());
 
             FormLayout layout = new FormLayout("right:pref, 3dlu, 150dlu:g, 3dlu, right:pref:grow", "pref, " + //name
-                    "9dlu, " + "pref, " + //plugins
+                    "9dlu, " + "pref, " + //apps
                     "3dlu, " + "pref, " + //type
                     "9dlu, " + "pref, " + //description
                     "3dlu, " + "pref, " + //version
@@ -337,9 +354,9 @@ public class MainFrame extends JFrame {
 
             builder.addLabel("Title", cc.xy(1, 1));
             builder.add(mNameField, cc.xy(3, 1));
-            builder.addSeparator("Plugins", cc.xyw(1, 3, 5));
+            builder.addSeparator("Apps", cc.xyw(1, 3, 5));
             builder.addLabel("Type", cc.xy(1, 5));
-            builder.add(mPluginsCombo, cc.xy(3, 5));
+            builder.add(mAppsCombo, cc.xy(3, 5));
             builder.addSeparator("Description", cc.xyw(1, 7, 5));
             builder.add(paneScrollPane, cc.xywh(5, 9, 1, 11, CellConstraints.RIGHT, CellConstraints.TOP));
             builder.addLabel("Version", cc.xy(1, 9));
@@ -378,30 +395,21 @@ public class MainFrame extends JFrame {
 
         public void actionPerformed(ActionEvent e) {
             if ("ok".equals(e.getActionCommand())) {
-                PluginDescriptor pluginDescriptor = ((PluginDescriptorWrapper) mPluginsCombo.getSelectedItem()).mPluginDescriptor;
+                AppDescriptor appDescriptor = ((AppDescriptorWrapper) mAppsCombo.getSelectedItem()).mAppDescriptor;
                 try {
-                    PluginClassLoader pluginClassLoader = new PluginClassLoader(pluginDescriptor);
-                    Class theClass = Class.forName(pluginDescriptor.getClassName(), true, pluginClassLoader);
-                    Plugin plugin = (Plugin) theClass.newInstance();
-
-                    // TODO Find better way of setting the title
-                    Class[] parameters = new Class[1];
-                    parameters[0] = String.class;
-                    Method method = theClass.getMethod("setTitle", parameters);
-                    String[] values = new String[1];
-                    values[0] = mNameField.getText();
-                    method.invoke(plugin, values);
-
-                    addPlugin(plugin);
+                    AppContext app = new AppContext(appDescriptor);
+                    app.getConfiguration().setName(mNameField.getText());
+                    addApp(app);
                 } catch (Exception ex) {
-                    HMOTools.logException(MainFrame.class, ex, "Could not add plugin : " + pluginDescriptor);
+                    ex.printStackTrace();
+                    Tools.logException(AddAppDialog.class, ex, "Could not add app : " + appDescriptor);
                 }
             } else if ("help".equals(e.getActionCommand())) {
                 try {
-                    URL url = getClass().getClassLoader().getResource("newplugin.html");
+                    URL url = getClass().getClassLoader().getResource("newapp.html");
                     displayHelp(url);
                 } catch (Exception ex) {
-                    HMOTools.logException(OptionsPanelManager.class, ex, "Could not find new plugin help ");
+                    Tools.logException(AddAppDialog.class, ex, "Could not find new app help ");
                 }
                 return;
             }
@@ -411,13 +419,13 @@ public class MainFrame extends JFrame {
         public void itemStateChanged(ItemEvent e) {
             int state = e.getStateChange();
             if (state == ItemEvent.SELECTED) {
-                PluginDescriptor pluginDescriptor = ((PluginDescriptorWrapper) mPluginsCombo.getSelectedItem()).mPluginDescriptor;
-                mVersionField.setText(pluginDescriptor.getVersion());
-                mReleaseDateField.setText(pluginDescriptor.getReleaseDate());
-                mAuthorNameField.setText(pluginDescriptor.getAuthorName());
-                mAuthorEmailField.setText(pluginDescriptor.getAuthorEmail());
-                mAuthorHomeField.setText(pluginDescriptor.getAuthorHomepage());
-                mDocumentationField.setText(pluginDescriptor.getDescription());
+                AppDescriptor appDescriptor = ((AppDescriptorWrapper) mAppsCombo.getSelectedItem()).mAppDescriptor;
+                mVersionField.setText(appDescriptor.getVersion());
+                mReleaseDateField.setText(appDescriptor.getReleaseDate());
+                mAuthorNameField.setText(appDescriptor.getAuthorName());
+                mAuthorEmailField.setText(appDescriptor.getAuthorEmail());
+                mAuthorHomeField.setText(appDescriptor.getAuthorHomepage());
+                mDocumentationField.setText(appDescriptor.getDescription());
             } else {
                 mVersionField.setText("");
                 mReleaseDateField.setText("");
@@ -437,10 +445,10 @@ public class MainFrame extends JFrame {
         public void keyReleased(KeyEvent e) {
             String name = mNameField.getText();
             if (name.length() > 0) {
-                Iterator iterator = JavaHMO.getAppManager().getApps();
+                Iterator iterator = Galleon.getApps().iterator();
                 while (iterator.hasNext()) {
-                    Plugin plugin = (Plugin) iterator.next();
-                    if (plugin.getTitle().equals(name)) {
+                    AppContext app = (AppContext) iterator.next();
+                    if (app.getConfiguration().getName().equals(name)) {
                         mOKButton.setEnabled(false);
                         return;
                     }
@@ -454,7 +462,7 @@ public class MainFrame extends JFrame {
 
         private JTextField mNameField;
 
-        private JComboBox mPluginsCombo;
+        private JComboBox mAppsCombo;
 
         private JTextField mVersionField;
 
@@ -471,8 +479,8 @@ public class MainFrame extends JFrame {
         private JButton mOKButton;
 
     }
-*/    
 
+    
     public class ServerDialog extends JDialog implements ActionListener {
 
         class ReloadWrapper extends NameValue {
@@ -629,7 +637,7 @@ public class MainFrame extends JFrame {
                     mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
                     mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText()));
 
-                    Galleon.save(false);
+                    Galleon.updateServerConfiguration(mServerConfiguration);
                 } catch (Exception ex) {
                     Tools.logException(MainFrame.class, ex, "Could not configure server");
                 }
@@ -640,7 +648,7 @@ public class MainFrame extends JFrame {
                     URL url = getClass().getClassLoader().getResource("server.html");
                     displayHelp(url);
                 } catch (Exception ex) {
-                    //Tools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
+                    Tools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
                 }
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 return;
@@ -658,7 +666,6 @@ public class MainFrame extends JFrame {
                         return false;
                     }
 
-                    //The description of this filter
                     public String getDescription() {
                         return "Directories";
                     }
@@ -713,9 +720,9 @@ public class MainFrame extends JFrame {
         mHelpDialog.setVisible(true);
     }
 
-    //private PluginTree mPluginTree;
+    private AppTree mAppTree;
 
-    //private OptionsPanelManager mOptionsPanelManager;
+    private OptionsPanelManager mOptionsPanelManager;
 
     private HelpDialog mHelpDialog;
 }

@@ -37,43 +37,83 @@ public class DownloadThread extends Thread implements Constants {
         mServer = server;
         setPriority(Thread.MIN_PRIORITY);
 
-        mToGo = new ToGo(server.getServerConfiguration());
+        mToGo = new ToGo();
     }
 
     public void run() {
         while (true) {
             try {
-                boolean retry = false;
-                Video next = mToGo.pickNextVideoForDownloading();
+                if (mSelectedVideo == null)
+                    mSelectedVideo = mToGo.pickNextVideoForDownloading();
+                
+                if (mSelectedVideo != null) {
 
-                if (next != null) {
                     if (log.isDebugEnabled())
-                        log.debug("Picked: " + next);
-                    
-                    next.setStatus(Video.STATUS_DOWNLOADING);
-                    VideoManager.updateVideo(next);
+                        log.debug("Picked: " + mSelectedVideo);
 
-                    CancelThread cancelThread = new CancelThread(next);
-                    cancelThread.start();
-                    boolean success = mToGo.Download(next, cancelThread);
+                    mDownloading = true;
+
+                    mSelectedVideo.setStatus(Video.STATUS_DOWNLOADING);
+                    mSelectedVideo.setDownloadSize(0);
+                    mSelectedVideo.setDownloadTime(0);
+                    VideoManager.updateVideo(mSelectedVideo);
+                    
+                    synchronized (this) {
+                        notifyAll();
+                    }
+                    
+                    mCancelThread = new CancelThread(mSelectedVideo);
+                    mCancelThread.start();
+                    boolean success = mToGo.Download(mSelectedVideo, mCancelThread);
+                    log.debug("Picked5: ");
+
+                    if (mCancelThread.isAlive()) {
+                        mCancelThread.interrupt();
+                    }
 
                     if (success) {
-                        if (cancelThread.isAlive()) {
-                            cancelThread.interrupt();
-                        }
-
-                        if (!cancelThread.cancel()) {
+                        if (!mCancelThread.cancel()) {
                             // TODO Track download stats
-                            next.setStatus(Video.STATUS_DOWNLOADED);
-                            VideoManager.updateVideo(next);
+                            mSelectedVideo = VideoManager.retrieveVideo(mSelectedVideo.getId());
+                            mSelectedVideo.setStatus(Video.STATUS_DOWNLOADED);
+                            VideoManager.updateVideo(mSelectedVideo);
                         }
                     }
                 } else
                     sleep(1000 * 30);
+                mSelectedVideo = null;
             } catch (InterruptedException ex) {
             } // handle silently for waking up
             catch (Exception ex2) {
                 Tools.logException(ToGoThread.class, ex2);
+            } finally {
+                if (mCancelThread != null && mCancelThread.isAlive()) {
+                    mCancelThread.interrupt();
+                }
+                mCancelThread = null;
+                mDownloading = false;
+            }
+        }
+    }
+
+    public void updateVideo(Video video) {
+        if (video.getStatus() == Video.STATUS_USER_SELECTED) {
+            if (!mDownloading) {
+                mSelectedVideo = mToGo.pickNextVideoForDownloading();
+                this.interrupt();
+                synchronized (this) {
+                    try {
+                        wait();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        } else if (video.getStatus() == Video.STATUS_USER_CANCELLED) {
+            if (mDownloading && mSelectedVideo.getId().equals(video.getId())) {
+                if (mCancelThread != null && mCancelThread.isAlive()) {
+                    mCancelThread.setCancel(true);
+                    mCancelThread.interrupt();
+                }
             }
         }
     }
@@ -90,13 +130,13 @@ public class DownloadThread extends Thread implements Constants {
             while (!mCancel) {
                 try {
                     mVideo = VideoManager.retrieveVideo(mVideo.getId());
-                    
+
                     if (mVideo.getStatus() == Video.STATUS_USER_CANCELLED) {
                         log.info("Download cancelled by user: " + mVideo.getTitle());
                         mCancel = true;
                         break;
                     }
-                    sleep(1000 * 60 * 1);
+                    sleep(1000 * 30 * 1);
                 } catch (InterruptedException ex) {
                     return;
                 } // handle silently for waking up
@@ -110,6 +150,10 @@ public class DownloadThread extends Thread implements Constants {
             return mCancel;
         }
 
+        public void setCancel(boolean cancel) {
+            mCancel = cancel;
+        }
+
         private Video mVideo;
 
         private boolean mCancel;
@@ -119,7 +163,9 @@ public class DownloadThread extends Thread implements Constants {
 
     private ToGo mToGo;
 
-    public void setServerConfiguration(ServerConfiguration value) {
-        mToGo.setServerConfiguration(value);
-    }
+    private Video mSelectedVideo;
+
+    private boolean mDownloading;
+
+    private CancelThread mCancelThread;
 }

@@ -52,6 +52,7 @@ set classpath=%classpath%;..\lib\concurrent.jar
 set classpath=%classpath%;..\lib\mp3dings.jar
 set classpath=%classpath%;..\lib\bananas.jar
 set classpath=%classpath%;..\lib\commons-httpclient.jar
+set classpath=%classpath%;..\lib\commons-codec.jar
 set path=%path%;..\lib;
 set option=
 if exist "%JAVA_HOME%/bin/server" set option=-server

@@ -41,13 +41,14 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
         mServer = server;
         setPriority(Thread.MIN_PRIORITY);
 
-        mToGo = new ToGo(server.getServerConfiguration());
+        mToGo = new ToGo();
     }
 
     public void run() {
         while (true) {
             try {
-                ArrayList tivos = (ArrayList) mToGo.getServerConfiguration().getTiVos().clone();
+                ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+                List tivos = (List) serverConfiguration.getTiVos();
                 log.debug("tivos=" + tivos.size());
 
                 ArrayList downloaded = mToGo.getRecordings(tivos, this);
@@ -55,7 +56,6 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                 List recordings = VideoManager.listAll();
 
                 // Remove recordings that dont exist on TiVo anymore
-                log.debug("recordings1=" + recordings.size());
                 Iterator iterator = recordings.listIterator();
                 while (iterator.hasNext()) {
                     Video next = (Video) iterator.next();
@@ -79,10 +79,8 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                         }
                     }
                 }
-                log.debug("recordings2=" + recordings.size());
                 recordings.clear();
                 recordings = VideoManager.listAll();
-                log.debug("recordings3=" + recordings.size());
 
                 // Update status of recordings
                 iterator = downloaded.iterator();
@@ -96,7 +94,9 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                         if (video.equals(next)) {
                             try {
                                 if (video.getStatus() == Video.STATUS_DOWNLOADED
-                                        || video.getStatus() == Video.STATUS_DOWNLOADING)
+                                        || video.getStatus() == Video.STATUS_DOWNLOADING
+                                        || video.getStatus() == Video.STATUS_USER_SELECTED
+                                        || video.getStatus() == Video.STATUS_USER_CANCELLED)
                                     next.setStatus(video.getStatus());
                                 if (video.getStatus() == Video.STATUS_DOWNLOADED)
                                     next.setPath(video.getPath());
@@ -121,7 +121,6 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                 }
                 mToGo.applyRules();
 
-                tivos.clear();
                 recordings.clear();
                 downloaded.clear();
 
@@ -138,12 +137,8 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
         if (log.isDebugEnabled())
             log.debug(value);
     }
-
+    
     private Server mServer;
 
     private ToGo mToGo;
-
-    public void setServerConfiguration(ServerConfiguration value) {
-        mToGo.setServerConfiguration(value);
-    }
 }

@@ -261,9 +261,7 @@ public class RecordedPanel extends JPanel {
                 return mDateFormat.format(mCalendar.getTime());
             case 4:
                 // Round off to closest minute
-                //int duration = Math.round((show.getDuration()/1000/60+0.5f)/10)*10;
-                int duration = Math.round(show.getDuration() / 1000 / 60 + 0.5f);
-                mCalendar.setTime(new Date(Math.round((show.getDuration() / 1000 / 60 + 0.5f) / 10) * 10));
+                int duration = (int)Math.rint(show.getDuration() / 1000 / 60.0);
                 mCalendar.set(GregorianCalendar.HOUR_OF_DAY, duration / 60);
                 mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
@@ -273,7 +271,7 @@ public class RecordedPanel extends JPanel {
             case 6:
                 return show.getStatusString()==null?"":show.getStatusString();
             case 7:
-                return show.getDescription().length() != 0 ? show.getDescription() : " ";
+                return show.getDescription() == null ? " " : show.getDescription();
             case 8:
                 return show.getChannel() + " " + show.getStation();
             case 9:
@@ -307,26 +305,7 @@ public class RecordedPanel extends JPanel {
                 else    
                     show.setStatus(Video.STATUS_USER_CANCELLED);
                 
-                boolean found = false;
-                /*
-                ToGoList togoList = new ToGoList();
-                ArrayList downloads = togoList.load();
-                Iterator recordedIterator = downloads.iterator();
-                while (recordedIterator.hasNext())
-                {
-                    Show downloaded = (Show)recordedIterator.next();
-                    
-                    if (downloaded.equals(show))
-                    {
-                        downloaded.setStatus(show.getStatus());
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    downloads.add(show);
-                togoList.save(downloads);
-                */
+                Galleon.updateVideo(show);
             }
             fireTableDataChanged();
         }
@@ -447,14 +426,19 @@ public class RecordedPanel extends JPanel {
             //setFont(mFont);
             if (column == 1) {
                 Video show = (Video) mRecorded.get(row);
-                if (show.getIcon().equals("in-progress-recording"))
-                    setIcon(mRedIcon);
-                else if (show.getIcon().equals("expires-soon-recording"))
-                    setIcon(mYellowIcon);
-                else if (show.getIcon().equals("expired-recording"))
-                    setIcon(mYellowExclamationIcon);
-                else if (show.getIcon().equals("save-until-i-delete-recording"))
-                    setIcon(mGreenIcon);
+                if (show.getIcon()!=null)
+                {
+                    if (show.getIcon().equals("in-progress-recording"))
+                        setIcon(mRedIcon);
+                    else if (show.getIcon().equals("expires-soon-recording"))
+                        setIcon(mYellowIcon);
+                    else if (show.getIcon().equals("expired-recording"))
+                        setIcon(mYellowExclamationIcon);
+                    else if (show.getIcon().equals("save-until-i-delete-recording"))
+                        setIcon(mGreenIcon);
+                    else
+                        setIcon(mEmptyIcon);
+                }
                 else
                     setIcon(mEmptyIcon);
 
@@ -509,14 +493,34 @@ public class RecordedPanel extends JPanel {
         
         mRecorded.clear();
         mTitleField.setText("Retrieving recording data from your TiVo(s)...");
-        mRecorded = Galleon.getRecordings();
-        
-        Collections.sort(mRecorded, new ShowComparator(3, false));
-        ShowTableData model = (ShowTableData) mTable.getModel();
-        model.fireTableDataChanged();
-        if (model.getRowCount() > 0)
-            mTable.setRowSelectionInterval(0, 0);
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        new Thread() {
+            public void run()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        mRecorded = Galleon.getRecordings();
+                        if (mRecorded==null || RecordedPanel.this.mRecorded.size()==0)
+                            sleep(1000*5);
+                        else
+                        {
+                            Collections.sort(mRecorded, new ShowComparator(3, false));
+                            ShowTableData model = (ShowTableData) mTable.getModel();
+                            model.fireTableDataChanged();
+                            if (model.getRowCount() > 0)
+                                mTable.setRowSelectionInterval(0, 0);
+                            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return;
+                    }
+                }
+            }
+        }.start();
     }
     
     public void updateTable()

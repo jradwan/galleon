@@ -19,210 +19,114 @@ package org.lnicholls.galleon.app;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URL;
 import java.util.Enumeration;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import java.net.*;
-import java.io.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
- * Plugin descriptor class extracts the plugin.xml file from the plugin jar and determines the plugin properties
+ * App descriptor class extracts the manifest file from the app jar and determines the app properties
  */
-public class AppDescriptor {
+public class AppDescriptor implements Serializable {
     private static Logger log = Logger.getLogger(AppDescriptor.class.getName());
+
+    private static final String TITLE = "Title";
+
+    private static final String ICON = "Icon";
+
+    private static final String RELEASE_DATE = "ReleaseDate";
+
+    private static final String DESCRIPTION = "Description";
+
+    private static final String DOCUMENTATION = "Documentation";
+
+    private static final String AUTHOR_NAME = "AuthorName";
+
+    private static final String AUTHOR_EMAIL = "AuthorEmail";
+
+    private static final String AUTHOR_HOMEPAGE = "AuthorHomepage";
+
+    private static final String VERSION = "Version";
+
+    private static final String CONFIGURATION_PANEL = "ConfigurationPanel";
+
+    private static final String CONFIGURATION = "Configuration";
 
     public AppDescriptor(File jar) throws IOException, AppException {
         mJar = jar;
-        
-        mZipFile = new JarFile(jar);
-        Enumeration entries = mZipFile.entries();
+
+        JarFile zipFile = new JarFile(jar);
+        Enumeration entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
             String name = entry.getName();
-            if (log.isDebugEnabled())
-                log.debug("zip entry:" + name);
-            if (name.equals("plugin.xml")) {
-                getDescriptor(entry);
-                break;
-            }
-        }
-        mZipFile.close();
-    }
+            if (name.toUpperCase().equals(JarFile.MANIFEST_NAME)) {
+                InputStream in = null;
+                try {
+                    in = zipFile.getInputStream(entry);
+                    Manifest manifest = new Manifest(in);
+                    Attributes attributes = manifest.getMainAttributes();
+                    if (attributes.getValue("Main-Class") != null) {
+                        mClassName = (String) attributes.getValue("Main-Class");
+                        if (attributes.getValue("HME-Arguments") != null)
+                            mArguments = (String) attributes.getValue("HME-Arguments");
+                    }
 
-    private void getDescriptor(ZipEntry entry) throws AppException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        //factory.setValidating(true);
-        //factory.setNamespaceAware(true);
-        InputStream in = null;
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            in = mZipFile.getInputStream(entry);
-            Document document = builder.parse(in);
-            if (log.isDebugEnabled())
-                log.debug("document:" + document.getNodeName());
-
-            // <plugin>
-            Node domNode = document.getFirstChild();
-
-            if (domNode.getNodeName().equalsIgnoreCase("plugin")) {
-                NamedNodeMap namedNodeMap = domNode.getAttributes();
-                if (namedNodeMap != null) {
-                    // Check for required attributes
-                    Node attribute = namedNodeMap.getNamedItem("name");
-                    if (attribute != null)
-                        setName(attribute.getNodeValue());
-                    else
-                        throw new AppException("Missing name attribute for plugin descriptor: " + mJar.toString());
-                    attribute = namedNodeMap.getNamedItem("class");
-                    if (attribute != null)
-                        setClassName(attribute.getNodeValue());
-                    else
-                        throw new AppException("Missing class attribute for plugin descriptor: " + mJar.toString());
-                    attribute = namedNodeMap.getNamedItem("version");
-                    if (attribute != null)
-                        setVersion(attribute.getNodeValue());
-                    else
-                        throw new AppException("Missing version attribute for plugin descriptor: " + mJar.toString());
-
-                    // Check for non-required attributes
-                    attribute = namedNodeMap.getNamedItem("icon");
-                    if (attribute != null)
-                        setIcon(attribute.getNodeValue());
-                    attribute = namedNodeMap.getNamedItem("releaseDate");
-                    if (attribute != null)
-                        setReleaseDate(attribute.getNodeValue());
-                    attribute = namedNodeMap.getNamedItem("documentation");
-                    if (attribute != null)
-                        setDocumentation(attribute.getNodeValue());
-                }
-            }
-
-            // <description>, <author>
-            for (int i = 0; i < domNode.getChildNodes().getLength(); i++) {
-                Node node = domNode.getChildNodes().item(i);
-
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    if (node.getNodeName().equalsIgnoreCase("description"))
-                        setDescription(getText(node));
-                    else if (node.getNodeName().equalsIgnoreCase("author")) {
-                        NamedNodeMap namedNodeMap = node.getAttributes();
-                        if (namedNodeMap != null) {
-                            Node attribute = namedNodeMap.getNamedItem("name");
-                            // Required attributes
-                            if (attribute != null)
-                                setAuthorName(attribute.getNodeValue());
-                            else
-                                throw new AppException("Missing author name attribute for plugin descriptor: "
-                                        + mJar.toString());
-                            attribute = namedNodeMap.getNamedItem("email");
-                            if (attribute != null)
-                                setAuthorEmail(attribute.getNodeValue());
-                            else
-                                throw new AppException("Missing author email attribute for plugin descriptor: "
-                                        + mJar.toString());
-
-                            attribute = namedNodeMap.getNamedItem("homepage");
-                            if (attribute != null)
-                                setAuthorHomepage(attribute.getNodeValue());
+                    attributes = manifest.getAttributes("Galleon");
+                    if (attributes != null) {
+                        if (attributes.getValue(TITLE) != null)
+                            mTitle = (String) attributes.getValue(TITLE);
+                        if (attributes.getValue(ICON) != null)
+                            mIcon = (String) attributes.getValue(ICON);
+                        if (attributes.getValue(RELEASE_DATE) != null)
+                            mReleaseDate = (String) attributes.getValue(RELEASE_DATE);
+                        if (attributes.getValue(DESCRIPTION) != null)
+                            mDescription = (String) attributes.getValue(DESCRIPTION);
+                        if (attributes.getValue(DOCUMENTATION) != null)
+                            mDocumentation = (String) attributes.getValue(DOCUMENTATION);
+                        if (attributes.getValue(AUTHOR_NAME) != null)
+                            mAuthorName = (String) attributes.getValue(AUTHOR_NAME);
+                        if (attributes.getValue(AUTHOR_EMAIL) != null)
+                            mAuthorEmail = (String) attributes.getValue(AUTHOR_EMAIL);
+                        if (attributes.getValue(AUTHOR_HOMEPAGE) != null)
+                            mAuthorHomepage = (String) attributes.getValue(AUTHOR_HOMEPAGE);
+                        if (attributes.getValue(VERSION) != null)
+                            mVersion = (String) attributes.getValue(VERSION);
+                        if (attributes.getValue(CONFIGURATION) != null)
+                            mConfiguration = (String) attributes.getValue(CONFIGURATION);
+                        if (attributes.getValue(CONFIGURATION_PANEL) != null)
+                            mConfigurationPanel = (String) attributes.getValue(CONFIGURATION_PANEL);
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(AppDescriptor.class, ex, "Cannot get descriptor: " + jar.getAbsolutePath());
+                } finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                            in = null;
+                        } catch (Exception ex) {
                         }
                     }
                 }
-            }
-        } catch (SAXParseException spe) {
-            // Error generated by the parser
-            log.error("Parsing error, line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
-            log.error("   " + spe.getMessage());
-            Tools.logException(AppDescriptor.class, spe);
-
-            // Use the contained exception, if any
-            Exception x = spe;
-            if (spe.getException() != null)
-                x = spe.getException();
-            Tools.logException(AppDescriptor.class, x);
-
-        } catch (SAXException sxe) {
-            // Error generated during parsing)
-            Exception x = sxe;
-            if (sxe.getException() != null)
-                x = sxe.getException();
-            Tools.logException(AppDescriptor.class, x);
-        } catch (ParserConfigurationException pce) {
-            // Parser with specified options can't be built
-            log.error("Cannot get context" + entry.getName());
-            Tools.logException(AppDescriptor.class, pce);
-        } catch (IOException ioe) {
-            // I/O error
-            log.error("Cannot get context" + entry.getName());
-            Tools.logException(AppDescriptor.class, ioe);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                    in = null;
-                } catch (Exception ex) {
-                }
+                break;
             }
         }
+        zipFile.close();
     }
 
-    private String getText(Node node) {
-        StringBuffer result = new StringBuffer();
-        if (!node.hasChildNodes())
-            return "";
-
-        NodeList list = node.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++) {
-            Node subnode = list.item(i);
-            if (subnode.getNodeType() == Node.TEXT_NODE) {
-                result.append(subnode.getNodeValue());
-            } else if (subnode.getNodeType() == Node.CDATA_SECTION_NODE) {
-                result.append(subnode.getNodeValue());
-            } else if (subnode.getNodeType() == Node.ENTITY_REFERENCE_NODE) {
-                // Recurse into the subtree for text
-                // (and ignore comments)
-                result.append(getText(subnode));
-            }
-        }
-        return result.toString();
+    public void setTitle(String value) {
+        mTitle = value;
     }
 
-    public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        synchronized (buffer) {
-            buffer.append("name=" + getName() + "\n");
-            buffer.append("jar=" + mJar + "\n");
-            buffer.append("icon=" + getIcon() + "\n");
-            buffer.append("className=" + getClassName() + "\n");
-            buffer.append("version=" + getVersion() + "\n");
-            buffer.append("releaseDate=" + getReleaseDate() + "\n");
-            buffer.append("description=" + getDescription() + "\n");
-            buffer.append("documentation=" + getDocumentation() + "\n");
-            buffer.append("authorName=" + getAuthorName() + "\n");
-            buffer.append("authorEmail=" + getAuthorEmail() + "\n");
-            buffer.append("authorHomepage=" + getAuthorHomepage());
-        }
-        return buffer.toString();
-    }
-
-    public void setName(String value) {
-        mName = value;
-    }
-
-    public String getName() {
-        return mName;
+    public String getTitle() {
+        return mTitle;
     }
 
     public void setIcon(String value) {
@@ -239,6 +143,14 @@ public class AppDescriptor {
 
     public String getClassName() {
         return mClassName;
+    }
+
+    public void setArguments(String value) {
+        mArguments = value;
+    }
+
+    public String getArguments() {
+        return mArguments;
     }
 
     public void setVersion(String value) {
@@ -296,16 +208,42 @@ public class AppDescriptor {
     public String getAuthorHomepage() {
         return mAuthorHomepage;
     }
-    
-    private JarFile mZipFile;
+
+    public void setConfiguration(String value) {
+        mConfiguration = value;
+    }
+
+    public String getConfiguration() {
+        if (mConfiguration==null)
+            return mClassName + "Configuration";
+        else
+            return mConfiguration;
+    }
+
+    public void setConfigurationPanel(String value) {
+        mConfigurationPanel = value;
+    }
+
+    public String getConfigurationPanel() {
+        if (mConfigurationPanel==null)
+            return mClassName + "ConfigurationPanel";
+        else        
+            return mConfigurationPanel;
+    }
+
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
     private File mJar;
 
-    private String mName;
+    private String mTitle;
 
     private String mIcon;
 
     private String mClassName;
+
+    private String mArguments;
 
     private String mVersion;
 
@@ -320,4 +258,8 @@ public class AppDescriptor {
     private String mAuthorEmail;
 
     private String mAuthorHomepage;
+
+    private String mConfiguration;
+
+    private String mConfigurationPanel;
 }

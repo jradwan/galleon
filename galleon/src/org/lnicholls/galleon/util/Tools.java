@@ -599,8 +599,12 @@ public class Tools {
 
         private boolean mError = false;
     }
-
+    
     public static void cacheImage(URL url) {
+        cacheImage(url, -1, -1);    
+    }
+
+    public static void cacheImage(URL url, int width, int height) {
         if (url != null) {
             try {
                 Image internetImage = null;
@@ -626,13 +630,16 @@ public class Tools {
                     log.error("Invalid internet image: " + url.getPath());
                 } else {
                     try {
-                        BufferedImage image = new BufferedImage(internetImage.getWidth(null), internetImage
-                                .getHeight(null), BufferedImage.TYPE_INT_RGB);
+                        if (width==-1)
+                            internetImage.getWidth(null);
+                        if (height==-1)
+                            internetImage.getHeight(null);
+                        
+                        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                         Graphics2D graphics2D = image.createGraphics();
                         graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                        graphics2D.drawImage(internetImage, 0, 0, internetImage.getWidth(null), internetImage
-                                .getHeight(null), null);
+                        graphics2D.drawImage(internetImage, 0, 0, width, height, null);
                         graphics2D.dispose();
                         graphics2D = null;
                         internetImage.flush();
@@ -647,13 +654,30 @@ public class Tools {
                                 .toByteArray());
 
                         BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-
-                        Thumbnail thumbnail = new Thumbnail("Cached", "jpg", url.toExternalForm());
-                        thumbnail.setImage(blob);
-                        thumbnail.setDateModified(new Date());
+                        
+                        Thumbnail thumbnail = null;
+                        try {
+                            List list = ThumbnailManager.findByPath(url.toExternalForm());
+                            if (list!=null && list.size()>0)
+                                thumbnail = (Thumbnail)list.get(0);
+                        } catch (HibernateException ex) {
+                            log.error("Thumbnail create failed", ex);          
+                        }
                         
                         try {
-                            ThumbnailManager.createThumbnail(thumbnail);
+                            if (thumbnail==null)
+                            {
+                                thumbnail = new Thumbnail("Cached", "jpg", url.toExternalForm());
+                                thumbnail.setImage(blob);
+                                thumbnail.setDateModified(new Date());
+                                ThumbnailManager.createThumbnail(thumbnail);
+                            }
+                            else
+                            {
+                                thumbnail.setImage(blob);
+                                thumbnail.setDateModified(new Date());
+                                ThumbnailManager.updateThumbnail(thumbnail);
+                            }
                         } catch (HibernateException ex) {
                             log.error("Thumbnail create failed", ex);          
                         }                        
@@ -679,5 +703,46 @@ public class Tools {
             Tools.logException(Tools.class, ex, url.toExternalForm());
         }
         return null;
+    }
+    
+    public static void savePersistentValue(String name, String value)
+    {
+        try {
+            PersistentValue persistentValue = PersistentValueManager.findByName(name);   
+            if (persistentValue==null)
+            {
+                persistentValue = new PersistentValue(name,value);
+                PersistentValueManager.createPersistentValue(persistentValue);
+            }
+            else
+            {
+                persistentValue.setValue(value);
+                PersistentValueManager.updatePersistentValue(persistentValue);
+            }
+        } catch (HibernateException ex) {
+            log.error("PersistentValue create failed", ex);          
+        }        
+    }
+    
+    public static String loadPersistentValue(String name)
+    {
+        try {
+            return PersistentValueManager.findValueByName(name);
+        } catch (HibernateException ex) {
+            log.error("PersistentValue retrieve failed", ex);          
+        } catch (Exception ex) {
+            Tools.logException(Tools.class, ex, name);
+        }
+        return null;
+    }    
+    
+    public static String getPackage(String className)
+    {
+        String pkg = className;
+        int last = pkg.lastIndexOf('.');
+        if (last == -1) {
+            return "";
+        }
+        return pkg.substring(0, last).replace('.', '/');
     }
 }

@@ -16,12 +16,34 @@ package org.lnicholls.galleon.server;
  * See the file "COPYING" for more details.
  */
 
-import java.rmi.*;
-import java.util.*;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.List;
+
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.database.Video;
 
 public interface ServerControl extends Remote {
-    
-   public void reset() throws RemoteException;
-   public List getRecordings() throws RemoteException;
 
+    public void reset() throws RemoteException;
+
+    public ServerConfiguration getServerConfiguration() throws RemoteException;
+    
+    public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException;
+
+    public List getRecordings() throws RemoteException;
+
+    public List getAppDescriptors() throws RemoteException;
+
+    public List getApps() throws RemoteException;
+
+    public List getTiVos() throws RemoteException;
+    
+    public void updateTiVos(List tivos) throws RemoteException;
+
+    public void updateApp(AppContext app) throws RemoteException;
+
+    public void removeApp(AppContext app) throws RemoteException;
+
+    public void updateVideo(Video video) throws RemoteException;
 }

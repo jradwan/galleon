@@ -62,20 +62,20 @@ public class ToGo {
 
     private static Logger log = Logger.getLogger(ToGo.class.getName());
 
-    public ToGo(ServerConfiguration serverConfiguration) {
+    public ToGo() {
         mFileDateFormat = new SimpleDateFormat();
         mFileDateFormat.applyPattern("EEE MMM d yyyy hh mma");
         mTimeDateFormat = new SimpleDateFormat();
         mTimeDateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"); //2005-02-23T11:59:58Z
         mCalendar = new GregorianCalendar();
-        mServerConfiguration = serverConfiguration;
     }
 
-    public ArrayList getRecordings(ArrayList tivos, ProgressListener progressIndicator ) {
+    public ArrayList getRecordings(List tivos, ProgressListener progressIndicator ) {
+        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         ArrayList videos = new ArrayList();
-        log.debug("getRecordings");
-        log.debug("mServerConfiguration.getMediaAccessKey()=" + mServerConfiguration.getMediaAccessKey().length());
-        if (mServerConfiguration.getMediaAccessKey().length() > 0) {
+        log.debug("getRecordings: "+tivos.size());
+        log.debug("mServerConfiguration.getMediaAccessKey()=" + serverConfiguration.getMediaAccessKey().length());
+        if (serverConfiguration.getMediaAccessKey().length() > 0) {
             GetMethod get = null;
             Iterator tivosIterator = tivos.iterator();
             while (tivosIterator.hasNext()) {
@@ -86,7 +86,7 @@ public class ToGo {
                     // TODO How to get TiVo address??
                     client.getHostConfiguration().setHost(tivo.getAddress(), 443, protocol);
                     Credentials credentials = new UsernamePasswordCredentials("tivo", Tools
-                            .decrypt(mServerConfiguration.getMediaAccessKey()));
+                            .decrypt(serverConfiguration.getMediaAccessKey()));
                     client.getState().setCredentials("TiVo DVR", tivo.getAddress(), credentials);
 
                     int total = -1;
@@ -139,7 +139,6 @@ public class ToGo {
                         // Get the root element
                         Element root = document.getRootElement(); //<TiVoContainer>
 
-                        // Print servlet information
                         for (Iterator iterator = root.elementIterator(); iterator.hasNext();) {
                             Element child = (Element) iterator.next();
                             if (child.getName().equals("Item")) {
@@ -427,6 +426,7 @@ public class ToGo {
     }
 
     public boolean Download(Video video, CancelDownload cancelDownload) {
+        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         ArrayList videos = new ArrayList();
         GetMethod get = null;
         try {
@@ -435,7 +435,7 @@ public class ToGo {
             HttpClient client = new HttpClient();
             // TODO How to get TiVo address??
             client.getHostConfiguration().setHost(url.getHost(), 443, protocol);
-            Credentials credentials = new UsernamePasswordCredentials("tivo", Tools.decrypt(mServerConfiguration
+            Credentials credentials = new UsernamePasswordCredentials("tivo", Tools.decrypt(serverConfiguration
                     .getMediaAccessKey()));
             client.getState().setCredentials("TiVo DVR", url.getHost(), credentials);
             get = new GetMethod(video.getPath());
@@ -446,7 +446,7 @@ public class ToGo {
 
             InputStream input = get.getResponseBodyAsStream();
 
-            String path = mServerConfiguration.getRecordingsPath();
+            String path = serverConfiguration.getRecordingsPath();
             File dir = new File(path);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -462,6 +462,7 @@ public class ToGo {
             int amount = 0;
             long target = video.getSize();
             long start = System.currentTimeMillis();
+            long last = start;
             while (amount == 0 && total < target) {
                 while ((amount = input.read(buf)) > 0 && !cancelDownload.cancel()) {
                     total = total + amount;
@@ -470,6 +471,24 @@ public class ToGo {
                         output.flush();
                     } catch (IOException e) {
                     }
+
+                    if (System.currentTimeMillis()-last>10000)
+                    {
+                        try {
+                            video = VideoManager.retrieveVideo(video.getId());
+                            if (video.getStatus()==Video.STATUS_DOWNLOADING)
+                            {
+                                video.setDownloadSize(total);
+                                diff = (System.currentTimeMillis() - start) / 1000.0;
+                                video.setDownloadTime((int)diff);
+                                VideoManager.updateVideo(video);
+                            }
+                        } catch (HibernateException ex) {
+                            log.error("Video update failed", ex);
+                        }
+                        last = System.currentTimeMillis();
+                    }
+                    
                 }
                 if (cancelDownload.cancel()) {
                     output.close();
@@ -479,21 +498,23 @@ public class ToGo {
             diff = (System.currentTimeMillis() - start) / 1000.0;
             output.close();
             if (diff != 0)
-                log.info("Download rate=" + ((total * 8) / (1024 * 1024)) / diff + " Mbps");
+                log.info("Download rate=" + ((total * 8) / 1024) / diff + " Kbps");
             video.setPath(file.getAbsolutePath());
 
             get.releaseConnection();
         } catch (MalformedURLException ex) {
             Tools.logException(ToGo.class, ex, video.getPath());
+            return false;
         } catch (Exception ex) {
             Tools.logException(ToGo.class, ex, video.getPath());
+            return false;
         }
         return true;
     }
 
     private String getFilename(Video video) {
         String name = video.getTitle();
-        if (video.getEpisodeTitle().length() > 0)
+        if (video.getEpisodeTitle()!=null && video.getEpisodeTitle().length() > 0)
             name = name + " - " + video.getEpisodeTitle();
 
         //  Round off to the closest minutes; TiVo seems to start recordings 2 seconds before the scheduled time
@@ -533,7 +554,7 @@ public class ToGo {
             Iterator downloadedIterator = recordings.iterator();
             while (downloadedIterator.hasNext()) {
                 Video downloadedvideo = (Video) downloadedIterator.next();
-
+                
                 if (downloadedvideo.getStatus() == Video.STATUS_DOWNLOADING) { // Interrupted download
                     next = downloadedvideo;
                     break;
@@ -607,19 +628,9 @@ public class ToGo {
         }
     }
 
-    public void setServerConfiguration(ServerConfiguration value) {
-        mServerConfiguration = value;
-    }
-
-    public ServerConfiguration getServerConfiguration() {
-        return mServerConfiguration;
-    }
-
     protected SimpleDateFormat mFileDateFormat;
 
     protected SimpleDateFormat mTimeDateFormat;
 
     protected GregorianCalendar mCalendar;
-
-    private ServerConfiguration mServerConfiguration;
 }

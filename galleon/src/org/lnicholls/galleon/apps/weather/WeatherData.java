@@ -16,25 +16,32 @@ package org.lnicholls.galleon.apps.weather;
  * See the file "COPYING" for more details.
  */
 
+import java.io.Serializable;
+import java.io.StringReader;
 import java.io.File;
-import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.ReloadCallback;
+import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 
-// TODO Handle alerts
+// TODO Handle changes in configuration
+// TODO Handle errors
 
 public class WeatherData implements Serializable {
 
@@ -49,48 +56,120 @@ public class WeatherData implements Serializable {
 
     private static String LICENSE_KEY = "4521b6a53deec6b8";
 
-    public WeatherData(String city, String state, String zip) {
+    public WeatherData(String id, String city, String state, String zip, int width, int height) {
+        mId = id;
         mCity = city;
         mState = state;
         mZip = zip;
+        mWidth = width;
+        mHeight = height;
 
         mLinks = new ArrayList();
+        mAlerts = new ArrayList();
+
+        String cachedId = Tools.loadPersistentValue(this.getClass().getName() + "." + "id");
+        if (cachedId != null) {
+            String cachedCity = Tools.loadPersistentValue(this.getClass().getName() + "." + "city");
+            String cachedState = Tools.loadPersistentValue(this.getClass().getName() + "." + "state");
+            String cachedZip = Tools.loadPersistentValue(this.getClass().getName() + "." + "zip");
+            String cachedFip = Tools.loadPersistentValue(this.getClass().getName() + "." + "fip");
+            String cachedLocalRadar = Tools.loadPersistentValue(this.getClass().getName() + "." + "localradar");
+            if ((cachedCity != null && cachedCity.equals(city)) && (cachedState != null && cachedState.equals(state))
+                    && (cachedZip != null && cachedZip.equals(city))) {
+                mId = cachedId;
+                mFip = cachedFip;
+                mLocalRadar = cachedLocalRadar;
+            }
+        }
         
+        Tools.savePersistentValue(this.getClass().getName() + "." + "city", mCity);
+        Tools.savePersistentValue(this.getClass().getName() + "." + "state", mState);
+        Tools.savePersistentValue(this.getClass().getName() + "." + "zip", mZip);
+
         new Thread() {
-            public void run()
-            {
+            public void run() {
                 getAllWeather();
                 determineLocalRadar();
-                
+
                 try {
-                    log.debug("mLocalRadar="+mLocalRadar);
-                    if (mLocalRadar!=null)
-                        Tools.cacheImage(new URL(mLocalRadar));
+                    log.debug("mLocalRadar=" + mLocalRadar);
+                    if (mLocalRadar != null)
+                        Tools.cacheImage(new URL(mLocalRadar), mWidth, mHeight);
                 } catch (MalformedURLException ex) {
                     log.error("Could not download local radar", ex);
                 }
                 try {
-                    if (mNationalRadar!=null)
-                        Tools.cacheImage(new URL(mNationalRadar));
+                    if (mNationalRadar != null)
+                        Tools.cacheImage(new URL(mNationalRadar), mWidth, mHeight);
+                } catch (MalformedURLException ex) {
+                    log.error("Could not download national radar", ex);
+                }
+
+                determineFip();
+                determineAlerts();
+            }
+        }.start();
+
+        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+            public void reload() {
+                getAllWeather();
+            }
+        }), 12 * 60);
+
+        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+            public void reload() {
+                getCurrentWeather();
+            }
+        }), 30);
+        
+        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+            public void reload() {
+                getForecastWeather();
+            }
+        }), 2*60);        
+
+        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+            public void reload() {
+                determineFip();
+                determineAlerts();
+            }
+        }), 10);
+
+        Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+            public void reload() {
+                determineLocalRadar();
+                
+                try {
+                    log.debug("mLocalRadar=" + mLocalRadar);
+                    if (mLocalRadar != null)
+                        Tools.cacheImage(new URL(mLocalRadar), mWidth, mHeight);
+                } catch (MalformedURLException ex) {
+                    log.error("Could not download local radar", ex);
+                }
+                try {
+                    if (mNationalRadar != null)
+                        Tools.cacheImage(new URL(mNationalRadar), mWidth, mHeight);
                 } catch (MalformedURLException ex) {
                     log.error("Could not download national radar", ex);
                 }
             }
-        }.start();
+        }), 15);
     }
 
-    public List getLocations() {
-        mSearch = new Search();
+    public static List getLocations(String zip) {
+        Search search = new Search();
 
         try {
             SAXReader saxReader = new SAXReader();
-            //URL url = new URL("http://xoap.weather.com/search/search?where=" + mZip); // try city, state too
-            //String page = Tools.getPage(url);
-            //Document document = saxReader.read(page);
-            Document document = saxReader.read(new File("d:/galleon/location.xml"));
+            URL url = new URL("http://xoap.weather.com/search/search?where=" + zip); // try city, state too
+            String page = Tools.getPage(url);
+            log.debug("Locations: " + page);
+            StringReader stringReader = new StringReader(page);
+            Document document = saxReader.read(stringReader);
+            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
 
             Element root = document.getRootElement(); // check for errors
-            mSearch.setVersion(Tools.getAttribute(root, "ver"));
+            search.setVersion(Tools.getAttribute(root, "ver"));
 
             for (Iterator i = root.elementIterator("loc"); i.hasNext();) {
                 Element element = (Element) i.next();
@@ -98,19 +177,67 @@ public class WeatherData implements Serializable {
                 location.setId(Tools.getAttribute(element, "id"));
                 location.setType(Tools.getAttribute(element, "type"));
                 location.setValue(element.getText());
-                mSearch.addLocation(location);
+                search.addLocation(location);
             }
         } catch (Exception ex) {
             log.error("Could not determine weather locations", ex);
         }
-        return mSearch.mLocations;
+        return search.mLocations;
     }
 
     public void getAllWeather() {
         try {
             SAXReader saxReader = new SAXReader();
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
-            Document document = saxReader.read(new File("d:/galleon/weather.xml"));
+            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
+                    + PARTNER_ID + "&key=" + LICENSE_KEY);
+            String page = Tools.getPage(url);
+            log.debug("AllWeather: " + page);
+            parseWeather(page);
+            Tools.savePersistentValue(this.getClass().getName() + "." + "id", mId);
+        } catch (MalformedURLException ex) {
+            log.error("Could not determine weather conditions", ex);
+        }
+        //parseWeather("");
+    }
+
+    public void getCurrentWeather() {
+        try {
+            //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
+            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&prod=xoap&par=" + PARTNER_ID
+                    + "&key=" + LICENSE_KEY);
+            String page = Tools.getPage(url);
+            log.debug("CurrentWeather: " + page);
+            parseWeather(page);
+        } catch (MalformedURLException ex) {
+            log.error("Could not determine weather conditions", ex);
+        }
+        //parseWeather("");
+    }
+    
+    public void getForecastWeather() {
+        try {
+            SAXReader saxReader = new SAXReader();
+            //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
+            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&prod=xoap&par="
+                    + PARTNER_ID + "&key=" + LICENSE_KEY);
+            String page = Tools.getPage(url);
+            log.debug("ForecastWeather: " + page);
+            parseWeather(page);
+            Tools.savePersistentValue(this.getClass().getName() + "." + "id", mId);
+        } catch (MalformedURLException ex) {
+            log.error("Could not determine weather conditions", ex);
+        }
+        //parseWeather("");
+    }    
+
+    public void parseWeather(String page) {
+        try {
+            SAXReader saxReader = new SAXReader();
+            StringReader stringReader = new StringReader(page);
+            Document document = saxReader.read(stringReader);
+
+            //Document document = saxReader.read(new File("d:/galleon/weather.xml"));
 
             Element root = document.getRootElement();
             setVersion(Tools.getAttribute(root, "ver"));
@@ -225,67 +352,300 @@ public class WeatherData implements Serializable {
             log.error("Could not determine weather conditions", ex);
         }
     }
-    
+
     public void determineLocalRadar() {
+        if (mLocalRadar != null)
+            return;
+
         try {
-            URL url = new URL("http://w3.weather.com/weather/map/" + mZip);
-            StringBuffer buffer = new StringBuffer();
-            byte[] buf = new byte[1024];
-            int amount = 0;
-            InputStream input = url.openStream();
-            while ((amount = input.read(buf)) > 0) {
-                buffer.append(new String(buf, 0, amount));
-            }
+            HttpClient httpclient = new HttpClient();
+            httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+            httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
 
-            //if (isMinNS4) var mapNURL = "/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html";
+            //Get location/county mapping from census bureau:
+            // http://quickfacts.census.gov/cgi-bin/qfd/lookup?state=33000&place=nashua,nh,03060
+            GetMethod get = new GetMethod("http://w3.weather.com/weather/map/" + mZip);
+            get.setFollowRedirects(true);
+
             String radarurl = "";
-            String REGEX = "var mapNURL = \"(.*)\";";
-            Pattern p = Pattern.compile(REGEX);
-            Matcher m = p.matcher(buffer.toString());
-            if (m.find()) {
-                if (log.isDebugEnabled())
-                    log.debug("Local radar URL: " + m.group(1));
-                radarurl = m.group(1);
-            }
-            if (radarurl.length() == 0) {
-                //    <iframe name="mapI" ID="mapI" width=600 height=560
-                // src="/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html"
-                REGEX = "src=\"/maps/local/local(.*)\"";
-                p = Pattern.compile(REGEX);
-                m = p.matcher(buffer.toString());
-                if (m.find()) {
-                    if (log.isDebugEnabled())
-                        log.debug("Local radar URL: " + m.group(1));
-                    radarurl = "/maps/local/local" + m.group(1);
+
+            try {
+                int iGetResultCode = httpclient.executeMethod(get);
+                final String strGetResponseBody = get.getResponseBodyAsString();
+                //log.debug(strGetResponseBody);
+
+                if (strGetResponseBody != null) {
+                    //if (isMinNS4) var mapNURL = "/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html";
+                    String REGEX = "var mapNURL = \"(.*)\";";
+                    Pattern p = Pattern.compile(REGEX);
+                    Matcher m = p.matcher(strGetResponseBody);
+                    if (m.find()) {
+                        if (log.isDebugEnabled())
+                            log.debug("Local radar URL: " + m.group(1));
+                        radarurl = m.group(1);
+                    }
+                    if (radarurl.length() == 0) {
+                        //    <iframe name="mapI" ID="mapI" width=600 height=560
+                        // src="/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html"
+                        REGEX = "src=\"/maps/local/local(.*)\"";
+                        p = Pattern.compile(REGEX);
+                        m = p.matcher(strGetResponseBody);
+                        if (m.find()) {
+                            if (log.isDebugEnabled())
+                                log.debug("Local radar URL: " + m.group(1));
+                            radarurl = "/maps/local/local" + m.group(1);
+                        }
+                    }
                 }
+            } catch (Exception ex) {
+                log.error("Could not determine FIP", ex);
+            } finally {
+                get.releaseConnection();
             }
 
-            url = new URL("http://w3.weather.com" + radarurl);
-            buffer = new StringBuffer();
-            buf = new byte[1024];
-            amount = 0;
-            input = url.openStream();
-            while ((amount = input.read(buf)) > 0) {
-                buffer.append(new String(buf, 0, amount));
-            }
+            get = new GetMethod("http://w3.weather.com" + radarurl);
+            get.setFollowRedirects(true);
 
-            //<IMG NAME="mapImg" SRC="http://image.weather.com/web/radar/us_bos_closeradar_large_usen.jpg" WIDTH=600
-            // HEIGHT=405 BORDER=0 ALT="Doppler Radar 600 Mile"></TD>
-            REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
-            p = Pattern.compile(REGEX);
-            m = p.matcher(buffer.toString());
-            if (m.find()) {
-                mLocalRadar = m.group(1);
-                return;
+            try {
+                int iGetResultCode = httpclient.executeMethod(get);
+                final String strGetResponseBody = get.getResponseBodyAsString();
+                //log.debug(strGetResponseBody);
+
+                if (strGetResponseBody != null) {
+                    //<IMG NAME="mapImg" SRC="http://image.weather.com/web/radar/us_bos_closeradar_large_usen.jpg"
+                    // WIDTH=600
+                    // HEIGHT=405 BORDER=0 ALT="Doppler Radar 600 Mile"></TD>
+                    String REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
+                    Pattern p = Pattern.compile(REGEX);
+                    Matcher m = p.matcher(strGetResponseBody);
+                    if (m.find()) {
+                        mLocalRadar = m.group(1);
+                        Tools.savePersistentValue(this.getClass().getName() + "." + "localradar", mLocalRadar);
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                log.error("Could not determine FIP", ex);
+            } finally {
+                get.releaseConnection();
             }
         } catch (Throwable ex) {
             //Tools.logException(WeatherData.class, ex);
             ex.printStackTrace();
         }
-        log.error("Could not find local radar for: "+mCity+","+mState+","+mZip);
-    }    
+        log.error("Could not find local radar for: " + mCity + "," + mState + "," + mZip);
+    }
 
-    public static class Location {
+    public void determineFip() {
+        if (mFip != null)
+            return;
+
+        try {
+            HttpClient httpclient = new HttpClient();
+            httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+            httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
+
+            //Get location/county mapping from census bureau:
+            // http://quickfacts.census.gov/cgi-bin/qfd/lookup?state=33000&place=nashua,nh,03060
+            GetMethod get = new GetMethod("http://quickfacts.census.gov/cgi-bin/qfd/lookup");
+            get.setFollowRedirects(true);
+            NameValuePair state = new NameValuePair("state", StateData.getFipFromSymbol(mState));
+            NameValuePair place = new NameValuePair("place", mCity + "," + mState + "," + mZip);
+            get.setQueryString(new NameValuePair[] { state, place });
+
+            try {
+                int iGetResultCode = httpclient.executeMethod(get);
+                final String strGetResponseBody = get.getResponseBodyAsString();
+                //log.debug(strGetResponseBody);
+
+                if (strGetResponseBody != null) {
+                    String REGEX = "href=\"/qfd/states/[0-9]*/([0-9]*).html\">([^<]*)</a>";
+                    Pattern p = Pattern.compile(REGEX);
+                    Matcher m = p.matcher(strGetResponseBody);
+                    if (m.find()) {
+                        if (log.isDebugEnabled())
+                            log.debug("FIP: " + m.group(1) + "(" + m.group(2) + ")");
+                        mFip = m.group(1);
+                        Tools.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                log.error("Could not determine FIP", ex);
+            } finally {
+                get.releaseConnection();
+            }
+
+            get = new GetMethod("http://quickfacts.census.gov/cgi-bin/qfd/lookup");
+            get.setFollowRedirects(true);
+            get.setQueryString(new NameValuePair[] { state, place });
+
+            try {
+                int iGetResultCode = httpclient.executeMethod(get);
+                final String strGetResponseBody = get.getResponseBodyAsString();
+                log.debug(strGetResponseBody);
+
+                if (strGetResponseBody != null) {
+                    String REGEX = "href=\"/qfd/states/[0-9]*/([0-9]*).html\">([^<]*)</a>";
+                    Pattern p = Pattern.compile(REGEX);
+                    Matcher m = p.matcher(strGetResponseBody);
+                    if (m.find()) {
+                        if (log.isDebugEnabled())
+                            log.debug("FIP: " + m.group(1) + "(" + m.group(2) + ")");
+                        mFip = m.group(1);
+                        Tools.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
+                        return;
+                    } else {
+                        mFip = StateData.getFipFromSymbol(mState);
+                        log.info("Could not find county, using state FIP");
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                log.error("Could not determine FIP", ex);
+            } finally {
+                get.releaseConnection();
+            }
+        } catch (Exception ex) {
+            Tools.logException(WeatherData.class, ex);
+        }
+        mFip = "000";
+        log.error("Could not find FIP for: " + mCity + "," + mState + "," + mZip);
+    }
+
+    public void determineAlerts() {
+        try {
+            // Read CAP XML alerts feed from http://www.nws.noaa.gov/alerts/nh.cap
+            HttpClient httpclient = new HttpClient();
+            httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+            httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
+
+            //Get location/county mapping from census bureau:
+            // http://quickfacts.census.gov/cgi-bin/qfd/lookup?state=33000&place=nashua,nh,03060
+            GetMethod get = new GetMethod("http://www.nws.noaa.gov/alerts/" + mState.toLowerCase() + ".cap");
+            get.setFollowRedirects(true);
+
+            try {
+                int iGetResultCode = httpclient.executeMethod(get);
+                final String strGetResponseBody = get.getResponseBodyAsString();
+                log.debug(strGetResponseBody);
+
+                if (strGetResponseBody != null) {
+                    mAlerts = new ArrayList();
+                    parseAlerts(strGetResponseBody);
+                }
+            } catch (Exception ex) {
+                log.error("Could not determine weather alerts", ex);
+            } finally {
+                get.releaseConnection();
+            }
+            return;
+
+        } catch (Exception ex) {
+            Tools.logException(WeatherData.class, ex);
+        }
+        log.error("Could not find alerts for: " + mCity + "," + mState + "," + mZip);
+        return;
+    }
+
+    public static class Alert implements Serializable {
+        public Alert(String headline, String description) {
+            mHeadline = headline.trim();
+            mDescription = description.trim().replaceAll("\\.\\.\\.", ", ");
+        }
+
+        public void setHeadline(String value) {
+            mHeadline = value;
+        }
+
+        public String getHeadline() {
+            return mHeadline;
+        }
+
+        public void setDescription(String value) {
+            mDescription = value.trim().replaceAll("\\.\\.\\.", ", ");
+        }
+
+        public String getDescription() {
+            return mDescription;
+        }
+
+        private String mHeadline;
+
+        private String mDescription;
+    }
+
+    private static String CAP_ALERT = "alert";
+
+    private static String CAP_INFO = "info";
+
+    private static String CAP_HEADLINE = "headline";
+
+    private static String CAP_DESCRIPTION = "description";
+
+    private static String CAP_AREA = "area";
+
+    private static String CAP_GEOCODE = "geocode";
+
+    private void parseAlerts(String value) {
+        try {
+            SAXReader saxReader = new SAXReader();
+            //Document document = saxReader.read(new File("d:/galleon/nh.cap.xml"));
+            StringReader stringReader = new StringReader(value);
+            Document document = saxReader.read(stringReader);
+
+            // <cap:alert>
+            Element root = document.getRootElement();
+
+            for (Iterator i = root.elementIterator(); i.hasNext();) {
+                Element element = (Element) i.next();
+                boolean found = false;
+                String headline = "";
+                String description = "";
+                if (element.getName().equals(CAP_INFO)) {
+                    for (Iterator elementIterator = element.elementIterator(); elementIterator.hasNext();) {
+                        Element infoNode = (Element) elementIterator.next();
+                        if (infoNode.getName().equals(CAP_HEADLINE)) {
+                            headline = infoNode.getText();
+                            if (log.isDebugEnabled())
+                                log.debug("headline:" + headline);
+                        } else if (infoNode.getName().equals(CAP_DESCRIPTION)) {
+                            description = infoNode.getText();
+                            if (log.isDebugEnabled())
+                                log.debug("description:" + description);
+                        } else if (infoNode.getName().equals(CAP_AREA)) {
+                            for (Iterator areaIterator = infoNode.elementIterator(); areaIterator.hasNext();) {
+                                Element areaNode = (Element) areaIterator.next();
+                                if (log.isDebugEnabled())
+                                    log.debug("areaNode:" + areaNode.getName());
+                                if (areaNode.getName().equals(CAP_GEOCODE)) {
+                                    String geoCode = areaNode.getText();
+                                    if (log.isDebugEnabled())
+                                        log.debug("geoCode:" + geoCode);
+                                    if (log.isDebugEnabled())
+                                        log.debug("mFIP:" + mFip);
+                                    if (mFip.endsWith("000")) // whole state
+                                    {
+                                        found = true;
+                                    } else if (geoCode.endsWith(mFip)) // specific county
+                                    {
+                                        found = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (found) {
+                    mAlerts.add(new Alert(headline, description));
+                }
+            }
+        } catch (Exception ex) {
+            log.error("Could not parse weather alerts", ex);
+        }
+    }
+
+    public static class Location implements Serializable {
         public String getId() {
             return mId;
         }
@@ -321,7 +681,7 @@ public class WeatherData implements Serializable {
         private String mValue;
     }
 
-    public static class Search {
+    public static class Search implements Serializable {
         public Search() {
             mLocations = new ArrayList();
         }
@@ -351,7 +711,7 @@ public class WeatherData implements Serializable {
         private ArrayList mLocations;
     }
 
-    public static class Link {
+    public static class Link implements Serializable {
         public int getPosition() {
             return mPosition;
         }
@@ -387,7 +747,7 @@ public class WeatherData implements Serializable {
         private String mName;
     }
 
-    public static class CurrentConditions {
+    public static class CurrentConditions implements Serializable {
         public String getLastUpdate() {
             return mLastUpdate;
         }
@@ -583,7 +943,7 @@ public class WeatherData implements Serializable {
         private String mMoonPhaseDescription;
     }
 
-    public static class Forecasts {
+    public static class Forecasts implements Serializable {
         public Forecasts() {
             mForecast = new ArrayList();
         }
@@ -609,7 +969,7 @@ public class WeatherData implements Serializable {
         private ArrayList mForecast;
     }
 
-    public static class Part {
+    public static class Part implements Serializable {
         public Part() {
 
         }
@@ -699,7 +1059,7 @@ public class WeatherData implements Serializable {
         private String mWindDescription;
     }
 
-    public static class Forecast {
+    public static class Forecast implements Serializable {
         public Forecast() {
 
         }
@@ -950,13 +1310,21 @@ public class WeatherData implements Serializable {
     public void setVersion(String version) {
         mVersion = version;
     }
-    
+
     public String getLocalRadar() {
         return mLocalRadar;
     }
-    
+
     public String getNationalRadar() {
         return mNationalRadar;
+    }
+
+    public boolean hasAlerts() {
+        return mAlerts.size() > 0;
+    }
+
+    public Iterator getAlerts() {
+        return mAlerts.iterator();
     }
 
     public String toString() {
@@ -970,8 +1338,6 @@ public class WeatherData implements Serializable {
     private String mZip;
 
     private String mId;
-
-    private Search mSearch;
 
     private String mVersion;
 
@@ -1007,11 +1373,19 @@ public class WeatherData implements Serializable {
 
     private ArrayList mLinks;
 
+    private ArrayList mAlerts;
+
     private CurrentConditions mCurrentConditions;
 
     private Forecasts mForecasts;
-    
+
     private String mLocalRadar;
-    
+
     private String mNationalRadar = "http://image.weather.com/images/maps/current/curwx_600x405.jpg";
+
+    private String mFip;
+
+    private int mWidth = -1;
+
+    private int mHeight = -1;
 }

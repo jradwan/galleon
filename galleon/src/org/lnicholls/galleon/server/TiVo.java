@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.togo;
+package org.lnicholls.galleon.server;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -17,8 +17,9 @@ package org.lnicholls.galleon.togo;
  */
 
 import java.util.*;
+import java.io.Serializable;
 
-public class TiVo {
+public class TiVo implements Serializable {
 
     public TiVo() {
 
@@ -27,7 +28,6 @@ public class TiVo {
     public TiVo(String name, String address) {
         mName = name;
         mAddress = address;
-        mNumShows = 0;
     }
 
     public String getName() {
@@ -37,6 +37,54 @@ public class TiVo {
     public void setName(String value) {
         mName = value;
     }
+    
+    public String getServer() {
+        return mServer;
+    }
+
+    public void setServer(String value) {
+        mServer = value;
+    }    
+    
+    public int getPort() {
+        return mPort;
+    }
+
+    public void setPort(int value) {
+        mPort = value;
+    }    
+    
+    public String getPlatform() {
+        return mPlatform;
+    }
+
+    public void setPlatform(String value) {
+        mPlatform = value;
+    }    
+    
+    public String getServiceNumber() {
+        return mServiceNumber;
+    }
+
+    public void setServiceNumber(String value) {
+        mServiceNumber = value;
+    }    
+    
+    public String getSoftwareVersion() {
+        return mSoftwareVersion;
+    }
+
+    public void setSoftwareVersion(String value) {
+        mSoftwareVersion = value;
+    }    
+    
+    public String getPath() {
+        return mPath;
+    }
+
+    public void setPath(String value) {
+        mPath = value;
+    }    
 
     public String getAddress() {
         return mAddress;
@@ -66,16 +114,33 @@ public class TiVo {
         StringBuffer buffer = new StringBuffer();
         synchronized (buffer) {
             buffer.append("Name=" + mName + '\n');
+            buffer.append("Server=" + mServer + '\n');
             buffer.append("Address=" + mAddress + '\n');
+            buffer.append("Port=" + mPort + '\n');
+            buffer.append("Platform=" + mPlatform + '\n');
+            buffer.append("SoftwareVersion=" + mSoftwareVersion + '\n');
+            buffer.append("Path=" + mPath + '\n');
             buffer.append("LastChangedDate=" + mLastChangedDate + '\n');
             buffer.append("NumShows=" + mNumShows + '\n');
         }
         return buffer.toString();
     }    
 
-    private String mName;
+    private String mName = "";
+    
+    private String mServer = "";
 
-    private String mAddress;
+    private String mAddress = "";
+    
+    private int mPort = 80;
+    
+    private String mPlatform = "";
+    
+    private String mServiceNumber = "";
+    
+    private String mSoftwareVersion = "";
+    
+    private String mPath = "";
     
     private Date mLastChangedDate = new Date(0);
     

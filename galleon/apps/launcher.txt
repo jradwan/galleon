@@ -32,7 +32,6 @@
 
 #com.tivo.hme.samples.bananas.BananasSample
 
-#org.lnicholls.galleon.apps.togo.ToGo
+org.lnicholls.galleon.apps.togo.ToGo
 
-org.lnicholls.galleon.apps.weather.Weather
 

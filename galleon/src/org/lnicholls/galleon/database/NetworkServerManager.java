@@ -155,13 +155,14 @@ public class NetworkServerManager {
     private static void testDatabase() throws Exception {
         if (log.isDebugEnabled())
             log.debug("Testing database");
-        waitForStart();
 
+        waitForStart();
+        
         //Connection conn =
         // DriverManager.getConnection("jdbc:derby:galleon;user=galleon;password=galleon"+";create=true");
         Connection conn = DriverManager.getConnection(mHibernateProperties.getProperty("hibernate.connection.url")
                 + ";create=true");
-
+        
         Statement statement = null;
         ResultSet resultSet = null;
         try {

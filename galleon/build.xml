@@ -204,8 +204,9 @@
             <fileset dir="./doc" includes="server.html" />
             <fileset dir="./doc" includes="togo.html" />            
             <fileset dir="./doc" includes="newplugin.html" />            
-            <fileset dir="./media/images" includes="galleon.gif" />                        
-            <fileset dir="./media/images" includes="guiicon.gif" />                                    
+            <fileset dir="./media/images" includes="galleon.png" />                        
+            <fileset dir="./media/images" includes="guiicon.png" />                                    
+            <fileset dir="./media/images" includes="guiicon.gif" />                                                
             <fileset dir="./media/images" includes="yellowball.gif" />                                                
             <fileset dir="./media/images" includes="yellowball!.gif" />                                                            
             <fileset dir="./media/images" includes="whiteball.gif" />                                                            
@@ -234,8 +235,26 @@
         <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
         
         <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
+        <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/alerticon.png" />        
         <copy file="./media/fonts/casual.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/casual.ttf" />                
-        <jar jarfile="${build}/apps/weather.jar" compress="yes">
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Weather"/>
+            <attribute name="Icon" value="icon.png"/>
+            <attribute name="ReleaseDate" value="06/03/05"/>          
+            <attribute name="Description" value="Weather"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/weather.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/weather" excludes="*.java" />
             <fileset dir="./media/images/weather" includes="*.png,*.jpg"/>                                                

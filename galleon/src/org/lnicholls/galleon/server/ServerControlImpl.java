@@ -23,6 +23,9 @@ import java.util.ArrayList;
 
 import net.sf.hibernate.HibernateException;
 
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppDescriptor;
+import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 
 import org.apache.log4j.Logger;
@@ -33,6 +36,16 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     
     public ServerControlImpl() throws RemoteException {
         super();
+    }
+    
+    public ServerConfiguration getServerConfiguration()  throws RemoteException
+    {
+        return Server.getServer().getServerConfiguration();
+    }
+    
+    public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException
+    {
+        Server.getServer().updateServerConfiguration(serverConfiguration);
     }
 
     public void reset() throws RemoteException {
@@ -48,5 +61,40 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
             log.error("Video listAll failed", ex);
         }
         return new ArrayList();
+    }
+    
+    public List getAppDescriptors() throws RemoteException
+    {
+        return Server.getServer().getAppDescriptors();
+    }
+    
+    public List getApps() throws RemoteException
+    {
+        return Server.getServer().getApps();
+    }    
+    
+    public List getTiVos() throws RemoteException
+    {
+        return Server.getServer().getTiVos();
+    }
+    
+    public void updateTiVos(List tivos) throws RemoteException
+    {
+        Server.getServer().updateTiVos(tivos);
+    }
+    
+    public void removeApp(AppContext app)  throws RemoteException
+    {
+        Server.getServer().removeApp(app);
+    }
+    
+    public void updateApp(AppContext app)  throws RemoteException
+    {
+        Server.getServer().updateApp(app);
+    }    
+    
+    public void updateVideo(Video video) throws RemoteException
+    {
+        Server.getServer().updateVideo(video);
     }
 }

@@ -19,15 +19,23 @@ package org.lnicholls.galleon.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.net.*;
 import java.util.Properties;
-import java.util.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -36,18 +44,21 @@ import javax.swing.JWindow;
 import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.server.*;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.app.*;
-import org.lnicholls.galleon.togo.*;
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppDescriptor;
+import org.lnicholls.galleon.app.AppManager;
+import org.lnicholls.galleon.server.Constants;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.server.ServerConfiguration;
+import org.lnicholls.galleon.server.ServerControl;
+import org.lnicholls.galleon.togo.RulesList;
+import org.lnicholls.galleon.util.Configurator;
+import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.database.*;
 
 import com.jgoodies.plaf.FontSizeHints;
 import com.jgoodies.plaf.LookUtils;
 import com.jgoodies.plaf.Options;
-
-import java.rmi.server.*;
-import java.rmi.*;
-import java.rmi.registry.*;
 
 public final class Galleon implements Constants {
 
@@ -55,31 +66,34 @@ public final class Galleon implements Constants {
         public SplashWindow() {
             super((Frame) null);
 
-            URL url = getClass().getClassLoader().getResource("javahmo.gif");
+            //Image image = Tools.getResourceAsImage(Galleon.class, "galleon.png");
+            //image = Tools.getImage(image);
+
+            URL url = getClass().getClassLoader().getResource("galleon.png");
             ImageIcon logo = new ImageIcon(url);
+            //ImageIcon logo = new ImageIcon(image);
 
             JLabel l = new JLabel(logo);
+            l.setBackground(java.awt.Color.black);
             getContentPane().add(l, BorderLayout.CENTER);
 
-            pack();
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             Dimension labelSize = l.getPreferredSize();
             setLocation(screenSize.width / 2 - (labelSize.width / 2), screenSize.height / 2 - (labelSize.height / 2));
+            pack();
         }
     }
 
-    //private static SplashWindow splashWindow = new SplashWindow();
-    
-    public Galleon() {
-        //splashWindow.setVisible(true);
+    private static SplashWindow splashWindow = new SplashWindow();
 
+    public Galleon() {
         createAndShowGUI();
-    }    
+    }
 
     private static void createAndShowGUI() {
         try {
             System.setProperty("os.user.home", System.getProperty("user.home"));
-            
+
             ArrayList errors = new ArrayList();
             Server.setup(errors);
             log = Server.setupLog(Galleon.class.getName(), "GuiFile");
@@ -97,7 +111,7 @@ public final class Galleon implements Constants {
                 Tools.logException(Galleon.class, e);
             }
 
-            //mAppManager = new AppManager();  // starts server??
+            /*
             mServerConfiguration = new ServerConfiguration();
             if (mConfigureDir != null) {
                 log.info("Configuration Dir=" + mConfigureDir.getAbsolutePath());
@@ -107,23 +121,46 @@ public final class Galleon implements Constants {
             mAddress = mServerConfiguration.getIPAddress();
             if (mAddress == null || mAddress.length() == 0)
                 mAddress = "127.0.0.1";
+*/                
             mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099);
             
-            mRulesList = new RulesList();
+            File directory = new File(System.getProperty("apps"));
+            if (!directory.exists() || !directory.isDirectory()) {
+                String message = "App Class Loader directory not found: " + System.getProperty("apps");
+                InstantiationException exception = new InstantiationException(message);
+                log.error(message, exception);
+                throw exception;
+            }
             
-            mMainFrame = new MainFrame(mServerConfiguration.getVersion());
-            
-            //splashWindow.setVisible(false);
-            mMainFrame.setVisible(true);
-            
-            /*
-            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    mToGo.getRecordings();
+            File[] files = directory.listFiles(new FileFilter() {
+                public final boolean accept(File file) {
+                    return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
                 }
             });
-            */            
+            URL urlList[] = new URL[files.length];
+            for (int i = 0; i < files.length; ++i) {
+                try {
+                    urlList[i] = files[i].toURL();
+                } catch (Exception ex) {
+                    // should never happen
+                }
+            }
+
+            URLClassLoader classLoader = new URLClassLoader(urlList);
+            Thread.currentThread().setContextClassLoader(classLoader);
             
+            mRulesList = new RulesList();
+
+            //mMainFrame = new MainFrame(mServerConfiguration.getVersion());
+            mMainFrame = new MainFrame("0.0.0 beta 2");
+
+            splashWindow.setVisible(false);
+            mMainFrame.setVisible(true);
+
+            /*
+             * javax.swing.SwingUtilities.invokeLater(new Runnable() { public void run() { mToGo.getRecordings(); } });
+             */
+
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex);
             System.exit(0);
@@ -140,7 +177,7 @@ public final class Galleon implements Constants {
                 mServerAddress = args[1];
         }
 
-        //splashWindow.setVisible(true);
+        splashWindow.setVisible(true);
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -161,18 +198,15 @@ public final class Galleon implements Constants {
         log.info("Total Memory: " + runtime.totalMemory());
         log.info("Free Memory: " + runtime.freeMemory());
     }
-
-    public static AppManager getAppManager() {
-        return mAppManager;
-    }
-
+/*
     public static ServerConfiguration getServerConfiguration() {
         return mServerConfiguration;
     }
-    
+*/    
+
     public static RulesList getRulesList() {
         return mRulesList;
-    }    
+    }
 
     public static MainFrame getMainFrame() {
         return mMainFrame;
@@ -181,10 +215,6 @@ public final class Galleon implements Constants {
     public static void save(boolean reload) {
         if (log.isDebugEnabled())
             log.debug("save: " + reload);
-        if (mConfigureDir != null)
-            new Configurator(mServerConfiguration).save(mAppManager, mConfigureDir);
-        else
-            new Configurator(mServerConfiguration).save(mAppManager);
         if (reload) {
             // Connect to server and save config
             try {
@@ -199,7 +229,7 @@ public final class Galleon implements Constants {
         }
         mMainFrame.refresh();
     }
-    
+
     public static List getRecordings() {
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
@@ -207,27 +237,132 @@ public final class Galleon implements Constants {
         } catch (Exception ex) {
             Tools.logException(Galleon.class, ex, "Could not get recordings from server: " + mServerAddress);
 
-            JOptionPane.showMessageDialog(mMainFrame, "Could not get recordings.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
+    
+    public static List getTiVos() {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getTiVos();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get TiVo's from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+    
+    public static void updateTiVos(List tivos) {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            serverControl.updateTiVos(tivos);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not update TiVo's on server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }    
+    
+    public static List getApps() {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getApps();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get apps from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+    
+    public static List getAppDescriptors() {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getAppDescriptors();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get app descriptors from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }    
+    
+    public static void removeApp(AppContext app)
+    {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            serverControl.removeApp(app);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not remove app from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }    
+    
+    public static void updateApp(AppContext app)
+    {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            serverControl.updateApp(app);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not update app from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public static ServerConfiguration getServerConfiguration()
+    {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getServerConfiguration();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+    
+    public static void updateServerConfiguration(ServerConfiguration serverConfiguration)
+    {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            serverControl.updateServerConfiguration(serverConfiguration);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }    
+    
+    public static void updateVideo(Video video)
+    {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            serverControl.updateVideo(video);
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not update video at server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }    
 
     private static Logger log;
 
     private static AppManager mAppManager;
-
-    private static ServerConfiguration mServerConfiguration;
 
     private static MainFrame mMainFrame;
 
     private static String mAddress;
 
     private static File mConfigureDir;
-    
+
     private static RulesList mRulesList;
-    
+
     private static Registry mRegistry;
-    
+
     private static String mServerAddress = "localhost";
 }

@@ -24,10 +24,11 @@ import java.net.UnknownHostException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.apache.commons.httpclient.ConnectTimeoutException;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.log4j.Logger;
-
-import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.util.Tools;
 
 /**
  * Accept self-signed certificates.
@@ -58,7 +59,12 @@ public class TiVoSSLProtocolSocketFactory implements SecureProtocolSocketFactory
             UnknownHostException {
         return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
     }
-    
+
+    public Socket createSocket(String host, int port, InetAddress localAddress, int localPort,
+            HttpConnectionParams params) throws IOException, UnknownHostException, ConnectTimeoutException {
+        return getSSLContext().getSocketFactory().createSocket(host, port);
+    }
+
     private SSLContext createSSLContext() {
         try {
             SSLContext context = SSLContext.getInstance("SSL");

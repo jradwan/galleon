@@ -59,6 +59,7 @@ public class HibernateUtil {
             configuration.addClass(Version.class);
             configuration.addClass(Audio.class);
             configuration.addClass(Image.class);
+            configuration.addClass(Video.class);
 
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {

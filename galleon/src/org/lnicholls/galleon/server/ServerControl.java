@@ -17,9 +17,11 @@ package org.lnicholls.galleon.server;
  */
 
 import java.rmi.*;
+import java.util.*;
 
 public interface ServerControl extends Remote {
     
    public void reset() throws RemoteException;
+   public List getRecordings() throws RemoteException;
 
 }

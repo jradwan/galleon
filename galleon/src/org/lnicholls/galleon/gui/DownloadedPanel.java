@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.JButton;
@@ -53,6 +55,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.togo.*;
+import org.lnicholls.galleon.database.*;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -93,9 +96,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
 
         setLayout(new BorderLayout());
 
-        mList = new ToGoList();
-
-        mShows = mList.load(Show.STATUS_DOWNLOADED);
+        mShows = new ArrayList(); ///
 
         final ShowTableData showsTableData = new ShowTableData();
         mTable = new JTable();
@@ -206,16 +207,18 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     JOptionPane.WARNING_MESSAGE | JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 mUpdating = true;
                 try {
-                    ArrayList downloaded = mList.load();
+                    //TODO Handle remove
+                    /*
+                    ArrayList downloaded = new ArrayList();///
                     ShowTableData model = (ShowTableData) mTable.getModel();
                     int[] selectedRows = mTable.getSelectedRows();
                     if (selectedRows.length > 0) {
                         for (int i = 0; i < selectedRows.length; i++) {
-                            Show show = (Show) mShows.get(selectedRows[i]);
+                            Video video = (Video) mShows.get(selectedRows[i]);
                             for (int j = 0; j < downloaded.size(); j++) {
-                                Show shown = (Show) downloaded.get(j);
-                                if (shown.equals(show)) {
-                                    File file = new File(show.getPath());
+                                Video shown = (Video) downloaded.get(j);
+                                if (shown.equals(video)) {
+                                    File file = new File(video.getPath());
                                     if (file.exists())
                                         file.delete();
                                     downloaded.remove(shown);
@@ -225,7 +228,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                             model.removeRow(selectedRows[i]);
                         }
                     }
-                    mList.save(downloaded);
+                    */
                 } catch (Exception ex) {
                     Tools.logException(RulesPanel.class, ex);
                 }
@@ -279,15 +282,15 @@ public class DownloadedPanel extends JPanel implements ActionListener {
         public Object getValueAt(int nRow, int nCol) {
             if (nRow < 0 || nRow >= getRowCount())
                 return "";
-            Show show = (Show) mShows.get(nRow);
+            Video video = (Video) mShows.get(nRow);
             switch (nCol) {
             case 0:
-                return show.getTitle();
+                return video.getTitle();
             case 1:
-                return show.getEpisode();
+                return video.getEpisodeTitle();
             case 2:
                 // Round off to the closest minutes; TiVo seems to start recordings 2 seconds before the scheduled time
-                mCalendar.setTime(show.getDateRecorded());
+                mCalendar.setTime(video.getDateRecorded());
                 mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
                         + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
@@ -295,35 +298,35 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             case 3:
                 // Round off to closest minute
                 //int duration = Math.round((show.getDuration()/1000/60+0.5f)/10)*10;
-                int duration = Math.round(show.getDuration() / 1000 / 60 + 0.5f);
-                mCalendar.setTime(new Date(Math.round((show.getDuration() / 1000 / 60 + 0.5f) / 10) * 10));
+                int duration = Math.round(video.getDuration() / 1000 / 60 + 0.5f);
+                mCalendar.setTime(new Date(Math.round((video.getDuration() / 1000 / 60 + 0.5f) / 10) * 10));
                 mCalendar.set(GregorianCalendar.HOUR_OF_DAY, duration / 60);
                 mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
                 return mTimeFormat.format(mCalendar.getTime());
             case 4:
-                return mNumberFormat.format(show.getSize() / (1024 * 1024)) + " MB";
+                return mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB";
             case 5:
-                return show.getStatusString();
+                return video.getStatusString();
             case 6:
-                return show.getDescription().length() != 0 ? show.getDescription() : " ";
+                return video.getDescription().length() != 0 ? video.getDescription() : " ";
             case 7:
-                return show.getChannel() + " " + show.getStation();
+                return video.getChannel() + " " + video.getStation();
             case 8:
-                return show.getRating().length() != 0 ? show.getRating() : "No rating";
+                return video.getRating().length() != 0 ? video.getRating() : "No rating";
             case 9:
-                return show.getQuality();
+                return video.getRecordingQuality();
             }
             return " ";
         }
 
         public void setValueAt(Object value, int row, int col) {
-            Show show = null;
+            Video show = null;
             if (row < mShows.size())
-                show = (Show) mShows.get(row);
+                show = (Video) mShows.get(row);
 
             if (show == null) {
-                show = new Show();
+                show = new Video();
                 mShows.add(row, show);
             }
             fireTableDataChanged();
@@ -379,8 +382,8 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             }
 
             public int compare(Object o1, Object o2) {
-                Show show1 = (Show) o1;
-                Show show2 = (Show) o2;
+                Video show1 = (Video) o1;
+                Video show2 = (Video) o2;
                 int result = 0;
                 double d1, d2;
                 switch (mSortCol) {
@@ -388,7 +391,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     result = show1.getTitle().compareTo(show2.getTitle());
                     break;
                 case 1:
-                    result = show1.getEpisode().compareTo(show2.getEpisode());
+                    result = show1.getEpisodeTitle().compareTo(show2.getEpisodeTitle());
                     break;
                 case 2:
                     result = show1.getDateRecorded().compareTo(show2.getDateRecorded());
@@ -439,12 +442,22 @@ public class DownloadedPanel extends JPanel implements ActionListener {
     }
 
     public void activate() {
-        mShows = mList.load(Show.STATUS_DOWNLOADED);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        mShows.clear();
+        List recordings = Galleon.getRecordings();
+        Iterator iterator = recordings.iterator();
+        while (iterator.hasNext())
+        {
+            Video video = (Video)iterator.next();
+            if (video.getStatus()==Video.STATUS_DOWNLOADED)
+                mShows.add(video);
+        }
         ShowTableData model = (ShowTableData) mTable.getModel();
         model.fireTableDataChanged();
 
         if (model.getRowCount() > 0)
             mTable.setRowSelectionInterval(0, 0);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     private JTable mTable;
@@ -460,8 +473,6 @@ public class DownloadedPanel extends JPanel implements ActionListener {
     private JLabel mRatingField;
 
     private JLabel mQualityField;
-
-    private ToGoList mList;
 
     private ArrayList mShows;
 

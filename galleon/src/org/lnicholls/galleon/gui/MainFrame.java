@@ -128,7 +128,7 @@ public class MainFrame extends JFrame {
                 JOptionPane
                         .showMessageDialog(
                                 Galleon.getMainFrame(),
-                                "Galleon Version 0.1\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
+                                "Galleon Version "+ Tools.getVersion() + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
                                 "About", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -181,7 +181,7 @@ public class MainFrame extends JFrame {
 
         panel.add(mainSplitPane, "Center");
 
-        JLabel statusField = new JLabel("\251 2004,2005 Leon Nicholls");
+        JLabel statusField = new JLabel("\251 2005 Leon Nicholls");
         statusField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(statusField, "West");

@@ -55,12 +55,15 @@ public class ToGoDialog extends JDialog implements ActionListener {
         mTabbedPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 if (mTabbedPane.getSelectedIndex() == 0) {
-                    mRecordedPanel.activate();
                     mTiVoPanel.activate();
                 }
                 else
                 if (mTabbedPane.getSelectedIndex() == 1) {
                     mDownloadedPanel.activate();
+                }                
+                else
+                if (mTabbedPane.getSelectedIndex() == 2) {
+                    mRecordedPanel.activate();
                 }                
             }
         });

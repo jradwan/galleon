@@ -110,7 +110,6 @@ public final class Galleon implements Constants {
             mPort = mServerConfiguration.getConfiguredPort();
             mRegistry = LocateRegistry.getRegistry("localhost", 1099);
             
-            mToGo = new ToGo(mServerConfiguration);
             mRulesList = new RulesList();
             
             mMainFrame = new MainFrame(mServerConfiguration.getVersion());
@@ -169,10 +168,6 @@ public final class Galleon implements Constants {
         return mServerConfiguration;
     }
     
-    public static ToGo getToGo() {
-        return mToGo;
-    }
-    
     public static RulesList getRulesList() {
         return mRulesList;
     }    
@@ -202,6 +197,19 @@ public final class Galleon implements Constants {
         }
         mMainFrame.refresh();
     }
+    
+    public static List getRecordings() {
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getRecordings();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get recordings at port " + mPort);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not get recordings.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
 
     private static Logger log;
 
@@ -216,8 +224,6 @@ public final class Galleon implements Constants {
     private static int mPort;
 
     private static File mConfigureDir;
-    
-    private static ToGo mToGo;
     
     private static RulesList mRulesList;
     

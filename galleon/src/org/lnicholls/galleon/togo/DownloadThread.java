@@ -20,10 +20,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import net.sf.hibernate.HibernateException;
+
 import org.apache.log4j.Logger;
 
 import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.database.VideoManager;
 
 public class DownloadThread extends Thread implements Constants {
     private static Logger log = Logger.getLogger(DownloadThread.class.getName());
@@ -40,24 +44,14 @@ public class DownloadThread extends Thread implements Constants {
         while (true) {
             try {
                 boolean retry = false;
-                Show next = mToGo.pickNextShowForDownloading();
+                Video next = mToGo.pickNextVideoForDownloading();
 
                 if (next != null) {
                     if (log.isDebugEnabled())
                         log.debug("Picked: " + next);
-
-                    ToGoList togoList = new ToGoList();
-                    ArrayList downloaded = togoList.load();
-                    boolean found = false;
-                    Iterator iterator = downloaded.iterator();
-                    while (iterator.hasNext()) {
-                        Show show = (Show) iterator.next();
-                        if (show.equals(next)) {
-                            show.setStatus(Show.STATUS_DOWNLOADING);
-                            break;
-                        }
-                    }
-                    togoList.save(downloaded);
+                    
+                    next.setStatus(Video.STATUS_DOWNLOADING);
+                    VideoManager.updateVideo(next);
 
                     CancelThread cancelThread = new CancelThread(next);
                     cancelThread.start();
@@ -69,17 +63,9 @@ public class DownloadThread extends Thread implements Constants {
                         }
 
                         if (!cancelThread.cancel()) {
-                            downloaded = togoList.load();
-                            iterator = downloaded.iterator();
-                            while (iterator.hasNext()) {
-                                Show show = (Show) iterator.next();
-                                if (show.equals(next)) {
-                                    show.setStatus(Show.STATUS_DOWNLOADED);
-                                    show.setPath(next.getPath());
-                                    break;
-                                }
-                            }
-                            togoList.save(downloaded);
+                            // TODO Track download stats
+                            next.setStatus(Video.STATUS_DOWNLOADED);
+                            VideoManager.updateVideo(next);
                         }
                     }
                 } else
@@ -93,27 +79,22 @@ public class DownloadThread extends Thread implements Constants {
     }
 
     class CancelThread extends Thread implements CancelDownload {
-        public CancelThread(Show show) throws IOException {
+        public CancelThread(Video video) throws IOException {
             super("CancelThread");
             setPriority(Thread.MIN_PRIORITY);
-            mShow = show;
+            mVideo = video;
             mCancel = false;
         }
 
         public void run() {
             while (!mCancel) {
                 try {
-                    ToGoList togoList = new ToGoList();
-                    ArrayList downloaded = togoList.load();
-                    boolean found = false;
-                    Iterator iterator = downloaded.iterator();
-                    while (iterator.hasNext()) {
-                        Show show = (Show) iterator.next();
-                        if (show.equals(mShow) && show.getStatus() == Show.STATUS_USER_CANCELLED) {
-                            log.info("Download cancelled by user: " + show.getTitle());
-                            mCancel = true;
-                            break;
-                        }
+                    mVideo = VideoManager.retrieveVideo(mVideo.getId());
+                    
+                    if (mVideo.getStatus() == Video.STATUS_USER_CANCELLED) {
+                        log.info("Download cancelled by user: " + mVideo.getTitle());
+                        mCancel = true;
+                        break;
                     }
                     sleep(1000 * 60 * 1);
                 } catch (InterruptedException ex) {
@@ -129,7 +110,7 @@ public class DownloadThread extends Thread implements Constants {
             return mCancel;
         }
 
-        private Show mShow;
+        private Video mVideo;
 
         private boolean mCancel;
     }
@@ -142,4 +123,3 @@ public class DownloadThread extends Thread implements Constants {
         mToGo.setServerConfiguration(value);
     }
 }
-

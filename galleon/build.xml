@@ -146,6 +146,7 @@
             <compilerarg value="-Xlint:deprecation"/>
 -->            
         </javac>
+        <rmic classname="org.lnicholls.galleon.server.ServerControlImpl" base="${build}"/>
     </target>
     
   <!-- Generate the schemas for all mapping files in our class tree -->

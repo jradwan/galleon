@@ -18,7 +18,7 @@ package org.lnicholls.galleon.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.*;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -49,9 +49,10 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.server.*;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.togo.*;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.gui.RecordedPanel.ShowTableData.ColumnListener;
+import org.lnicholls.galleon.util.ProgressListener;
+import org.lnicholls.galleon.util.Tools;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -63,7 +64,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code
  * Templates
  */
-public class RecordedPanel extends JPanel implements ProgressListener {
+public class RecordedPanel extends JPanel {
 
     private static Logger log = Logger.getLogger(RecordedPanel.class.getName());
 
@@ -79,77 +80,6 @@ public class RecordedPanel extends JPanel implements ProgressListener {
             mWidth = width;
             mAlignment = alignment;
         }
-    }
-
-    public class RecordedThread extends Thread {
-
-        public RecordedThread(RecordedPanel recordedPanel) {
-            super("RecordedThread");
-            mRecordedPanel = recordedPanel;
-        }
-
-        public void run() {
-            while (true) {
-                try {
-                    ArrayList tivos = Galleon.getServerConfiguration().getTiVos();
-                    if (tivos.size() > 0) {
-                        ToGoList togoList = new ToGoList();
-                        
-                        ArrayList downloads = togoList.load(Show.STATUS_DOWNLOADING | Show.STATUS_PENDING | Show.STATUS_USER_CANCELLED | Show.STATUS_RECORDED | Show.STATUS_RECORDING | Show.STATUS_INCOMPLETE | Show.STATUS_USER_SELECTED);
-                        if (downloads.size()==0)
-                        {
-                            Galleon.getToGo().getRecordings(tivos,RecordedPanel.this, mRecorded);
-                            mTitleField.setText(" ");
-                            mDescriptionField.setText(" ");
-                            if (log.isDebugEnabled())
-                                log.debug("mRecorded=" + mRecorded.size());
-    
-                            ArrayList downloaded = togoList.load();
-                            
-                            Iterator recordedIterator = mRecorded.iterator();
-                            while (recordedIterator.hasNext()) {
-                                Show next = (Show) recordedIterator.next();
-                            
-                                boolean found = false;
-                                Iterator iterator = downloaded.iterator();
-                                while (iterator.hasNext()) {
-                                    Show show = (Show) iterator.next();
-                                    if (show.equals(next)) {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (!found)
-                                {
-                                    downloaded.add(next);
-                                }
-                            }
-                            togoList.save(downloaded);
-                            
-                            Galleon.getToGo().applyRules();
-                            
-                            mRecorded = togoList.load(Show.STATUS_DOWNLOADING | Show.STATUS_PENDING | Show.STATUS_USER_CANCELLED | Show.STATUS_RECORDED | Show.STATUS_RECORDING | Show.STATUS_INCOMPLETE);
-                        }
-                        else
-                        {
-                            mRecorded = downloads; 
-                        }
-                        
-                        Collections.sort(mRecorded, new ShowComparator(3, false));
-                        ShowTableData model = (ShowTableData) mTable.getModel();
-                        model.fireTableDataChanged();
-                        if (model.getRowCount() > 0)
-                            mTable.setRowSelectionInterval(0, 0);
-                        mRecordedPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));                        
-                    } 
-                    sleep(1000*60);
-                } catch (Throwable ex) {
-                    //HMOTools.logException(RecordedThread.class, ex);
-                }
-            }
-        }
-
-        private RecordedPanel mRecordedPanel;
     }
 
     private static final ColumnData mColumns[] = { new ColumnData(" ", 5, JLabel.CENTER),
@@ -257,9 +187,6 @@ public class RecordedPanel extends JPanel implements ProgressListener {
         tablePanel.add(scrollPane, BorderLayout.CENTER);
 
         add(tablePanel, BorderLayout.CENTER);
-
-        mRecordedThread = new RecordedThread(this);
-        mRecordedThread.setPriority(Thread.MIN_PRIORITY);
     }
 
     class ShowTableData extends AbstractTableModel {
@@ -307,8 +234,8 @@ public class RecordedPanel extends JPanel implements ProgressListener {
         public boolean isCellEditable(int nRow, int nCol) {
             if (nCol == 0)
             {
-                Show show = (Show) mRecorded.get(nRow);
-                return show.getStatus()!=Show.STATUS_RECORDING;
+                Video show = (Video) mRecorded.get(nRow);
+                return show.getStatus()!=Video.STATUS_RECORDING;
             }
             else
                 return false;
@@ -317,14 +244,14 @@ public class RecordedPanel extends JPanel implements ProgressListener {
         public Object getValueAt(int nRow, int nCol) {
             if (nRow < 0 || nRow >= getRowCount())
                 return "";
-            Show show = (Show) mRecorded.get(nRow);
+            Video show = (Video) mRecorded.get(nRow);
             switch (nCol) {
             case 0:
-                return new Boolean(show.getStatus()==Show.STATUS_PENDING || show.getStatus()==Show.STATUS_USER_SELECTED || show.getStatus()==Show.STATUS_DOWNLOADING);
+                return new Boolean(show.getStatus()==Video.STATUS_RULE_MATCHED || show.getStatus()==Video.STATUS_USER_SELECTED || show.getStatus()==Video.STATUS_DOWNLOADING);
             case 1:
-                return show.getTitle();
+                return show.getTitle()==null?"":show.getTitle();
             case 2:
-                return show.getEpisode();
+                return show.getEpisodeTitle()==null?"":show.getEpisodeTitle();
             case 3:
                 // Round off to the closest minutes; TiVo seems to start recordings 2 seconds before the scheduled time
                 mCalendar.setTime(show.getDateRecorded());
@@ -344,26 +271,26 @@ public class RecordedPanel extends JPanel implements ProgressListener {
             case 5:
                 return mNumberFormat.format(show.getSize() / (1024 * 1024)) + " MB";
             case 6:
-                return show.getStatusString();
+                return show.getStatusString()==null?"":show.getStatusString();
             case 7:
                 return show.getDescription().length() != 0 ? show.getDescription() : " ";
             case 8:
                 return show.getChannel() + " " + show.getStation();
             case 9:
-                return show.getRating().length() != 0 ? show.getRating() : "No rating";
+                return (show.getRating()==null || show.getRating().length() != 0) ? show.getRating() : "N/A";
             case 10:
-                return show.getQuality();
+                return show.getRecordingQuality()==null?"":show.getRecordingQuality();
             }
             return " ";
         }
 
         public void setValueAt(Object value, final int row, int col) {
-            Show show = null;
+            Video show = null;
             if (row < mRecorded.size())
-                show = (Show) mRecorded.get(row);
+                show = (Video) mRecorded.get(row);
 
             if (show == null) {
-                show = new Show();
+                show = new Video();
                 mRecorded.add(row, show);
             }
 
@@ -376,11 +303,12 @@ public class RecordedPanel extends JPanel implements ProgressListener {
                 
                 Boolean status = (Boolean)value;
                 if (status.booleanValue())
-                    show.setStatus(Show.STATUS_USER_SELECTED);
+                    show.setStatus(Video.STATUS_USER_SELECTED);
                 else    
-                    show.setStatus(Show.STATUS_USER_CANCELLED);
+                    show.setStatus(Video.STATUS_USER_CANCELLED);
                 
                 boolean found = false;
+                /*
                 ToGoList togoList = new ToGoList();
                 ArrayList downloads = togoList.load();
                 Iterator recordedIterator = downloads.iterator();
@@ -398,6 +326,7 @@ public class RecordedPanel extends JPanel implements ProgressListener {
                 if (!found)
                     downloads.add(show);
                 togoList.save(downloads);
+                */
             }
             fireTableDataChanged();
         }
@@ -454,8 +383,8 @@ public class RecordedPanel extends JPanel implements ProgressListener {
         }
 
         public int compare(Object o1, Object o2) {
-            Show contact1 = (Show) o1;
-            Show contact2 = (Show) o2;
+            Video contact1 = (Video) o1;
+            Video contact2 = (Video) o2;
             int result = 0;
             double d1, d2;
             switch (mSortCol) {
@@ -466,7 +395,7 @@ public class RecordedPanel extends JPanel implements ProgressListener {
                 result = contact1.getTitle().compareTo(contact2.getTitle());
                 break;
             case 2:
-                result = contact1.getEpisode().compareTo(contact2.getEpisode());
+                result = contact1.getEpisodeTitle().compareTo(contact2.getEpisodeTitle());
                 break;
             case 3:
                 result = contact1.getDateRecorded().compareTo(contact2.getDateRecorded());
@@ -517,7 +446,7 @@ public class RecordedPanel extends JPanel implements ProgressListener {
             setHorizontalAlignment(mColumns[column].mAlignment);
             //setFont(mFont);
             if (column == 1) {
-                Show show = (Show) mRecorded.get(row);
+                Video show = (Video) mRecorded.get(row);
                 if (show.getIcon().equals("in-progress-recording"))
                     setIcon(mRedIcon);
                 else if (show.getIcon().equals("expires-soon-recording"))
@@ -575,36 +504,28 @@ public class RecordedPanel extends JPanel implements ProgressListener {
                             "You have not configured the ToGo media access key using the File/Properties menu.",
                             "Error", JOptionPane.ERROR_MESSAGE);
         }        
-        else
-        if (mRecorded.size() == 0 && !mRecordedThread.isAlive()) {
-            RecordedPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            mTitleField.setText("Retrieving recording data from your TiVo(s)...");
-            mRecordedThread.start();
-        }
+        
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
+        mRecorded.clear();
+        mTitleField.setText("Retrieving recording data from your TiVo(s)...");
+        mRecorded = Galleon.getRecordings();
+        
+        Collections.sort(mRecorded, new ShowComparator(3, false));
+        ShowTableData model = (ShowTableData) mTable.getModel();
+        model.fireTableDataChanged();
+        if (model.getRowCount() > 0)
+            mTable.setRowSelectionInterval(0, 0);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
     public void updateTable()
     {
-        Galleon.getToGo().applyRules();
+        //Galleon.getToGo().applyRules();
         
-        ToGoList togoList = new ToGoList();
-        mRecorded = togoList.load(Show.STATUS_DOWNLOADING | Show.STATUS_PENDING | Show.STATUS_USER_CANCELLED | Show.STATUS_RECORDED | Show.STATUS_RECORDING | Show.STATUS_INCOMPLETE | Show.STATUS_USER_SELECTED);
-        
-        Collections.sort(mRecorded, new ShowComparator(3, false));
-        ShowTableData model = (ShowTableData)mTable.getModel(); 
-        model.fireTableDataChanged();
-        
-        if (model.getRowCount() > 0)
-            mTable.setRowSelectionInterval(0, 0);
+        activate();
     }
     
-    public void progress(String value)
-    {
-        mDescriptionField.setText(value);
-        ShowTableData model = (ShowTableData) mTable.getModel();
-        model.fireTableDataChanged();
-    }
-
     private JTable mTable;
 
     private JLabel mTitleField;
@@ -621,7 +542,5 @@ public class RecordedPanel extends JPanel implements ProgressListener {
 
     private boolean mUpdating;
 
-    private ArrayList mRecorded;
-
-    private RecordedThread mRecordedThread;
+    private List mRecorded;
 }

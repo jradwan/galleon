@@ -18,13 +18,35 @@ package org.lnicholls.galleon.server;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
+import java.util.ArrayList;
+
+import net.sf.hibernate.HibernateException;
+
+import org.lnicholls.galleon.database.VideoManager;
+
+import org.apache.log4j.Logger;
 
 public class ServerControlImpl extends UnicastRemoteObject implements ServerControl {
+    
+    private static Logger log = Logger.getLogger(ServerControlImpl.class.getName());
+    
     public ServerControlImpl() throws RemoteException {
         super();
     }
 
     public void reset() throws RemoteException {
         Server.getServer().reconfigure();
+    }
+    
+    public List getRecordings() throws RemoteException
+    {
+        try
+        {
+            return VideoManager.listAll();
+        } catch (HibernateException ex) {
+            log.error("Video listAll failed", ex);
+        }
+        return new ArrayList();
     }
 }

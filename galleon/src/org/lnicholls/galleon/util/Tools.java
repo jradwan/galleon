@@ -49,6 +49,7 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.Element;
 
 import org.lnicholls.galleon.server.*;
 
@@ -423,5 +424,19 @@ public class Tools {
             }
         }
         return filename;
-    }    
+    }
+    
+    public static String getAttribute(Element element, String name)
+    {
+        String value = element.attributeValue( name );
+        if (value==null)
+        {
+            Element child = element.element( name );
+            if (child!=null)
+                return child.getTextTrim();
+        }
+        else
+            value = value.trim();
+        return value;
+    }
 }

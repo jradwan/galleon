@@ -196,21 +196,24 @@ public class ToGo extends BApplication {
             protected void createRow(BView parent, int index) {
                 BView icon = new BView(parent, 10, 3, 30, 30);
                 Video video = ((ToGoScreen) get(index)).getVideo();
-                if (video.getIcon().equals("in-progress-recording"))
-                    icon.setResource(mRedIcon);
-                else if (video.getIcon().equals("expires-soon-recording"))
-                    icon.setResource(mYellowIcon);
-                else if (video.getIcon().equals("expired-recording"))
-                    icon.setResource(mYellowExclamationIcon);
-                else if (video.getIcon().equals("save-until-i-delete-recording"))
-                    icon.setResource(mGreenIcon);
-                else
-                    icon.setResource(mEmptyIcon);
+                if (video.getIcon()!=null)
+                {
+                    if (video.getIcon().equals("in-progress-recording"))
+                        icon.setResource(mRedIcon);
+                    else if (video.getIcon().equals("expires-soon-recording"))
+                        icon.setResource(mYellowIcon);
+                    else if (video.getIcon().equals("expired-recording"))
+                        icon.setResource(mYellowExclamationIcon);
+                    else if (video.getIcon().equals("save-until-i-delete-recording"))
+                        icon.setResource(mGreenIcon);
+                    else
+                        icon.setResource(mEmptyIcon);
+                }
 
                 BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
                 name.setShadow(true);
                 name.setFlags(RSRC_HALIGN_LEFT);
-                name.setValue(video.getTitle());
+                name.setValue(trim(video.getTitle(),35));
 
                 mCalendar.setTime(video.getDateRecorded());
                 mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
@@ -232,6 +235,13 @@ public class ToGo extends BApplication {
                 return super.handleKeyPress(code, rawcode);
             }
         }
+    }
+    
+    public String trim(String value, int max)
+    {
+        if (value!=null && value.length()>max)
+            return value.substring(0,max-3)+"...";
+        return value;
     }
 
     public class ToGoScreen extends DefaultScreen {
@@ -340,21 +350,24 @@ public class ToGo extends BApplication {
         private void updateText()
         {
             int location = 40;
-            if (mVideo.getIcon().equals("in-progress-recording"))
-                icon.setResource(mRedIcon);
-            else if (mVideo.getIcon().equals("expires-soon-recording"))
-                icon.setResource(mYellowIcon);
-            else if (mVideo.getIcon().equals("expired-recording"))
-                icon.setResource(mYellowExclamationIcon);
-            else if (mVideo.getIcon().equals("save-until-i-delete-recording"))
-                icon.setResource(mGreenIcon);
-            else {
-                icon.setResource(mEmptyIcon);
-                location = 0;
+            if (mVideo.getIcon()!=null)
+            {
+                if (mVideo.getIcon().equals("in-progress-recording"))
+                    icon.setResource(mRedIcon);
+                else if (mVideo.getIcon().equals("expires-soon-recording"))
+                    icon.setResource(mYellowIcon);
+                else if (mVideo.getIcon().equals("expired-recording"))
+                    icon.setResource(mYellowExclamationIcon);
+                else if (mVideo.getIcon().equals("save-until-i-delete-recording"))
+                    icon.setResource(mGreenIcon);
+                else {
+                    icon.setResource(mEmptyIcon);
+                    location = 0;
+                }
             }
             titleText.setLocation(border_left + location, top);
 
-            titleText.setValue(mVideo.getTitle());
+            titleText.setValue(mVideo.getTitle()==null?"":trim(mVideo.getTitle(),35));
 
             mCalendar.setTime(mVideo.getOriginalAirDate()==null?new Date():mVideo.getOriginalAirDate());
             mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60

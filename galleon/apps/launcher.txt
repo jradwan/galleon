@@ -28,9 +28,11 @@
 #com.tivo.hme.samples.effects.Effects
 #com.tivo.hme.samples.tictactoe.TicTacToe
 
-#org.lnicholls.hme.winamp.Winamp d:\download\mp3 d:\galleon\apps\Tivo.wsz
+#org.lnicholls.hme.winamp.Winamp d:\download\mp3\amber "d:\galleon\apps\Expensive_Hi-Fi_1.2.wsz"
 
 com.tivo.hme.samples.bananas.BananasSample
 
 org.lnicholls.galleon.apps.togo.ToGo
+
+org.lnicholls.galleon.apps.weather.Weather
 

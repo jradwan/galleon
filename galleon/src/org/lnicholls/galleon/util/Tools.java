@@ -1,7 +1,7 @@
 package org.lnicholls.galleon.util;
 
 /*
- * Copyright (C) 2004  Leon Nicholls
+ * Copyright (C) 2005  Leon Nicholls
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package org.lnicholls.galleon.util;
  */
 
 import java.awt.Image;
+import java.awt.FontMetrics;
 import java.awt.Toolkit;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -439,4 +441,77 @@ public class Tools {
             value = value.trim();
         return value;
     }
+    
+    public static String getPage(URL url)
+    {
+        StringBuffer buffer = new StringBuffer();
+        byte[] buf = new byte[1024];
+        int amount = 0;
+        try
+        {
+            InputStream input = url.openStream();
+            while ((amount = input.read(buf)) > 0) {
+                buffer.append(new String(buf, 0, amount));
+            }
+        } catch (Exception ex) {
+            Tools.logException(Tools.class, ex, url.getPath() );
+        }
+        return buffer.toString();
+    }
+    
+    /*
+     * From com.tivo.hme.sim.SimResource.java Copyright (c) 2003-2004 TiVo Inc. 
+     */
+    public static String layout(int width, FontMetrics metrics, String text)
+    {
+        char chars[] = text.toCharArray();
+        int start = 0;
+        int eow = -1;
+
+        int i;
+        StringBuffer result = new StringBuffer();
+        for (i = 0; i < chars.length;) {
+            char ch = chars[i];
+            boolean isNewline = false;
+            if (Character.isWhitespace(ch)) {
+                if (ch == '\r') {
+                    isNewline = true;
+                    if (i + 1 < chars.length && chars[i + 1] == '\n') {
+                        ++i;
+                    }
+                } else if (ch == '\n') {
+                    isNewline = true;
+                }
+                eow = i;
+            }
+
+            int txtWidth = metrics.charsWidth(chars, start, (i - start) + 1);
+            if (txtWidth > width || isNewline) {
+                if (i == start && !isNewline) {
+                    return "";
+                }
+
+                int breakat;
+                int newline;
+                if (eow >= start) {
+                    breakat = eow;
+                    newline = breakat + 1;
+                } else {
+                    breakat = i;
+                    newline = i;
+                }
+
+                result.append(new String(chars, start, breakat - start).trim());
+                result.append('\n');
+                i = start = newline;
+            } else {
+                i++;
+            }
+        }
+
+        if (i > start) {
+            result.append(new String(chars, start, i - start).trim());
+        }
+        return new String(result);
+    }    
 }

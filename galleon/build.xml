@@ -233,6 +233,16 @@
         </jar>
         <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
         
+        <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
+        <copy file="./media/fonts/casual.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/casual.ttf" />                
+        <jar jarfile="${build}/apps/weather.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/weather" excludes="*.java" />
+            <fileset dir="./media/images/weather" includes="*.png,*.jpg"/>                                                
+            <fileset dir="./media/fonts" includes="casual.ttf"/>
+        </jar>
+        <copy file="${build}/apps/weather.jar" tofile="./apps/weather.jar" />                
+        
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                
         <copy file="./apps/readme.txt" tofile="${build}/apps/readme.txt" />                        
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                

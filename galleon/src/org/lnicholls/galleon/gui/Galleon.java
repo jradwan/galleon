@@ -107,8 +107,7 @@ public final class Galleon implements Constants {
             mAddress = mServerConfiguration.getIPAddress();
             if (mAddress == null || mAddress.length() == 0)
                 mAddress = "127.0.0.1";
-            mPort = mServerConfiguration.getConfiguredPort();
-            mRegistry = LocateRegistry.getRegistry("localhost", 1099);
+            mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099);
             
             mRulesList = new RulesList();
             
@@ -132,10 +131,13 @@ public final class Galleon implements Constants {
     }
 
     public static void main(String[] args) {
+        // TODO Get everything throug RMI
         if (args.length > 0) {
             File configureDir = new File(args[0]);
             if (configureDir.exists() && configureDir.isDirectory())
                 mConfigureDir = configureDir;
+            if (args.length > 1)
+                mServerAddress = args[1];
         }
 
         //splashWindow.setVisible(true);
@@ -189,7 +191,7 @@ public final class Galleon implements Constants {
                 ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
                 serverControl.reset();
             } catch (Exception ex) {
-                Tools.logException(Galleon.class, ex, "Could not reconfigure Galleon server at port " + mPort);
+                Tools.logException(Galleon.class, ex, "Could not update server: " + mServerAddress);
 
                 JOptionPane.showMessageDialog(mMainFrame, "Could not update Galleon server.", "Error",
                         JOptionPane.ERROR_MESSAGE);
@@ -203,7 +205,7 @@ public final class Galleon implements Constants {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
             return serverControl.getRecordings();
         } catch (Exception ex) {
-            Tools.logException(Galleon.class, ex, "Could not get recordings at port " + mPort);
+            Tools.logException(Galleon.class, ex, "Could not get recordings from server: " + mServerAddress);
 
             JOptionPane.showMessageDialog(mMainFrame, "Could not get recordings.", "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -221,11 +223,11 @@ public final class Galleon implements Constants {
 
     private static String mAddress;
 
-    private static int mPort;
-
     private static File mConfigureDir;
     
     private static RulesList mRulesList;
     
     private static Registry mRegistry;
+    
+    private static String mServerAddress = "localhost";
 }

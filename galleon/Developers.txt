@@ -64,6 +64,11 @@ jdbc:derby:d:/galleon/data/galleon
 userid: galleon
 password: galleon
 
+GUI
+---
+The GUI communicates with the server using Java RMI which binds to port 1099. This elliminates the proprietary 
+socket connection that JavaHMO used. This will also allow headless systems to remotely configure the server.
+
 
 
 --------------------------------------

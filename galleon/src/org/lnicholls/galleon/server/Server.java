@@ -19,45 +19,39 @@ package org.lnicholls.galleon.server;
 import java.awt.Font;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
-import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.*;
+import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.imageio.ImageIO;
-
 import net.sf.hibernate.HibernateException;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.lnicholls.galleon.util.Configurator;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.app.*;
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppDescriptor;
+import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
-import org.lnicholls.galleon.media.*;
-import org.lnicholls.galleon.togo.*;
-
-import java.rmi.server.*;
-import java.rmi.*;
-import java.rmi.registry.*;
+import org.lnicholls.galleon.togo.DownloadThread;
+import org.lnicholls.galleon.togo.ToGoThread;
+import org.lnicholls.galleon.util.Configurator;
+import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.widget.ScrollText;
 
 /*
  * Main class. Called by service wrapper to initialise and start Galleon.
@@ -70,103 +64,102 @@ public class Server {
         try {
             ArrayList errors = new ArrayList();
             setup(errors);
-            
+
             log = setupLog(Server.class.getName(), "TraceFile");
-            
-            for (int i=0;i<errors.size();i++)
+
+            for (int i = 0; i < errors.size(); i++)
                 log.error(errors.get(i));
-            
+
             createAppClassLoader();
-            
+
             Thread.currentThread().setContextClassLoader(mAppClassLoader);
-            
+
             mRegistry = LocateRegistry.createRegistry(1099);
-            mRegistry.bind("serverControl", new ServerControlImpl());             
-            
+            mRegistry.bind("serverControl", new ServerControlImpl());
+
             mServerConfiguration = new ServerConfiguration();
-            
+
             // Log the system properties
             printSystemProperties();
-            
-            log.info("Galleon version="+Tools.getVersion());
+
+            log.info("Galleon version=" + Tools.getVersion());
 
             // Redirect standard out; some third-party libraries use this for error logging
             // TODO
             //Tools.redirectStandardStreams();
-            
+
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
         }
     }
-    
+
     public static void setup(ArrayList errors) {
         System.setProperty("os.user.home", System.getProperty("user.home"));
-        
+
         System.setProperty("http.agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
 
         try {
             File file = new File(".");
-            
+
             if (System.getProperty("root") == null)
                 System.setProperty("root", file.getAbsolutePath() + "/..");
-            
+
             File check = new File(System.getProperty("root"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: root="+System.getProperty("root"));
+                errors.add("Invalid system propery: root=" + System.getProperty("root"));
 
             System.setProperty("user.home", System.getProperty("root"));
 
             if (System.getProperty("conf") == null)
                 System.setProperty("conf", file.getAbsolutePath() + "/../conf");
-            
+
             check = new File(System.getProperty("conf"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: conf="+System.getProperty("conf"));            
+                errors.add("Invalid system propery: conf=" + System.getProperty("conf"));
 
             if (System.getProperty("cache") == null)
                 System.setProperty("cache", file.getAbsolutePath() + "/../conf");
-            
+
             check = new File(System.getProperty("cache"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: cache="+System.getProperty("cache"));            
-            
+                errors.add("Invalid system propery: cache=" + System.getProperty("cache"));
+
             if (System.getProperty("data") == null)
                 System.setProperty("data", file.getAbsolutePath() + "/../data");
-            
+
             check = new File(System.getProperty("data"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: data="+System.getProperty("data"));            
-            
+                errors.add("Invalid system propery: data=" + System.getProperty("data"));
+
             if (System.getProperty("apps") == null)
                 System.setProperty("apps", file.getAbsolutePath() + "/../apps");
-            
+
             check = new File(System.getProperty("apps"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: apps="+System.getProperty("apps"));            
+                errors.add("Invalid system propery: apps=" + System.getProperty("apps"));
 
             if (System.getProperty("logs") == null)
                 System.setProperty("logs", file.getAbsolutePath() + "/../logs");
-            
+
             check = new File(System.getProperty("logs"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: logs="+System.getProperty("logs"));            
-            
+                errors.add("Invalid system propery: logs=" + System.getProperty("logs"));
+
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
-        }        
+        }
     }
-    
+
     public static Logger setupLog(String name, String appenderName) {
         /* Make a logs directory if one doesn't exist */
         File dir = new File(System.getProperty("logs"));
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        try
-        {
+        try {
             DOMConfigurator.configureAndWatch(System.getProperty("conf") + "/log4j.xml", 60000);
+        } catch (Exception ex) {
         }
-        catch (Exception ex) {}
         Logger log = Logger.getLogger(name);
 
         // Start with a new log file with each restart
@@ -175,13 +168,13 @@ public class Server {
         if (asyncAppender != null) {
             RollingFileAppender rollingFileAppender = (RollingFileAppender) asyncAppender.getAppender(appenderName);
             if (rollingFileAppender != null) {
-                rollingFileAppender.setFile(System.getProperty("logs")+"/"+Constants.LOG_FILE);
+                rollingFileAppender.setFile(System.getProperty("logs") + "/" + Constants.LOG_FILE);
                 rollingFileAppender.rollOver();
             }
         }
-        
+
         return log;
-    }    
+    }
 
     // Service wrapper required method
     public Integer start() {
@@ -189,40 +182,40 @@ public class Server {
             log.debug("start()");
         try {
             mTiVoListener = new TiVoListener();
-            
+
             // Start the database
             NetworkServerManager.initialize();
-            
+
             HibernateUtil.initialize();
             if (NetworkServerManager.findSchema())
                 HibernateUtil.updateSchema();
             else
                 HibernateUtil.createSchema();
-            
+
             // Start time task for period operations such as internet downloads
             mLongTermTimer = new Timer();
             mShortTermTimer = new Timer();
 
             // Load apps
             mAppManager = new AppManager(mAppClassLoader);
-            
+
             // Read the conf/configure.xml file
             mConfigurator = new Configurator();
             mConfigurator.load(mAppManager);
-            
-            mPort = getConfiguredPort();
+
+            mAppManager.loadApps();
 
             // Create a port listener
             //findAvailablePort();
 
             preLoadFonts();
-            
+
             //mAppManager.startPlugins();
-            
+
             // Start the Media Manager refresh thread
             //scheduleLongTerm(new MediaManager.RefreshTask(), 3); //60*24);
             //MediaManager.addPath(new MediaRefreshThread.PathInfo("d:/download/mp3",FileFilters.audioFilter));
-            
+
             try {
                 mToGoThread = new ToGoThread(this);
                 mToGoThread.start();
@@ -233,8 +226,8 @@ public class Server {
 
                 mToGoThread = null;
                 mDownloadThread = null;
-            }            
-            
+            }
+
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
             return new Integer(1);
@@ -248,12 +241,9 @@ public class Server {
             log.debug("stop()");
         try {
             /*
-            if (mPluginManager != null) {
-                mPluginManager.destroyAllPlugins();
-                mPluginManager = null;
-            }
-            */
-            
+             * if (mPluginManager != null) { mPluginManager.destroyAllPlugins(); mPluginManager = null; }
+             */
+
             if (mToGoThread != null) {
                 mToGoThread.interrupt();
                 mToGoThread = null;
@@ -263,12 +253,12 @@ public class Server {
                 mDownloadThread.interrupt();
                 mDownloadThread = null;
             }
-            
+
             NetworkServerManager.shutdown();
         } catch (Exception ex) {
             mToGoThread = null;
             mDownloadThread = null;
-            
+
             System.runFinalization();
             Tools.logException(Server.class, ex);
         }
@@ -355,12 +345,12 @@ public class Server {
         } catch (IllegalStateException ex) {
             Tools.logException(Server.class, ex);
         }
-        mShortTermTimer = new Timer();        
+        mShortTermTimer = new Timer();
     }
 
     public synchronized void reconfigure() {
         if (log.isDebugEnabled())
-            log.debug("reconfigure()");        
+            log.debug("reconfigure()");
         // Reset timer
         reset();
 
@@ -376,7 +366,7 @@ public class Server {
         mConfigurator = null;
         mConfigurator = new Configurator();
         mConfigurator.load(mAppManager);
-        
+
         //mAppManager.startPlugins();
     }
 
@@ -388,28 +378,12 @@ public class Server {
         return mServerConfiguration.getIPAddress();
     }
 
-    public void setNetMask(String netMask) {
-        mServerConfiguration.setNetMask(netMask);
-    }
-
-    public String getNetMask() {
-        return mServerConfiguration.getNetMask();
-    }
-
-    public void setPort(int port) {
-        mPort = port;
+    public void setPort(int value) {
+        mServerConfiguration.setPort(value);
     }
 
     public int getPort() {
-        return mPort;
-    }
-
-    public void setConfiguredPort(int port) {
-        mServerConfiguration.setConfiguredPort(port);
-    }
-
-    public int getConfiguredPort() {
-        return mServerConfiguration.getConfiguredPort();
+        return mServerConfiguration.getPort();
     }
 
     public void setName(String name) {
@@ -466,7 +440,7 @@ public class Server {
             }
         }
     }
-    
+
     public synchronized void scheduleShortTerm(TimerTask task, long time) {
         if (log.isDebugEnabled())
             log.debug("Server schedule short term: " + task + " for " + time);
@@ -484,7 +458,7 @@ public class Server {
                 Tools.logException(Server.class, ex2);
             }
         }
-    }    
+    }
 
     private void findAvailablePort() {
         if (log.isDebugEnabled())
@@ -519,7 +493,8 @@ public class Server {
         if (log.isDebugEnabled())
             log.debug("preLoadFonts()");
         try {
-            Font.createFont(Font.TRUETYPE_FONT, Server.class.getClassLoader().getResourceAsStream(ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "default.ttf"));
+            Font.createFont(Font.TRUETYPE_FONT, Server.class.getClassLoader().getResourceAsStream(
+                    ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "default.ttf"));
         } catch (Exception e) {
         }
     }
@@ -531,11 +506,10 @@ public class Server {
         return mLastModified;
     }
 
-    public AppManager getAppManager()
-    {
+    public AppManager getAppManager() {
         return mAppManager;
     }
-    
+
     public ToGoThread getToGoThread() {
         return mToGoThread;
     }
@@ -543,62 +517,51 @@ public class Server {
     public DownloadThread getDownloadThread() {
         return mDownloadThread;
     }
-    
+
     public ServerConfiguration getServerConfiguration() {
         return mServerConfiguration;
     }
-    
-    public void updateServerConfiguration(ServerConfiguration serverConfiguration)
-    {
+
+    public void updateServerConfiguration(ServerConfiguration serverConfiguration) {
         mServerConfiguration = serverConfiguration;
         /*
-        try {
-            PropertyUtils.copyProperties(mServerConfiguration, serverConfiguration);
-        } catch (Exception ex) {
-            log.error("Server configuration update failed", ex);
-        }
-        */
+         * try { PropertyUtils.copyProperties(mServerConfiguration, serverConfiguration); } catch (Exception ex) {
+         * log.error("Server configuration update failed", ex); }
+         */
         save();
         mToGoThread.interrupt();
     }
-    
-    public List getAppDescriptors()
-    {
+
+    public List getAppDescriptors() {
         return mAppManager.getAppDescriptors();
     }
-    
-    public List getApps()
-    {
+
+    public List getApps() {
         return mAppManager.getApps();
     }
-    
-    public List getTiVos() 
-    {
+
+    public List getTiVos() {
         //return mTiVoListener.getTiVos();
         return mServerConfiguration.getTiVos();
     }
-    
-    public void updateTiVos(List tivos)
-    {
+
+    public void updateTiVos(List tivos) {
         mServerConfiguration.setTiVos(tivos);
         save();
         mToGoThread.interrupt();
     }
-    
-    public void removeApp(AppContext app)
-    {
+
+    public void removeApp(AppContext app) {
         mAppManager.removeApp(app);
         save();
     }
-    
-    public void updateApp(AppContext app)
-    {
+
+    public void updateApp(AppContext app) {
         mAppManager.updateApp(app);
         save();
     }
-    
-    public void updateVideo(Video video)
-    {
+
+    public void updateVideo(Video video) {
         try {
             VideoManager.updateVideo(video);
         } catch (HibernateException ex) {
@@ -606,41 +569,34 @@ public class Server {
         }
         mDownloadThread.updateVideo(video);
     }
-    
-    public void removeVideo(Video video)
-    {
+
+    public void removeVideo(Video video) {
         try {
             VideoManager.deleteVideo(video);
         } catch (HibernateException ex) {
             log.error("Video delete failed", ex);
         }
     }
-    
-    public AppContext createAppContext(AppDescriptor appDescriptor)
-    {
+
+    public AppContext createAppContext(AppDescriptor appDescriptor) {
         return new AppContext(appDescriptor);
     }
-    
-    public List getRules() 
-    {
+
+    public List getRules() {
         return mServerConfiguration.getRules();
     }
-    
-    public void updateRules(List rules)
-    {
+
+    public void updateRules(List rules) {
         mServerConfiguration.setRules(rules);
         save();
         mToGoThread.interrupt();
-    }    
-    
-    public List getSkins() 
-    {
-        File skinsDirectory = new File(System.getProperty("root")+"/media/winamp");
-        if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden())
-        {
-            File[] files = skinsDirectory.listFiles(new FileFilter(){
-                public boolean accept(File pathname)
-                {
+    }
+
+    public List getSkins() {
+        File skinsDirectory = new File(System.getProperty("root") + "/media/winamp");
+        if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden()) {
+            File[] files = skinsDirectory.listFiles(new FileFilter() {
+                public boolean accept(File pathname) {
                     return pathname.getName().endsWith(".wsz"); // Winamp skins
                 }
             });
@@ -649,7 +605,7 @@ public class Server {
 
         return new ArrayList();
     }
-    
+
     private void createAppClassLoader() {
         File directory = new File(System.getProperty("apps"));
         // TODO Handle reloading; what if list changes?
@@ -670,7 +626,7 @@ public class Server {
 
         mAppClassLoader = new URLClassLoader(urlList);
     }
-    
+
     public static void main(String args[]) {
         Server server = getServer();
     }
@@ -679,9 +635,8 @@ public class Server {
 
     private static Server mServer;
 
-    private int mPort = 8081;
-
     private Timer mLongTermTimer;
+
     private Timer mShortTermTimer;
 
     private Configurator mConfigurator;
@@ -689,16 +644,16 @@ public class Server {
     private long mLastModified = System.currentTimeMillis();
 
     private ServerConfiguration mServerConfiguration;
-    
+
     private AppManager mAppManager;
-    
+
     private ToGoThread mToGoThread;
 
     private DownloadThread mDownloadThread;
-    
+
     private static Registry mRegistry;
-    
+
     private static TiVoListener mTiVoListener;
-    
+
     private static URLClassLoader mAppClassLoader;
 }

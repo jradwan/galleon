@@ -45,6 +45,10 @@ public final class AppManager {
         mAppFactory = new AppFactory(this);
         //loadAppDescriptors();
     }
+    
+    public void loadApps() {
+        mAppFactory.loadApps();
+    }
 
     private void getJars() {
         // TODO Handle reloading; what if list changes?
@@ -70,85 +74,6 @@ public final class AppManager {
         }
     }
     
-    /*
-     * public void addPlugin(Plugin plugin) { if (log.isDebugEnabled()) log.debug("addPlugin(): plugin=" + plugin); if
-     * (mPlugins.contains(plugin)) return;
-     * 
-     * mPlugins.add(plugin); try { if (log.isDebugEnabled()) log.debug("Initializing plugin: " + plugin);
-     * plugin.init(new PluginContext(getPluginDescriptor(plugin),mReset));
-     * 
-     * for (int i = 0; i < mPluginListeners.size(); i++) ((PluginListener) mPluginListeners.get(i)).pluginAdded(plugin); }
-     * catch (Exception ex) { Tools.logException(AppManager.class, ex); } }
-     * 
-     * public void removePlugin(Plugin plugin) { if (log.isDebugEnabled()) log.debug("removePlugin(): plugin=" +
-     * plugin); if (!mPlugins.contains(plugin)) return;
-     * 
-     * try { if (log.isDebugEnabled()) log.debug("Stopping plugin: " + plugin); plugin.stop(); if (log.isDebugEnabled())
-     * log.debug("Destroying plugin: " + plugin); plugin.destroy(); mPlugins.remove(plugin);
-     * 
-     * for (int i = 0; i < mPluginListeners.size(); i++) ((PluginListener)
-     * mPluginListeners.get(i)).pluginRemoved(plugin); } catch (Exception ex) { Tools.logException(AppManager.class,
-     * ex); } }
-     * 
-     * public void startPlugins() { Iterator it = mPlugins.iterator();
-     * 
-     * while (it.hasNext()) { try { Plugin plugin = (Plugin) it.next(); if (log.isDebugEnabled()) log.debug("Starting
-     * plugin: " + plugin); plugin.start(); } catch (Exception ex) { Tools.logException(AppManager.class, ex); } } }
-     * 
-     * public Iterator getPlugins() { return mPlugins.iterator(); }
-     * 
-     * public int getPluginSize() { return mPlugins.size(); }
-     * 
-     * public void addPluginListener(PluginListener listener) { if (log.isDebugEnabled())
-     * log.debug("addPluginListener()"); if (!mPluginListeners.contains(listener)) { mPluginListeners.add(listener);
-     * updateListener(listener); } }
-     * 
-     * private void updateListener(PluginListener listener) { if (log.isDebugEnabled()) log.debug("updateListener()");
-     * Iterator it = mPlugins.iterator();
-     * 
-     * while (it.hasNext()) { try { listener.pluginAdded((Plugin) it.next()); } catch (Exception ex) {
-     * Tools.logException(AppManager.class, ex); } } }
-     * 
-     * public void removePluginListener(PluginListener listener) { mPluginListeners.remove(listener); }
-     * 
-     * public void destroyAllPlugins() { if (log.isDebugEnabled()) log.debug("destroyAllPlugins()"); Iterator it =
-     * mPlugins.iterator(); Plugin plugin;
-     * 
-     * while (it.hasNext()) { try { plugin = (Plugin) it.next(); if (log.isDebugEnabled()) log.debug("Stopping plugin: " +
-     * plugin); plugin.stop(); if (log.isDebugEnabled()) log.debug("Destroying plugin: " + plugin); plugin.destroy(); }
-     * catch (Exception ex) { Tools.logException(AppManager.class, ex); } } }
-     * 
-     * public Class loadPlugin(PluginDescriptor pluginDescriptor) { if (log.isDebugEnabled()) log.debug("loadPlugin():
-     * pluginDescriptor=" + pluginDescriptor); Plugin thePlugin = null; try { if (log.isDebugEnabled())
-     * log.debug("Scanning JAR file: " + pluginDescriptor.getJar()); PluginClassLoader pluginClassLoader = new
-     * PluginClassLoader(pluginDescriptor); Class theClass = Class.forName(pluginDescriptor.getClassName(), true,
-     * pluginClassLoader); return theClass; } catch (IOException ex) { log.error("Cannot load plugin: " +
-     * pluginDescriptor); Tools.logException(AppManager.class, ex); } catch (ClassNotFoundException ex) {
-     * log.error("Cannot load plugin: " + pluginDescriptor); Tools.logException(AppManager.class, ex); } return null; }
-     * 
-     * private void loadPluginDescriptors(String directory) { if (log.isDebugEnabled())
-     * log.debug("loadPluginDescriptors(): directory=" + directory); File file = new File(directory); if
-     * (!(file.exists() && file.isDirectory())) { log.error("Could not load plugins from : " + directory); return; }
-     * String[] plugins = file.list(); if (plugins == null) { log.info("There are no plugins to load"); return; }
-     * 
-     * for (int i = 0; i < plugins.length; i++) { String plugin = plugins[i]; if
-     * (!plugin.toLowerCase().endsWith(".jar")) continue;
-     * 
-     * String path = directory + "/" + plugin;
-     * 
-     * try { if (log.isDebugEnabled()) log.debug("Scanning JAR file: " + path); PluginDescriptor pluginDescriptor = new
-     * PluginDescriptor(path); if (log.isDebugEnabled()) log.debug("Plugin Descriptor: " + pluginDescriptor);
-     * mPluginDescriptors.add(pluginDescriptor); } catch (IOException ex) { log.error("Cannot load plugin descriptor: " +
-     * plugin); Tools.logException(AppManager.class, ex); } catch (AppException ex) { log.error("Cannot load plugin
-     * descriptor: " + plugin); Tools.logException(AppManager.class, ex); } } }
-     * 
-     * public PluginDescriptor getPluginDescriptor(Plugin plugin) { Iterator iterator = getPluginDescriptors(); while
-     * (iterator.hasNext()) { PluginDescriptor pluginDescriptor = (PluginDescriptor) iterator.next(); if
-     * (pluginDescriptor.getClassName().equals(plugin.getClass().getName())) return pluginDescriptor; } return null; }
-     * 
-     * public Iterator getPluginDescriptors() { return mPluginDescriptors.iterator(); }
-     */
-
     public void addHMEApp(String launcher) {
         mHMEApps.add(launcher);
     }

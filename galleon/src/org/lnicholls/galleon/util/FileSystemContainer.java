@@ -40,8 +40,11 @@ public class FileSystemContainer {
         File directory = FileGatherer.resolveLink(new File(getPath())); // Handle shortcuts
         if (!directory.isHidden() && directory.isDirectory()) {
             FileGatherer.gatherDirectory(directory, fileFilter, false, new FileGatherer.GathererCallback() {
-                public void visit(File file) {
-                    items.add(new NameFile(Tools.extractName(file.getAbsolutePath()), file));
+                public void visit(File file, File originalFile) {
+                    if (originalFile.equals(file))
+                        items.add(new NameFile(Tools.extractName(file.getName()), file));
+                    else
+                        items.add(new NameFile(Tools.extractName(originalFile.getName()), file));
                 }
             });
         }

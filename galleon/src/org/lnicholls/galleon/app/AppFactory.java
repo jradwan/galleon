@@ -27,6 +27,8 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.Tools;
 
 import com.tivo.hme.http.server.HttpRequest;
@@ -48,37 +50,38 @@ public class AppFactory extends Factory {
 
     public AppFactory(AppManager appManager) {
         mAppManager = appManager;
+        setClassLoader(Thread.currentThread().getContextClassLoader());
+    }
+
+    public void loadApps() {
         if (System.getProperty("apps") != null) {
             File file = new File(System.getProperty("apps") + "/launcher.txt");
             if (file.exists()) {
-                setClassLoader(Thread.currentThread().getContextClassLoader());
 
                 FastInputStream in = null;
                 try {
                     in = new FastInputStream(new FileInputStream(file), 1024);
 
-                    mListener = new Listener(new ArgumentList(""));
+                    Listener listener = getSharedListener();
                     String ln = in.readLine();
                     while (ln != null) {
                         ln = ln.trim();
                         if (!ln.startsWith("#") && ln.length() > 0) {
                             try {
-                                System.out.println("Found: " + ln);
-                                appManager.addHMEApp(ln);
-                                Factory factory = startFactory(mListener, new ArgumentList(ln));
+                                log.info("Found: " + ln);
+                                mAppManager.addHMEApp(ln);
+                                Factory factory = startFactory(listener, new ArgumentList(ln));
                                 if (factory instanceof AppFactory)
-                                    appManager.addApp((AppFactory) factory);
+                                    mAppManager.addApp((AppFactory) factory);
                             } catch (Throwable th) {
-                                System.out.println("error: " + th.getMessage() + " for " + ln);
+                                log.error("error: " + th.getMessage() + " for " + ln);
                                 th.printStackTrace();
                             }
                         }
                         ln = in.readLine();
                     }
-                } catch (IOException e) {
-                    // TODO
-                    System.out.println("error: " + e.getMessage());
-                    e.printStackTrace();
+                } catch (IOException ex) {
+                    Tools.logException(AppFactory.class, ex);
                 } finally {
                     if (in != null) {
                         try {
@@ -122,10 +125,10 @@ public class AppFactory extends Factory {
             factory = (AppFactory) constructor.newInstance((Object[]) values);
 
         } catch (ClassNotFoundException ex) {
-            log.error(AppFactory.class, ex);
+            Tools.logException(AppFactory.class, ex);
             throw ex;
         } catch (InvocationTargetException ex) {
-            log.error(AppFactory.class, ex);
+            Tools.logException(AppFactory.class, ex);
             throw ex;
         }
         factory.setListener(listener);
@@ -134,7 +137,7 @@ public class AppFactory extends Factory {
         String title = factory.getAppContext().getConfiguration().getName();
         // name
         String uri = args.getValue("-uri", URLEncoder.encode(title.replaceAll(" ", ""), "UTF-8")); //getField(clazz,
-                                                                                                   // "URI"));
+        // "URI"));
         if (uri == null) {
             uri = clazz;
 
@@ -176,21 +179,8 @@ public class AppFactory extends Factory {
             args.checkForIllegalFlags();
             factory.start();
             return factory;
-        } catch (IOException e) {
-            System.out.println("error: I/O exception: " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            System.out.println("error: class not found: " + e.getMessage());
-            System.out.println("error: check the classpath and access permissions");
-        } catch (IllegalAccessException e) {
-            System.out.println("error: illegal access: " + e.getMessage());
-            System.out.println("error: make sure the class is public and has a public default constructor");
-        } catch (NoSuchMethodException e) {
-            System.out.println("error: no constructor: " + e.getMessage());
-            System.out.println("error: make sure the class is public and has a public default constructor");
-        } catch (InstantiationException e) {
-            System.out.println("error: instantiation exception: " + e.getMessage());
-        } catch (InvocationTargetException e) {
-            System.out.println("error: InvocationTargetException: " + e.getMessage());
+        } catch (Exception ex) {
+            Tools.logException(AppFactory.class, ex);
         }
 
         System.exit(1);
@@ -202,12 +192,10 @@ public class AppFactory extends Factory {
 
         if (mAppManager != null) {
             try {
-                appFactory = (AppFactory) startFactory(mListener, new ArgumentList(className));
+                appFactory = (AppFactory) startFactory(getSharedListener(), new ArgumentList(className));
                 mAppManager.addApp(appFactory);
-            } catch (Throwable th) {
-                // TODO
-                System.out.println("error: " + th.getMessage());
-                th.printStackTrace();
+            } catch (Throwable ex) {
+                Tools.logException(AppFactory.class, ex);
             }
         }
         return appFactory;
@@ -219,13 +207,11 @@ public class AppFactory extends Factory {
 
         if (mAppManager != null) {
             try {
-                appFactory = (AppFactory) startFactory(mListener, new ArgumentList(appContext.getDescriptor()
+                appFactory = (AppFactory) startFactory(getSharedListener(), new ArgumentList(appContext.getDescriptor()
                         .getClassName()), appContext);
                 mAppManager.addApp(appFactory);
             } catch (Throwable th) {
-                // TODO
-                System.out.println("error: " + th.getMessage());
-                th.printStackTrace();
+                Tools.logException(AppFactory.class, th);
             }
         }
         return appFactory;
@@ -241,7 +227,7 @@ public class AppFactory extends Factory {
                     return new FileInputStream(file);
                 }
             } catch (Exception ex) {
-                log.error(uri, ex);
+                Tools.logException(AppFactory.class, ex, uri);
             }
         }
 
@@ -269,6 +255,26 @@ public class AppFactory extends Factory {
 
     public AppContext getAppContext() {
         return mAppContext;
+    }
+
+    private Listener getSharedListener() {
+        if (mListener == null) {
+            try {
+                ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+                String arguments = "";
+                if (serverConfiguration.getIPAddress()!=null && serverConfiguration.getIPAddress().trim().length() > 0) {
+                    arguments = (arguments.length() == 0 ? "" : " ") + "-i " + serverConfiguration.getIPAddress();
+                }
+                if (serverConfiguration.getPort() != 0) {
+                    arguments = (arguments.length() == 0 ? "" : " ") + "-port " + serverConfiguration.getPort();
+                }
+                ArgumentList argumentList = new ArgumentList(arguments);
+                mListener = new Listener(argumentList);
+            } catch (Exception ex) {
+                Tools.logException(AppFactory.class, ex);
+            }
+        }
+        return mListener;
     }
 
     private AppManager mAppManager;

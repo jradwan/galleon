@@ -94,6 +94,8 @@ public class WeatherData implements Serializable {
         new Thread() {
             public void run() {
                 getAllWeather();
+                determineFip();
+                determineAlerts();
                 determineLocalRadar();
 
                 try {
@@ -109,9 +111,6 @@ public class WeatherData implements Serializable {
                 } catch (MalformedURLException ex) {
                     log.error("Could not download national radar", ex);
                 }
-
-                determineFip();
-                determineAlerts();
             }
         }.start();
         
@@ -233,7 +232,7 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        //parseWeather("");
+        parseWeather("");
     }    
 
     public void parseWeather(String page) {

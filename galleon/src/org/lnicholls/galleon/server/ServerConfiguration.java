@@ -19,14 +19,13 @@ package org.lnicholls.galleon.server;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.togo.Rule;
+import org.lnicholls.galleon.util.Tools;
 
 public class ServerConfiguration implements Serializable {
 
@@ -66,12 +65,12 @@ public class ServerConfiguration implements Serializable {
         return mReload;
     }
 
-    public void setConfiguredPort(int port) {
-        configuredPort = port;
+    public void setPort(int port) {
+        mPort = port;
     }
 
-    public int getConfiguredPort() {
-        return configuredPort;
+    public int getPort() {
+        return mPort;
     }
 
     public void setIPAddress(String ipaddress) {
@@ -88,34 +87,6 @@ public class ServerConfiguration implements Serializable {
 
     public String getIPAddress() {
         return mIPAddress;
-    }
-
-    public void setNetMask(String netMask) {
-        try {
-            StringTokenizer tokens = new StringTokenizer(netMask, ".");
-            if (tokens.countTokens() == 4) {
-                boolean valid = true;
-                for (int i = 0; i < 4; i++) {
-                    String token = tokens.nextToken();
-                    int value = Integer.parseInt(token);
-                    if (value < 0 || value > 255) {
-                        valid = false;
-                        break;
-                    }
-                }
-                if (valid) {
-                    mNetMask = netMask;
-                    return;
-                }
-            }
-        } catch (Exception ex) {
-            Tools.logException(ServerConfiguration.class, ex);
-        }
-        mNetMask = "";
-    }
-
-    public String getNetMask() {
-        return mNetMask;
     }
 
     public void setShuffleItems(boolean shuffleItems) {
@@ -144,14 +115,6 @@ public class ServerConfiguration implements Serializable {
         return mUseStreamingProxy;
     }
 
-    public void setUseTiVoBeacon(boolean value) {
-        mUseTiVoBeacon = value;
-    }
-
-    public boolean getUseTiVoBeacon() {
-        return mUseTiVoBeacon;
-    }
-
     public void setRecordingsPath(String value) {
         mRecordingsPath = value;
     }
@@ -167,11 +130,11 @@ public class ServerConfiguration implements Serializable {
     public String getMediaAccessKey() {
         return mMediaAccessKey;
     }
-    
+
     public List getTiVos() {
         return mTiVos;
     }
-    
+
     public void setTiVos(List tivos) {
         mTiVos = tivos;
     }
@@ -187,11 +150,11 @@ public class ServerConfiguration implements Serializable {
         mTiVos.add(tivo);
         return true;
     }
-    
+
     public List getRules() {
         return mRules;
     }
-    
+
     public void setRules(List rules) {
         mRules = rules;
     }
@@ -199,19 +162,17 @@ public class ServerConfiguration implements Serializable {
     public boolean addRule(Rule rule) {
         mRules.add(rule);
         return true;
-    }    
-
+    }
+    
     private String mVersion = Tools.getVersion();
 
     private String mName;
 
     private int mReload = 60;
 
-    private int configuredPort = 8081;
+    private int mPort = 7288;
 
     private String mIPAddress;
-
-    private String mNetMask;
 
     private boolean mShuffleItems = true; // defaults to true, the same shuffle style as the TiVo HMO server.
 
@@ -219,13 +180,11 @@ public class ServerConfiguration implements Serializable {
 
     private boolean mUseStreamingProxy = true; // defaults to true, proxy is used.
 
-    private boolean mUseTiVoBeacon = true;
-
     private String mRecordingsPath = "";
 
     private String mMediaAccessKey = "";
-    
+
     private List mTiVos;
-    
+
     private List mRules;
 }

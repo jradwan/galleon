@@ -17,20 +17,36 @@ package org.lnicholls.galleon.media;
  */
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.imageio.ImageIO;
+
+import net.sf.hibernate.lob.BlobImpl;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Image;
+import org.lnicholls.galleon.database.ImageManager;
+import org.lnicholls.galleon.database.Thumbnail;
+import org.lnicholls.galleon.database.ThumbnailManager;
 import org.lnicholls.galleon.util.Tools;
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 import dk.jdai.model.EXIFInfo;
 
 public final class JpgFile {
     private static final Logger log = Logger.getLogger(JpgFile.class.getName());
+
+    private static final String DEFAULT_TITLE = "unknown";
 
     public static final Image getImage(String filename) {
         Image image = new Image();
@@ -65,6 +81,12 @@ public final class JpgFile {
                     image.setDateCaptured(dateformat.parse(result));
                 }
             }
+
+            if (image.getTitle().equals(DEFAULT_TITLE)) {
+                String value = Tools.extractName(file.getName());
+                image.setTitle(value);
+            }
+
         } catch (Exception ex) {
             Tools.logException(JpgFile.class, ex, filename);
         }
@@ -72,7 +94,7 @@ public final class JpgFile {
     }
 
     private static void defaultProperties(Image image) {
-        image.setTitle("unknown");
+        image.setTitle(DEFAULT_TITLE);
         image.setSize(-1);
         image.setComments("");
         image.setMimeType("image/jpeg");
@@ -89,12 +111,60 @@ public final class JpgFile {
 
     public static final BufferedImage getThumbnail(Image image) {
         try {
-            // Extract the thumbnail data from the Exif header of the Jpeg file
-            EXIFInfo info = new EXIFInfo(new File(image.getPath()));
+            BufferedImage thumbnailImage = null;
+            if (image.getThumbnail() != null) {
+                thumbnailImage = ThumbnailManager.findImageById(image.getThumbnail());
+            }
 
-            // Does the Jpeg have a embedded thumbnail; true for most modern digital camera images
-            BufferedImage thumbnail = info.getThumbnail();
-            return thumbnail;
+            if (thumbnailImage == null) {
+                // Extract the thumbnail data from the Exif header of the Jpeg file
+                EXIFInfo info = new EXIFInfo(new File(image.getPath()));
+
+                // Does the Jpeg have a embedded thumbnail; true for most modern digital camera images
+                thumbnailImage = info.getThumbnail();
+            }
+
+            if (thumbnailImage == null) {
+                mLock.writeLock().lock();
+                try {
+                    FileInputStream is = new FileInputStream(image.getPath());
+                    if (is != null) {
+                        BufferedImage photo = ImageIO.read(is);
+
+                        if (photo != null) {
+                            photo = (BufferedImage) Tools.getImage(photo);
+                            thumbnailImage = ImageManipulator.getScaledImage(photo, 200, 200);
+
+                            try {
+                                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                                JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                                encoder.encode(thumbnailImage);
+                                byteArrayOutputStream.close();
+
+                                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+                                        byteArrayOutputStream.toByteArray());
+
+                                BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+
+                                Thumbnail thumbnail = new Thumbnail("JpgFile", "image/jpg", image.getPath());
+                                thumbnail.setImage(blob);
+                                thumbnail.setDateModified(new Date());
+                                ThumbnailManager.createThumbnail(thumbnail);
+
+                                image.setThumbnail(thumbnail.getId());
+                                ImageManager.updateImage(image);
+                            } catch (Exception ex) {
+                                Tools.logException(JpgFile.class, ex, image.getPath());
+                            }
+                            photo.flush();
+                        }
+                        photo = null;
+                    }
+                } finally {
+                    mLock.writeLock().unlock();
+                }
+            }
+            return thumbnailImage;
         } catch (Exception ex) {
             Tools.logException(JpgFile.class, ex, image.getPath());
         }
@@ -113,4 +183,6 @@ public final class JpgFile {
      * ImageIO.write(scaledImage, "jpg", out); }
      *  
      */
+
+    private static ReentrantReadWriteLock mLock = new ReentrantReadWriteLock();
 }

@@ -31,8 +31,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.*;
-import java.net.URL;
-import java.util.Iterator;
+import java.net.*;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -484,8 +484,8 @@ public class MainFrame extends JFrame {
     
     public class ServerDialog extends JDialog implements ActionListener {
 
-        class ReloadWrapper extends NameValue {
-            public ReloadWrapper(String name, String value) {
+        class NameValueWrapper extends NameValue {
+            public NameValueWrapper(String name, String value) {
                 super(name, value);
             }
 
@@ -504,18 +504,16 @@ public class MainFrame extends JFrame {
             mVersionField.setEditable(false);
             mVersionField.setText(serverConfiguration.getVersion());
             mReloadCombo = new JComboBox();
-            mReloadCombo.addItem(new ReloadWrapper("5 minutes", "5"));
-            mReloadCombo.addItem(new ReloadWrapper("10 minutes", "10"));
-            mReloadCombo.addItem(new ReloadWrapper("20 minutes", "20"));
-            mReloadCombo.addItem(new ReloadWrapper("30 minutes", "30"));
-            mReloadCombo.addItem(new ReloadWrapper("1 hour", "60"));
-            mReloadCombo.addItem(new ReloadWrapper("2 hours", "120"));
-            mReloadCombo.addItem(new ReloadWrapper("4 hours", "240"));
-            mReloadCombo.addItem(new ReloadWrapper("6 hours", "720"));
-            mReloadCombo.addItem(new ReloadWrapper("24 hours", "1440"));
+            mReloadCombo.addItem(new NameValueWrapper("5 minutes", "5"));
+            mReloadCombo.addItem(new NameValueWrapper("10 minutes", "10"));
+            mReloadCombo.addItem(new NameValueWrapper("20 minutes", "20"));
+            mReloadCombo.addItem(new NameValueWrapper("30 minutes", "30"));
+            mReloadCombo.addItem(new NameValueWrapper("1 hour", "60"));
+            mReloadCombo.addItem(new NameValueWrapper("2 hours", "120"));
+            mReloadCombo.addItem(new NameValueWrapper("4 hours", "240"));
+            mReloadCombo.addItem(new NameValueWrapper("6 hours", "720"));
+            mReloadCombo.addItem(new NameValueWrapper("24 hours", "1440"));
             defaultCombo(mReloadCombo, Integer.toString(serverConfiguration.getReload()));
-            mUseTiVoBeacon = new JCheckBox("TiVo Beacon");
-            mUseTiVoBeacon.setSelected(serverConfiguration.getUseTiVoBeacon());
             mStreamingProxy = new JCheckBox("Streaming Proxy");
             mStreamingProxy.setSelected(serverConfiguration.getUseStreamingProxy());
             mGenerateThumbnails = new JCheckBox("Generate Thumbnails");
@@ -526,13 +524,30 @@ public class MainFrame extends JFrame {
             try {
                 MaskFormatter formatter = new MaskFormatter("####");
                 mPort = new JFormattedTextField(formatter);
-                mPort.setValue(new Integer(serverConfiguration.getConfiguredPort()));
+                mPort.setValue(new Integer(serverConfiguration.getPort()));
             } catch (Exception ex) {
             }
-            mIPAddress = new JFormattedTextField();
-            mIPAddress.setText(serverConfiguration.getIPAddress());
-            mNetmask = new JTextField();
-            mNetmask.setText(serverConfiguration.getNetMask());
+            mIPAddress = new JComboBox();
+            mIPAddress.addItem(new NameValueWrapper("Default", ""));
+            try
+            {
+                Enumeration enumeration = NetworkInterface.getNetworkInterfaces();
+                while (enumeration.hasMoreElements())
+                {
+                    NetworkInterface networkInterface = (NetworkInterface)enumeration.nextElement();
+                    Enumeration inetAddressEnumeration = networkInterface.getInetAddresses();
+                    while (inetAddressEnumeration.hasMoreElements())
+                    {
+                        InetAddress inetAddress = (InetAddress)inetAddressEnumeration.nextElement();
+                        mIPAddress.addItem(new NameValueWrapper(inetAddress.getHostAddress(), inetAddress.getHostAddress()));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Tools.logException(MainFrame.class, ex, "Could not get network interfaces");
+            }
+            defaultCombo(mIPAddress, serverConfiguration.getIPAddress());
             mRecordingsPath = new JTextField();
             mRecordingsPath.setText(serverConfiguration.getRecordingsPath());
             mMediaAccessKey = new JTextField();
@@ -544,14 +559,12 @@ public class MainFrame extends JFrame {
                     "6dlu, " + "pref, " + //name
                     "3dlu, " + "pref, " + //version
                     "3dlu, " + "pref, " + //reload
-                    "3dlu, " + "pref, " + //usetivobeacon, streamingproxy
-                    "3dlu, " + "pref, " + //generatethumbnails, shuffleitems
+                    "3dlu, " + "pref, " + //generatethumbnails, streamingproxy
                     "3dlu, " + "pref, " + //recordings path
                     "3dlu, " + "pref, " + //media access key
                     "9dlu, " + "pref, " + //network
                     "6dlu, " + "pref, " + //port
-                    "3dlu, " + "pref, " + //address
-                    "3dlu, " + "pref " //netmask
+                    "3dlu, " + "pref, " //address
             );
 
             PanelBuilder builder = new PanelBuilder(layout);
@@ -567,26 +580,22 @@ public class MainFrame extends JFrame {
             builder.addLabel("Reload", cc.xy(1, 7));
             builder.add(mReloadCombo, cc.xyw(3, 7, 2));
             // TODO Only show for Windows
-            builder.add(mUseTiVoBeacon, cc.xy(3, 9));
+            builder.add(mGenerateThumbnails, cc.xy(3, 9));
             builder.add(mStreamingProxy, cc.xy(4, 9));
-            builder.add(mGenerateThumbnails, cc.xy(3, 11));
-            //builder.add(mShuffleItems, cc.xy(4, 11));
             JButton button = new JButton("...");
             button.setActionCommand("pick");
             button.addActionListener(this);
-            builder.addLabel("Recordings Path", cc.xy(1, 13));
-            builder.add(mRecordingsPath, cc.xyw(3, 13, 2));
-            builder.add(button, cc.xyw(6, 13, 1));
-            builder.addLabel("Media Access Key", cc.xy(1, 15));
-            builder.add(mMediaAccessKey, cc.xyw(3, 15, 2));
+            builder.addLabel("Recordings Path", cc.xy(1, 11));
+            builder.add(mRecordingsPath, cc.xyw(3, 11, 2));
+            builder.add(button, cc.xyw(6, 11, 1));
+            builder.addLabel("Media Access Key", cc.xy(1, 13));
+            builder.add(mMediaAccessKey, cc.xyw(3, 13, 2));
 
-            builder.addSeparator("Network", cc.xyw(1, 17, 6));
-            builder.addLabel("Port", cc.xy(1, 19));
-            builder.add(mPort, cc.xy(3, 19));
-            builder.addLabel("IP Address", cc.xy(1, 21));
-            builder.add(mIPAddress, cc.xy(3, 21));
-            builder.addLabel("Netmask", cc.xy(1, 23));
-            builder.add(mNetmask, cc.xy(3, 23));
+            builder.addSeparator("Network", cc.xyw(1, 15, 6));
+            builder.addLabel("Port", cc.xy(1, 17));
+            builder.add(mPort, cc.xy(3, 17));
+            builder.addLabel("IP Address", cc.xy(1, 19));
+            builder.add(mIPAddress, cc.xy(3, 19));
 
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -625,16 +634,15 @@ public class MainFrame extends JFrame {
                     mServerConfiguration.setReload(Integer.parseInt(((NameValue) mReloadCombo.getSelectedItem())
                             .getValue()));
                     try {
-                        mServerConfiguration.setConfiguredPort(Integer.parseInt(mPort.getText()));
+                        mServerConfiguration.setPort(Integer.parseInt(mPort.getText()));
                     } catch (NumberFormatException ex) {
                         Tools.logException(MainFrame.class, ex, "Invalid port: " + mPort.getText());
                     }
-                    mServerConfiguration.setIPAddress(mIPAddress.getText());
-                    mServerConfiguration.setNetMask(mNetmask.getText());
+                    mServerConfiguration.setIPAddress(((NameValue) mIPAddress.getSelectedItem())
+                            .getValue());
                     mServerConfiguration.setShuffleItems(mShuffleItems.isSelected());
                     mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
                     mServerConfiguration.setUseStreamingProxy(mStreamingProxy.isSelected());
-                    mServerConfiguration.setUseTiVoBeacon(mUseTiVoBeacon.isSelected());
                     mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
                     mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText()));
 
@@ -642,6 +650,9 @@ public class MainFrame extends JFrame {
                 } catch (Exception ex) {
                     Tools.logException(MainFrame.class, ex, "Could not configure server");
                 }
+                JOptionPane.showMessageDialog(this, "You need to restart Galleon for any changes in the server properties to take effect.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             } else if ("help".equals(e.getActionCommand())) {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -691,8 +702,6 @@ public class MainFrame extends JFrame {
 
         private JComboBox mReloadCombo;
 
-        private JCheckBox mUseTiVoBeacon;
-
         private JCheckBox mStreamingProxy;
 
         private JCheckBox mGenerateThumbnails;
@@ -701,10 +710,8 @@ public class MainFrame extends JFrame {
 
         private JFormattedTextField mPort;
 
-        private JTextField mIPAddress;
+        private JComboBox mIPAddress;
 
-        private JTextField mNetmask;
-        
         private JTextField mRecordingsPath;
         private JTextField mMediaAccessKey;
 

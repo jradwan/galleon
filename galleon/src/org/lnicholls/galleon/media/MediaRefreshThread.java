@@ -68,7 +68,7 @@ public class MediaRefreshThread extends Thread {
         // Update existing records and add new records
         FileGatherer.gatherDirectory(new File(pathInfo.mPath), pathInfo.mFilter, true,
                 new FileGatherer.GathererCallback() {
-                    public void visit(File file) {
+                    public void visit(File file, File originalFile) {
                         try {
                             List list = AudioManager.findByPath(file.getAbsolutePath());
                             if (list.size() > 0) {

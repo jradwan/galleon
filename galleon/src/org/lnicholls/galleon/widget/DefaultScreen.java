@@ -31,6 +31,12 @@ public class DefaultScreen extends BScreen {
 
     private static final Logger log = Logger.getLogger(DefaultScreen.class.getName());
 
+    protected final int TOP = SAFE_TITLE_V + 80;
+
+    protected final int BORDER_LEFT = SAFE_TITLE_H;
+
+    protected final int BODY_WIDTH = width - BORDER_LEFT - (SAFE_TITLE_H);
+
     static final class HintsView extends BView {
         public HintsView(BView parent, int x, int y, int width, int height, boolean visible) {
             super(parent, x, y, width, height, true);
@@ -59,17 +65,22 @@ public class DefaultScreen extends BScreen {
     }
 
     public DefaultScreen(BApplication app, String background) {
-        this(app, background, false);
+        this(app, background, null, false);
     }
 
     public DefaultScreen(BApplication app, boolean hints) {
-        this(app, "background.jpg", hints);
+        this(app, "background.jpg", null, hints);
     }
 
-    public DefaultScreen(BApplication app, String background, boolean hints) {
-        super(app);
+    public DefaultScreen(BApplication app, String title, boolean hints) {
+        this(app, "background.jpg", title, hints);
+    }
 
-        if (background!=null)
+    public DefaultScreen(BApplication app, String background, String title, boolean hints) {
+        super(app);
+        setTitle(title);
+
+        if (background != null)
             setBackground(background);
 
         if (hints)
@@ -98,7 +109,7 @@ public class DefaultScreen extends BScreen {
     }
 
     public void setTitle(String value) {
-        if (value != null) {
+        if (value != null && value.length() > 0) {
             if (mTitle == null) {
                 mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 50);
                 mTitle.setValue(" ");
@@ -113,7 +124,7 @@ public class DefaultScreen extends BScreen {
     }
 
     public void setFooter(String value) {
-        if (value != null) {
+        if (value != null && value.length() > 0) {
             if (mFooter == null) {
                 mFooter = new BText(normal, SAFE_TITLE_H, height - SAFE_TITLE_V - 18, (width - (SAFE_TITLE_H * 2)), 20);
                 mFooter.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
@@ -129,10 +140,20 @@ public class DefaultScreen extends BScreen {
             below.setResource(value);
     }
 
+    protected void updateHints() {
+        BHighlights h = getHighlights();
+        BHighlight pageup = h.get(H_PAGEUP);
+        BHighlight pagedown = h.get(H_PAGEDOWN);
+        if (pageup != null && pagedown != null) {
+            pageup.setVisible(H_VIS_TRUE);
+            pagedown.setVisible(H_VIS_TRUE);
+            h.refresh();
+        }
+    }
+
     private BText mTitle;
 
     private BText mFooter;
 
     private HintsView mHints;
 }
-

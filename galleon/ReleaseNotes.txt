@@ -3,6 +3,15 @@ Galleon
 
 Delete the previous beta before installing this beta.
 
+Version 0.0.0 beta 5:
+---------------------
+Optimized ToGo app to be less resource intensive.
+Fixed Windows shortcut names.
+Photo thumbnail widget.
+Made multicast DNS network interface and port configurable.
+Automatically detect TiVos.
+Fixed ToGo total time.
+
 
 Version 0.0.0 beta 4:
 ---------------------
@@ -39,12 +48,14 @@ Weather app.
 Version 0.0.0 beta 1:
 ---------------------
 Your TiVo needs to be running version 7.1 software.
-On your TiVo DVR:
 
-   1. Turn on HME. Navigate to System Information and press the following four keys in order : CLEAR CLEAR 0 0. Ignore the sounds.
-   2. Return to TiVo Central. Note that Music and Photos changed to Music, Photos and More.
-   3. Enter Music, Photos and More. 
 
+
+
+How to enabled HME on your TiVo DVR:
+1. Turn on HME. Navigate to System Information and press the following four keys in order : CLEAR CLEAR 0 0. Ignore the sounds.
+2. Return to TiVo Central. Note that Music and Photos changed to Music, Photos and More.
+3. Enter Music, Photos and More. 
 
 Known issues:
 1. The server needs to be running for the configuration GUI to work.
@@ -55,7 +66,6 @@ Known issues:
 6. Weather errors arent handled properly.
 7. Weather web links need parameters.
 8. App removal does not work.
-9. Cannot determine TiVo's automatically.
 10. Weather currently only uses zip.
 11. When you start Galleon, it might take some time before the ToGo list is populated.
 12. Music app only plays one directory of songs at a time.
@@ -66,6 +76,8 @@ Known issues:
 17. Port 1099 required for GUI to update the server.
 18. Photo viewer automatically goes into slideshow mode; should also just have a play mode.
 19. How to handle Channel Up/Channel Dn overlap between browsing and slideshow music control?
+20. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
+21. Port 7288 required for multicast DNS.
 
 
 How to get started:

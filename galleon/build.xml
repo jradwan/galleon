@@ -199,6 +199,7 @@
     <target name="build.library" depends="compile">
     
         <copy file="./media/fonts/FreeSans.ttf" tofile="${build}/org/lnicholls/galleon/widget/FreeSans.ttf" />    
+        <copy file="./media/images/widget/marker.png" tofile="${build}/org/lnicholls/galleon/widget/marker.png" />            
 
         <echo>Creating Galleon library</echo>
         <jar jarfile="${build}/lib/galleon.jar" compress="yes"
@@ -218,6 +219,9 @@
             <fileset dir="./media/images" includes="redball.gif" />                                                                        
             <fileset dir="./media/images" includes="blueball.gif" />                                                                        
             <fileset dir="./media/images" includes="empty.gif" />                                                                                    
+            <fileset dir="./media/images" includes="busy.gif" />
+            <fileset dir="./media/images" includes="busy2.gif" />            
+            <fileset dir="./media/images" includes="star.png" />            
             <fileset dir="./src" includes="**/*.hbm.xml" />
         </jar>
         
@@ -305,7 +309,8 @@
         
         
         <copy file="./media/images/photos/icon.png" tofile="${build}/org/lnicholls/galleon/apps/photos/icon.png" />        
-        <copy file="./media/images/photos/folder.png" tofile="${build}/org/lnicholls/galleon/apps/photos/folder.png" />                
+        <copy file="./media/images/photos/folder.png" tofile="${build}/org/lnicholls/galleon/apps/photos/folder.png" />        
+        <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/org/lnicholls/galleon/apps/photos/folder_red_open.png" />        
         <copy file="./media/images/photos/camera.png" tofile="${build}/org/lnicholls/galleon/apps/photos/camera.png" />                
         <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/photos/busy.gif" />                        
         <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/photos/busy2.gif" />                                
@@ -697,7 +702,14 @@
             <fileset dir="./media/images" includes="**/*.mp3,**/*.jpg,**/*.png,**/*.gif,**/*.ico" />
         </copy>        
         
+        <echo>Copying fonts</echo>
+        <mkdir dir="${build}/media/fonts" />
+        <copy todir="${build}/media/fonts">
+            <fileset dir="./media/fonts" includes="**/Dekadens.ttf,**/FreeSans.ttf" />
+        </copy>                
+        
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
+        <copy file="./apps/winamp.jar" tofile="${build}/apps/winamp.jar" />                                
 
     </target>
 </project>

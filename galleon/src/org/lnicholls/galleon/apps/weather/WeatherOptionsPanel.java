@@ -141,7 +141,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 try {
-                    BrowserLauncher.openURL("http://www.weather.com/outlook/health/allergies");
+                    BrowserLauncher.openURL("http://www.weather.com/outlook/health/allergies/"+mZipField.getText()+"?par=xoap");
                 } catch (Exception ex) {
                 }
             }
@@ -152,7 +152,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 try {
-                    BrowserLauncher.openURL("http://www.weather.com/outlook/travel/flights/citywx");
+                    BrowserLauncher.openURL("http://www.weather.com/outlook/travel/flights/citywx/"+mZipField.getText()+"?par=xoap");
                 } catch (Exception ex) {
                 }
             }
@@ -163,7 +163,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 try {
-                    BrowserLauncher.openURL("http://www.weather.com/outlook/events/special/result");
+                    BrowserLauncher.openURL("http://www.weather.com/outlook/events/special/result/"+mZipField.getText()+"?par=xoap");
                 } catch (Exception ex) {
                 }
             }

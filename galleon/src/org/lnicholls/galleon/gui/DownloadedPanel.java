@@ -62,12 +62,6 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-/**
- * @author Owner
- * 
- * TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code
- * Templates
- */
 public class DownloadedPanel extends JPanel implements ActionListener {
 
     private static Logger log = Logger.getLogger(DownloadedPanel.class.getName());

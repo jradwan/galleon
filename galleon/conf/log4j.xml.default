@@ -40,12 +40,12 @@
 	</appender>	
 	
 	<logger name="org.apache.commons" additivity="false">
-		<level value="INFO"/>
+		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>
 	
 	<logger name="de.nava.informa" additivity="false">
-		<level value="INFO"/>
+		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>
 	
@@ -55,22 +55,22 @@
 	</logger>	
 	
 	<logger name="net.sf.hibernate.type" additivity="false">
-		<level value="INFO"/>
+		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>		
 	
 	<logger name="net.sf.hibernate.tool.hbm2ddl" additivity="false">
-		<level value="INFO"/>
+		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>			
 	
 	<logger name="org.apache.commons.digester.Digester" additivity="false">
-		<level value="INFO"/>
+		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>			  
 
 	<logger name="org.apache.commons.digester.Digester.sax" additivity="false">
-		<level value="INFO"/>
+		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>			  	
 	

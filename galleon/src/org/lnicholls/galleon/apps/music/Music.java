@@ -1,4 +1,5 @@
 package org.lnicholls.galleon.apps.music;
+
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -35,6 +36,8 @@ import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
 import org.lnicholls.galleon.widget.DefaultApplication;
+import org.lnicholls.galleon.widget.DefaultMenuScreen;
+import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.hme.winamp.ClassicSkin;
 import org.lnicholls.hme.winamp.ImageControl;
@@ -44,8 +47,6 @@ import org.lnicholls.hme.winamp.ScrollTextControl;
 import org.lnicholls.hme.winamp.TextControl;
 
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BHighlight;
-import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
@@ -60,86 +61,50 @@ public class Music extends DefaultApplication {
 
     public final static String TITLE = "Music";
 
-    private Resource mBackground;
-
-    private Resource mIcon;
-
-    private Resource mBusyIcon;
-
-    private Resource mBusy2Icon;
-
     private Resource mFolderIcon;
 
     private Resource mCDIcon;
-
-    private Resource mStarIcon;
 
     private MusicScreen mMusicScreen;
 
     protected void init(Context context) {
         super.init(context);
 
-        mBackground = getResource("background.jpg");
-
-        mIcon = getResource("icon.png");
-
-        mBusyIcon = getResource("busy.gif");
-
-        mBusy2Icon = getResource("busy2.gif");
-
         mFolderIcon = getResource("folder.png");
 
         mCDIcon = getResource("cd.png");
-
-        mStarIcon = getResource("star.png");
 
         mMusicScreen = new MusicScreen(this);
 
         push(new MusicMenuScreen(this), TRANSITION_NONE);
     }
 
-    public class MusicMenuScreen extends DefaultScreen {
-        private MList list;
-
+    public class MusicMenuScreen extends DefaultMenuScreen {
         public MusicMenuScreen(Music app) {
-            super(app);
-            setTitle("Music");
-
-            list = new MList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
-                    - ((SAFE_TITLE_H * 2) + 32), 280, 35);
-            BHighlights h = list.getHighlights();
-            h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
-            h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
+            super(app, "Music");
 
             MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
                     .getAppContext().getConfiguration();
 
             for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
                 NameValue nameValue = (NameValue) i.next();
-                list.add(new NameFile(nameValue.getName(), new File(nameValue.getValue())));
+                mMenuList.add(new NameFile(nameValue.getName(), new File(nameValue.getValue())));
             }
-
-            setFocusDefault(list);
         }
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                BView row = list.getRow(list.getFocus());
-                BView icon = (BView) row.children[0];
-                icon.setResource(mBusy2Icon);
-                icon.flush();
-
-                getBApp().play("select.snd");
-                getBApp().flush();
+                load();
 
                 new Thread() {
                     public void run() {
                         try {
-                            NameFile nameFile = (NameFile) (list.get(list.getFocus()));
+                            NameFile nameFile = (NameFile) (mMenuList.get(mMenuList.getFocus()));
                             FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
                                     .getCanonicalPath());
-                            ((DefaultApplication)getBApp()).setCurrentDirectory(nameFile.getFile().getCanonicalPath());
-                            Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+                            ((DefaultApplication) getBApp()).setCurrentDirectory(nameFile.getFile().getCanonicalPath());
+                            Tracker tracker = new Tracker(fileSystemContainer
+                                    .getItems(FileFilters.audioDirectoryFilter), 0);
                             PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
                             getBApp().push(pathScreen, TRANSITION_LEFT);
                             getBApp().flush();
@@ -153,30 +118,9 @@ public class Music extends DefaultApplication {
             return super.handleAction(view, action);
         }
 
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            if (list.getFocus() >= 0) {
-                NameFile nameFile = (NameFile) (list.get(list.getFocus()));
-                BView row = list.getRow(list.getFocus());
-                BView icon = (BView) row.children[0];
-                if (nameFile.getFile().isDirectory())
-                    icon.setResource(mFolderIcon);
-                else
-                    icon.setResource(mCDIcon);
-                icon.flush();
-            }
-            return super.handleEnter(arg, isReturn);
-        }
-    }
-
-    public class MList extends BList {
-        public MList(BView parent, int x, int y, int width, int height, int rowHeight) {
-            super(parent, x, y, width, height, rowHeight);
-            setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
-        }
-
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 9, 2, 32, 32);
-            NameFile nameFile = (NameFile) get(index);
+            NameFile nameFile = (NameFile) mMenuList.get(index);
             if (nameFile.getFile().isDirectory()) {
                 icon.setResource(mFolderIcon);
             } else {
@@ -189,80 +133,37 @@ public class Music extends DefaultApplication {
             name.setValue(Tools.trim(nameFile.getName(), 40));
         }
 
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_SELECT:
-                postEvent(new BEvent.Action(this, "push"));
-                return true;
-            case KEY_CHANNELUP:
-            case KEY_CHANNELDOWN:
-                boolean result = super.handleKeyPress(code, rawcode);
-                if (!result) {
-                    getBApp().play("bonk.snd");
-                    getBApp().flush();
-                }
-                return true;
-            }
-            return super.handleKeyPress(code, rawcode);
-        }
-
-        public int getTop() {
-            return top;
-        }
     }
 
-    public class PathScreen extends DefaultScreen {
-        private MList list;
-
-        private final int top = SAFE_TITLE_V + 100;
-
-        private final int border_left = SAFE_TITLE_H;
-
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
+    public class PathScreen extends DefaultMenuScreen {
 
         public PathScreen(Music app, Tracker tracker) {
-            super(app);
-
-            setTitle("Music");
+            super(app, "Music");
 
             mTracker = tracker;
 
-            list = new MList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
-                    - ((SAFE_TITLE_H * 2) + 32), 280, 35);
-            BHighlights h = list.getHighlights();
-            h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
-            h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
-
-            setFocusDefault(list);
-
-            mBusy = new BView(normal, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
-            mBusy.setResource(mBusyIcon);
-            mBusy.setVisible(false);
+            Iterator iterator = mTracker.getList().iterator();
+            while (iterator.hasNext()) {
+                NameFile nameFile = (NameFile) iterator.next();
+                mMenuList.add(nameFile);
+            }
         }
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                Object object = list.get(list.getFocus());
-                BView row = list.getRow(list.getFocus());
-                BView icon = (BView) row.children[0];
-                icon.setResource(mBusy2Icon);
-                icon.flush();
-
-                getBApp().play("select.snd");
-                getBApp().flush();
-
-                final NameFile nameFile = (NameFile) object;
+                load();
+                final NameFile nameFile = (NameFile) (mMenuList.get(mMenuList.getFocus()));
                 if (nameFile.getFile().isDirectory()) {
                     new Thread() {
                         public void run() {
                             try {
-                                mTracker.setPos(list.getFocus());
-                                
-                                NameFile nameFile = (NameFile) (list.get(list.getFocus()));
+                                mTracker.setPos(mMenuList.getFocus());
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
                                         .getCanonicalPath());
-                                ((DefaultApplication)getBApp()).setCurrentDirectory(nameFile.getFile().getCanonicalPath());
-                                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+                                ((DefaultApplication) getBApp()).setCurrentDirectory(nameFile.getFile()
+                                        .getCanonicalPath());
+                                Tracker tracker = new Tracker(fileSystemContainer
+                                        .getItems(FileFilters.audioDirectoryFilter), 0);
                                 PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
@@ -277,7 +178,7 @@ public class Music extends DefaultApplication {
                             try {
                                 Audio audio = getAudio(nameFile.getFile().getCanonicalPath());
 
-                                mTracker.setPos(list.getFocus());
+                                mTracker.setPos(mMenuList.getFocus());
                                 mMusicScreen.setTracker(mTracker);
 
                                 getBApp().push(mMusicScreen, TRANSITION_LEFT);
@@ -294,47 +195,19 @@ public class Music extends DefaultApplication {
             return super.handleAction(view, action);
         }
 
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            if (list.size() == 0) {
-                setPainting(false);
-                try {
-                    mBusy.setVisible(true);
-
-                    Iterator iterator = mTracker.getList().iterator();
-                    while (iterator.hasNext()) {
-                        NameFile nameFile = (NameFile) iterator.next();
-                        list.add(nameFile);
-                    }
-                    mBusy.setVisible(false);
-                    mBusy.flush();
-                    list.setFocus(0, false);
-                    list.flush();
-                } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
-                } finally {
-                    setPainting(true);
-                }
-                list.setTop(mTop);
-                list.setFocus(mTracker.getPos(), false);
+        protected void createRow(BView parent, int index) {
+            BView icon = new BView(parent, 9, 2, 32, 32);
+            NameFile nameFile = (NameFile) mMenuList.get(index);
+            if (nameFile.getFile().isDirectory()) {
+                icon.setResource(mFolderIcon);
             } else {
-                if (list.getFocus() >= 0) {
-                    NameFile nameFile = (NameFile) list.get(list.getFocus());
-                    BView row = list.getRow(list.getFocus());
-                    BView icon = (BView) row.children[0];
-                    if (nameFile.getFile().isDirectory())
-                        icon.setResource(mFolderIcon);
-                    else
-                        icon.setResource(mCDIcon);
-                    icon.flush();
-                }
+                icon.setResource(mCDIcon);
             }
-            return super.handleEnter(arg, isReturn);
-        }
 
-        public boolean handleExit() {
-            mTop = list.getTop();
-            list.clear();
-            return super.handleExit();
+            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            name.setShadow(true);
+            name.setFlags(RSRC_HALIGN_LEFT);
+            name.setValue(Tools.trim(nameFile.getName(), 40));
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
@@ -347,35 +220,23 @@ public class Music extends DefaultApplication {
         }
 
         private Tracker mTracker;
-
-        private BView mBusy;
-
-        private int mTop;
     }
 
     public class MusicScreen extends DefaultScreen {
 
         private BList list;
 
-        private final int top = SAFE_TITLE_V + 80;
-
-        private final int border_left = SAFE_TITLE_H;
-
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
-
         public MusicScreen(Music app) {
-            super(app, true);
-
-            setTitle("Song");
+            super(app, "Song", true);
 
             mTimeFormat = new SimpleDateFormat();
             mTimeFormat.applyPattern("mm:ss");
 
-            int start = top;
+            int start = TOP;
 
             mCover = new BView(below, width - SAFE_TITLE_H - 210, height - SAFE_TITLE_V - 200, 200, 200, false);
 
-            mTitleText = new BText(normal, border_left, start - 30, text_width, 70);
+            mTitleText = new BText(normal, BORDER_LEFT, start - 30, BODY_WIDTH, 70);
             mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
             mTitleText.setFont("default-30-bold.font");
             mTitleText.setColor(Color.CYAN);
@@ -383,48 +244,48 @@ public class Music extends DefaultApplication {
 
             start += 40;
 
-            mSongText = new BText(normal, border_left, start, text_width, 20);
+            mSongText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mSongText.setFont("default-18-bold.font");
             mSongText.setShadow(true);
 
-            mDurationText = new BText(normal, border_left, start, text_width, 20);
+            mDurationText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mDurationText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mDurationText.setFont("default-18-bold.font");
             mDurationText.setShadow(true);
 
             start += 20;
 
-            mAlbumText = new BText(normal, border_left, start, text_width, 20);
+            mAlbumText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mAlbumText.setFont("default-18-bold.font");
             mAlbumText.setShadow(true);
 
-            mYearText = new BText(normal, border_left, start, text_width, 20);
+            mYearText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mYearText.setFont("default-18-bold.font");
             mYearText.setShadow(true);
 
             start += 20;
 
-            mArtistText = new BText(normal, border_left, start, text_width, 20);
+            mArtistText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mArtistText.setFont("default-18-bold.font");
             mArtistText.setShadow(true);
 
-            mGenreText = new BText(normal, border_left, start, text_width, 20);
+            mGenreText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mGenreText.setFont("default-18-bold.font");
             mGenreText.setShadow(true);
 
             mStars = new BView[5];
             for (int i = 0; i < 5; i++) {
-                mStars[i] = new BView(normal, border_left + (i * 40), height - SAFE_TITLE_V - 200, 34, 34, true);
+                mStars[i] = new BView(normal, BORDER_LEFT + (i * 40), height - SAFE_TITLE_V - 200, 34, 34, true);
                 mStars[i].setResource(mStarIcon, RSRC_IMAGE_BESTFIT);
                 mStars[i].setTransparency(0.6f);
             }
 
-            list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
+            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Play");
             list.add("Don't do anything");
@@ -462,7 +323,9 @@ public class Music extends DefaultApplication {
 
                     final MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
                             .getAppContext().getConfiguration();
-                    new Thread() {
+                    if (mCoverThread != null && mCoverThread.isAlive())
+                        mCoverThread.interrupt();
+                    mCoverThread = new Thread() {
                         public void run() {
                             try {
                                 java.awt.Image image = Mp3File.getCover(audio, musicConfiguration.isUseAmazon(),
@@ -478,22 +341,12 @@ public class Music extends DefaultApplication {
                                 Tools.logException(Music.class, ex, "Could retrieve cover");
                             }
                         }
-                    }.start();
+                    };
+                    mCoverThread.start();
 
                 } finally {
                     setPainting(true);
                 }
-            }
-        }
-
-        private void updateHints() {
-            BHighlights h = getHighlights();
-            BHighlight pageup = h.get(H_PAGEUP);
-            BHighlight pagedown = h.get(H_PAGEDOWN);
-            if (pageup != null && pagedown != null) {
-                pageup.setVisible(H_VIS_TRUE); // : H_VIS_FALSE);
-                pagedown.setVisible(H_VIS_TRUE); // : H_VIS_FALSE);
-                h.refresh();
             }
         }
 
@@ -667,39 +520,11 @@ public class Music extends DefaultApplication {
         private Tracker mTracker;
 
         private BView[] mStars;
-    }
 
-    public class OptionList extends BList {
-        public OptionList(BView parent, int x, int y, int width, int height, int rowHeight) {
-            super(parent, x, y, width, height, rowHeight);
-
-            setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
-        }
-
-        protected void createRow(BView parent, int index) {
-            BText text = new BText(parent, 10, 4, parent.width - 40, parent.height - 4);
-            text.setShadow(true);
-            text.setFlags(RSRC_HALIGN_LEFT);
-            text.setValue(get(index).toString());
-        }
-
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_CHANNELUP:
-            case KEY_CHANNELDOWN:
-                return parent.handleKeyPress(code, rawcode);
-            }
-            return super.handleKeyPress(code, rawcode);
-        }
+        private Thread mCoverThread;
     }
 
     public class PlayerScreen extends DefaultScreen {
-
-        private final int top = SAFE_TITLE_V + 80;
-
-        private final int border_left = SAFE_TITLE_H;
-
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
 
         public PlayerScreen(Music app, Tracker tracker) {
             super(app, true);

@@ -22,17 +22,18 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.widget.DefaultApplication;
+import org.lnicholls.galleon.widget.DefaultMenuScreen;
+import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.ScrollText;
 
-import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
@@ -45,7 +46,7 @@ import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.util.ArgumentList;
 
-public class Weather extends BApplication {
+public class Weather extends DefaultApplication {
 
     private static Logger log = Logger.getLogger(Weather.class.getName());
 
@@ -70,19 +71,19 @@ public class Weather extends BApplication {
 
         mIcon = getResource("icon.png");
 
-        //push(new WeatherMenuScreen(this), TRANSITION_NONE);
+        push(new WeatherMenuScreen(this), TRANSITION_NONE);
 
-        WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
-
-        screens[0] = new CurrentConditionsScreen(this, weatherData);
-        screens[1] = new ForecastScreen(this, weatherData);
-        screens[2] = new LocalRadarScreen(this, weatherData);
-        screens[3] = new NationalRadarScreen(this, weatherData);
-        screens[4] = new AlertsScreen(this, weatherData);
-
-        push(screens[0], TRANSITION_NONE);
+        /*
+         * WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
+         * 
+         * screens[0] = new CurrentConditionsScreen(this, weatherData); screens[1] = new ForecastScreen(this,
+         * weatherData); screens[2] = new LocalRadarScreen(this, weatherData); screens[3] = new
+         * NationalRadarScreen(this, weatherData); screens[4] = new AlertsScreen(this, weatherData);
+         * 
+         * push(screens[0], TRANSITION_NONE);
+         */
     }
-    
+
     public class WeatherScreen extends DefaultScreen {
         public WeatherScreen(Weather app) {
             super(app);
@@ -138,7 +139,7 @@ public class Weather extends BApplication {
             }
             return super.handleAction(view, action);
         }
-        
+
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_LEFT:
@@ -149,91 +150,53 @@ public class Weather extends BApplication {
         }
     }
 
-    public class WeatherMenuScreen extends WeatherScreen {
-        private TGList list;
+    public class WeatherMenuScreen extends DefaultMenuScreen {
 
         public WeatherMenuScreen(Weather app) {
-            super(app);
-            setTitle("Weather");
-
-            list = new TGList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
-                    - ((SAFE_TITLE_H * 2) + 32), 280, 35);
-            BHighlights h = list.getHighlights();
-            h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
-            h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
+            super(app, "Weather");
 
             WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
 
-            list.add(new CurrentConditionsScreen(app, weatherData));
-            list.add(new ForecastScreen(app, weatherData));
-            list.add(new LocalRadarScreen(app, weatherData));
-            list.add(new NationalRadarScreen(app, weatherData));
+            mMenuList.add(new CurrentConditionsScreen(app, weatherData));
+            mMenuList.add(new ForecastScreen(app, weatherData));
+            mMenuList.add(new LocalRadarScreen(app, weatherData));
+            mMenuList.add(new NationalRadarScreen(app, weatherData));
             if (weatherData.hasAlerts())
-                list.add(new AlertsScreen(app, weatherData));
-
-            setFocusDefault(list);
+                mMenuList.add(new AlertsScreen(app, weatherData));
         }
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                BScreen screen = (BScreen) (list.get(list.getFocus()));
+                load();
+                BScreen screen = (BScreen) (mMenuList.get(mMenuList.getFocus()));
                 getBApp().push(screen, TRANSITION_LEFT);
                 return true;
             }
             return super.handleAction(view, action);
         }
 
-        public String toString() {
-            return "Weather";
-        }
+        protected void createRow(BView parent, int index) {
+            BView icon = new BView(parent, 10, 3, 30, 30);
+            if (index == 4)
+                icon.setResource(mAlertIcon);
+            else
+                icon.setResource(mIcon);
 
-        public class TGList extends BList {
-            protected SimpleDateFormat mDateFormat;
-
-            protected GregorianCalendar mCalendar;
-
-            public TGList(BView parent, int x, int y, int width, int height, int rowHeight) {
-                super(parent, x, y, width, height, rowHeight);
-
-                mDateFormat = new SimpleDateFormat();
-                mDateFormat.applyPattern("EEE M/dd");
-                mCalendar = new GregorianCalendar();
-
-                setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
-            }
-
-            protected void createRow(BView parent, int index) {
-                BView icon = new BView(parent, 10, 3, 30, 30);
-                if (index == 4)
-                    icon.setResource(mAlertIcon);
-                else
-                    icon.setResource(mIcon);
-
-                BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
-                name.setShadow(true);
-                name.setFlags(RSRC_HALIGN_LEFT);
-                name.setValue(get(index).toString());
-            }
-
-            public boolean handleKeyPress(int code, long rawcode) {
-                switch (code) {
-                case KEY_SELECT:
-                    postEvent(new BEvent.Action(this, "push"));
-                    return true;
-                }
-                return super.handleKeyPress(code, rawcode);
-            }
+            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            name.setShadow(true);
+            name.setFlags(RSRC_HALIGN_LEFT);
+            name.setValue(mMenuList.get(index).toString());
         }
     }
 
-    public class CurrentConditionsScreen extends WeatherScreen {
-        private BList list;
-
+    public class CurrentConditionsScreen extends DefaultScreen {
         private final int top = SAFE_TITLE_V + 100;
 
         private final int border_left = SAFE_TITLE_H + 256;
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
+
+        private BList list;
 
         public CurrentConditionsScreen(Weather app, WeatherData data) {
             super(app);
@@ -340,13 +303,11 @@ public class Weather extends BApplication {
             visibilityText.setShadow(true);
 
             setFooter("weather.com");
-            
-            /*
-             * list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-             * .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35); list.add("Return to menu");
-             * 
-             * setFocusDefault(list);
-             */
+
+            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list.add("Return to menu");
+            setFocusDefault(list);
 
             updateText();
         }
@@ -377,6 +338,19 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_SELECT:
+            case KEY_RIGHT:
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_LEFT: // TODO Why never gets this code?
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
+        }
+
         public String toString() {
             return "Current Conditions";
         }
@@ -402,7 +376,7 @@ public class Weather extends BApplication {
         WeatherData mWeatherData;
     }
 
-    public class ForecastScreen extends WeatherScreen {
+    public class ForecastScreen extends DefaultScreen {
         private BList list;
 
         private final int top = SAFE_TITLE_V + 80;
@@ -462,12 +436,10 @@ public class Weather extends BApplication {
 
             setFooter("weather.gov");
 
-            /*
-             * list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-             * .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35); list.add("Return to menu");
-             * 
-             * setFocusDefault(list);
-             */
+            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list.add("Return to menu");
+            setFocusDefault(list);
 
             updateText();
         }
@@ -519,6 +491,19 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_SELECT:
+            case KEY_RIGHT:
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_LEFT: // TODO Why never gets this code?
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
+        }
+
         public String toString() {
             return "Forecast";
         }
@@ -536,7 +521,7 @@ public class Weather extends BApplication {
         private WeatherData mWeatherData;
     }
 
-    public class LocalRadarScreen extends WeatherScreen {
+    public class LocalRadarScreen extends DefaultScreen {
         private BList list;
 
         public LocalRadarScreen(Weather app, WeatherData data) {
@@ -549,12 +534,10 @@ public class Weather extends BApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
-            /*
-             * list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-             * .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35); list.add("Return to menu");
-             * 
-             * setFocusDefault(list);
-             */
+            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list.add("Return to menu");
+            setFocusDefault(list);
 
             updateImage();
         }
@@ -589,11 +572,18 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
-        /*
-         * public boolean handleKeyPress(int code, long rawcode) { switch (code) { case KEY_SELECT: case KEY_RIGHT:
-         * postEvent(new BEvent.Action(this, "pop")); return true; case KEY_LEFT: // TODO Why never gets this code?
-         * postEvent(new BEvent.Action(this, "pop")); return true; } return super.handleKeyPress(code, rawcode); }
-         */
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_SELECT:
+            case KEY_RIGHT:
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_LEFT: // TODO Why never gets this code?
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
+        }
 
         public String toString() {
             return "Local Radar";
@@ -604,7 +594,7 @@ public class Weather extends BApplication {
         WeatherData mWeatherData;
     }
 
-    public class NationalRadarScreen extends WeatherScreen {
+    public class NationalRadarScreen extends DefaultScreen {
         private BList list;
 
         public NationalRadarScreen(Weather app, WeatherData data) {
@@ -617,12 +607,10 @@ public class Weather extends BApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
-            /*
-             * list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-             * .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35); list.add("Return to menu");
-             * 
-             * setFocusDefault(list);
-             */
+            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list.add("Return to menu");
+            setFocusDefault(list);
 
             updateImage();
         }
@@ -654,11 +642,18 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
-        /*
-         * public boolean handleKeyPress(int code, long rawcode) { switch (code) { case KEY_SELECT: case KEY_RIGHT:
-         * postEvent(new BEvent.Action(this, "pop")); return true; case KEY_LEFT: // TODO Why never gets this code?
-         * postEvent(new BEvent.Action(this, "pop")); return true; } return super.handleKeyPress(code, rawcode); }
-         */
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_SELECT:
+            case KEY_RIGHT:
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_LEFT: // TODO Why never gets this code?
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
+        }
 
         public String toString() {
             return "National Radar";
@@ -669,7 +664,7 @@ public class Weather extends BApplication {
         WeatherData mWeatherData;
     }
 
-    public class AlertsScreen extends WeatherScreen {
+    public class AlertsScreen extends DefaultScreen {
         private BList list;
 
         private final int top = SAFE_TITLE_V + 100;
@@ -688,7 +683,7 @@ public class Weather extends BApplication {
 
             setTitle("Alerts");
 
-            int start = top;
+            int start = top - 30;
 
             eventText = new BText(normal, border_left, start, text_width, 30);
             eventText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
@@ -710,15 +705,13 @@ public class Weather extends BApplication {
                     "");
 
             setFocusDefault(scrollText);
-            
+
             setFooter("weather.gov");
 
-            /*
-             * list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-             * .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35); list.add("Return to menu");
-             * 
-             * setFocusDefault(list);
-             */
+            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list.add("Return to menu");
+            setFocusDefault(list);
 
             updateText();
         }
@@ -733,6 +726,7 @@ public class Weather extends BApplication {
                     datesText.setValue(mDateFormat.format(alert.getEffective()) + " to "
                             + mDateFormat.format(alert.getExpires()));
                 scrollText.setText(alert.getDescription());
+                scrollText.flush();
             }
         }
 
@@ -745,11 +739,21 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
-        /*
-         * public boolean handleKeyPress(int code, long rawcode) { switch (code) { case KEY_SELECT: case KEY_RIGHT:
-         * postEvent(new BEvent.Action(this, "pop")); return true; case KEY_LEFT: // TODO Why never gets this code?
-         * postEvent(new BEvent.Action(this, "pop")); return true; } return super.handleKeyPress(code, rawcode); }
-         */
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_SELECT:
+            case KEY_RIGHT:
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_LEFT: // TODO Why never gets this code?
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_CHANNELUP:
+            case KEY_CHANNELDOWN:
+                return scrollText.handleKeyPress(code, rawcode);
+            }
+            return super.handleKeyPress(code, rawcode);
+        }
 
         public String toString() {
             return "Alerts";
@@ -764,30 +768,6 @@ public class Weather extends BApplication {
         private SimpleDateFormat mDateFormat;
 
         WeatherData mWeatherData;
-    }
-
-    public class OptionList extends BList {
-        public OptionList(BView parent, int x, int y, int width, int height, int rowHeight) {
-            super(parent, x, y, width, height, rowHeight);
-
-            setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
-        }
-
-        protected void createRow(BView parent, int index) {
-            BText text = new BText(parent, 10, 4, parent.width - 40, parent.height - 4);
-            text.setShadow(true);
-            text.setFlags(RSRC_HALIGN_LEFT);
-            text.setValue(get(index).toString());
-        }
-
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_SELECT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            }
-            return super.handleKeyPress(code, rawcode);
-        }
     }
 
     public static class WeatherFactory extends AppFactory {

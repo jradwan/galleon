@@ -229,7 +229,7 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 try {
                                     int port = Integer.parseInt(attribute.getNodeValue());
-                                    serverConfiguration.setConfiguredPort(port);
+                                    serverConfiguration.setPort(port);
                                 } catch (NumberFormatException ex) {
                                     log.error("Invalid " + ATTRIBUTE_PORT + " for " + TAG_SERVER + ": "
                                             + attribute.getNodeValue());
@@ -249,12 +249,7 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                Node attribute2 = namedNodeMap.getNamedItem(ATTRIBUTE_NET_MASK);
-                                if (attribute2 != null) {
-                                    serverConfiguration.setIPAddress(attribute.getNodeValue());
-                                    serverConfiguration.setNetMask(attribute2.getNodeValue());
-                                } else
-                                    log.error("Missing attribute " + ATTRIBUTE_NET_MASK + " for " + TAG_SERVER);
+                                serverConfiguration.setIPAddress(attribute.getNodeValue());
                             }
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_SHUFFLE_ITEMS);
@@ -517,11 +512,10 @@ public class Configurator implements Constants {
                 buffer.append("<").append(TAG_SERVER).append(" ").append(ATTRIBUTE_TITLE).append("=\"").append(
                         serverConfiguration.getName()).append("\" ").append(ATTRIBUTE_RELOAD).append("=\"").append(
                         serverConfiguration.getReload()).append("\" ").append(ATTRIBUTE_PORT).append("=\"").append(
-                        serverConfiguration.getConfiguredPort()).append("\"");
+                        serverConfiguration.getPort()).append("\"");
                 if (serverConfiguration.getIPAddress() != null && serverConfiguration.getIPAddress().length() > 0)
                     buffer.append(" ").append(ATTRIBUTE_IP_ADDRESS).append("=\"").append(
-                            serverConfiguration.getIPAddress()).append("\" ").append(ATTRIBUTE_NET_MASK).append("=\"")
-                            .append(serverConfiguration.getNetMask()).append("\"");
+                            serverConfiguration.getIPAddress()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_SHUFFLE_ITEMS).append("=\"").append(
                         serverConfiguration.getShuffleItems()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_GENERATE_THUMBNAILS).append("=\"").append(

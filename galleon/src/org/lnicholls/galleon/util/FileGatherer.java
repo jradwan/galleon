@@ -24,6 +24,8 @@ import net.jimmc.jshortcut.JShellLink;
 
 import org.apache.log4j.Logger;
 
+// TODO Keep shorcut names
+
 /*
  * Design goals: - Recursively scan a folder and subfolders to find all media files of a certain type, e.g. audio,
  * image. - Correctly handle Windows shortcuts, i.e. dereference them - Correctly handle playlists, i.e. transform them
@@ -43,7 +45,7 @@ public class FileGatherer {
     protected static final int MAX_RECURSION_DEPTH = 20;
 
     public static interface GathererCallback {
-        public void visit(File file);
+        public void visit(File file, File originalFile);
     }
 
     // Dereference a Windows file shortcut. Returns null on error
@@ -128,7 +130,7 @@ public class FileGatherer {
             {
                 if (suffixFilter.accept(file))
                     try {
-                        callback.visit(file);
+                        callback.visit(file, files[i]);
                     } catch (Throwable ex) {
                     }
             }

@@ -35,6 +35,7 @@ import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.IHmeEventHandler;
 import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.StreamResource;
 import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
 
@@ -43,9 +44,18 @@ public class DefaultApplication extends BApplication {
     private static final Logger log = Logger.getLogger(DefaultApplication.class.getName());
 
     public static String TRACKER = "org.lnicholls.galleon.widget.DefaultApplication.Tracker";
+    
+    protected Resource mBusyIcon;
+    protected Resource mBusy2Icon;
+    protected Resource mStarIcon;
 
     protected void init(Context context) {
         super.init(context);
+        
+        mBusyIcon = getResource("busy.gif");
+        mBusy2Icon = getResource("busy2.gif");
+        mStarIcon = getResource("star.png");
+        
 
         mCallbacks = new ArrayList();
 
@@ -407,7 +417,13 @@ public class DefaultApplication extends BApplication {
     public void setCurrentDirectory(String dir) {
         mCurrentDir = dir;
     }
-
+    
+    public boolean handleApplicationError(int errorCode, String errorText)
+    {
+        log.debug(this + " handleApplicationError(" + errorCode + "," + errorText + ")");
+        return true;
+    }
+    
     // TODO Need to handle multiple apps
     private Player mPlayer;
 

@@ -109,12 +109,12 @@ public class Tools {
         }
     }
 
-    public static void logException(Class inClass, Exception inException) {
+    public static void logException(Class inClass, Throwable inException) {
 
         logException(inClass, inException, null);
     }
 
-    public static void logException(Class inClass, Exception inException, String message) {
+    public static void logException(Class inClass, Throwable inException, String message) {
 
         Logger log = Logger.getLogger(inClass.getName());
 

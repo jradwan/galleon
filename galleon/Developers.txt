@@ -28,6 +28,9 @@ ant compile
 To build the Galleon package:
 ant package
 
+To create a source copy:
+ant source
+
 
 Running
 -------
@@ -38,8 +41,28 @@ Galleon server.
 
 Coding Style
 ------------
-The Java code should conform to the Sun Java Coding conventions. The only modification of the convention is that lines 
-up to 120 characters are allowed instead of the standard 80 characters. 
+The Java code should conform to the Sun Java Coding conventions. 
+
+
+Database
+--------
+Galleon uses Apache Derby (http://incubator.apache.org/derby/manuals/index.html) as an embedded database. However,
+it can be replaced by any database supported by Hibernate (http://www.hibernate.org/80.html) by changing the conf/hibernate.properties file.
+
+While the Galleon server is running, Derby runs as a network server, meaning that you can connect to it remotely.
+You can use a program such as DBVisualizer (http://www.codework.com/dbvis/product.html) to connect to the Derby database. You need to have a JDBC driver (It is also possible to use ODBC: http://www-106.ibm.com/developerworks/db2/library/techarticle/dm-0409cline2/index.html) 
+
+IBM provides a free JDBC driver:
+http://www-128.ibm.com/developerworks/db2/downloads/jcc/
+
+If you are using DBVisualiser, the driver jar files need to imported using the Tools/Driver Manager menu.
+Use the following database URL to connect to Derby while Galleon is running using the DB2 driver:
+jdbc:derby:net//localhost:1527/galleon
+Use the following database URL to connect to Derby when Galleon is not running (using the path of the Galleon data dir) and using the embedded driver:
+jdbc:derby:d:/galleon/data/galleon
+
+userid: galleon
+password: galleon
 
 
 

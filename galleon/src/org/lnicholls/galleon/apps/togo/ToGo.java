@@ -145,7 +145,8 @@ public class ToGo extends BApplication {
 
                 for (int i = 0; i < videoArray.length; i++) {
                     Video video = (Video) videoArray[i];
-                    list.add(new ToGoScreen(app, video));
+                    if (video.getStatus()!=Video.STATUS_RECORDING)
+                        list.add(new ToGoScreen(app, video));
                 }
             } catch (HibernateException ex) {
                 log.error("Getting recordings failed", ex);
@@ -408,6 +409,7 @@ public class ToGo extends BApplication {
         
         public boolean handleEnter(java.lang.Object arg, boolean isReturn)
         {
+            // TODO Handle recordings that have been removed
             try {
                 Video updated = VideoManager.retrieveVideo(mVideo.getId());
                 PropertyUtils.copyProperties(mVideo, updated);

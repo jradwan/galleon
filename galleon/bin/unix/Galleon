@@ -1,0 +1,101 @@
+#! /bin/bash
+#
+# chkconfig: 345 95 30 
+# description: JavaHMO is a Java client for the Tivo Home Media Option
+#
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+#-----------------------------------------------------------------------------
+# These settings can be modified to fit the needs of your application
+
+# Application
+APP_NAME="JavaHMO"
+APP_LONG_NAME="JavaHMO"
+
+# Wrapper
+WRAPPER_CMD="/usr/bin/JavaHMO"
+WRAPPER_CONF="/etc/javaHMO/wrapper.conf"
+
+for java in `ls /usr/java 2>/dev/null` ; do
+  if [ "${java%j2re*}" == "" ] ; then
+      export JAVA_HOME=/usr/java/$java
+      break
+  elif [ "${java%j2sdk*}" == "" ] ; then
+      export JAVA_HOME=/usr/java/$java/jre
+      break
+  fi
+done
+
+if [ "$JAVA_HOME" == "" ] ; then
+  for java in `ls /usr/local/java 2>/dev/null` ; do
+    if [ "${java%j2re*}" == "" ] ; then
+        export JAVA_HOME=/usr/local/java/$java
+        break
+    elif [ "${java%j2sdk*}" == "" ] ; then
+        export JAVA_HOME=/usr/local/java/$java/jre
+        break
+    fi
+  done
+fi
+
+if [ "$JAVA_HOME" == "" ] ; then
+  echo "Error: Could not locate JRE.  Please make sure you have the Sun JRE or JDK installed.  If it is installed, then try setting your JAVA_HOME environment var.";
+  exit
+fi
+
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Do not modify anything beyond this point
+#-----------------------------------------------------------------------------
+
+start() {
+    echo -n "Starting $APP_LONG_NAME: "
+    daemon $WRAPPER_CMD $WRAPPER_CONF wrapper.daemonize=TRUE wrapper.console.loglevel=NONE
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/JavaHMO
+    return $RETVAL
+}
+
+stop() {
+    # Stop daemons.
+    echo -n $"Shutting down $APP_LONG_NAME: "
+    killproc $WRAPPER_CMD
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/JavaHMO
+    return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        stop
+        start
+        RETVAL=$?
+        ;;
+  condrestart)
+        if [ -f /var/lock/subsys/JavaHMO ]; then
+            stop
+            start
+            RETVAL=$?
+        fi
+        ;;
+  status)
+        status JavaHMO
+        RETVAL=$?
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+        exit 1
+esac
+
+exit $RETVAL
+

@@ -1,0 +1,471 @@
+package org.lnicholls.galleon.gui;
+
+/*
+ * Copyright (C) 2005 Leon Nicholls
+ * 
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * See the file "COPYING" for more details.
+ */
+
+import java.io.*;
+import java.awt.*;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.*;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+
+import org.apache.log4j.Logger;
+
+import org.lnicholls.galleon.server.*;
+import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.togo.*;
+
+import com.jgoodies.forms.builder.PanelBuilder;
+import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+
+/**
+ * @author Owner
+ * 
+ * TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code
+ * Templates
+ */
+public class DownloadedPanel extends JPanel implements ActionListener {
+
+    private static Logger log = Logger.getLogger(DownloadedPanel.class.getName());
+
+    private static class ColumnData {
+        public String mTitle;
+
+        public int mWidth;
+
+        public int mAlignment;
+
+        public ColumnData(String title, int width, int alignment) {
+            mTitle = title;
+            mWidth = width;
+            mAlignment = alignment;
+        }
+    }
+
+    private static final ColumnData mColumns[] = { new ColumnData("Title", 180, JLabel.LEFT),
+            new ColumnData("Episode", 200, JLabel.LEFT), new ColumnData("Date Recorded", 70, JLabel.RIGHT),
+            new ColumnData("Duration", 30, JLabel.RIGHT), new ColumnData("Size", 30, JLabel.RIGHT),
+            new ColumnData("Status", 30, JLabel.RIGHT) };
+
+    public DownloadedPanel() {
+        super();
+
+        setLayout(new BorderLayout());
+
+        mList = new ToGoList();
+
+        mShows = mList.load(Show.STATUS_DOWNLOADED);
+
+        final ShowTableData showsTableData = new ShowTableData();
+        mTable = new JTable();
+        mTable.setDefaultRenderer(Object.class, new CustomTableCellRender());
+
+        mTitleField = new JLabel(" ", JLabel.LEADING);
+        Font font = mTitleField.getFont().deriveFont(Font.BOLD, mTitleField.getFont().getSize());
+        mTitleField.setFont(font);
+        mDescriptionField = new JLabel(" ", JLabel.LEADING);
+        mDateField = new JLabel(" ", JLabel.LEADING);
+        mChannelStationField = new JLabel(" ", JLabel.TRAILING);
+        mRatingField = new JLabel(" ", JLabel.LEADING);
+        mQualityField = new JLabel(" ", JLabel.TRAILING);
+
+        FormLayout layout = new FormLayout("left:pref, 3dlu, right:pref:grow", "pref, " + //title
+                "3dlu, " + "pref, " + //description
+                "3dlu, " + "pref, " + //date/channel
+                "3dlu, " + "pref " //rating/quality
+        );
+
+        PanelBuilder builder = new PanelBuilder(layout);
+        builder.setDefaultDialogBorder();
+
+        CellConstraints cc = new CellConstraints();
+
+        builder.add(mTitleField, cc.xyw(1, 1, 3));
+        builder.add(mDescriptionField, cc.xyw(1, 3, 3));
+        builder.add(mDateField, cc.xy(1, 5));
+        builder.add(mChannelStationField, cc.xy(3, 5));
+        builder.add(mRatingField, cc.xy(1, 7));
+        builder.add(mQualityField, cc.xy(3, 7));
+
+        add(builder.getPanel(), BorderLayout.NORTH);
+
+        JPanel tablePanel = new JPanel();
+        tablePanel.setLayout(new BorderLayout());
+
+        JButton[] array = new JButton[1];
+        JPanel buttonPanel = new JPanel();
+        mDeleteButton = new JButton("Delete");
+        array[0] = mDeleteButton;
+        buttonPanel.add(mDeleteButton);
+        mDeleteButton.setActionCommand("delete");
+        mDeleteButton.addActionListener(this);
+        mDeleteButton.setEnabled(false);
+        JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+        buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        tablePanel.add(buttons, BorderLayout.NORTH);
+
+        mTable.setModel(showsTableData);
+        TableColumn column = null;
+        for (int i = 0; i < 6; i++) {
+            column = mTable.getColumnModel().getColumn(i);
+            column.setPreferredWidth(mColumns[i].mWidth);
+        }
+        mTable.setDragEnabled(true);
+        mTable.setRowSelectionAllowed(true);
+        mTable.setColumnSelectionAllowed(false);
+        ListSelectionModel selectionModel = mTable.getSelectionModel();
+        selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                //Ignore extra messages.
+                if (e.getValueIsAdjusting())
+                    return;
+
+                ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+                if (!lsm.isSelectionEmpty()) {
+                    int selectedRow = lsm.getMinSelectionIndex();
+                    mTitleField.setText((String) mTable.getModel().getValueAt(selectedRow, 0));
+                    mDescriptionField.setText((String) mTable.getModel().getValueAt(selectedRow, 6));
+                    mDateField.setText((String) mTable.getModel().getValueAt(selectedRow, 2));
+                    mChannelStationField.setText((String) mTable.getModel().getValueAt(selectedRow, 7));
+                    mRatingField.setText((String) mTable.getModel().getValueAt(selectedRow, 8));
+                    mQualityField.setText((String) mTable.getModel().getValueAt(selectedRow, 9));
+                    mDeleteButton.setEnabled(true);
+                } else {
+                    mTitleField.setText(" ");
+                    mDescriptionField.setText(" ");
+                    mDateField.setText(" ");
+                    mChannelStationField.setText(" ");
+                    mRatingField.setText(" ");
+                    mQualityField.setText(" ");
+                    mDeleteButton.setEnabled(false);
+                }
+            }
+        });
+        if (mTable.getModel().getRowCount() > 0)
+            mTable.setRowSelectionInterval(0, 0);
+        else
+            mTitleField.setText("No recordings downloaded");
+
+        JTableHeader header = mTable.getTableHeader();
+        header.setUpdateTableInRealTime(true);
+        header.addMouseListener(showsTableData.new ColumnListener(mTable));
+        header.setReorderingAllowed(true);
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.getViewport().add(mTable);
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+        add(tablePanel, BorderLayout.CENTER);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if ("delete".equals(e.getActionCommand())) {
+            if (JOptionPane.showConfirmDialog(this, "Are you sure you want to permanently delete these recording(s) ?", "Warning",
+                    JOptionPane.WARNING_MESSAGE | JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                mUpdating = true;
+                try {
+                    ArrayList downloaded = mList.load();
+                    ShowTableData model = (ShowTableData) mTable.getModel();
+                    int[] selectedRows = mTable.getSelectedRows();
+                    if (selectedRows.length > 0) {
+                        for (int i = 0; i < selectedRows.length; i++) {
+                            Show show = (Show) mShows.get(selectedRows[i]);
+                            for (int j = 0; j < downloaded.size(); j++) {
+                                Show shown = (Show) downloaded.get(j);
+                                if (shown.equals(show)) {
+                                    File file = new File(show.getPath());
+                                    if (file.exists())
+                                        file.delete();
+                                    downloaded.remove(shown);
+                                    break;
+                                }
+                            }
+                            model.removeRow(selectedRows[i]);
+                        }
+                    }
+                    mList.save(downloaded);
+                } catch (Exception ex) {
+                    Tools.logException(RulesPanel.class, ex);
+                }
+                mUpdating = false;
+            }
+        }
+    }
+
+    class ShowTableData extends AbstractTableModel {
+
+        protected int mSortCol = 2;
+
+        protected boolean mSortAsc = true;
+
+        protected SimpleDateFormat mDateFormat;
+
+        protected SimpleDateFormat mTimeFormat;
+
+        protected GregorianCalendar mCalendar;
+
+        protected DecimalFormat mNumberFormat;
+
+        public ShowTableData() {
+            mDateFormat = new SimpleDateFormat();
+            mDateFormat.applyPattern("EEE M/d hh:mm");
+            mTimeFormat = new SimpleDateFormat();
+            mTimeFormat.applyPattern("H:mm");
+            mCalendar = new GregorianCalendar();
+            mNumberFormat = new DecimalFormat("###,###");
+        }
+
+        public int getRowCount() {
+            return mShows == null ? 0 : mShows.size();
+        }
+
+        public int getColumnCount() {
+            return 6;
+        }
+
+        public String getColumnName(int column) {
+            String str = mColumns[column].mTitle;
+            if (column == mSortCol)
+                str += mSortAsc ? " »" : " «";
+            return str;
+        }
+
+        public boolean isCellEditable(int nRow, int nCol) {
+            return false;
+        }
+
+        public Object getValueAt(int nRow, int nCol) {
+            if (nRow < 0 || nRow >= getRowCount())
+                return "";
+            Show show = (Show) mShows.get(nRow);
+            switch (nCol) {
+            case 0:
+                return show.getTitle();
+            case 1:
+                return show.getEpisode();
+            case 2:
+                // Round off to the closest minutes; TiVo seems to start recordings 2 seconds before the scheduled time
+                mCalendar.setTime(show.getDateRecorded());
+                mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
+                        + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
+                mCalendar.set(GregorianCalendar.SECOND, 0);
+                return mDateFormat.format(mCalendar.getTime());
+            case 3:
+                // Round off to closest minute
+                //int duration = Math.round((show.getDuration()/1000/60+0.5f)/10)*10;
+                int duration = Math.round(show.getDuration() / 1000 / 60 + 0.5f);
+                mCalendar.setTime(new Date(Math.round((show.getDuration() / 1000 / 60 + 0.5f) / 10) * 10));
+                mCalendar.set(GregorianCalendar.HOUR_OF_DAY, duration / 60);
+                mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
+                mCalendar.set(GregorianCalendar.SECOND, 0);
+                return mTimeFormat.format(mCalendar.getTime());
+            case 4:
+                return mNumberFormat.format(show.getSize() / (1024 * 1024)) + " MB";
+            case 5:
+                return show.getStatusString();
+            case 6:
+                return show.getDescription().length() != 0 ? show.getDescription() : " ";
+            case 7:
+                return show.getChannel() + " " + show.getStation();
+            case 8:
+                return show.getRating().length() != 0 ? show.getRating() : "No rating";
+            case 9:
+                return show.getQuality();
+            }
+            return " ";
+        }
+
+        public void setValueAt(Object value, int row, int col) {
+            Show show = null;
+            if (row < mShows.size())
+                show = (Show) mShows.get(row);
+
+            if (show == null) {
+                show = new Show();
+                mShows.add(row, show);
+            }
+            fireTableDataChanged();
+        }
+
+        public void removeRow(int row) {
+            mShows.remove(row);
+            fireTableDataChanged();
+        }
+
+        class ColumnListener extends MouseAdapter {
+            protected JTable mTable;
+
+            public ColumnListener(JTable table) {
+                mTable = table;
+            }
+
+            public void mouseClicked(MouseEvent e) {
+                TableColumnModel colModel = mTable.getColumnModel();
+                int columnModelIndex = colModel.getColumnIndexAtX(e.getX());
+                int modelIndex = colModel.getColumn(columnModelIndex).getModelIndex();
+
+                if (modelIndex < 0)
+                    return;
+                if (mSortCol == modelIndex)
+                    mSortAsc = !mSortAsc;
+                else
+                    mSortCol = modelIndex;
+
+                for (int i = 0; i < mColumns.length; i++) {
+                    TableColumn column = colModel.getColumn(i);
+                    column.setHeaderValue(getColumnName(column.getModelIndex()));
+                    column.setPreferredWidth(mColumns[i].mWidth);
+                }
+                mTable.getTableHeader().repaint();
+
+                Collections.sort(mShows, new ShowComparator(modelIndex, mSortAsc));
+                mTable.tableChanged(new TableModelEvent(ShowTableData.this));
+                mTable.repaint();
+                if (mTable.getModel().getRowCount() > 0)
+                    mTable.setRowSelectionInterval(0, 0);
+            }
+        }
+
+        class ShowComparator implements Comparator {
+            protected int mSortCol;
+
+            protected boolean mSortAsc;
+
+            public ShowComparator(int sortCol, boolean sortAsc) {
+                mSortCol = sortCol;
+                mSortAsc = sortAsc;
+            }
+
+            public int compare(Object o1, Object o2) {
+                Show show1 = (Show) o1;
+                Show show2 = (Show) o2;
+                int result = 0;
+                double d1, d2;
+                switch (mSortCol) {
+                case 0:
+                    result = show1.getTitle().compareTo(show2.getTitle());
+                    break;
+                case 1:
+                    result = show1.getEpisode().compareTo(show2.getEpisode());
+                    break;
+                case 2:
+                    result = show1.getDateRecorded().compareTo(show2.getDateRecorded());
+                    break;
+                case 3:
+                    Integer duration1 = new Integer(show1.getDuration());
+                    Integer duration2 = new Integer(show2.getDuration());
+                    result = duration1.compareTo(duration2);
+                    break;
+                case 4:
+                    Long size1 = new Long(show1.getSize());
+                    Long size2 = new Long(show2.getSize());
+                    result = size1.compareTo(size2);
+                    break;
+                case 5:
+                    result = show1.getStatusString().compareTo(show2.getStatusString());
+                    break;
+                }
+
+                if (!mSortAsc)
+                    result = -result;
+                return result;
+            }
+        }
+    }
+
+    class CustomTableCellRender extends DefaultTableCellRenderer {
+        public CustomTableCellRender() {
+            super();
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (mFont == null) {
+                mFont = table.getFont().deriveFont(Font.BOLD, table.getFont().getSize());
+            }
+
+            setHorizontalAlignment(mColumns[column].mAlignment);
+            //setFont(mFont);
+
+            return this;
+        }
+
+        private Font mFont;
+    }
+
+    public void activate() {
+        mShows = mList.load(Show.STATUS_DOWNLOADED);
+        ShowTableData model = (ShowTableData) mTable.getModel();
+        model.fireTableDataChanged();
+
+        if (model.getRowCount() > 0)
+            mTable.setRowSelectionInterval(0, 0);
+    }
+
+    private JTable mTable;
+
+    private JLabel mTitleField;
+
+    private JLabel mDescriptionField;
+
+    private JLabel mDateField;
+
+    private JLabel mChannelStationField;
+
+    private JLabel mRatingField;
+
+    private JLabel mQualityField;
+
+    private ToGoList mList;
+
+    private ArrayList mShows;
+
+    private boolean mUpdating;
+
+    private JButton mDeleteButton;
+}

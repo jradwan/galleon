@@ -1,0 +1,13 @@
+{
+  Description   = "javaHMO TiVo server";
+  Provides      = ("javaHMO");
+  Requires      = ("Network");
+  Uses          = ("Network");
+  OrderPreference    = "Last";
+  Messages =
+  {
+    start = "Starting javaHMO";
+    stop  = "Stopping javaHMO";
+    restart  = "Restarting javaHMO";
+  };
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration version="0.0.0 beta 1">
+<server title="Galleon" reload="60" port="8081" shuffleItems="true" generateThumbnails="false" useStreamingProxy="true" useTiVoBeacon="true"/>
+</configuration>

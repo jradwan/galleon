@@ -1,0 +1,27 @@
+#!/bin/sh
+
+. /etc/rc.common
+
+StartService ()
+{
+	ConsoleMessage "Starting javaHMO TiVo services"
+	/usr/share/javaHMO/bin/javahmoctl start
+}
+
+StopService ()
+{
+	ConsoleMessage "Stopping javaHMO TiVo services"
+	/usr/share/javaHMO/bin/javahmoctl stop
+}
+
+RestartService ()
+{
+    if [ "${JAVAHMO:=-NO-}" = "-YES-" ]; then
+	ConsoleMessage "Restarting javaHMO TiVo services"
+	/usr/share/javaHMO/bin/javahmoctl restart
+    else
+	StopService
+    fi
+}
+
+RunService "$1"

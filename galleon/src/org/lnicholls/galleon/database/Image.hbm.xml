@@ -78,10 +78,10 @@ See the file "COPYING" for more details.
       <meta attribute="field-description">The mood of the image</meta>
       <column name="tone" index="IMAGE_TONE" length="50"/>
     </property>    
-
-    <!--many-to-one name="thumbnail" class="org.lnicholls.galleon.database.Thumbnail" column="thumbnail">    
-          <meta attribute="field-description">Thumbnail version</meta>
-    </many-to-one-->
+    
+    <property name="rotation" type="int"/>        
+    
+    <property name="thumbnail" type="int"/>                
 
   </class>
   

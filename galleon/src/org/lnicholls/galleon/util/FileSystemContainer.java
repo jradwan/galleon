@@ -17,15 +17,12 @@ package org.lnicholls.galleon.util;
  */
 
 import java.io.File;
-import java.net.URLDecoder;
+import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.media.*;
-import org.lnicholls.galleon.database.*;
 
 public class FileSystemContainer {
     private static Logger log = Logger.getLogger(FileSystemContainer.class.getName());
@@ -34,20 +31,19 @@ public class FileSystemContainer {
         mPath = path;
     }
 
-    public List getItems() {
+    public List getItems(FileFilter fileFilter) {
         if (log.isDebugEnabled())
             log.debug("getItems:");
-        
+
         final ArrayList items = new ArrayList();
 
         File directory = FileGatherer.resolveLink(new File(getPath())); // Handle shortcuts
         if (!directory.isHidden() && directory.isDirectory()) {
-            FileGatherer.gatherDirectory(directory, FileFilters.audioDirectoryFilter, false,
-                    new FileGatherer.GathererCallback() {
-                        public void visit(File file) {
-                            items.add(new NameFile(Tools.extractName(file.getAbsolutePath()),file));
-                        }
-                    });
+            FileGatherer.gatherDirectory(directory, fileFilter, false, new FileGatherer.GathererCallback() {
+                public void visit(File file) {
+                    items.add(new NameFile(Tools.extractName(file.getAbsolutePath()), file));
+                }
+            });
         }
         return items;
     }
@@ -66,23 +62,21 @@ public class FileSystemContainer {
     public void setPath(String path) {
         mPath = path;
     }
-    
-    public static class NameFile
-    {
-        public NameFile(String name, File file)
-        {
+
+    public static class NameFile {
+        public NameFile(String name, File file) {
             this.mName = name;
             this.mFile = file;
         }
-        
+
         public String getName() {
             return mName;
         }
 
         public void setName(String value) {
             mName = value;
-        }        
-        
+        }
+
         public File getFile() {
             return mFile;
         }
@@ -90,16 +84,15 @@ public class FileSystemContainer {
         public void setFile(File value) {
             mFile = value;
         }
-        
-        public String toString()
-        {
+
+        public String toString() {
             return mName;
         }
-        
+
         private String mName;
+
         private File mFile;
-    }    
-    
+    }
 
     private String mPath;
 }

@@ -194,7 +194,9 @@ public class FileFilters {
 
     private static final String[] urlPrefixes = { "http" };
 
-    private static final String[] imageSuffixes = { ".jpg", ".jpeg", ".gif", ".png" };
+    //private static final String[] imageSuffixes = { ".jpg", ".jpeg", ".gif", ".png" };
+    
+    private static final String[] imageSuffixes = { ".jpg", ".jpeg"};
 
     private static final String[] playlistSuffixes = { ".m3u", ".pls" };
 

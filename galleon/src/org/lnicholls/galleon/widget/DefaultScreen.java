@@ -69,7 +69,8 @@ public class DefaultScreen extends BScreen {
     public DefaultScreen(BApplication app, String background, boolean hints) {
         super(app);
 
-        setBackground(background);
+        if (background!=null)
+            setBackground(background);
 
         if (hints)
             mHints = new HintsView(above, SAFE_TITLE_H, SAFE_TITLE_V, width - 2 * SAFE_TITLE_H, height - 2

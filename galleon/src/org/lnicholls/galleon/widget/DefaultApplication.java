@@ -42,10 +42,24 @@ public class DefaultApplication extends BApplication {
 
     private static final Logger log = Logger.getLogger(DefaultApplication.class.getName());
 
+    public static String TRACKER = "org.lnicholls.galleon.widget.DefaultApplication.Tracker";
+
     protected void init(Context context) {
         super.init(context);
 
+        mCallbacks = new ArrayList();
+
         mPlayer = new Player(this);
+    }
+
+    protected void dispatchEvent(HmeEvent event) {
+        switch (event.opcode) {
+        case EVT_KEY:
+            HmeEvent.Key e = (HmeEvent.Key) event;
+            if (handleCallback(e))
+                return;
+        }
+        super.dispatchEvent(event);
     }
 
     public boolean handleAction(BView view, Object action) {
@@ -58,6 +72,12 @@ public class DefaultApplication extends BApplication {
 
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
+        case KEY_ENTER:
+            if (mCurrentDir != null) {
+                play("thumbsup.snd");
+                Tools.savePersistentValue(TRACKER, mCurrentDir);
+            }
+            return true;
         case KEY_LEFT:
             play("pageup.snd");
             flush();
@@ -125,7 +145,7 @@ public class DefaultApplication extends BApplication {
 
         private List mList = new ArrayList();
 
-        private int mPos;
+        private int mPos = -1;
     }
 
     public static class Player implements IHmeEventHandler, IHmeProtocol {
@@ -163,6 +183,8 @@ public class DefaultApplication extends BApplication {
         public void startTrack() {
             if (mTracker != null) {
                 try {
+                    if (mTracker.getPos() == -1)
+                        getNextPos();
                     NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
                     Audio audio = getAudio(nameFile.getFile().getCanonicalPath());
 
@@ -349,18 +371,47 @@ public class DefaultApplication extends BApplication {
         return audio;
     }
 
+    public void addCallback(Callback callback) {
+        mCallbacks.add(callback);
+    }
+
+    public boolean handleCallback(HmeEvent event) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            Callback callback = (Callback) mCallbacks.get(i);
+            if (callback.handleEvent(event)) {
+                mCallbacks.remove(i);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public Player getPlayer() {
         return mPlayer;
     }
 
     public void setTracker(Tracker tracker) {
         mPlayer.setTracker(tracker);
+        List list = tracker.getList();
+        if (list.size() > 0) {
+            NameFile nameFile = (NameFile) list.get(0);
+            Tools.savePersistentValue(DefaultApplication.TRACKER, nameFile.getFile().getParent());
+        }
     }
 
     public Tracker getTracker() {
         return mPlayer.getTracker();
     }
 
+    public void setCurrentDirectory(String dir) {
+        mCurrentDir = dir;
+    }
+
     // TODO Need to handle multiple apps
     private Player mPlayer;
+
+    private ArrayList mCallbacks;
+
+    private String mCurrentDir;
 }

@@ -1,7 +1,8 @@
 Galleon
 -------
 
-I recommend deleting the previous beta before installing this beta.
+Delete the previous beta before installing this beta.
+
 
 Version 0.0.0 beta 4:
 ---------------------
@@ -10,7 +11,10 @@ Fixed bug that incorrectly uniquely identified ToGo recordings.
 Right button to exit apps.
 Made album art configurable.
 Music ratings.
-Scrolling widget for weather alerts.
+Scrolling text widget for weather alerts.
+Photos app (only JPEGs currently supported)
+Configurable photo slideshow effects.
+Music while viewing slideshow.
 
 
 Version 0.0.0 beta 3:
@@ -50,16 +54,18 @@ Known issues:
 5. Sections of code have been commented out until all of the JavaHMO code is ported.
 6. Weather errors arent handled properly.
 7. Weather web links need parameters.
-8. Weather app removal does not work.
+8. App removal does not work.
 9. Cannot determine TiVo's automatically.
 10. Weather currently only uses zip.
-11. Weather alerts do not show all text.
-12. When you start Galleon, it might take some time before the ToGo list is populated.
-13. Music app only plays one directory of songs at a time.
-14. TiVo sometimes reboots after using the Music app for some time.
-15. Music player generates resource not found errors.
-16. Sorting, shuffling not supported yet.
-17. Playlists not supported yet.
+11. When you start Galleon, it might take some time before the ToGo list is populated.
+12. Music app only plays one directory of songs at a time.
+13. TiVo sometimes reboots after using the Music app for some time.
+14. Music player generates resource not found errors.
+15. Sorting, shuffling not supported yet.
+16. Playlists not supported yet.
+17. Port 1099 required for GUI to update the server.
+18. Photo viewer automatically goes into slideshow mode; should also just have a play mode.
+19. How to handle Channel Up/Channel Dn overlap between browsing and slideshow music control?
 
 
 How to get started:
@@ -73,6 +79,15 @@ How to get started:
 7. For each app you add, you must press the Apply button to save each app's settings.
 8. Exit from the GUI.
 9. Use your TiVo to pick ToGo recordings to download to your PC.
+10. Use left arrow to exit any app.
+
+
+How to play music with slideshow:
+1. Configure Music app and configure Photos app.
+2. Use your Tivo to browse into a music directory.
+3. Either play some song in that directory, or press the ENTER button.
+4. Browse into a directory in the Photos app.
+5. When slideshow starts, press Play.
 
 
 Winamp skins:
@@ -97,7 +112,6 @@ Pause = Pause
 Slow = Stop
 Channel Up = Next
 Channel Down = Previous
-Enter/Last = Exit
 
 
 =====================================================

@@ -106,10 +106,6 @@ See the file "COPYING" for more details.
     
     <property name="cover" type="int"/>            
 
-    <!--many-to-one name="cover" class="org.lnicholls.galleon.database.Thumbnail" column="cover" not-null="false">    
-          <meta attribute="field-description">Cover art image</meta>
-    </many-to-one-->
-
   </class>
   
 	<sql-query name="testing">

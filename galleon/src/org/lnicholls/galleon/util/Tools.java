@@ -602,12 +602,19 @@ public class Tools {
     public static void cacheImage(URL url, int width, int height) {
         cacheImage(url, width, height, null);
     }
-
+    
     public static void cacheImage(URL url, int width, int height, String key) {
         if (url != null) {
-            try {
-                BufferedImage image = getImage(url, width, height);
+            BufferedImage image = getImage(url, width, height);
+            if (key==null)
+                key = url.toExternalForm();
+            cacheImage(image, width, height, key);        
+        }
+    }
 
+    public static void cacheImage(BufferedImage image, int width, int height, String key) {
+        if (image != null) {
+            try {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
                 encoder.encode(image);
@@ -618,8 +625,6 @@ public class Tools {
 
                 BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
                 
-                if (key==null)
-                    key = url.toExternalForm();
                 Thumbnail thumbnail = null;
                 try {
                     List list = ThumbnailManager.findByKey(key);
@@ -650,7 +655,7 @@ public class Tools {
                 image.flush();
                 image = null;
             } catch (Exception ex) {
-                Tools.logException(Tools.class, ex, url.toExternalForm());
+                Tools.logException(Tools.class, ex, key);
             }
         }
     }

@@ -98,7 +98,6 @@ public final class MediaManager {
             mMediaRefreshThread = new MediaRefreshThread();
             for (int i=0;i<mPaths.size();i++)
                 mMediaRefreshThread.addPath((PathInfo)mPaths.get(i));
-            //new MediaRefreshThread.PathInfo("d:/download/mp3",FileFilters.audioDirectoryFilter)
             mMediaRefreshThread.start();
         }
         catch (Exception ex)

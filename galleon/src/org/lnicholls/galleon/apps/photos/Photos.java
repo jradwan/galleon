@@ -1,4 +1,5 @@
-package org.lnicholls.galleon.apps.music;
+package org.lnicholls.galleon.apps.photos;
+
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -16,19 +17,28 @@ package org.lnicholls.galleon.apps.music;
  */
 
 import java.awt.Color;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.*;
+
+import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.database.Audio;
-import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.media.MediaManager;
-import org.lnicholls.galleon.media.Mp3File;
+import org.lnicholls.galleon.database.Image;
+import org.lnicholls.galleon.database.ImageManager;
+import org.lnicholls.galleon.media.JpgFile;
+import org.lnicholls.galleon.media.*;
 import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
@@ -36,12 +46,8 @@ import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultScreen;
-import org.lnicholls.hme.winamp.ClassicSkin;
-import org.lnicholls.hme.winamp.ImageControl;
-import org.lnicholls.hme.winamp.ImageView;
-import org.lnicholls.hme.winamp.PositionControl;
-import org.lnicholls.hme.winamp.ScrollTextControl;
-import org.lnicholls.hme.winamp.TextControl;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
+import org.lnicholls.galleon.widget.*;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlight;
@@ -49,16 +55,17 @@ import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 import com.tivo.hme.util.ArgumentList;
 
-public class Music extends DefaultApplication {
+public class Photos extends DefaultApplication {
 
-    private static Logger log = Logger.getLogger(Music.class.getName());
+    private static Logger log = Logger.getLogger(Photos.class.getName());
+    
+    private final static Runtime runtime = Runtime.getRuntime();
 
-    public final static String TITLE = "Music";
+    public final static String TITLE = "Photos";
 
     private Resource mBackground;
 
@@ -70,15 +77,15 @@ public class Music extends DefaultApplication {
 
     private Resource mFolderIcon;
 
-    private Resource mCDIcon;
+    private Resource mCameraIcon;
 
     private Resource mStarIcon;
 
-    private MusicScreen mMusicScreen;
+    private PhotosScreen mImagesScreen;
 
     protected void init(Context context) {
         super.init(context);
-
+        
         mBackground = getResource("background.jpg");
 
         mIcon = getResource("icon.png");
@@ -89,34 +96,50 @@ public class Music extends DefaultApplication {
 
         mFolderIcon = getResource("folder.png");
 
-        mCDIcon = getResource("cd.png");
+        mCameraIcon = getResource("camera.png");
 
         mStarIcon = getResource("star.png");
 
-        mMusicScreen = new MusicScreen(this);
+        mImagesScreen = new PhotosScreen(this);
+        
+        String path = Tools.loadPersistentValue(DefaultApplication.TRACKER);
+        if (path!=null)
+        {
+            FileSystemContainer fileSystemContainer = new FileSystemContainer(path);
+            Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+            setTracker(tracker);
+        }
 
-        push(new MusicMenuScreen(this), TRANSITION_NONE);
+        push(new PhotosMenuScreen(this), TRANSITION_NONE);
     }
 
-    public class MusicMenuScreen extends DefaultScreen {
-        private MList list;
+    public class PhotosMenuScreen extends DefaultScreen {
+        private PList list;
+        private Grid grid;
 
-        public MusicMenuScreen(Music app) {
+        public PhotosMenuScreen(Photos app) {
             super(app);
-            setTitle("Music");
+            setTitle("Photos");
 
-            list = new MList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
+            list = new PList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
                     - ((SAFE_TITLE_H * 2) + 32), 280, 35);
             BHighlights h = list.getHighlights();
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
+            
+            /*
+            int w = width - ((SAFE_TITLE_H * 2) + 32);
+            int h = 280;
+            grid = new Grid(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, w, h, w/3, w/3);
+            */
 
-            MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+            PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                     .getAppContext().getConfiguration();
 
-            for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
+            for (Iterator i = imagesConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
                 NameValue nameValue = (NameValue) i.next();
                 list.add(new NameFile(nameValue.getName(), new File(nameValue.getValue())));
+                //grid.add(new NameFile(nameValue.getName(), new File(nameValue.getValue())));
             }
 
             setFocusDefault(list);
@@ -138,13 +161,13 @@ public class Music extends DefaultApplication {
                             NameFile nameFile = (NameFile) (list.get(list.getFocus()));
                             FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
                                     .getCanonicalPath());
-                            ((DefaultApplication)getBApp()).setCurrentDirectory(nameFile.getFile().getCanonicalPath());
-                            Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
-                            PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                            Tracker tracker = new Tracker(fileSystemContainer
+                                    .getItems(FileFilters.imageDirectoryFilter), 0);
+                            PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
                             getBApp().push(pathScreen, TRANSITION_LEFT);
                             getBApp().flush();
                         } catch (Exception ex) {
-                            Tools.logException(Music.class, ex);
+                            Tools.logException(Photos.class, ex);
                         }
                     }
                 }.start();
@@ -161,15 +184,15 @@ public class Music extends DefaultApplication {
                 if (nameFile.getFile().isDirectory())
                     icon.setResource(mFolderIcon);
                 else
-                    icon.setResource(mCDIcon);
+                    icon.setResource(mCameraIcon);
                 icon.flush();
             }
             return super.handleEnter(arg, isReturn);
         }
     }
 
-    public class MList extends BList {
-        public MList(BView parent, int x, int y, int width, int height, int rowHeight) {
+    public class PList extends BList {
+        public PList(BView parent, int x, int y, int width, int height, int rowHeight) {
             super(parent, x, y, width, height, rowHeight);
             setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
         }
@@ -180,7 +203,7 @@ public class Music extends DefaultApplication {
             if (nameFile.getFile().isDirectory()) {
                 icon.setResource(mFolderIcon);
             } else {
-                icon.setResource(mCDIcon);
+                icon.setResource(mCameraIcon);
             }
 
             BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
@@ -212,7 +235,7 @@ public class Music extends DefaultApplication {
     }
 
     public class PathScreen extends DefaultScreen {
-        private MList list;
+        private PList list;
 
         private final int top = SAFE_TITLE_V + 100;
 
@@ -220,14 +243,14 @@ public class Music extends DefaultApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        public PathScreen(Music app, Tracker tracker) {
+        public PathScreen(Photos app, Tracker tracker) {
             super(app);
 
-            setTitle("Music");
+            setTitle("Photos");
 
             mTracker = tracker;
 
-            list = new MList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
+            list = new PList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
                     - ((SAFE_TITLE_H * 2) + 32), 280, 35);
             BHighlights h = list.getHighlights();
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
@@ -257,17 +280,17 @@ public class Music extends DefaultApplication {
                         public void run() {
                             try {
                                 mTracker.setPos(list.getFocus());
-                                
+
                                 NameFile nameFile = (NameFile) (list.get(list.getFocus()));
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
                                         .getCanonicalPath());
-                                ((DefaultApplication)getBApp()).setCurrentDirectory(nameFile.getFile().getCanonicalPath());
-                                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
-                                PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                                Tracker tracker = new Tracker(fileSystemContainer
+                                        .getItems(FileFilters.imageDirectoryFilter), 0);
+                                PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
+                                Tools.logException(Photos.class, ex);
                             }
                         }
                     }.start();
@@ -275,15 +298,15 @@ public class Music extends DefaultApplication {
                     new Thread() {
                         public void run() {
                             try {
-                                Audio audio = getAudio(nameFile.getFile().getCanonicalPath());
+                                Image image = getImage(nameFile.getFile().getCanonicalPath());
 
                                 mTracker.setPos(list.getFocus());
-                                mMusicScreen.setTracker(mTracker);
+                                mImagesScreen.setTracker(mTracker);
 
-                                getBApp().push(mMusicScreen, TRANSITION_LEFT);
+                                getBApp().push(mImagesScreen, TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
+                                Tools.logException(Photos.class, ex);
                             }
                         }
                     }.start();
@@ -310,7 +333,7 @@ public class Music extends DefaultApplication {
                     list.setFocus(0, false);
                     list.flush();
                 } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
+                    Tools.logException(Photos.class, ex);
                 } finally {
                     setPainting(true);
                 }
@@ -324,7 +347,7 @@ public class Music extends DefaultApplication {
                     if (nameFile.getFile().isDirectory())
                         icon.setResource(mFolderIcon);
                     else
-                        icon.setResource(mCDIcon);
+                        icon.setResource(mCameraIcon);
                     icon.flush();
                 }
             }
@@ -353,7 +376,7 @@ public class Music extends DefaultApplication {
         private int mTop;
     }
 
-    public class MusicScreen extends DefaultScreen {
+    public class PhotosScreen extends DefaultScreen {
 
         private BList list;
 
@@ -363,17 +386,17 @@ public class Music extends DefaultApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        public MusicScreen(Music app) {
+        public PhotosScreen(Photos app) {
             super(app, true);
 
-            setTitle("Song");
+            setTitle("Photo");
 
-            mTimeFormat = new SimpleDateFormat();
-            mTimeFormat.applyPattern("mm:ss");
+            mDateFormat = new SimpleDateFormat();
+            mDateFormat.applyPattern("EEE M/d hh:mm a");
 
             int start = top;
 
-            mCover = new BView(below, width - SAFE_TITLE_H - 210, height - SAFE_TITLE_V - 200, 200, 200, false);
+            mThumbnail = new BView(below, width - SAFE_TITLE_H - 210, height - SAFE_TITLE_V - 200, 200, 200, false);
 
             mTitleText = new BText(normal, border_left, start - 30, text_width, 70);
             mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
@@ -383,39 +406,22 @@ public class Music extends DefaultApplication {
 
             start += 40;
 
-            mSongText = new BText(normal, border_left, start, text_width, 20);
-            mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            mSongText.setFont("default-18-bold.font");
-            mSongText.setShadow(true);
+            mTakenText = new BText(normal, border_left, start, text_width, 20);
+            mTakenText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mTakenText.setFont("default-18-bold.font");
+            mTakenText.setShadow(true);
 
-            mDurationText = new BText(normal, border_left, start, text_width, 20);
-            mDurationText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-            mDurationText.setFont("default-18-bold.font");
-            mDurationText.setShadow(true);
-
-            start += 20;
-
-            mAlbumText = new BText(normal, border_left, start, text_width, 20);
-            mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            mAlbumText.setFont("default-18-bold.font");
-            mAlbumText.setShadow(true);
-
-            mYearText = new BText(normal, border_left, start, text_width, 20);
-            mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-            mYearText.setFont("default-18-bold.font");
-            mYearText.setShadow(true);
+            mImportedText = new BText(normal, border_left, start, text_width, 20);
+            mImportedText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
+            mImportedText.setFont("default-18-bold.font");
+            mImportedText.setShadow(true);
 
             start += 20;
 
-            mArtistText = new BText(normal, border_left, start, text_width, 20);
-            mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            mArtistText.setFont("default-18-bold.font");
-            mArtistText.setShadow(true);
-
-            mGenreText = new BText(normal, border_left, start, text_width, 20);
-            mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-            mGenreText.setFont("default-18-bold.font");
-            mGenreText.setShadow(true);
+            mModifiedText = new BText(normal, border_left, start, text_width, 20);
+            mModifiedText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mModifiedText.setFont("default-18-bold.font");
+            mModifiedText.setShadow(true);
 
             mStars = new BView[5];
             for (int i = 0; i < 5; i++) {
@@ -426,7 +432,7 @@ public class Music extends DefaultApplication {
 
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Play");
+            list.add("View slideshow");
             list.add("Don't do anything");
 
             setFocusDefault(list);
@@ -439,43 +445,74 @@ public class Music extends DefaultApplication {
         }
 
         private void updateView() {
-            final Audio audio = currentAudio();
-            if (audio != null) {
+            final Image image = currentImage();
+            if (image != null) {
                 setPainting(false);
                 try {
 
-                    clearCover();
+                    clearThumbnail();
 
-                    File file = new File(audio.getPath());
+                    File file = new File(image.getPath());
                     String name = Tools.extractName(file.getName());
                     mTitleText.setValue(name);
-                    mSongText.setValue("Song: " + Tools.trim(audio.getTitle(), 40));
-                    mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
-                    mAlbumText.setValue("Album: " + Tools.trim(audio.getAlbum(), 40));
-                    mYearText.setValue("Year: " + String.valueOf(audio.getDate()));
-                    mArtistText.setValue("Artist: " + Tools.trim(audio.getArtist(), 40));
-                    mGenreText.setValue("Genre: " + audio.getGenre());
+                    mTakenText.setValue("Taken: " + mDateFormat.format(image.getDateCreated()));
+                    mImportedText.setValue("Imported: " + mDateFormat.format(image.getDateCaptured()));
+                    mModifiedText.setValue("Modified: " + mDateFormat.format(image.getDateModified()));
 
                     setRating();
 
                     updateHints();
 
-                    final MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+                    final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                             .getAppContext().getConfiguration();
                     new Thread() {
                         public void run() {
                             try {
-                                java.awt.Image image = Mp3File.getCover(audio, musicConfiguration.isUseAmazon(),
-                                        musicConfiguration.isUseFile());
-                                if (image != null) {
-                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-                                    mCover.setVisible(true);
-                                    mCover.setTransparency(1.0f);
-                                    mCover.setTransparency(0.0f, mAnim);
-                                    mCover.flush();
+                                BufferedImage thumbnail = JpgFile.getThumbnail(image);
+                                if (thumbnail != null) {
+                                    mThumbnail.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
+                                    mThumbnail.setVisible(true);
+                                    mThumbnail.setTransparency(1.0f);
+                                    mThumbnail.setTransparency(0.0f, mAnim);
+                                    mThumbnail.flush();
+                                }
+                                else
+                                {
+                                    // TODO Move out as a utility function
+                                    try {
+                                        thumbnail = Tools.retrieveCachedImage(image.getPath());
+                                        if (thumbnail != null) {
+                                            mThumbnail.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
+                                            mThumbnail.setVisible(true);
+                                            mThumbnail.setTransparency(1.0f);
+                                            mThumbnail.setTransparency(0.0f, mAnim);
+                                            mThumbnail.flush();
+                                        }
+                                        else
+                                        {
+                                            FileInputStream is = new FileInputStream(image.getPath());
+                                            if (is != null) {
+                                                BufferedImage photo = ImageIO.read(is);
+    
+                                                if (photo != null) {
+                                                    photo = (BufferedImage) Tools.getImage(photo);
+                                                    BufferedImage scaled = ImageManipulator.getScaledImage(photo, 200, 200);
+                                                    mThumbnail.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
+                                                    mThumbnail.setVisible(true);
+                                                    mThumbnail.setTransparency(1.0f);
+                                                    mThumbnail.setTransparency(0.0f, mAnim);
+                                                    mThumbnail.flush();
+                                                    
+                                                    Tools.cacheImage(scaled, 200, 200, image.getPath());
+                                                }
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+                                        Tools.logException(Photos.class, ex, "Could retrieve image");
+                                    }                                    
                                 }
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex, "Could retrieve cover");
+                                Tools.logException(Photos.class, ex, "Could retrieve cover");
                             }
                         }
                     }.start();
@@ -497,32 +534,32 @@ public class Music extends DefaultApplication {
             }
         }
 
-        private void clearCover() {
-            Audio audio = currentAudio();
-            if (audio != null) {
-                mCover.setVisible(false);
-                if (mCover.resource != null)
-                    mCover.resource.remove();
+        private void clearThumbnail() {
+            Image image = currentImage();
+            if (image != null) {
+                mThumbnail.setVisible(false);
+                if (mThumbnail.resource != null)
+                    mThumbnail.resource.remove();
             }
         }
 
         public boolean handleExit() {
-            clearCover();
+            clearThumbnail();
             return super.handleExit();
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            Audio audio = currentAudio();
+            Image image = currentImage();
             switch (code) {
             case KEY_THUMBSDOWN:
-                if (audio != null && audio.getRating() > 0) {
+                if (image != null && image.getRating() > 0) {
                     getBApp().play("thumbsdown.snd");
                     getBApp().flush();
                     try {
-                        audio.setRating(Math.max(audio.getRating() - 1, 0));
-                        AudioManager.updateAudio(audio);
+                        image.setRating(Math.max(image.getRating() - 1, 0));
+                        ImageManager.updateImage(image);
                     } catch (Exception ex) {
-                        Tools.logException(Music.class, ex);
+                        Tools.logException(Photos.class, ex);
                     }
                     setRating();
                 } else {
@@ -531,14 +568,14 @@ public class Music extends DefaultApplication {
                 }
                 return true;
             case KEY_THUMBSUP:
-                if (audio != null && audio.getRating() < 5) {
+                if (image != null && image.getRating() < 5) {
                     getBApp().play("thumbsup.snd");
                     getBApp().flush();
                     try {
-                        audio.setRating(Math.min(audio.getRating() + 1, 5));
-                        AudioManager.updateAudio(audio);
+                        image.setRating(Math.min(image.getRating() + 1, 5));
+                        ImageManager.updateImage(image);
                     } catch (Exception ex) {
-                        Tools.logException(Music.class, ex);
+                        Tools.logException(Photos.class, ex);
                     }
                     setRating();
                 } else {
@@ -597,10 +634,10 @@ public class Music extends DefaultApplication {
         }
 
         private void setRating() {
-            Audio audio = currentAudio();
-            if (audio != null) {
+            Image image = currentImage();
+            if (image != null) {
                 for (int i = 0; i < 5; i++) {
-                    if (i < audio.getRating())
+                    if (i < image.getRating())
                         mStars[i].setTransparency(0.0f);
                     else
                         mStars[i].setTransparency(0.6f);
@@ -616,7 +653,7 @@ public class Music extends DefaultApplication {
 
                 new Thread() {
                     public void run() {
-                        getBApp().push(new PlayerScreen((Music) getBApp(), mTracker), TRANSITION_LEFT);
+                        getBApp().push(new SlideshowScreen((Photos) getBApp(), mTracker), TRANSITION_LEFT);
                         getBApp().flush();
                     }
                 }.start();
@@ -630,39 +667,33 @@ public class Music extends DefaultApplication {
             mTracker = value;
         }
 
-        private Audio currentAudio() {
+        private Image currentImage() {
             if (mTracker != null) {
                 try {
                     NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
                     if (nameFile != null) {
-                        return getAudio(nameFile.getFile().getCanonicalPath());
+                        return getImage(nameFile.getFile().getCanonicalPath());
                     }
                 } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
+                    Tools.logException(Photos.class, ex);
                 }
             }
             return null;
         }
 
-        private SimpleDateFormat mTimeFormat;
+        private SimpleDateFormat mDateFormat;
 
-        private Resource mAnim = getResource("*2000");
+        private Resource mAnim = getResource("*1000");
 
-        private BView mCover;
+        private BView mThumbnail;
 
         private BText mTitleText;
 
-        private BText mSongText;
+        private BText mTakenText;
 
-        private BText mArtistText;
+        private BText mImportedText;
 
-        private BText mAlbumText;
-
-        private BText mDurationText;
-
-        private BText mYearText;
-
-        private BText mGenreText;
+        private BText mModifiedText;
 
         private Tracker mTracker;
 
@@ -693,7 +724,7 @@ public class Music extends DefaultApplication {
         }
     }
 
-    public class PlayerScreen extends DefaultScreen {
+    public class SlideshowScreen extends DefaultScreen {
 
         private final int top = SAFE_TITLE_V + 80;
 
@@ -701,143 +732,91 @@ public class Music extends DefaultApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        public PlayerScreen(Music app, Tracker tracker) {
-            super(app, true);
+        public SlideshowScreen(Photos app, Tracker tracker) {
+            super(app, null, false);
 
             mTracker = tracker;
 
-            app.setTracker(tracker);
+            //app.setTracker(tracker);
 
             setTitle(" ");
 
-            MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+            mPhoto = new View(below, 0, 0, width, height);
+
+            PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                     .getAppContext().getConfiguration();
-            ClassicSkin classicSkin = new ClassicSkin(musicConfiguration.getSkin());
-            if (classicSkin != null) {
+            //getPlayer().startTrack();
+        }
+
+        private void updateView() {
+            final Image image = currentImage();
+            if (image != null) {
                 setPainting(false);
                 try {
-                    player = classicSkin.getMain(this);
 
-                    previousControl = classicSkin.getPreviousControl(player);
-                    playControl = classicSkin.getPlayControl(player);
-                    pauseControl = classicSkin.getPauseControl(player);
-                    stopControl = classicSkin.getStopControl(player);
-                    nextControl = classicSkin.getNextControl(player);
-                    ejectControl = classicSkin.getEjectControl(player);
+                    clearImage();
 
-                    title = classicSkin.getTitle(player);
+                    final File file = new File(image.getPath());
 
-                    stereo = classicSkin.getStereoActive(player);
-                    mono = classicSkin.getMonoPassive(player);
+                    updateHints();
 
-                    sampleRate = classicSkin.getSampleRate(player, "44");
-                    bitRate = classicSkin.getBitRate(player, " 96");
+                    final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
+                            .getAppContext().getConfiguration();
+                    new Thread() {
+                        public void run() {
+                            try {
+                                FileInputStream is = new FileInputStream(file);
+                                if (is != null) {
+                                    BufferedImage photo = ImageIO.read(is);
 
-                    stopIcon = classicSkin.getStopIcon(player);
-                    stopIcon.setVisible(false);
-                    playIcon = classicSkin.getPlayIcon(player);
-                    playIcon.setVisible(false);
-                    pauseIcon = classicSkin.getPauseIcon(player);
-                    pauseIcon.setVisible(false);
+                                    if (photo != null) {
+                                        photo = (BufferedImage) Tools.getImage(photo);
+                                        BufferedImage scaled = ImageManipulator.getScaledImage(photo, mPhoto.width, mPhoto.height);
+                                        mPhoto.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
+                                        mPhoto.setVisible(true);
+                                        mPhoto.setTransparency(1);
+                                        mPhoto.setTransparency(0, mAnim);
+                                        getBApp().flush();
+                                        scaled.flush();
+                                        scaled = null;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                Tools.logException(Photos.class, ex, "Could retrieve image");
+                            }
+                        }
+                    }.start();
 
-                    repeat = classicSkin.getRepeatActive(player);
-                    shuffle = classicSkin.getShufflePassive(player);
-
-                    positionControl = classicSkin.getPosition(player, 0);
-
-                    seconds1 = classicSkin.getSeconds1(player);
-                    seconds2 = classicSkin.getSeconds2(player);
-                    minutes1 = classicSkin.getMinutes1(player);
-                    minutes2 = classicSkin.getMinutes2(player);
                 } finally {
                     setPainting(true);
                 }
             }
-
-            getPlayer().startTrack();
-
-            playPlayer();
-        }
-
-        private void updateTime(int seconds) {
-            int secondD = 0, second = 0, minuteD = 0, minute = 0;
-            int minutes = (int) Math.floor(seconds / 60);
-            int hours = (int) Math.floor(minutes / 60);
-            minutes = minutes - hours * 60;
-            seconds = seconds - minutes * 60 - hours * 3600;
-            if (seconds < 10) {
-                secondD = 0;
-                second = seconds;
-            } else {
-                secondD = ((int) seconds / 10);
-                second = ((int) (seconds - (((int) seconds / 10)) * 10));
-            }
-            if (minutes < 10) {
-                minuteD = 0;
-                minute = minutes;
-            } else {
-                minuteD = ((int) minutes / 10);
-                minute = ((int) (minutes - (((int) minutes / 10)) * 10));
-            }
-
-            seconds1.setImage(second);
-            seconds2.setImage(secondD);
-            minutes1.setImage(minute);
-            minutes2.setImage(minuteD);
-        }
-
-        private void setTitleText(String text) {
-            text = Tools.extractName(text);
-
-            if (!text.toUpperCase().equals(title.getText()))
-                title.setText(text);
-        }
-
-        public void stopPlayer() {
-            stopIcon.setVisible(true);
-            playIcon.setVisible(false);
-            pauseIcon.setVisible(false);
-            positionControl.setPosition(0);
-        }
-
-        public void playPlayer() {
-            stopIcon.setVisible(false);
-            playIcon.setVisible(true);
-            pauseIcon.setVisible(false);
-        }
-
-        public void pausePlayer() {
-            if (getPlayer().getState() != Player.STOP) {
-                stopIcon.setVisible(false);
-                playIcon.setVisible(false);
-                if (getPlayer().getState() == Player.PAUSE) {
-                    pauseIcon.setVisible(false);
-                    playIcon.setVisible(true);
-                } else {
-                    pauseIcon.setVisible(true);
-                }
-            }
-        }
-
-        public void nextPlayer() {
-            stopIcon.setVisible(false);
-            playIcon.setVisible(true);
-            pauseIcon.setVisible(false);
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            mScreenSaver = new ScreenSaver(this);
-            mScreenSaver.start();
+            updateView();
+
+            mSlideshow = new Slideshow(this);
+            mSlideshow.start();
             return super.handleEnter(arg, isReturn);
+        }
+
+        private void clearImage() {
+            Image image = currentImage();
+            if (image != null) {
+                mPhoto.setVisible(false);
+                if (mPhoto.resource != null)
+                    mPhoto.resource.remove();
+            }
         }
 
         public boolean handleExit() {
             setPainting(false);
             try {
-                stopPlayer();
-                if (mScreenSaver != null && mScreenSaver.isAlive()) {
-                    mScreenSaver.interrupt();
-                    mScreenSaver = null;
+                clearImage();
+                if (mSlideshow != null && mSlideshow.isAlive()) {
+                    mSlideshow.interrupt();
+                    mSlideshow = null;
                 }
             } finally {
                 setPainting(true);
@@ -845,32 +824,38 @@ public class Music extends DefaultApplication {
             return super.handleExit();
         }
 
+        private void updateHints() {
+            BHighlights h = getHighlights();
+            BHighlight pageup = h.get(H_PAGEUP);
+            BHighlight pagedown = h.get(H_PAGEDOWN);
+            if (pageup != null && pagedown != null) {
+                pageup.setVisible(H_VIS_TRUE); // : H_VIS_FALSE);
+                pagedown.setVisible(H_VIS_TRUE); // : H_VIS_FALSE);
+                h.refresh();
+            }
+        }
+
+        private void setTitleText(String text) {
+            text = Tools.extractName(text);
+
+            //if (!text.toUpperCase().equals(title.getText()))
+            //    title.setText(text);
+        }
+
         public boolean handleKeyPress(int code, long rawcode) {
-            if (transparency != 0.0f)
-                setTransparency(0.0f);
             switch (code) {
-            case KEY_PAUSE:
-                pauseControl.setSelected(true);
-                pausePlayer();
-                break;
-            case KEY_PLAY:
-                playControl.setSelected(true);
-                playPlayer();
-                break;
             case KEY_CHANNELUP:
-                getBApp().play("select.snd");
+                getBApp().play("pageup.snd");
                 getBApp().flush();
-                nextControl.setSelected(true);
-                break;
+                getPrevPos();
+                updateView();
+                return true;
             case KEY_CHANNELDOWN:
-                getBApp().play("select.snd");
+                getBApp().play("pagedown.snd");
                 getBApp().flush();
-                previousControl.setSelected(true);
-                break;
-            case KEY_SLOW:
-                stopControl.setSelected(true);
-                stopPlayer();
-                break;
+                getNextPos();
+                updateView();
+                return true;
             case KEY_SELECT:
             case KEY_RIGHT:
                 postEvent(new BEvent.Action(this, "pop"));
@@ -882,178 +867,192 @@ public class Music extends DefaultApplication {
             return super.handleKeyPress(code, rawcode);
         }
 
-        public boolean handleKeyRelease(int code, long rawcode) {
-            switch (code) {
-            case KEY_PAUSE:
-                pauseControl.setSelected(false);
-                break;
-            case KEY_PLAY:
-                playControl.setSelected(false);
-                break;
-            case KEY_CHANNELUP:
-                nextControl.setSelected(false);
-                break;
-            case KEY_CHANNELDOWN:
-                previousControl.setSelected(false);
-                break;
-            case KEY_SLOW:
-                stopControl.setSelected(false);
-                break;
-            case KEY_ENTER:
-                ejectControl.setSelected(false);
-                break;
-            }
-            return super.handleKeyRelease(code, rawcode);
-        }
-
         public boolean handleAction(BView view, Object action) {
             NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
             if (action.equals("ready")) {
                 setTitleText(nameFile.getName());
-                playPlayer();
                 return true;
             } else if (action.equals("playing")) {
-                if (getPlayer().getTotal() != 0) {
-                    int value = (int) Math.round(getPlayer().getCurrentPosition() / (float) getPlayer().getTotal()
-                            * 100);
-                    positionControl.setPosition(value);
-                    updateTime(getPlayer().getCurrentPosition() / 1000);
-                }
-
-                int value = getPlayer().getBitrate();
-                String newValue = Integer.toString(value);
-                if (value < 100)
-                    newValue = " " + newValue;
-                bitRate.setText(newValue);
 
                 return true;
             } else if (action.equals("stopped")) {
-                stopPlayer();
                 setTitleText(" ");
-                updateTime(0);
                 return true;
             }
 
             return super.handleAction(view, action);
         }
 
-        public boolean handleEvent(HmeEvent event) {
-            switch (event.opcode) {
-            case EVT_KEY: {
-                if (title.handleEvent(event))
-                    return true;
-                break;
-            }
-            }
-            return super.handleEvent(event);
-        }
-
-        Audio mAudio;
-
-        // when did the last key press occur
-        long lastKeyPress;
-
-        View player;
-
-        ImageControl previousControl;
-
-        ImageControl playControl;
-
-        ImageControl pauseControl;
-
-        ImageControl stopControl;
-
-        ImageControl nextControl;
-
-        ImageControl ejectControl;
-
-        ScrollTextControl title;
-
-        View stereo;
-
-        View mono;
-
-        TextControl bitRate;
-
-        TextControl sampleRate;
-
-        View stopIcon;
-
-        View playIcon;
-
-        View pauseIcon;
-
-        View repeat;
-
-        View shuffle;
-
-        PositionControl positionControl;
-
-        ImageView seconds1;
-
-        ImageView seconds2;
-
-        ImageView minutes1;
-
-        ImageView minutes2;
-
-        private Tracker mTracker;
-
-        private ScreenSaver mScreenSaver;
-    }
-
-    private static Audio getAudio(String path) {
-        Audio audio = null;
-        try {
-            List list = AudioManager.findByPath(path);
-            if (list != null && list.size() > 0) {
-                audio = (Audio) list.get(0);
-            }
-        } catch (Exception ex) {
-            Tools.logException(Music.class, ex);
-        }
-
-        if (audio == null) {
-            try {
-                audio = (Audio) MediaManager.getMedia(path);
-                AudioManager.createAudio(audio);
-            } catch (Exception ex) {
-                Tools.logException(Music.class, ex);
-            }
-        }
-        return audio;
-    }
-
-    private class ScreenSaver extends Thread {
-        public ScreenSaver(PlayerScreen playerScreen) {
-            mPlayerScreen = playerScreen;
-        }
-
-        public void run() {
-            while (true) {
-                try {
-                    sleep(1000 * 5 * 60);
-                    mPlayerScreen.setTransparency(0.9f, getResource("*60000"));
-                } catch (InterruptedException ex) {
-                    return;
-                } catch (Exception ex2) {
-                    Tools.logException(Music.class, ex2);
+        public void getNextPos() {
+            if (mTracker != null) {
+                int pos = mTracker.getNextPos();
+                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
+                while (nameFile.getFile().isDirectory()) {
+                    pos = mTracker.getNextPos();
+                    nameFile = (NameFile) mTracker.getList().get(pos);
                 }
             }
         }
 
-        private PlayerScreen mPlayerScreen;
+        public void getPrevPos() {
+            if (mTracker != null) {
+                int pos = mTracker.getPrevPos();
+                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
+                while (nameFile.getFile().isDirectory()) {
+                    pos = mTracker.getPrevPos();
+                    nameFile = (NameFile) mTracker.getList().get(pos);
+                }
+            }
+        }
+
+        private Image currentImage() {
+            if (mTracker != null) {
+                try {
+                    NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
+                    if (nameFile != null) {
+                        return getImage(nameFile.getFile().getCanonicalPath());
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(Photos.class, ex);
+                }
+            }
+            return null;
+        }
+
+        private Resource mAnim = getResource("*100");
+
+        Image mImage;
+
+        View mPhoto;
+
+        Slideshow mSlideshow;
+
+        // when did the last key press occur
+        long lastKeyPress;
+
+        private Tracker mTracker;
     }
 
-    public static class MusicFactory extends AppFactory {
+    private static Image getImage(String path) {
+        Image image = null;
+        try {
+            List list = ImageManager.findByPath(path);
+            if (list != null && list.size() > 0) {
+                image = (Image) list.get(0);
+            }
+        } catch (Exception ex) {
+            Tools.logException(Photos.class, ex);
+        }
 
-        public MusicFactory(AppContext appContext) {
+        if (image == null) {
+            try {
+                image = (Image) MediaManager.getMedia(path);
+                ImageManager.createImage(image);
+            } catch (Exception ex) {
+                Tools.logException(Photos.class, ex);
+            }
+        }
+        return image;
+    }
+
+    private class Slideshow extends Thread {
+        public Slideshow(SlideshowScreen slideshowScreen) {
+            mSlideshowScreen = slideshowScreen;
+        }
+
+        public void run() {
+            final PhotosConfiguration photosConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
+                    .getAppContext().getConfiguration();
+
+            Effect[] effects = new Effect[0];
+            
+            if (photosConfiguration.getEffect().equals(Effects.RANDOM) || photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
+            {
+                Collection list = Effects.getEffects();
+                effects = (Effect[])list.toArray(effects);
+            }
+            else
+            {
+                ArrayList list = new ArrayList();
+                list.add(Effects.getEffect(photosConfiguration.getEffect()));
+                effects = (Effect[])list.toArray(effects);
+            }
+
+            BufferedImage photo = null;
+            FileInputStream is = null;
+            Image image = null;
+            Random random = new Random();
+            
+            int currentEffect = 0;
+            
+            if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
+                currentEffect = 0;
+            else
+            if (photosConfiguration.getEffect().equals(Effects.RANDOM))
+            {
+                currentEffect = random.nextInt(effects.length);
+            }            
+
+            while (true) {
+                try {
+                    sleep(1000 * photosConfiguration.getDisplayTime());
+                    mSlideshowScreen.getNextPos();
+                    image = mSlideshowScreen.currentImage();
+                    if (image != null) {
+                        File file = new File(image.getPath());
+                        try {
+                            is = new FileInputStream(file);
+                            if (is != null) {
+                                photo = ImageIO.read(is);
+                                is.close();
+                                is = null;
+
+                                if (photo != null) {
+                                    long startTime = System.currentTimeMillis();
+                                    photo = (BufferedImage) Tools.getImage(photo);
+                                    long estimatedTime = System.currentTimeMillis() - startTime;
+                                    BufferedImage scaled = ImageManipulator.getScaledImage(photo, mSlideshowScreen.mPhoto.width,
+                                            mSlideshowScreen.mPhoto.height);
+                                    estimatedTime = System.currentTimeMillis() - startTime;
+                                    if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
+                                        currentEffect = (currentEffect + 1) % effects.length;
+                                    else
+                                    if (photosConfiguration.getEffect().equals(Effects.RANDOM))
+                                    {
+                                        currentEffect = random.nextInt(effects.length);
+                                    }
+                                    Effect effect = (Effect) effects[currentEffect];
+                                    effect.setDelay(photosConfiguration.getTransitionTime() * 1000);
+                                    effect.apply(mSlideshowScreen.mPhoto, scaled);
+                                }
+                            }
+                        } catch (Exception ex) {
+                            Tools.logException(Photos.class, ex, "Could retrieve image");
+                        }
+                    }
+                    image = null;
+                } catch (InterruptedException ex) {
+                    return;
+                } catch (OutOfMemoryError ex) {
+                    System.gc();
+                } catch (Exception ex2) {
+                    Tools.logException(Photos.class, ex2);
+                }
+            }
+        }
+
+        private SlideshowScreen mSlideshowScreen;
+    }
+    
+     public static class PhotosFactory extends AppFactory {
+
+        public PhotosFactory(AppContext appContext) {
             super(appContext);
         }
 
         protected void init(ArgumentList args) {
             super.init(args);
-            MusicConfiguration musicConfiguration = (MusicConfiguration) getAppContext().getConfiguration();
+            PhotosConfiguration imagesConfiguration = (PhotosConfiguration) getAppContext().getConfiguration();
         }
     }
 }

@@ -87,16 +87,16 @@ public final class JpgFile {
         image.setTone("");
     }
 
-    public static final BufferedImage getThumbnail(String filename) {
+    public static final BufferedImage getThumbnail(Image image) {
         try {
             // Extract the thumbnail data from the Exif header of the Jpeg file
-            EXIFInfo info = new EXIFInfo(new File(filename));
+            EXIFInfo info = new EXIFInfo(new File(image.getPath()));
 
             // Does the Jpeg have a embedded thumbnail; true for most modern digital camera images
             BufferedImage thumbnail = info.getThumbnail();
             return thumbnail;
         } catch (Exception ex) {
-            Tools.logException(JpgFile.class, ex, filename);
+            Tools.logException(JpgFile.class, ex, image.getPath());
         }
 
         return null;

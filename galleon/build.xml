@@ -270,10 +270,9 @@
         <copy file="./media/images/music/icon.png" tofile="${build}/org/lnicholls/galleon/apps/music/icon.png" />        
         <copy file="./media/images/music/folder.png" tofile="${build}/org/lnicholls/galleon/apps/music/folder.png" />                
         <copy file="./media/images/music/cd.png" tofile="${build}/org/lnicholls/galleon/apps/music/cd.png" />                
-        <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/music/alerticon.png" />        
-        <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/music/Dekadens.ttf" />                
         <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy.gif" />                        
         <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy2.gif" />                                
+        <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/music/star.png" />                                        
         <copy file="./media/images/music/background.jpg" tofile="${build}/org/lnicholls/galleon/apps/music/background.jpg" />
         <copy todir="${build}/media">
           <fileset dir="./media">
@@ -300,10 +299,40 @@
         <jar jarfile="${build}/apps/music.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/music/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/music" excludes="*.java" />
-            <fileset dir="./media/images" includes="*.png,*.jpg"/>                                                
             <fileset dir="./media/fonts" includes="Dekadens.ttf"/>
         </jar>
         <copy file="${build}/apps/music.jar" tofile="./apps/music.jar" />                        
+        
+        
+        <copy file="./media/images/photos/icon.png" tofile="${build}/org/lnicholls/galleon/apps/photos/icon.png" />        
+        <copy file="./media/images/photos/folder.png" tofile="${build}/org/lnicholls/galleon/apps/photos/folder.png" />                
+        <copy file="./media/images/photos/camera.png" tofile="${build}/org/lnicholls/galleon/apps/photos/camera.png" />                
+        <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/photos/busy.gif" />                        
+        <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/photos/busy2.gif" />                                
+        <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/photos/star.png" />                                                
+        <copy file="./media/images/photos/background.jpg" tofile="${build}/org/lnicholls/galleon/apps/photos/background.jpg" />
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.photos.Photos"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Photos"/>
+            <attribute name="Icon" value="icon.png"/>
+            <attribute name="ReleaseDate" value="06/03/05"/>          
+            <attribute name="Description" value="Photos"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/photos.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/photos/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/photos" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/photos.jar" tofile="./apps/photos.jar" />                                
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                

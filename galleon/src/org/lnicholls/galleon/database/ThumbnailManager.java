@@ -16,7 +16,7 @@ package org.lnicholls.galleon.database;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -198,13 +198,13 @@ public class ThumbnailManager {
         }
     }
 
-    public static List findByPath(String path) throws HibernateException {
+    public static List findByKey(String path) throws HibernateException {
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.path=?", path,
+            List list = session.find("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?", path,
                     Hibernate.STRING);
 
             tx.commit();
@@ -219,16 +219,16 @@ public class ThumbnailManager {
         }
     }
     
-    public static Image findImageByPath(String path) throws HibernateException {
+    public static BufferedImage findImageByKey(String key) throws HibernateException {
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.path=?", path,
+            List list = session.find("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?", key,
                     Hibernate.STRING);
             
-            Image image = null;
+            BufferedImage image = null;
             if (list.size()>0)
             {
                 Thumbnail thumbnail = (Thumbnail)list.get(0);

@@ -601,10 +601,18 @@ public class Tools {
     }
     
     public static void cacheImage(URL url) {
-        cacheImage(url, -1, -1);    
+        cacheImage(url, null);    
+    }
+    
+    public static void cacheImage(URL url, String key) {
+        cacheImage(url, -1, -1, null);    
+    }
+    
+    public static void cacheImage(URL url, int width, int height) {
+        cacheImage(url, width, height, null);
     }
 
-    public static void cacheImage(URL url, int width, int height) {
+    public static void cacheImage(URL url, int width, int height, String key) {
         if (url != null) {
             try {
                 Image internetImage = null;
@@ -655,9 +663,11 @@ public class Tools {
 
                         BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
                         
+                        if (key==null)
+                            key = url.toExternalForm();
                         Thumbnail thumbnail = null;
                         try {
-                            List list = ThumbnailManager.findByPath(url.toExternalForm());
+                            List list = ThumbnailManager.findByKey(key);
                             if (list!=null && list.size()>0)
                                 thumbnail = (Thumbnail)list.get(0);
                         } catch (HibernateException ex) {
@@ -667,7 +677,7 @@ public class Tools {
                         try {
                             if (thumbnail==null)
                             {
-                                thumbnail = new Thumbnail("Cached", "jpg", url.toExternalForm());
+                                thumbnail = new Thumbnail("Cached", "jpg", key);
                                 thumbnail.setImage(blob);
                                 thumbnail.setDateModified(new Date());
                                 ThumbnailManager.createThumbnail(thumbnail);
@@ -693,14 +703,18 @@ public class Tools {
             }
         }
     }
-
+    
     public static Image retrieveCachedImage(URL url) {
+        return retrieveCachedImage(url.toExternalForm());
+    }
+
+    public static BufferedImage retrieveCachedImage(String key) {
         try {
-            return ThumbnailManager.findImageByPath(url.toExternalForm());            
+            return ThumbnailManager.findImageByKey(key);            
         } catch (HibernateException ex) {
             log.error("Image retrieve failed", ex);          
         } catch (Exception ex) {
-            Tools.logException(Tools.class, ex, url.toExternalForm());
+            Tools.logException(Tools.class, ex, key);
         }
         return null;
     }
@@ -744,5 +758,12 @@ public class Tools {
             return "";
         }
         return pkg.substring(0, last).replace('.', '/');
+    }
+    
+    public static String trim(String value, int max)
+    {
+        if (value!=null && value.length()>max)
+            return value.substring(0,max-3)+"...";
+        return value;
     }
 }

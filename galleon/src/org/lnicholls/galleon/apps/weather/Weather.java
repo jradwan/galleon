@@ -72,10 +72,22 @@ public class Weather extends BApplication {
     private static int mCurrent = 0;
     
     private static DefaultScreen[] screens = new DefaultScreen[5];
+    
+    private Resource mBackground;
+    
+    private Resource mAlertIcon;
+    
+    private Resource mIcon;
 
     protected void init(Context context) {
         super.init(context);
-
+        
+        mBackground = getResource("background.jpg");
+        
+        mAlertIcon = getResource("alerticon.png");
+        
+        mIcon = getResource("icon.png");
+        
         //push(new WeatherMenuScreen(this), TRANSITION_NONE);
         
         WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
@@ -101,7 +113,7 @@ public class Weather extends BApplication {
         public DefaultScreen(Weather app) {
             super(app);
 
-            below.setResource("background.jpg");
+            below.setResource(mBackground);
 
             mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 54);
             mTitle.setValue(" ");
@@ -241,9 +253,9 @@ public class Weather extends BApplication {
             protected void createRow(BView parent, int index) {
                 BView icon = new BView(parent, 10, 3, 30, 30);
                 if (index == 4)
-                    icon.setResource(getResource("alerticon.png"));
+                    icon.setResource(mAlertIcon);
                 else
-                    icon.setResource(getResource("icon.png"));
+                    icon.setResource(mIcon);
 
                 BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
                 name.setShadow(true);
@@ -655,7 +667,7 @@ public class Weather extends BApplication {
                 log.error("Could not update weather local radar", ex);
             }
 
-            below.setResource("background.jpg");
+            below.setResource(mBackground);
             image.setResource("NA.png");
         }
 
@@ -731,7 +743,7 @@ public class Weather extends BApplication {
             } catch (MalformedURLException ex) {
                 log.error("Could not update weather local radar", ex);
             }
-            below.setResource("background.jpg");
+            below.setResource(mBackground);
             image.setResource("NA.png");
         }
 

@@ -34,6 +34,16 @@ public class MusicConfiguration implements AppConfiguration {
             mModified = true;
         mName = value;
     }
+    
+    public String getSkin() {
+        return mSkin;
+    }
+
+    public void setSkin(String value) {
+        if (mSkin != null && !mSkin.equals(value))
+            mModified = true;
+        mSkin = value;
+    }    
 
     public List getPaths() {
         return mPaths;
@@ -62,6 +72,8 @@ public class MusicConfiguration implements AppConfiguration {
     }
 
     private String mName;
+    
+    private String mSkin;
 
     private boolean mModified;
 

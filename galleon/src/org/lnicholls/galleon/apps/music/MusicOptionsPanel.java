@@ -17,9 +17,12 @@ package org.lnicholls.galleon.apps.music;
  */
 
 import java.awt.GridLayout;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
@@ -28,7 +31,9 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.gui.FileOptionsTable;
+import org.lnicholls.galleon.gui.Galleon;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.Tools;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -37,16 +42,41 @@ import com.jgoodies.forms.layout.FormLayout;
 public class MusicOptionsPanel extends AppConfigurationPanel {
     private static Logger log = Logger.getLogger(MusicOptionsPanel.class.getName());
 
+    class SkinWrapper extends NameValue {
+        public SkinWrapper(String name, String value) {
+            super(name, value);
+        }
+
+        public String toString() {
+            return getName();
+        }
+    }
+
     public MusicOptionsPanel(AppConfiguration appConfiguration) {
         super(appConfiguration);
         setLayout(new GridLayout(0, 1));
 
         MusicConfiguration musicConfiguration = (MusicConfiguration) appConfiguration;
 
+        List skins = Galleon.getSkins();
+
         mTitleField = new JTextField(musicConfiguration.getName());
 
+        mSkinsField = new JComboBox();
+        mSkinsField.setToolTipText("Select a Winamp classic skin for music player");
+        Iterator iterator = skins.iterator();
+        while (iterator.hasNext()) {
+            File file = (File) iterator.next();
+            try {
+                String name = Tools.extractName(file.getCanonicalPath());
+                mSkinsField.addItem(new SkinWrapper(name, file.getCanonicalPath()));
+            } catch (Exception ex) {
+            }
+        }
+        defaultCombo(mSkinsField, musicConfiguration.getSkin());
+
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                "pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+                "pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
         //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -57,7 +87,9 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Directories", cc.xyw(1, 5, 4));
+        builder.addLabel("Winamp Classic Skin", cc.xy(1, 5));
+        builder.add(mSkinsField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Directories", cc.xyw(1, 7, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -75,7 +107,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         columnNames.add(1, "Path");
         //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
         // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 7, 4));
+        builder.add(mFileOptionsTable, cc.xyw(1, 9, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -89,6 +121,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         log.debug("save()");
         MusicConfiguration musicConfiguration = (MusicConfiguration) mAppConfiguration;
         musicConfiguration.setName(mTitleField.getText());
+        musicConfiguration.setSkin(((NameValue) mSkinsField.getSelectedItem()).getValue());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
         while (iterator.hasNext()) {
@@ -100,6 +133,8 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
     }
 
     private JTextComponent mTitleField;
+
+    private JComboBox mSkinsField;
 
     private FileOptionsTable mFileOptionsTable;
 

@@ -622,6 +622,22 @@ public class Server {
         mToGoThread.interrupt();
     }    
     
+    public List getSkins() 
+    {
+        File skinsDirectory = new File(System.getProperty("root")+"/media/skins");
+        if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden())
+        {
+            File[] files = skinsDirectory.listFiles(new FileFilter(){
+                public boolean accept(File pathname)
+                {
+                    return pathname.getName().endsWith(".wsz"); // Winamp skins
+                }
+            });
+            return Arrays.asList(files);
+        }
+
+        return new ArrayList();
+    }
     
     private void createAppClassLoader() {
         File directory = new File(System.getProperty("apps"));

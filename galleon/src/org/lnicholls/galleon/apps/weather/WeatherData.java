@@ -156,19 +156,17 @@ public class WeatherData implements Serializable {
         }), 5);
     }
 
-    public static List getLocations(String zip) {
+    public static List getLocations(String city, String state, String zip) {
         Search search = new Search();
 
         try {
             SAXReader saxReader = new SAXReader();
-            /*
             URL url = new URL("http://xoap.weather.com/search/search?where=" + zip); // try city, state too
             String page = Tools.getPage(url);
             log.debug("Locations: " + page);
             StringReader stringReader = new StringReader(page);
             Document document = saxReader.read(stringReader);
-            */
-            Document document = saxReader.read(new File("d:/galleon/location.xml"));
+            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
 
             Element root = document.getRootElement(); // check for errors
             search.setVersion(Tools.getAttribute(root, "ver"));
@@ -188,7 +186,6 @@ public class WeatherData implements Serializable {
     }
 
     public void getAllWeather() {
-        /*
         try {
             SAXReader saxReader = new SAXReader();
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
@@ -201,12 +198,10 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        */
-        parseWeather("");
+        //parseWeather("");
     }
 
     public void getCurrentWeather() {
-        /*
         try {
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
             URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&prod=xoap&par=" + PARTNER_ID
@@ -217,12 +212,10 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        */
-        parseWeather("");
+        //parseWeather("");
     }
     
     public void getForecastWeather() {
-        /*
         try {
             SAXReader saxReader = new SAXReader();
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
@@ -235,19 +228,16 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        */
-        parseWeather("");
+        //parseWeather("");
     }    
 
     public void parseWeather(String page) {
         try {
             SAXReader saxReader = new SAXReader();
-            /*
             StringReader stringReader = new StringReader(page);
             Document document = saxReader.read(stringReader);
-            */
 
-            Document document = saxReader.read(new File("d:/galleon/weather.xml"));
+            //Document document = saxReader.read(new File("d:/galleon/weather.xml"));
 
             Element root = document.getRootElement();
             setVersion(Tools.getAttribute(root, "ver"));
@@ -600,11 +590,9 @@ public class WeatherData implements Serializable {
     private void parseAlerts(String value) {
         try {
             SAXReader saxReader = new SAXReader();
-            Document document = saxReader.read(new File("d:/galleon/nh.cap.xml"));
-            /*
+            //Document document = saxReader.read(new File("d:/galleon/nh.cap.xml"));
             StringReader stringReader = new StringReader(value);
             Document document = saxReader.read(stringReader);
-            */
 
             // <cap:alert>
             Element root = document.getRootElement();

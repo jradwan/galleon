@@ -53,4 +53,6 @@ public interface ServerControl extends Remote {
     public List getRules() throws RemoteException;
     
     public void updateRules(List rules) throws RemoteException;
+    
+    public List getSkins() throws RemoteException;
 }

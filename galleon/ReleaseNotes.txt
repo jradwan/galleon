@@ -1,8 +1,7 @@
 Galleon
 -------
 
-I recommend deleting the previous beta before installing this beta. If
-you dont want to do that, delete the data/galleon directory.
+I recommend deleting the previous beta before installing this beta.
 
 Version 0.0.0 beta 3:
 ---------------------
@@ -13,6 +12,7 @@ Fixed class loading bug for paths with spaces.
 Added ToGo rules configuration to main configuration file.
 Changed weather app to use arrow keys instead of menu.
 Album art.
+Music player screensaver (kicks in after 5 mins).
 
 
 Version 0.0.0 beta 2:
@@ -45,6 +45,10 @@ Known issues:
 10. Weather currently only uses zip.
 11. Weather alerts do not show all text.
 12. When you start Galleon, it might take some time before the ToGo list is populated.
+13. Music app only plays one directory of songs at a time.
+14. TiVo sometimes reboots after using the Music app for some time.
+15. Music player generates resource not found errors.
+16. Sorting, shuffling not supported yet.
 
 
 How to get started:
@@ -59,6 +63,33 @@ How to get started:
 8. Exit from the GUI.
 9. If you want to run the Winamp player, follow the intructions in the apps Readme.txt file.
 10. Use your TiVo to pick ToGo recordings to download to your PC.
+
+
+Winamp skins:
+The project has permission from the author of the Metrix Winamp classic skins (Sven Kistner) to distribute the skins with the Galleon project:
+http://www.winamp.com/skins/browse.php?search=yes&filter=S&query=metrix
+However, for copyright reasons, the skins are not checked into the project CVS. The Galleon build script will add any *.wsz Winamp skin files
+that are in the media/skins directory to a package build. The Galleon GUI will detect any *.wsz files that are in the media/skins directory and will 
+allow the user to pick a skin in the music app configuration screen.
+
+Download your favorite Winamp Classic skin from: http://www.winamp.com/skins
+The following skin is recommended: http://www.winamp.com/skins/details.php?id=35567
+
+(If you have Winamp installed, then don't click on the Download button on
+the Winamp page; rather use the right-click menu to do a Save As of the
+file)
+
+
+Music Player:
+Basic operations such as Play, Pause, Next, Previous and Stop are supported
+in this version:
+Play = Play
+Pause = Pause
+Slow = Stop
+Channel Up = Next
+Channel Down = Previous
+Enter/Last = Exit
+
 
 =====================================================
 galleon.sourceforge.net

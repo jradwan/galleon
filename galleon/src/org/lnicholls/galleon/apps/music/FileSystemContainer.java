@@ -45,7 +45,7 @@ public class FileSystemContainer {
             FileGatherer.gatherDirectory(directory, FileFilters.audioDirectoryFilter, false,
                     new FileGatherer.GathererCallback() {
                         public void visit(File file) {
-                            items.add(new NameValue(Tools.extractName(file.getAbsolutePath()),file.getAbsolutePath()));
+                            items.add(new NameFile(Tools.extractName(file.getAbsolutePath()),file));
                         }
                     });
         }
@@ -66,6 +66,40 @@ public class FileSystemContainer {
     public void setPath(String path) {
         mPath = path;
     }
+    
+    public static class NameFile
+    {
+        public NameFile(String name, File file)
+        {
+            this.mName = name;
+            this.mFile = file;
+        }
+        
+        public String getName() {
+            return mName;
+        }
+
+        public void setName(String value) {
+            mName = value;
+        }        
+        
+        public File getFile() {
+            return mFile;
+        }
+
+        public void setFile(File value) {
+            mFile = value;
+        }
+        
+        public String toString()
+        {
+            return mName;
+        }
+        
+        private String mName;
+        private File mFile;
+    }    
+    
 
     private String mPath;
 }

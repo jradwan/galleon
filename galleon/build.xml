@@ -11,6 +11,9 @@
         <fileset dir="${basedir}/lib" >
           <include name="**/*.jar"/>
         </fileset>
+        <fileset dir="${basedir}/apps" >
+          <include name="**/winamp.jar"/>
+        </fileset>        
         <pathelement path="${basedir}/conf" />
     </path>
 
@@ -270,6 +273,11 @@
         <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy.gif" />                        
         <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy2.gif" />                                
         <copy file="./media/images/music/background.jpg" tofile="${build}/org/lnicholls/galleon/apps/music/background.jpg" />
+        <copy todir="${build}/media">
+          <fileset dir="./media">
+            <include name="**/*.wsz"/>
+          </fileset>
+        </copy>        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.music.Music"/>
@@ -297,7 +305,6 @@
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                
-        <copy file="./apps/readme.txt" tofile="${build}/apps/readme.txt" />                        
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
         
 <!--
@@ -523,6 +530,11 @@
     </target>
 
     <target name="package-misc-win32">
+        <copy todir="${build}/media">
+          <fileset dir="./media">
+            <include name="**/*.wsz"/>
+          </fileset>
+        </copy>     
     </target>
 
     <target name="package-lib-osx">

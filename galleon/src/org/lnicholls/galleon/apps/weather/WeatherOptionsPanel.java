@@ -192,7 +192,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
             return false;
         }        
         
-        List locations = WeatherData.getLocations(mZipField.getText());
+        List locations = WeatherData.getLocations(mCityField.getText(), ((NameValue) mStateCombo.getSelectedItem()).getValue(), mZipField.getText());
         if (locations!=null && locations.size()>0)
         {
             if (locations.size()>1)

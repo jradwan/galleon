@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
@@ -366,6 +367,19 @@ public final class Galleon implements Constants {
             JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    public static List getSkins(){
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getSkins();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get skins from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
     }
 
     private static Logger log;

@@ -16,53 +16,54 @@ package org.lnicholls.galleon.apps.music;
  * See the file "COPYING" for more details.
  */
 
-import java.io.*;
-import java.awt.*;
-import java.awt.image.*;
-import java.net.*;
-import java.text.DecimalFormat;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.*;
 import java.util.Iterator;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.*;
-
-import javax.swing.ImageIcon;
-
-import com.tivo.hme.bananas.*;
-
-import net.sf.hibernate.HibernateException;
-
-import org.jdom.Element;
-import org.lnicholls.galleon.app.*;
-import org.lnicholls.galleon.server.*;
-import org.lnicholls.galleon.togo.ToGoThread;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.app.AppConfiguration;
-import org.lnicholls.galleon.app.AppContext;
-import org.lnicholls.galleon.app.AppDescriptor;
-import org.lnicholls.galleon.apps.togo.ToGo.ToGoScreen.OptionList;
-import org.lnicholls.galleon.apps.weather.WeatherData.Forecasts;
-import org.lnicholls.galleon.database.*;
-import org.lnicholls.galleon.media.*;
-
-import com.tivo.hme.sdk.*;
-import com.tivo.hme.util.*;
-import com.tivo.hme.http.share.*;
-import com.tivo.hme.http.server.*;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.FileSystemContainer.NameFile;
+import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.ThumbnailManager;
+import org.lnicholls.galleon.media.MediaManager;
+import org.lnicholls.galleon.media.Mp3File;
+import org.lnicholls.galleon.togo.ToGoThread;
+import org.lnicholls.galleon.util.Amazon;
+import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.hme.winamp.ClassicSkin;
+import org.lnicholls.hme.winamp.ImageControl;
+import org.lnicholls.hme.winamp.ImageView;
+import org.lnicholls.hme.winamp.PositionControl;
+import org.lnicholls.hme.winamp.ScrollTextControl;
+import org.lnicholls.hme.winamp.TextControl;
 
-import org.apache.commons.beanutils.PropertyUtils;
-
-/**
- * Based on TiVo Bananas sample code by Carl Haynes
- */
+import com.tivo.hme.bananas.BApplication;
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BHighlights;
+import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BScreen;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.http.server.HttpRequest;
+import com.tivo.hme.sdk.HmeEvent;
+import com.tivo.hme.sdk.Resource;
+import com.tivo.hme.sdk.StreamResource;
+import com.tivo.hme.sdk.View;
+import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.util.Mp3Duration;
 
 public class Music extends BApplication {
 
@@ -70,8 +71,48 @@ public class Music extends BApplication {
 
     public final static String TITLE = "Music";
 
+    private Resource mBackground;
+
+    private Resource mIcon;
+
+    private Resource mBusyIcon;
+
+    private Resource mBusy2Icon;
+
+    private Resource mFolderIcon;
+
+    private Resource mCDIcon;
+
+    private MusicScreen mMusicScreen;
+
+    public static final int INIT = 0;
+
+    public static final int OPEN = 1;
+
+    public static final int PLAY = 2;
+
+    public static final int PAUSE = 3;
+
+    public static final int STOP = 4;
+
+    private int mPlayerState = STOP;
+
     protected void init(Context context) {
         super.init(context);
+
+        mBackground = getResource("background.jpg");
+
+        mIcon = getResource("icon.png");
+
+        mBusyIcon = getResource("busy.gif");
+
+        mBusy2Icon = getResource("busy2.gif");
+
+        mFolderIcon = getResource("folder.png");
+
+        mCDIcon = getResource("cd.png");
+
+        mMusicScreen = new MusicScreen(this);
 
         push(new MusicMenuScreen(this), TRANSITION_NONE);
     }
@@ -88,10 +129,10 @@ public class Music extends BApplication {
         public DefaultScreen(Music app) {
             super(app);
 
-            below.setResource("background.jpg");
+            below.setResource(mBackground);
 
             mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 54);
-            mTitle.setValue(" ");
+            mTitle.setValue(toString());
             mTitle.setColor(Color.yellow);
             mTitle.setShadow(Color.black, 3);
             mTitle.setFlags(RSRC_HALIGN_CENTER);
@@ -100,6 +141,10 @@ public class Music extends BApplication {
 
         public void setTitle(String value) {
             mTitle.setValue(value);
+        }
+
+        public String toString() {
+            return "Music";
         }
 
         private BText mTitle;
@@ -119,11 +164,12 @@ public class Music extends BApplication {
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
 
-            MusicConfiguration musicConfiguration =  (MusicConfiguration)((MusicFactory) context.factory).getAppContext().getConfiguration();
-            
+            MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+                    .getAppContext().getConfiguration();
+
             for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
                 NameValue nameValue = (NameValue) i.next();
-                list.add(new PathScreen(app, nameValue.getName(), nameValue.getValue()));
+                list.add(new NameFile(nameValue.getName(), new File(nameValue.getValue())));
             }
 
             setFocusDefault(list);
@@ -131,47 +177,47 @@ public class Music extends BApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                final BScreen screen = (BScreen) (list.get(list.getFocus()));
-                /*
-                if (screen instanceof PathScreen)
-                {
-                    PathScreen pathScreen = (PathScreen)screen;
-                    if (pathScreen.list.size()==0)
-                    {
-                        BView row = list.getRow(list.getFocus());
-                        BView icon = (BView)row.children[0];
-                        icon.resource.remove();
-                        icon.setResource(getResource("busy2.gif"));
-                        //icon.setResource(getResource("busy.png"));
-                        icon.flush();
-                        play("select.snd");
-                    }
-                }
-                */
+                BView row = list.getRow(list.getFocus());
+                BView icon = (BView) row.children[0];
+                icon.setResource(mBusy2Icon);
+                icon.flush();
+
+                getBApp().play("select.snd");
+                getBApp().flush();
+
                 new Thread() {
-                    public void run()
-                    {
-                        getBApp().push(screen, TRANSITION_LEFT);
-                        getBApp().flush();
+                    public void run() {
+                        try {
+                            NameFile nameFile = (NameFile) (list.get(list.getFocus()));
+                            FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                                    .getCanonicalPath());
+                            Tracker tracker = new Tracker(fileSystemContainer.getItems(), 0);
+                            PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                            getBApp().push(pathScreen, TRANSITION_LEFT);
+                            getBApp().flush();
+                        } catch (Exception ex) {
+                            log.error(ex);
+                        }
                     }
                 }.start();
                 return true;
             }
             return super.handleAction(view, action);
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            BScreen screen = (BScreen) (list.get(list.getFocus()));
-            if (screen instanceof PathScreen)
-            {
+            if (list.getFocus() >= 0) {
+                NameFile nameFile = (NameFile) (list.get(list.getFocus()));
                 BView row = list.getRow(list.getFocus());
-                BView icon = (BView)row.children[0];
-                icon.resource.remove();
-                icon.setResource(getResource("folder.png"));
+                BView icon = (BView) row.children[0];
+                if (nameFile.getFile().isDirectory())
+                    icon.setResource(mFolderIcon);
+                else
+                    icon.setResource(mCDIcon);
                 icon.flush();
             }
             return super.handleEnter(arg, isReturn);
-        }        
+        }
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
@@ -182,12 +228,8 @@ public class Music extends BApplication {
 
             return super.handleKeyPress(code, rawcode);
         }
-
-        public String toString() {
-            return "Music";
-        }
     }
-    
+
     public class TGList extends BList {
         public TGList(BView parent, int x, int y, int width, int height, int rowHeight) {
             super(parent, x, y, width, height, rowHeight);
@@ -195,16 +237,18 @@ public class Music extends BApplication {
         }
 
         protected void createRow(BView parent, int index) {
-            BView icon = new BView(parent, 10, 3, 30, 30);
-            if (get(index) instanceof PathScreen)
-                icon.setResource(getResource("folder.png"));
-            else
-                icon.setResource(getResource("cd.png"));
+            BView icon = new BView(parent, 9, 2, 32, 32);
+            NameFile nameFile = (NameFile) get(index);
+            if (nameFile.getFile().isDirectory()) {
+                icon.setResource(mFolderIcon);
+            } else {
+                icon.setResource(mCDIcon);
+            }
 
             BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
-            name.setValue(get(index).toString());
+            name.setValue(Tools.trim(nameFile.getName(), 40));
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
@@ -215,13 +259,12 @@ public class Music extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
-        
-        public int getTop()
-        {
+
+        public int getTop() {
             return top;
         }
     }
-    
+
     public class PathScreen extends DefaultScreen {
         private TGList list;
 
@@ -231,55 +274,76 @@ public class Music extends BApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        public PathScreen(Music app, String name, String path) {
+        public PathScreen(Music app, Tracker tracker) {
             super(app);
 
-            setTitle(name);
-            mPath = path;
-            mName = name;
-            
+            mTracker = tracker;
+
             list = new TGList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
                     - ((SAFE_TITLE_H * 2) + 32), 280, 35);
             BHighlights h = list.getHighlights();
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
-            
+
             setFocusDefault(list);
-            
-            //mBusy = new BView (normal, width - SAFE_TITLE_H - 32, SAFE_TITLE_V, 32, 32);
-            //mBusy.setResource(getResource("busy.gif"));
-            //mBusy.setVisible(false);
+
+            mBusy = new BView(normal, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
+            mBusy.setResource(mBusyIcon);
+            mBusy.setVisible(false);
         }
-        
+
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                final BScreen screen = (BScreen) (list.get(list.getFocus()));
-                /*
-                if (screen instanceof PathScreen)
-                {
-                    PathScreen pathScreen = (PathScreen)screen;
-                    if (pathScreen.list.size()==0)
-                    {
-                        BView row = list.getRow(list.getFocus());
-                        BView icon = (BView)row.children[0];
-                        icon.resource.remove();
-                        icon.setResource(getResource("busy2.gif"));
-                        //icon.setResource(getResource("busy.png"));
-                        icon.flush();
-                    }
+                Object object = list.get(list.getFocus());
+                BView row = list.getRow(list.getFocus());
+                BView icon = (BView) row.children[0];
+                icon.setResource(mBusy2Icon);
+                icon.flush();
+
+                getBApp().play("select.snd");
+                getBApp().flush();
+
+                final NameFile nameFile = (NameFile) object;
+                if (nameFile.getFile().isDirectory()) {
+                    new Thread() {
+                        public void run() {
+                            try {
+                                NameFile nameFile = (NameFile) (list.get(list.getFocus()));
+                                FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                                        .getCanonicalPath());
+                                Tracker tracker = new Tracker(fileSystemContainer.getItems(), 0);
+                                PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                                getBApp().push(pathScreen, TRANSITION_LEFT);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                log.error(ex);
+                            }
+                        }
+                    }.start();
+                } else {
+                    new Thread() {
+                        public void run() {
+                            try {
+                                Audio audio = getAudio(nameFile.getFile().getCanonicalPath());
+
+                                mMusicScreen.setName(nameFile.getName());
+                                mMusicScreen.setAudio(audio);
+                                mTracker.setPos(list.getFocus());
+                                mMusicScreen.setTracker(mTracker);
+
+                                getBApp().push(mMusicScreen, TRANSITION_LEFT);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                log.error(ex);
+                            }
+                        }
+                    }.start();
                 }
-                */
-                new Thread() {
-                    public void run()
-                    {
-                        getBApp().push(screen, TRANSITION_LEFT);
-                        getBApp().flush();
-                    }
-                }.start();
+
                 return true;
             }
             return super.handleAction(view, action);
-        }        
+        }
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
@@ -293,92 +357,62 @@ public class Music extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            if (list.size()==0)
-            {
-                //mBusy.setVisible(true);
-                
-                FileSystemContainer fileSystemContainer = new FileSystemContainer(mPath);
-                List files = fileSystemContainer.getItems();
-                Iterator iterator = files.iterator();
-                while (iterator.hasNext())
-                {
-                    NameValue nameValue = (NameValue)iterator.next();
-                    File file = new File(nameValue.getValue());
-                    if (file.isDirectory())
-                    {
-                        list.add(new PathScreen((Music)getBApp(), nameValue.getName(), nameValue.getValue()));
+            if (list.size() == 0) {
+                setPainting(false);
+                try {
+                    mBusy.setVisible(true);
+
+                    Iterator iterator = mTracker.getList().iterator();
+                    while (iterator.hasNext()) {
+                        NameFile nameFile = (NameFile) iterator.next();
+                        list.add(nameFile);
                     }
-                    else
-                    {
-                        Audio audio = null;
-                        try
-                        {
-                            List list = AudioManager.findByPath(nameValue.getValue());
-                            if (list!=null && list.size()>0)
-                            {
-                                audio = (Audio)list.get(0);
-                            }
-                        }
-                        catch (HibernateException ex)
-                        {
-                            log.error(nameValue.getValue(), ex);
-                        }
-                        
-                        if (audio==null)
-                        {
-                            try
-                            {
-                                audio = (Audio)MediaManager.getMedia(nameValue.getValue());
-                                AudioManager.createAudio(audio);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.error(nameValue.getValue(), ex);
-                            }
-                        }
-                        
-                        if (audio!=null)
-                        {
-                            list.add(new MusicScreen((Music)getBApp(), Tools.extractName(nameValue.getName()), audio.getId()));
-                        }
-                    }
+                    mBusy.setVisible(false);
+                    mBusy.flush();
+                    list.setFocus(0, false);
+                    list.flush();
+                } catch (Exception ex) {
+                    log.error(ex);
+                } finally {
+                    setPainting(true);
                 }
-                //mBusy.setVisible(false);
-                //mBusy.flush();
-                //list.setFocus(0,false);
-                //list.flush();
+                list.setTop(mTop);
+                list.setFocus(mFocus, false);
+            } else {
+                if (list.getFocus() >= 0) {
+                    NameFile nameFile = (NameFile) list.get(list.getFocus());
+                    BView row = list.getRow(list.getFocus());
+                    BView icon = (BView) row.children[0];
+                    if (nameFile.getFile().isDirectory())
+                        icon.setResource(mFolderIcon);
+                    else
+                        icon.setResource(mCDIcon);
+                    icon.flush();
+                }
             }
-            /*
-            BScreen screen = (BScreen) (list.get(list.getFocus()));
-            if (screen instanceof PathScreen)
-            {
-                BView row = list.getRow(list.getFocus());
-                BView icon = (BView)row.children[0];
-                icon.resource.remove();
-                icon.setResource(getResource("folder.png"));
-                icon.flush();
-            }
-            */
             return super.handleEnter(arg, isReturn);
         }
-        
+
         public boolean handleExit() {
+            mTop = list.getTop();
+            mFocus = list.getFocus();
             list.clear();
             return super.handleExit();
         }
-        
-        public String toString() {
-            return mName;
-        }
-        
-        private String mPath;
-        private String mName;
+
+        private Tracker mTracker;
+
         private BView mBusy;
+
+        private int mTop;
+
+        private int mFocus;
     }
 
     public class MusicScreen extends DefaultScreen {
+
         private BList list;
 
         private final int top = SAFE_TITLE_V + 80;
@@ -387,145 +421,117 @@ public class Music extends BApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        public MusicScreen(Music app, String name, Integer id) {
+        public MusicScreen(Music app) {
             super(app);
 
-            setTitle(name);
-            mId = id;
-            mName = name;
-            
+            setTitle("Song");
+
+            mTimeFormat = new SimpleDateFormat();
+            mTimeFormat.applyPattern("mm:ss");
+
             int start = top;
-            
-            try
-            {
-                Audio audio = AudioManager.retrieveAudio(id);
-/*                
-                int start = top;
 
-                int location = 40;
-                icon = new BView(normal, border_left, start + 3, 30, 30);
+            mCover = new BView(below, width - SAFE_TITLE_H - 200, height - SAFE_TITLE_V - 200, 200, 200, false);
 
-                BText titleText = new BText(normal, border_left + location, start, text_width - 40, 40);
-                titleText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-                titleText.setFont("default-36.font");
-                titleText.setShadow(true);
+            mTitleText = new BText(normal, border_left, start, text_width, 40);
+            mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mTitleText.setFont("default-36-bold.font");
+            mTitleText.setColor(Color.CYAN);
+            mTitleText.setShadow(true);
 
-                start += 45;
+            start += 40;
 
-                descriptionText = new BText(normal, border_left, start, text_width, 90);
-                descriptionText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
-                descriptionText.setFont("default-18-bold.font");
-                descriptionText.setShadow(true);
+            mSongText = new BText(normal, border_left, start, text_width, 20);
+            mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mSongText.setFont("default-18-bold.font");
+            mSongText.setShadow(true);
 
-                start += 85;
+            mDurationText = new BText(normal, border_left, start, text_width, 20);
+            mDurationText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
+            mDurationText.setFont("default-18-bold.font");
+            mDurationText.setShadow(true);
 
-                dateText = new BText(normal, border_left, start, text_width, 30);
-                dateText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-                dateText.setFont("default-18.font");
-                dateText.setShadow(true);
+            start += 20;
 
-                durationText = new BText(normal, border_left, start, text_width, 30);
-                durationText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-                durationText.setFont("default-18.font");
-                durationText.setShadow(true);
+            mAlbumText = new BText(normal, border_left, start, text_width, 20);
+            mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mAlbumText.setFont("default-18-bold.font");
+            mAlbumText.setShadow(true);
 
-                start += 20;
+            mYearText = new BText(normal, border_left, start, text_width, 20);
+            mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
+            mYearText.setFont("default-18-bold.font");
+            mYearText.setShadow(true);
 
-                ratingText = new BText(normal, border_left, start, text_width, 30);
-                ratingText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-                ratingText.setFont("default-18.font");
-                ratingText.setShadow(true);
+            start += 20;
 
-                videoText = new BText(normal, border_left, start, text_width, 30);
-                videoText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-                videoText.setFont("default-18.font");
-                videoText.setShadow(true);
+            mArtistText = new BText(normal, border_left, start, text_width, 20);
+            mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mArtistText.setFont("default-18-bold.font");
+            mArtistText.setShadow(true);
 
-                start += 20;
+            mGenreText = new BText(normal, border_left, start, text_width, 20);
+            mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
+            mGenreText.setFont("default-18-bold.font");
+            mGenreText.setShadow(true);
 
-                genreText = new BText(normal, border_left, start, text_width, 30);
-                genreText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-                genreText.setFont("default-18.font");
-                genreText.setShadow(true);
-                
-                sizeText = new BText(normal, border_left, start, text_width, 30);
-                sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-                sizeText.setFont("default-18.font");
-                sizeText.setShadow(true);
+            list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list.add("Play");
+            list.add("Don't do anything");
 
-*/                
-                
-                
-                BText titleText = new BText(normal, border_left, start, text_width, 20);
-                titleText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-                titleText.setFont("default-18-bold.font");
-                titleText.setShadow(true);
-                titleText.setValue(audio.getTitle());
-                
-                start+= 30;
-                
-                BText artistText = new BText(normal, border_left, start, text_width, 20);
-                artistText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-                artistText.setFont("default-18-bold.font");
-                artistText.setShadow(true);
-                artistText.setValue(audio.getArtist());
-                
-                start+= 30;
-                
-                BText albumText = new BText(normal, border_left, start, text_width, 20);
-                albumText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-                albumText.setFont("default-18-bold.font");
-                albumText.setShadow(true);
-                albumText.setValue(audio.getAlbum());
-                
-                start+= 30;
-                
-                BText yearText = new BText(normal, border_left, start, text_width, 20);
-                yearText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-                yearText.setFont("default-18-bold.font");
-                yearText.setShadow(true);
-                yearText.setValue(String.valueOf(audio.getDate()));
-                
-                start+= 30;
-                
-                BText genreText = new BText(normal, border_left, start, text_width, 20);
-                genreText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-                genreText.setFont("default-18-bold.font");
-                genreText.setShadow(true);
-                genreText.setValue(audio.getGenre());
-                
+            setFocusDefault(list);
+        }
+
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            if (mAudio != null) {
+                mTitleText.setValue(Tools.trim(mName, 30));
+                mSongText.setValue("Song: " + Tools.trim(mAudio.getTitle(), 40));
+                mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(mAudio.getDuration())));
+                mAlbumText.setValue("Album: " + Tools.trim(mAudio.getAlbum(), 40));
+                mYearText.setValue("Year: " + String.valueOf(mAudio.getDate()));
+                mArtistText.setValue("Artist: " + Tools.trim(mAudio.getArtist(), 40));
+                mGenreText.setValue("Genre: " + mAudio.getGenre());
+
                 try {
-                    // TODO Use audio thumbnail
-                    java.awt.Image image = ThumbnailManager.findImageByPath(audio.getPath());
-                    if (image!=null)
-                    {
-                        below.setResource(image);
+                    java.awt.Image image = ThumbnailManager.findImageByKey(Mp3File.getKey(mAudio));
+                    if (image == null)
+                        image = Amazon.getAlbumImage(Mp3File.getKey(mAudio), mAudio.getArtist(), mAudio.getAlbum().equals(
+                                Mp3File.DEFAULT_ALBUM) ? mAudio.getTitle() : mAudio.getAlbum());
+                    if (image != null) {
+                        mCover.setResource(image, RSRC_IMAGE_BESTFIT);
+                        mCover.setVisible(true);
+                        mCover.setTransparency(1.0f);
+                        mCover.setTransparency(0.0f, mAnim);
                     }
-                } catch (HibernateException ex) {
+                } catch (Exception ex) {
                     log.error("Could retrieve cover", ex);
                 }
             }
-            catch (HibernateException ex)
-            {
-                log.error(id, ex);
-            }
-            list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
 
-            setFocusDefault(list);
-        }
-
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             return super.handleEnter(arg, isReturn);
         }
-        
+
+        public boolean handleExit() {
+            if (mAudio != null) {
+                mCover.setVisible(false);
+                if (mCover.resource != null)
+                    mCover.resource.remove();
+            }
+            return super.handleExit();
+        }
+
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
             case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
+                if (list.getFocus() == 0) {
+                    postEvent(new BEvent.Action(this, "play"));
+                    return true;
+                } else {
+                    postEvent(new BEvent.Action(this, "pop"));
+                    return true;
+                }
             case KEY_LEFT:
                 // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
@@ -534,253 +540,63 @@ public class Music extends BApplication {
             return super.handleKeyPress(code, rawcode);
         }
 
-        public String toString() {
-            return mName;
+        public boolean handleAction(BView view, Object action) {
+            if (action.equals("play")) {
+
+                getBApp().play("select.snd");
+                getBApp().flush();
+
+                new Thread() {
+                    public void run() {
+                        getBApp().push(new PlayerScreen((Music) getBApp(), mTracker), TRANSITION_LEFT);
+                        getBApp().flush();
+                    }
+                }.start();
+                return true;
+            }
+
+            return super.handleAction(view, action);
         }
-        
-        private Integer mId;
+
+        public void setName(String value) {
+            mName = value;
+        }
+
+        public void setAudio(Audio value) {
+            mAudio = value;
+        }
+
+        public void setTracker(Tracker value) {
+            mTracker = value;
+        }
+
+        private SimpleDateFormat mTimeFormat;
+
+        private Resource mAnim = getResource("*2000");
+
+        private Audio mAudio;
+
         private String mName;
+
+        private BView mCover;
+
+        private BText mTitleText;
+
+        private BText mSongText;
+
+        private BText mArtistText;
+
+        private BText mAlbumText;
+
+        private BText mDurationText;
+
+        private BText mYearText;
+
+        private BText mGenreText;
+
+        private Tracker mTracker;
     }
-/*    
-
-    public class LocalRadarScreen extends DefaultScreen {
-        private BList list;
-
-        public LocalRadarScreen(Music app, WeatherData data) {
-            super(app);
-
-            mWeatherData = data;
-
-            setTitle(" ");
-
-            image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
-                    - (SAFE_TITLE_V * 2));
-
-            list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
-
-            setFocusDefault(list);
-
-            updateImage();
-        }
-
-        private void updateImage() {
-            WeatherData.Forecasts forecasts = mWeatherData.getForecasts();
-
-            try {
-                if (mWeatherData.getLocalRadar() != null) {
-                    java.awt.Image cached = Tools.retrieveCachedImage(new URL(mWeatherData.getLocalRadar()));
-                    if (cached != null) {
-                        //cached = cached.getScaledInstance(image.width, image.height, java.awt.Image.SCALE_SMOOTH);
-                        //cached = Tools.getImage(cached);
-                        image.setResource(cached);
-                        return;
-                    }
-                }
-            } catch (MalformedURLException ex) {
-                log.error("Could not update weather local radar", ex);
-            }
-
-            below.setResource("background.jpg");
-            image.setResource("NA.png");
-        }
-
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            try {
-                updateImage();
-            } catch (Exception ex) {
-                log.error("Could not update weather text", ex);
-            }
-            return super.handleEnter(arg, isReturn);
-        }
-
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT:
-                // TODO Why never gets this code?
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            }
-            return super.handleKeyPress(code, rawcode);
-        }
-
-        public String toString() {
-            return "Local Radar";
-        }
-
-        private BView image;
-
-        WeatherData mWeatherData;
-    }
-
-    public class NationalRadarScreen extends DefaultScreen {
-        private BList list;
-
-        public NationalRadarScreen(Music app, WeatherData data) {
-            super(app);
-
-            mWeatherData = data;
-
-            setTitle(" ");
-
-            image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
-                    - (SAFE_TITLE_V * 2));
-
-            list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
-
-            setFocusDefault(list);
-
-            updateImage();
-        }
-
-        private void updateImage() {
-            WeatherData.Forecasts forecasts = mWeatherData.getForecasts();
-
-            try {
-                if (mWeatherData.getNationalRadar() != null) {
-                    java.awt.Image cached = Tools.retrieveCachedImage(new URL(mWeatherData.getNationalRadar()));
-                    if (cached != null) {
-                        image.setResource(cached);
-                        return;
-                    }
-                }
-            } catch (MalformedURLException ex) {
-                log.error("Could not update weather local radar", ex);
-            }
-            below.setResource("background.jpg");
-            image.setResource("NA.png");
-        }
-
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            try {
-                updateImage();
-            } catch (Exception ex) {
-                log.error("Could not update weather text", ex);
-            }
-            return super.handleEnter(arg, isReturn);
-        }
-
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT:
-                // TODO Why never gets this code?
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            }
-            return super.handleKeyPress(code, rawcode);
-        }
-
-        public String toString() {
-            return "National Radar";
-        }
-
-        private BView image;
-
-        WeatherData mWeatherData;
-    }
-
-    public class AlertsScreen extends DefaultScreen {
-        private BList list;
-
-        private final int top = SAFE_TITLE_V + 100;
-
-        private final int border_left = SAFE_TITLE_H;
-
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
-
-        public AlertsScreen(Music app, WeatherData data) {
-            super(app);
-
-            mWeatherData = data;
-
-            setTitle("Alerts");
-
-            int start = top;
-
-            headlineText = new BText(normal, border_left, start, text_width, 30);
-            headlineText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
-            headlineText.setFont("default-24-bold.font");
-            headlineText.setColor(new Color(150, 100, 100));
-            headlineText.setShadow(Color.black, 3);
-
-            start += 35;
-
-            descriptionText = new BText(normal, border_left, start, text_width, 80);
-            descriptionText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
-            descriptionText.setFont("default-24-bold.font");
-            descriptionText.setColor(new Color(127, 235, 192));
-            descriptionText.setShadow(true);
-            descriptionText.setValue(" ");
-
-            BText copyrightText = new BText(normal, SAFE_TITLE_H, height - SAFE_TITLE_V - 18,
-                    (width - (SAFE_TITLE_H * 2)), 20);
-            copyrightText.setValue("weather.gov");
-            copyrightText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
-            copyrightText.setFont("default-18.font");
-
-            list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
-
-            setFocusDefault(list);
-
-            updateText();
-        }
-
-        private void updateText() {
-            Iterator iterator = mWeatherData.getAlerts();
-            if (iterator.hasNext()) {
-                WeatherData.Alert alert = (WeatherData.Alert) iterator.next();
-                headlineText.setValue(alert.getHeadline());
-                descriptionText.setValue(alert.getDescription());
-            }
-        }
-
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            try {
-                updateText();
-            } catch (Exception ex) {
-                log.error("Could not update alerts text", ex);
-            }
-            return super.handleEnter(arg, isReturn);
-        }
-
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT:
-                // TODO Why never gets this code?
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            }
-            return super.handleKeyPress(code, rawcode);
-        }
-
-        public String toString() {
-            return "Alerts";
-        }
-
-        private BText headlineText;
-
-        private BText descriptionText;
-
-        WeatherData mWeatherData;
-    }
-*/
+    
     public class OptionList extends BList {
         public OptionList(BView parent, int x, int y, int width, int height, int rowHeight) {
             super(parent, x, y, width, height, rowHeight);
@@ -794,26 +610,598 @@ public class Music extends BApplication {
             text.setFlags(RSRC_HALIGN_LEFT);
             text.setValue(get(index).toString());
         }
+    }
+
+    public class PlayerScreen extends DefaultScreen {
+
+        private final int top = SAFE_TITLE_V + 80;
+
+        private final int border_left = SAFE_TITLE_H;
+
+        private final int text_width = width - border_left - (SAFE_TITLE_H);
+
+        public PlayerScreen(Music app, Tracker tracker) {
+            super(app);
+
+            mTracker = tracker;
+
+            setTitle(" ");
+
+            track = new Track(this, 64, 10, 640 - 64 * 2, 60);
+
+            MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+                    .getAppContext().getConfiguration();
+            ClassicSkin classicSkin = new ClassicSkin(musicConfiguration.getSkin());
+            if (classicSkin != null) {
+                setPainting(false);
+                try {
+                    player = classicSkin.getMain(this);
+    
+                    previousControl = classicSkin.getPreviousControl(player);
+                    playControl = classicSkin.getPlayControl(player);
+                    pauseControl = classicSkin.getPauseControl(player);
+                    stopControl = classicSkin.getStopControl(player);
+                    nextControl = classicSkin.getNextControl(player);
+                    ejectControl = classicSkin.getEjectControl(player);
+    
+                    title = classicSkin.getTitle(player);
+    
+                    stereo = classicSkin.getStereoActive(player);
+                    mono = classicSkin.getMonoPassive(player);
+    
+                    sampleRate = classicSkin.getSampleRate(player, "44");
+                    bitRate = classicSkin.getBitRate(player, " 96");
+    
+                    stopIcon = classicSkin.getStopIcon(player);
+                    stopIcon.setVisible(false);
+                    playIcon = classicSkin.getPlayIcon(player);
+                    playIcon.setVisible(false);
+                    pauseIcon = classicSkin.getPauseIcon(player);
+                    pauseIcon.setVisible(false);
+    
+                    repeat = classicSkin.getRepeatActive(player);
+                    shuffle = classicSkin.getShufflePassive(player);
+    
+                    positionControl = classicSkin.getPosition(player, 0);
+    
+                    seconds1 = classicSkin.getSeconds1(player);
+                    seconds2 = classicSkin.getSeconds2(player);
+                    minutes1 = classicSkin.getMinutes1(player);
+                    minutes2 = classicSkin.getMinutes2(player);
+                } finally {
+                    setPainting(true);
+                }
+            }
+
+            playPlayer();
+        }
+
+        void playCurrent() {
+            play();
+        }
+
+        void play() {
+            try {
+                NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
+                mAudio = getAudio(nameFile.getFile().getCanonicalPath());
+            } catch (Exception ex) {
+                log.error(ex);
+            }
+
+            if (mAudio != null) {
+                track.closeTrack();
+                String url = getApp().getContext().base.toString();
+                try {
+                    url += URLEncoder.encode(mAudio.getId().toString() + ".mp3", "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                track.playTrack(url);
+                setTitleText(mAudio.getTitle()+" - "+mAudio.getArtist());
+            }
+        }
+
+        private void updateTime(int seconds) {
+            int secondD = 0, second = 0, minuteD = 0, minute = 0;
+            int minutes = (int) Math.floor(seconds / 60);
+            int hours = (int) Math.floor(minutes / 60);
+            minutes = minutes - hours * 60;
+            seconds = seconds - minutes * 60 - hours * 3600;
+            if (seconds < 10) {
+                secondD = 0;
+                second = seconds;
+            } else {
+                secondD = ((int) seconds / 10);
+                second = ((int) (seconds - (((int) seconds / 10)) * 10));
+            }
+            if (minutes < 10) {
+                minuteD = 0;
+                minute = minutes;
+            } else {
+                minuteD = ((int) minutes / 10);
+                minute = ((int) (minutes - (((int) minutes / 10)) * 10));
+            }
+
+            seconds1.setImage(second);
+            seconds2.setImage(secondD);
+            minutes1.setImage(minute);
+            minutes2.setImage(minuteD);
+        }
+
+        private int counter = 0;
+
+        private void setTitleText(String text) {
+            if (text.toUpperCase().endsWith(".MP3"))
+                text = text.substring(0, text.length() - 4);
+            if (text.indexOf("/") != -1)
+                text = text.substring(text.indexOf("/") + 1);
+
+            title.setText(text);
+        }
+
+        public boolean handleEvent(HmeEvent event) {
+            switch (event.opcode) {
+
+            case EVT_KEY: {
+                if (title.handleEvent(event))
+                    return true;
+                break;
+            }
+
+            case StreamResource.EVT_RSRC_INFO: {
+                HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo) event;
+                if (info.status == RSRC_STATUS_PLAYING) {
+                    String pos = (String) info.map.get("pos");
+                    if (pos != null) {
+                        try {
+                            StringTokenizer tokenizer = new StringTokenizer(pos, "/");
+                            if (tokenizer.countTokens() == 2) {
+                                String current = tokenizer.nextToken();
+                                String total = tokenizer.nextToken();
+
+                                int value = (int) Math.round(Float.parseFloat(current) / Integer.parseInt(total) * 100);
+                                positionControl.setPosition(value);
+                                updateTime(Integer.parseInt(current) / 1000);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    String bitrate = (String) info.map.get("bitrate");
+                    if (bitrate != null) {
+                        try {
+                            int value = (int) Math.round(Float.parseFloat(bitrate) / 1024);
+                            String newValue = Integer.toString(value);
+                            if (value < 100)
+                                newValue = " " + newValue;
+                            bitRate.setText(newValue);
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+                return true;
+            }
+            case StreamResource.EVT_RSRC_STATUS: {
+                HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo) event;
+                if (info.status >= RSRC_STATUS_CLOSED) {
+                    if (mPlayerState != STOP) {
+                        positionControl.setPosition(0);
+
+                        // if the user hasn't touched the list recently, move the
+                        // selector to reflect the new track.
+                        if (System.currentTimeMillis() - lastKeyPress > 5000) {
+                            //list.select(index, true);
+                        }
+
+                        // now play the new track
+                        getNextPos();
+                        play();
+                    }
+                }
+                return true;
+            }
+            }
+            return super.handleEvent(event);
+        }
+
+        public void stopPlayer() {
+            stopIcon.setVisible(true);
+            playIcon.setVisible(false);
+            pauseIcon.setVisible(false);
+            positionControl.setPosition(0);
+
+            mPlayerState = STOP;
+            track.closeTrack();
+        }
+
+        public void playPlayer() {
+            stopIcon.setVisible(false);
+            playIcon.setVisible(true);
+            pauseIcon.setVisible(false);
+
+            if (mPlayerState != PLAY) {
+                track.playTrack();
+                mPlayerState = PLAY;
+                playCurrent();
+            }
+        }
+
+        public void pausePlayer() {
+            if (mPlayerState != STOP) {
+                stopIcon.setVisible(false);
+                playIcon.setVisible(false);
+                if (mPlayerState == PAUSE) {
+                    mPlayerState = PLAY;
+                    track.playTrack();
+                    pauseIcon.setVisible(false);
+                    playIcon.setVisible(true);
+                } else {
+                    mPlayerState = PAUSE;
+                    track.pauseTrack();
+                    pauseIcon.setVisible(true);
+                }
+            }
+        }
+
+        public void nextPlayer() {
+            stopIcon.setVisible(false);
+            playIcon.setVisible(true);
+            pauseIcon.setVisible(false);
+
+            if (mPlayerState != PLAY) {
+                mPlayerState = PLAY;
+                track.playTrack();
+            }
+        }
+
+        private int getNextPos() {
+            int pos = mTracker.getNextPos();
+            NameFile nameFile = (NameFile) mTracker.getList().get(pos);
+            while (nameFile.getFile().isDirectory()) {
+                pos = mTracker.getNextPos();
+                nameFile = (NameFile) mTracker.getList().get(pos);
+            }
+            return pos;
+        }
+
+        private int getPrevPos() {
+            int pos = mTracker.getPrevPos();
+            NameFile nameFile = (NameFile) mTracker.getList().get(pos);
+            while (nameFile.getFile().isDirectory()) {
+                pos = mTracker.getPrevPos();
+                nameFile = (NameFile) mTracker.getList().get(pos);
+            }
+            return pos;
+        }
+
+        class Track extends View {
+            View label;
+
+            Track(View parent, int x, int y, int width, int height) {
+                super(parent, x, y, width, height);
+                label = new View(this, 0, 0, width, height);
+                label.setVisible(false);
+            }
+
+            void playTrack(String url) {
+                if (resource != null) {
+                    resource.remove();
+                    flush();
+                }
+                setResource(createStream(url, null, true));
+            }
+
+            void pauseTrack() {
+                if (resource != null) {
+                    ((StreamResource) resource).pause();
+                }
+            }
+
+            void playTrack() {
+                if (resource != null) {
+                    ((StreamResource) resource).play();
+                }
+            }
+
+            void closeTrack() {
+                if (resource != null) {
+                    ((StreamResource) resource).close();
+                }
+            }
+
+            public boolean handleEvent(HmeEvent event) {
+                if (label.resource != null)
+                    label.resource.remove();
+                label.setResource(createText("default-18-bold.font", Color.yellow, event.toString()),
+                        RSRC_HALIGN_CENTER | RSRC_TEXT_WRAP);
+                return super.handleEvent(event);
+            }
+        }
+
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            mScreenSaver = new ScreenSaver(this);
+            mScreenSaver.start();
+            return super.handleEnter(arg, isReturn);
+        }
+
+        public boolean handleExit() {
+            setPainting(false);
+            try {
+                stopPlayer();
+                if (mScreenSaver!=null && mScreenSaver.isAlive())
+                {
+                    mScreenSaver.interrupt();
+                    mScreenSaver = null;
+                }
+            } finally {
+                setPainting(true);
+            }
+            return super.handleExit();
+        }
 
         public boolean handleKeyPress(int code, long rawcode) {
+            if (transparency!=0.0f)
+                setTransparency(0.0f);
             switch (code) {
+            case KEY_PAUSE:
+                pauseControl.setSelected(true);
+                pausePlayer();
+                break;
+            case KEY_PLAY:
+                playControl.setSelected(true);
+                playPlayer();
+                break;
+            case KEY_CHANNELUP:
+                getBApp().play("select.snd");
+                getBApp().flush();
+                nextControl.setSelected(true);
+                getNextPos();
+                play();
+                break;
+            case KEY_CHANNELDOWN:
+                getBApp().play("select.snd");
+                getBApp().flush();
+                previousControl.setSelected(true);
+                getPrevPos();
+                play();
+                break;
+            case KEY_SLOW:
+                stopControl.setSelected(true);
+                stopPlayer();
+                break;
+            case KEY_ENTER:
+                ejectControl.setSelected(true);
+                setActive(false);
+                break;
             case KEY_SELECT:
+            case KEY_RIGHT:
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            case KEY_LEFT:
+                // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             }
             return super.handleKeyPress(code, rawcode);
         }
+
+        public boolean handleKeyRelease(int code, long rawcode) {
+            switch (code) {
+            case KEY_PAUSE:
+                pauseControl.setSelected(false);
+                break;
+            case KEY_PLAY:
+                playControl.setSelected(false);
+                break;
+            case KEY_CHANNELUP:
+                nextControl.setSelected(false);
+                break;
+            case KEY_CHANNELDOWN:
+                previousControl.setSelected(false);
+                break;
+            case KEY_SLOW:
+                stopControl.setSelected(false);
+                break;
+            case KEY_ENTER:
+                ejectControl.setSelected(false);
+                break;
+            }
+            return super.handleKeyRelease(code, rawcode);
+        }
+
+        public boolean handleAction(BView view, Object action) {
+            if (action.equals("play")) {
+                return true;
+            }
+
+            return super.handleAction(view, action);
+        }
+
+        Audio mAudio;
+
+        Track track;
+
+        // when did the last key press occur
+        long lastKeyPress;
+
+        View player;
+
+        ImageControl previousControl;
+
+        ImageControl playControl;
+
+        ImageControl pauseControl;
+
+        ImageControl stopControl;
+
+        ImageControl nextControl;
+
+        ImageControl ejectControl;
+
+        ScrollTextControl title;
+
+        View stereo;
+
+        View mono;
+
+        TextControl bitRate;
+
+        TextControl sampleRate;
+
+        View stopIcon;
+
+        View playIcon;
+
+        View pauseIcon;
+
+        View repeat;
+
+        View shuffle;
+
+        PositionControl positionControl;
+
+        ImageView seconds1;
+
+        ImageView seconds2;
+
+        ImageView minutes1;
+
+        ImageView minutes2;
+
+        private Tracker mTracker;
+        
+        private ScreenSaver mScreenSaver;
+    }
+
+    public static class Tracker {
+        public Tracker(List list, int pos) {
+            setList(list);
+            setPos(pos);
+        }
+
+        public void setPos(int pos) {
+            mPos = pos;
+        }
+
+        public int getPos() {
+            return mPos;
+        }
+
+        public int getNextPos() {
+            if (++mPos > (mList.size() - 1))
+                mPos = 0;
+            return mPos;
+        }
+
+        public int getPrevPos() {
+            if (--mPos < 0)
+                mPos = mList.size() - 1;
+            return mPos;
+        }
+
+        public void setList(List list) {
+            mList = list;
+        }
+
+        public List getList() {
+            return mList;
+        }
+
+        private List mList = new ArrayList();
+
+        private int mPos;
+    }
+
+    private static Audio getAudio(String path) {
+        Audio audio = null;
+        try {
+            List list = AudioManager.findByPath(path);
+            if (list != null && list.size() > 0) {
+                audio = (Audio) list.get(0);
+            }
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+
+        if (audio == null) {
+            try {
+                audio = (Audio) MediaManager.getMedia(path);
+                AudioManager.createAudio(audio);
+            } catch (Exception ex) {
+                log.error(ex);
+            }
+        }
+        return audio;
+    }
+    
+    private class ScreenSaver extends Thread
+    {
+        public ScreenSaver(PlayerScreen playerScreen)
+        {
+            mPlayerScreen = playerScreen;
+        }
+        
+        public void run()
+        {
+            while (true)
+            {
+                try
+                {
+                    sleep(1000*5*60);
+                    mPlayerScreen.setTransparency(0.9f,getResource("*60000"));
+                } 
+                catch (InterruptedException ex) {
+                    return;
+                } 
+                catch (Exception ex2) {
+                    Tools.logException(Music.class, ex2);
+                }
+            }
+        }
+        
+        private PlayerScreen mPlayerScreen;
     }
 
     public static class MusicFactory extends AppFactory {
 
-        public MusicFactory(AppContext appContext){
+        public MusicFactory(AppContext appContext) {
             super(appContext);
         }
-        
+
         protected void init(ArgumentList args) {
             super.init(args);
-            MusicConfiguration weatherConfiguration = (MusicConfiguration)getAppContext().getConfiguration();
+            MusicConfiguration musicConfiguration = (MusicConfiguration) getAppContext().getConfiguration();
         }
+
+        public InputStream getStream(String uri) throws IOException {
+            if (uri.toLowerCase().endsWith(".mp3")) {
+                try {
+                    String id = Tools.extractName(uri);
+                    Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                    File file = new File(audio.getPath());
+                    if (file.exists()) {
+                        return new FileInputStream(file);
+                    }
+                } catch (Exception ex) {
+                    log.error(uri, ex);
+                }
+            }
+
+            return super.getStream(uri);
+        }
+
+        protected void addHeaders(HttpRequest http, String uri) throws IOException {
+            if (uri.toLowerCase().endsWith(".mp3")) {
+                InputStream tmp = getStream(uri);
+                if (tmp != null) {
+                    try {
+                        http.addHeader(TIVO_DURATION, "" + Mp3Duration.getMp3Duration(tmp, tmp.available()));
+                    } finally {
+                        tmp.close();
+                    }
+                }
+            }
+            super.addHeaders(http, uri);
+        }
+
     }
 }

@@ -111,5 +111,10 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     public void updateRules(List rules) throws RemoteException
     {
         Server.getServer().updateRules(rules);
+    }
+    
+    public List getSkins() throws RemoteException
+    {
+        return Server.getServer().getSkins();
     }    
 }

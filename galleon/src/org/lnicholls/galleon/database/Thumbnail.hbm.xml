@@ -23,7 +23,6 @@ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 See the file "COPYING" for more details.
     </meta>
-    <meta attribute="implements">org.lnicholls.galleon.media.Media</meta>
     
 		<!--cache usage="read-write" /-->    
     
@@ -42,8 +41,8 @@ See the file "COPYING" for more details.
       <meta attribute="field-description">When the track was created</meta>
     </property>    
     
-    <property name="path" type="string" not-null="true" length="1024">        
-      <column name="path" index="THUMBNAIL_PATH"/>
+    <property name="keywords" type="string" not-null="true" length="1024">        
+      <column name="keywords" index="THUMBNAIL_KEY"/>
     </property>    
     
     <property name="image" type="blob" length="102400">        

@@ -1,0 +1,44 @@
+Galleon
+-------
+
+Version 0.1.0 beta 1:
+---------------------
+Known issues:
+
+1. GUI does not update server immediately. After making any changes in the GUI, restart the server.
+2. No JavaHMO plugins have been ported to Galleon yet.
+3. HME apps are deployed in the Galleon apps directory. The readme.txt file contains instructions for the Winamp player.
+4. Galleon requires JDK 1.5
+5. Sections of code have been commented out until all of the JavaHMO code is ported.
+6. The HME ToGo app does not update the status of the recordings when the server starts downloading. You have to exit the app to get the
+status of the shows updated properly.
+
+
+How to get started:
+1. Run the Galleon configuration GUI using the gui.cmd script in the bin directory.
+2. Configure the ToGo recordings path and media access key using the File/Properties menu.
+3. Use the File/ToGo menu to add your TiVo IP address. (Ignore any warning messages)
+4. Click on the recordings tab and wait for the GUI to download the list of recordings.
+5. Exit from the GUI.
+6. If you want to run the Winamp player, follow the intructions in the apps Readme.txt file.
+7. Run the Galleon server by using the run.cmd script in the bin directory. 
+Wait until you see a message about the ToGo app being registered.
+8. Use your TiVo to pick ToGo recordings to download to your PC.
+
+
+One note for folks installing JDK 1.5 for the first time - when launching Galleon you may get the following error:
+
+Code:
+
+D:\galleon\bin>run.cmd Error: no `server' JVM at `C:\Program Files\Java\jre1.5.0_01\bin\server\jvm.dll'
+
+
+
+The default 1.5 install puts the "server" subfolder under ...Java\jdk1.5.0_01 \bin\server\...
+Just copy the server subfolder that is under the jdk...\bin path and put it under the jre....\bin path. This is the recommended fix from Sun.
+
+
+=====================================================
+galleon.sourceforge.net
+javahmo@users.sourceforge.net
+

@@ -1,0 +1,594 @@
+<!--
+  Ant file to build and deploy all Galleon Java code.
+  Usage:  ant [ -find build.xml ] [ -emacs ]
+  To remove all compiled class files:  ant [ -find build.xml ] clean
+ -->
+
+<project name="galleon" default="build.library" basedir=".">
+
+    <path id="class.path">
+      <pathelement location="${basedir}/build" />
+        <fileset dir="${basedir}/lib" >
+          <include name="**/*.jar"/>
+        </fileset>
+        <pathelement path="${basedir}/conf" />
+    </path>
+
+    <property name="src" value="${basedir}/src" />
+    <property name="build" value="${basedir}/build" />
+
+    <target name="init">
+
+        <condition property="platform" value="unix">
+            <and>
+                <os family="unix" />
+                <not>
+                    <os family="mac" />
+                </not>
+            </and>
+        </condition>
+
+        <condition property="platform" value="win32">
+            <os family="windows" />
+        </condition>
+
+        <condition property="platform" value="osx">
+            <os name="Mac OS X" />
+        </condition>
+
+        <property file="${platform}.properties" />
+
+        <condition property="win32comment" value="">
+            <not>
+                <isset property="win32comment" />
+            </not>
+        </condition>
+
+        <condition property="osxcomment" value="">
+            <not>
+                <isset property="osxcomment" />
+            </not>
+        </condition>
+
+        <condition property="unixcomment" value="">
+            <not>
+                <isset property="unixcomment" />
+            </not>
+        </condition>
+
+        <echo message="Properties" />
+        <echo message="---------------------" />
+        <echo message="platform    : ${platform}" />
+        <echo message="win32comment: ${win32comment}" />
+        <echo message="osxcomment  : ${osxcomment}" />
+        <echo message="unixcomment : ${unixcomment}" />
+        <echo message="root path   : ${root}" />
+        <echo message="lib path    : ${lib}" />
+        <echo message="bin path    : ${bin}" />
+        <echo message="conf path   : ${conf}" />
+        <echo message="cache path  : ${cache}" />
+        <echo message="headless    : ${headless}" />
+        <echo message="galleon log : ${logfile}" />
+        <echo message="wrapper log : ${wrapperlog}" />
+        <echo message="log path    : ${logs}" />
+        <echo message="apps path    : ${apps}" />        
+        <echo message="data path    : ${data}" />                
+
+        <filter token="lib" value="${lib}" />
+        <filter token="win32comment" value="${win32comment}" />
+        <filter token="osxcomment" value="${osxcomment}" />
+        <filter token="unixcomment" value="${unixcomment}" />
+        <filter token="root" value="${root}" />
+        <filter token="conf" value="${conf}" />
+        <filter token="cache" value="${cache}" />
+        <filter token="headless" value="${headless}" />
+        <filter token="logfile" value="${logfile}" />
+        <filter token="wrapperlog" value="${wrapperlog}" />
+        <filter token="logs" value="${logs}" />
+        <filter token="bin" value="${bin}" />
+        <filter token="data" value="${data}" />        
+        <filter token="apps" value="${apps}" />        
+
+        <property name="filtering" value="no" />
+
+    </target>
+
+    <target name="javadocs">
+        <echo>Generating JavaDocs</echo>
+        <javadoc packagenames="org.lnicholls.galleon.*" sourcepath="src" destdir="javadocs" author="true" version="true" use="true" windowtitle="Galleon">
+
+            <classpath>
+                <path refid="class.path" />
+            </classpath>
+
+        </javadoc>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}" />
+
+        <mkdir dir="${build}" />
+        <mkdir dir="${build}/lib" />
+        <mkdir dir="${build}/logs" />
+        <mkdir dir="${build}/bin" />
+        <mkdir dir="${build}/conf" />
+        <mkdir dir="${build}/media" />
+        <mkdir dir="${build}/plugins" />
+        <mkdir dir="${build}/data" />        
+        <mkdir dir="${build}/apps" />        
+
+    </target>
+    
+  <!-- Teach Ant how to use Hibernate's code generation tool -->
+  <taskdef name="hbm2java" classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask" classpathref="class.path"/>
+
+  <!-- Generate the java code for all mapping files in our source tree -->
+  <target name="codegen" description="Generate Java source from the O/R mapping files" depends="init,clean">
+<!--    <hbm2java output="${basedir}/src" config="${basedir}/conf/codegen.xml"> -->
+    <hbm2java output="${basedir}/src">    
+      <fileset dir="${basedir}/src">
+        <include name="**/*.hbm.xml"/>
+      </fileset>
+    </hbm2java>
+  </target>
+
+    <target name="compile" depends="clean, init, codegen">
+
+        <echo>Compiling Java sources</echo>
+
+        <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off">
+            <include name="**/*.java" />
+            <classpath>
+                <path refid="class.path" />
+            </classpath>
+<!--            
+            <compilerarg value="-Xlint:unchecked"/>
+            <compilerarg value="-Xlint:deprecation"/>
+-->            
+        </javac>
+    </target>
+    
+  <!-- Generate the schemas for all mapping files in our class tree -->
+  <target name="schema" depends="compile" description="Generate DB schema from the O/R mapping files">
+
+    <!-- Teach Ant how to use Hibernate's schema generation tool -->
+    <taskdef name="schemaexport" classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+             classpathref="class.path"/>
+<!--      
+      <schemaexport
+        properties="${basedir}/conf/hibernate.properties"
+        quiet="no"
+        text="no"
+        drop="no"
+        delimiter=";"
+        output="${basedir}/src/schema.sql">
+        <fileset dir="${build}">
+          <include name="**/*.hbm.xml"/>
+        </fileset>
+      </schemaexport>
+-->    
+
+    <schemaexport properties="${basedir}/conf/hibernate.properties"
+                  quiet="no" text="no" drop="no">
+      <fileset dir="${build}">
+        <include name="**/*.hbm.xml"/>
+      </fileset>
+    </schemaexport>      
+
+  </target>    
+  
+  
+<target name="schemaupdate" depends="compile">
+    <taskdef name="schemaupdate"
+        classname="net.sf.hibernate.tool.hbm2ddl.SchemaUpdateTask"
+        classpathref="class.path"/>
+    
+    <schemaupdate
+        properties="${basedir}/conf/hibernate.properties"
+        text="no"        
+        quiet="no">
+      <fileset dir="${build}">
+            <include name="**/*.hbm.xml"/>
+        </fileset>
+    </schemaupdate>
+</target>      
+
+    <target name="build.library" depends="compile">
+
+        <echo>Creating Galleon library</echo>
+        <jar jarfile="${build}/lib/galleon.jar" compress="yes"
+            basedir="${build}"
+            includes="org/**"
+            excludes="**/apps/**">
+            <fileset dir="./doc" includes="server.html" />
+            <fileset dir="./doc" includes="togo.html" />            
+            <fileset dir="./doc" includes="newplugin.html" />            
+            <fileset dir="./media/images" includes="galleon.gif" />                        
+            <fileset dir="./media/images" includes="guiicon.gif" />                                    
+            <fileset dir="./media/images" includes="yellowball.gif" />                                                
+            <fileset dir="./media/images" includes="yellowball!.gif" />                                                            
+            <fileset dir="./media/images" includes="whiteball.gif" />                                                            
+            <fileset dir="./media/images" includes="greenball.gif" />                                                            
+            <fileset dir="./media/images" includes="redball.gif" />                                                                        
+            <fileset dir="./media/images" includes="blueball.gif" />                                                                        
+            <fileset dir="./media/images" includes="empty.gif" />                                                                                    
+            <fileset dir="./src" includes="**/*.hbm.xml" />
+        </jar>
+        
+        <copy file="./media/images/cinemabackground.jpg" tofile="${build}/org/lnicholls/galleon/apps/togo/cinemabackground.jpg" />
+        <copy file="./media/images/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
+        <jar jarfile="${build}/apps/togo.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/togo" excludes="*.java" />
+            <fileset dir="./media/images" includes="cinemabackground.jpg" />                        
+            <fileset dir="./media/images" includes="icon.png" />                                    
+        </jar>
+        <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
+        
+        <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                
+        <copy file="./apps/readme.txt" tofile="${build}/apps/readme.txt" />                        
+        <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
+        
+<!--
+        <echo>Creating plugins</echo>
+        <jar jarfile="${build}/plugins/test.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/test/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/test" excludes="*.java" />
+            <fileset dir="./media/images" includes="testicon.gif" />            
+        </jar>
+        <copy file="${build}/plugins/test.jar" tofile="./plugins/test.jar" />        
+
+        <jar jarfile="${build}/plugins/movies.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/movies/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/movies" excludes="*.java" />
+            <fileset dir="./media/images" includes="moviesicon.gif" />                        
+            <fileset dir="./media/images" includes="cinemabackground.jpg" />                        
+        </jar>
+        <copy file="${build}/plugins/movies.jar" tofile="./plugins/movies.jar" />
+
+        <jar jarfile="${build}/plugins/weather.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/weather/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/weather" excludes="*.java" />
+            <fileset dir="./media/images" includes="weathericon.gif" />                        
+            <fileset dir="./media/images" includes="weatherbackground.jpg" />                        
+            <fileset dir="./media/images" includes="cloudy.png" />
+            <fileset dir="./media/images" includes="fair.png" />
+            <fileset dir="./media/images" includes="flurries.png" />
+            <fileset dir="./media/images" includes="fog.png" />
+            <fileset dir="./media/images" includes="lshowers.png" />
+            <fileset dir="./media/images" includes="mcloudy.png" />
+            <fileset dir="./media/images" includes="pcloudy.png" />
+            <fileset dir="./media/images" includes="rainsnow.png" />
+            <fileset dir="./media/images" includes="showers.png" />
+            <fileset dir="./media/images" includes="snowshow.png" />
+            <fileset dir="./media/images" includes="sunny.png" />
+            <fileset dir="./media/images" includes="thunshowers.png" />
+            <fileset dir="./media/images" includes="unknown.png" />
+            <fileset dir="./conf" includes="weathertypes.dat" />            
+        </jar>
+        <copy file="${build}/plugins/weather.jar" tofile="./plugins/weather.jar" />
+
+        <jar jarfile="${build}/plugins/music.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/music/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/music" excludes="*.java" />
+            <fileset dir="./media/images" includes="musicicon.gif" />                        
+        </jar>
+        <copy file="${build}/plugins/music.jar" tofile="./plugins/music.jar" />
+
+        <jar jarfile="${build}/plugins/images.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/images/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/images" excludes="*.java" />
+            <fileset dir="./media/images" includes="imagesicon.gif" />            
+        </jar>
+        <copy file="${build}/plugins/images.jar" tofile="./plugins/images.jar" />
+
+        <jar jarfile="${build}/plugins/desktop.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/desktop/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/desktop" excludes="*.java" />
+            <fileset dir="./media/images" includes="desktopicon.gif" />                                    
+        </jar>
+        <copy file="${build}/plugins/desktop.jar" tofile="./plugins/desktop.jar" />
+
+
+        <jar jarfile="${build}/plugins/gallery.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/gallery/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/gallery" excludes="*.java" />
+            <fileset dir="./media/images" includes="galleryicon.gif" />
+        </jar>
+
+
+        <jar jarfile="${build}/plugins/organizer.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/organizer/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/organizer" excludes="*.java" />
+            <fileset dir="./media/images" includes="organizericon.gif" />            
+        </jar>
+        <copy file="${build}/plugins/organizer.jar" tofile="./plugins/organizer.jar" />
+
+        <jar jarfile="${build}/plugins/games.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/games/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/games" excludes="*.java" />
+            <fileset dir="./media/images" includes="gamesicon.gif" />                        
+            <fileset dir="./media/images" includes="cross.gif" />                                    
+            <fileset dir="./media/images" includes="not.gif" />
+            <fileset dir="./media/images" includes="next.gif" />
+        </jar>
+        <copy file="${build}/plugins/games.jar" tofile="./plugins/games.jar" />
+
+        <jar jarfile="${build}/plugins/internet.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/internet/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/internet" excludes="*.java" />
+            <fileset dir="./media/images" includes="interneticon.gif" />
+        </jar>
+        <copy file="${build}/plugins/internet.jar" tofile="./plugins/internet.jar" />
+
+        <jar jarfile="${build}/plugins/playlists.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/playlists/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/playlists" excludes="*.java" />
+            <fileset dir="./media/images" includes="playlistsicon.gif" />            
+        </jar>
+        <copy file="${build}/plugins/playlists.jar" tofile="./plugins/playlists.jar" />
+
+        <jar jarfile="${build}/plugins/shoutcast.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/shoutcast/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/shoutcast" excludes="*.java" />
+            <fileset dir="./media/images" includes="shoutcasticon.gif" />                        
+        </jar>
+        <copy file="${build}/plugins/shoutcast.jar" tofile="./plugins/shoutcast.jar" />
+
+        <jar jarfile="${build}/plugins/rss.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/rss/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/rss" excludes="*.java" />
+            <fileset dir="./media/images" includes="rssbackground.jpg" />
+            <fileset dir="./media/images" includes="rssicon.gif" />                                    
+        </jar>
+        <copy file="${build}/plugins/rss.jar" tofile="./plugins/rss.jar" />
+
+        <jar jarfile="${build}/plugins/web.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/web/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/web" excludes="*.java" />
+            <fileset dir="./media/images" includes="webicon.gif" />                                                
+        </jar>
+        <copy file="${build}/plugins/web.jar" tofile="./plugins/web.jar" />
+
+        <jar jarfile="${build}/plugins/iTunes.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/iTunes/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/iTunes" excludes="*.java" />
+            <fileset dir="./media/images" includes="itunesicon.gif" />                                                            
+        </jar>
+        <copy file="${build}/plugins/iTunes.jar" tofile="./plugins/iTunes.jar" />
+
+        <jar jarfile="${build}/plugins/email.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/email/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/email" excludes="*.java" />
+            <fileset dir="./media/images" includes="emailbackground.jpg" />
+            <fileset dir="./media/images" includes="emailicon.gif" />                                                                        
+        </jar>
+        <copy file="${build}/plugins/email.jar" tofile="./plugins/email.jar" />
+
+        <jar jarfile="${build}/plugins/nntp.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/nntp/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/nntp" excludes="*.java" />
+            <fileset dir="./media/images" includes="nntpicon.gif" />                                                                                    
+        </jar>
+        <copy file="${build}/plugins/nntp.jar" tofile="./plugins/nntp.jar" />
+
+        <jar jarfile="${build}/plugins/jukebox.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/jukebox/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/jukebox" excludes="*.java" />
+            <fileset dir="./media/images" includes="jukeboxicon.gif" />                                                                                                
+        </jar>
+        <copy file="${build}/plugins/jukebox.jar" tofile="./plugins/jukebox.jar" />
+
+        <jar jarfile="${build}/plugins/imageOrganizer.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/imageOrganizer/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/imageOrganizer" excludes="*.java" />
+            <fileset dir="./media/images" includes="imageorganizericon.gif" />                                                                                                            
+        </jar>
+        <copy file="${build}/plugins/imageOrganizer.jar" tofile="./plugins/imageOrganizer.jar" />
+
+        <jar jarfile="${build}/plugins/stocks.jar" compress="yes">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/stocks/**" />
+            <fileset dir="./src/org/lnicholls/galleon/plugins/stocks" excludes="*.java" />
+            <fileset dir="./media/images" includes="stocksicon.gif" />                                                                                                            
+            <fileset dir="./media/images" includes="stocksbackground.jpg" />            
+        </jar>
+        <copy file="${build}/plugins/stocks.jar" tofile="./plugins/stocks.jar" />
+        
+-->                
+        
+        <delete dir="${build}/org" />
+
+    </target>
+
+    <target name="package" depends="clean,build.library">
+        <echo>Packaging build</echo>
+
+        <antcall target="package-lib" />
+        <antcall target="package-bin-${platform}" />
+        <antcall target="package-docs" />
+        <antcall target="package-images" />
+        <antcall target="package-plugins" />
+
+        <echo>Copying configuration</echo>
+        <copy file="./conf/wrapper.conf" tofile="${build}/conf/wrapper.conf" filtering="true" />
+        <copy file="./conf/log4j.xml.default" tofile="${build}/conf/log4j.xml" filtering="true" />
+        <copy file="./conf/configure.xml.default" tofile="${build}/conf/configure.xml" />
+        <copy file="./conf/derby.properties" tofile="${build}/conf/derby.properties" />        
+        <copy file="./conf/hibernate.properties" tofile="${build}/conf/hibernate.properties" />                
+        <copy file="./conf/ehcache.xml" tofile="${build}/conf/ehcache.xml" />                        
+
+        <antcall target="package-misc-${platform}" />
+
+    </target>
+
+    <target name="package-lib">
+        <echo>Copying libraries</echo>
+        <copy todir="${build}/lib/">
+            <fileset dir="./lib" includes="**/*.jar" />
+        </copy>        
+
+        <antcall target="package-lib-${platform}" />
+    </target>
+
+    <target name="package-lib-win32">
+        <copy file="./lib/win32/jshortcut.dll" tofile="${build}/lib/jshortcut.dll" />
+        <copy file="./lib/win32/Wrapper.dll" tofile="${build}/lib/Wrapper.dll" />
+        <!--copy file="./lib/jawin.jar" tofile="${build}/lib/jawin.jar" />
+        <copy file="./lib/win32/jawin.dll" tofile="${build}/lib/jawin.dll" />
+        <copy file="./lib/win32/TiVoBeacon.exe" tofile="${build}/lib/TiVoBeacon.exe" />
+        <copy file="./lib/win32/TiVoBeaconApi.dll" tofile="${build}/lib/TiVoBeaconApi.dll" />
+        <copy file="./lib/imageloader.jar" tofile="${build}/lib/imageloader.jar" />
+        <copy file="./lib/win32/image_decode.dll" tofile="${build}/lib/image_decode.dll" />
+        <copy file="./lib/win32/silib.dll" tofile="${build}/lib/silib.dll" /-->
+    </target>
+
+    <target name="package-bin-win32">
+        <echo>Copying executables</echo>
+        <copy file="./bin/win32/Wrapper.exe" tofile="${build}/bin/Wrapper.exe" />
+        <copy file="./bin/win32/install.cmd" tofile="${build}/bin/install.cmd" />
+        <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" />
+        <copy file="./bin/win32/run.cmd" tofile="${build}/bin/run.cmd" />
+        <copy file="./bin/win32/gui.cmd" tofile="${build}/bin/gui.cmd" />        
+    </target>
+
+    <target name="package-misc-win32">
+    </target>
+
+    <target name="package-lib-osx">
+        <copy file="./lib/osx/libwrapper.jnilib" tofile="${build}/lib/libwrapper.jnilib" />
+        <copy file="./lib/osx/font.properties.Mac OS X" tofile="${build}/lib/font.properties.Mac OS X" />
+    </target>
+
+    <target name="package-bin-osx">
+        <echo>Copying executables</echo>
+        <copy file="./bin/osx/galleonctl" tofile="${build}/bin/galleonctl" />
+        <copy file="./bin/osx/realpath" tofile="${build}/bin/realpath" />
+        <copy file="./bin/osx/wrapper" tofile="${build}/bin/wrapper" />
+        <echo>Fixing permissions</echo>
+        <chmod file="${build}/bin/galleonctl" perm="a+rx" />
+        <chmod file="${build}/bin/realpath" perm="a+rx" />
+        <chmod file="${build}/bin/wrapper" perm="a+rx" />
+    </target>
+
+    <target name="package-misc-osx">
+        <echo>Copying Miscellaneous Items</echo>
+        <mkdir dir="${miscdir}" />
+        <copy file="./bin/osx/startup/StartupParameters.plist" tofile="${miscdir}/StartupParameters.plist" />
+        <copy file="./bin/osx/startup/galleon" tofile="${miscdir}/galleon" />
+        <chmod file="${miscdir}/galleon" perm="a+rx" />
+    </target>
+
+    <target name="package-lib-unix">
+        <copy file="./lib/unix/libwrapper.so" tofile="${build}/lib/libwrapper.so" />
+    </target>
+
+    <target name="package-bin-unix">
+        <echo>Copying executables</echo>
+        <copy file="./bin/unix/bash.script" tofile="${build}/bin/bash.script" filtering="true" />
+        <copy file="./bin/unix/sh.script" tofile="${build}/bin/sh.script" />
+        <copy file="./bin/unix/realpath" tofile="${build}/bin/realpath" />
+        <copy file="./bin/unix/wrapper" tofile="${build}/bin/wrapper" />
+        <copy file="./bin/unix/galleon" tofile="${build}/bin/galleon" />
+    </target>
+
+    <target name="package-misc-unix">
+    </target>
+
+    <target name="package-images">
+        <echo>Copying images</echo>
+        <mkdir dir="${build}/media/images" />
+        <copy todir="${build}/media/images">
+            <fileset dir="./media/images" includes="couldnotconnect.mp3,galleon.ico,cross.jpg" />
+        </copy>
+    </target>
+
+    <target name="package-docs">
+        <echo>Copying documentation</echo>
+        <copy file="./Readme.txt" tofile="${build}/Readme.txt" />
+        <copy file="./copying" tofile="${build}/copying" />
+        <copy file="./ThirdPartyLicenses.txt" tofile="${build}/ThirdPartyLicenses.txt" />
+    </target>
+
+    <target name="package-plugins">
+        <echo>Copying plugins</echo>
+        <delete>
+            <fileset dir="${build}/plugins" includes="test.jar" />
+        </delete>
+    </target>
+
+    <target name="source" depends="init,clean,package-images,package-docs">
+        <echo>Copying Java source files</echo>
+        <mkdir dir="${build}/src" />
+        <copy todir="${build}/src">
+            <fileset dir="./src" includes="**/*.java,**/*.html,**/*.xml" />
+        </copy>
+
+        <echo>Copying build files</echo>
+        <copy file="./build.xml" tofile="${build}/build.xml" />
+        <copy file="./osx.properties" tofile="${build}/osx.properties" />
+        <copy file="./unix.properties" tofile="${build}/unix.properties" />
+        <copy file="./win32.properties" tofile="${build}/win32.properties" />
+        <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />
+        <copy file="./Developers.txt" tofile="${build}/Developers.txt" />        
+        <!--copy file="./conf/configure.xml" tofile="${build}/conf/configure.xml" /-->
+        <copy file="./conf/configure.xml.default" tofile="${build}/conf/configure.xml.default" />
+        <copy file="./conf/log4j.xml" tofile="${build}/conf/log4j.xml" filtering="false" overwrite="yes" />
+        <copy file="./conf/log4j.xml.default" tofile="${build}/conf/log4j.xml.default" filtering="false" overwrite="yes" />
+        <copy file="./conf/wrapper.conf" tofile="${build}/conf/wrapper.conf" filtering="false" overwrite="yes" />
+        <copy file="./conf/weathertypes.dat" tofile="${build}/conf/weathertypes.dat" />
+        <copy file="./conf/derby.properties" tofile="${build}/conf/derby.properties" />        
+        <copy file="./conf/hibernate.properties" tofile="${build}/conf/hibernate.properties" />                
+        <copy file="./conf/ehcache.xml" tofile="${build}/conf/ehcache.xml" />                        
+
+        <echo>Copying executables</echo>
+        <mkdir dir="${build}/bin/osx" />
+        <copy todir="${build}/bin/osx">
+            <fileset dir="./bin/osx" />
+        </copy>
+        <mkdir dir="${build}/bin/unix" />
+        <copy todir="${build}/bin/unix">
+            <fileset dir="./bin/unix" />
+        </copy>
+        <mkdir dir="${build}/bin/win32" />
+        <copy todir="${build}/bin/win32">
+            <fileset dir="./bin/win32" />
+        </copy>
+
+        <echo>Copying distribution files</echo>
+        <mkdir dir="${build}/distro/osx" />
+        <copy todir="${build}/distro/osx">
+            <fileset dir="./distro/osx" />
+        </copy>
+        <mkdir dir="${build}/distro/unix" />
+        <copy todir="${build}/distro/unix">
+            <fileset dir="./distro/unix" />
+        </copy>
+        <mkdir dir="${build}/distro/win32" />
+        <copy todir="${build}/distro/win32">
+            <fileset dir="./distro/win32" />
+        </copy>
+
+        <echo>Copying libraries</echo>
+        <mkdir dir="${build}/lib" />
+        <copy todir="${build}/lib">
+            <fileset dir="./lib" />
+        </copy>
+
+        <echo>Copying Doc files</echo>
+        <copy todir="${build}/doc">
+            <fileset dir="./doc" includes="**/*.html" />
+        </copy>        
+        
+        <echo>Copying images</echo>
+        <mkdir dir="${build}/media/images" />
+        <copy todir="${build}/media/images">
+            <fileset dir="./media/images" includes="**/*.mp3,**/*.jpg,**/*.png,**/*.gif,**/*.ico" />
+        </copy>        
+        
+        <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
+        <copy file="./apps/readme.txt" tofile="${build}/apps/readme.txt" />                                
+
+    </target>
+</project>
+
+

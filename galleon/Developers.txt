@@ -1,0 +1,48 @@
+Notes for Galleon Developers
+============================
+
+After sending an email request to become a Galleon developer to
+javahmo@users.sourceforge.net, you will also be added to two mailing lists:
+galleon-developers@lists.sourceforge.net: used for developer issues,
+galleon-commits@lists.sourceforge.net: used by CVS to automatically post all checkins.
+Both these mailing lists are archived on the project development page.
+
+To help us keep track of who is doing what, we use the project bug and feature trackers. 
+If you want to fix a particular bug or implement a feature, assign it to yourself. If there 
+are any new features you want to work on, go ahead and add new features to the tracker. 
+If you decide to do any significant development changes to JavaHMO it is recommended that 
+you use the mailing list to get feedback first.
+
+I suggest that you read through the developer documentation provided by Sourceforge. 
+Everything you will need to know to use CVS and the project tools are explained in detail.
+
+
+Building
+--------
+Galleon uses JDK 1.5
+
+Ant build scripts are used to manage the build process (http://ant.apache.org).  
+To compile the galleon.jar file:
+ant compile
+
+To build the Galleon package:
+ant package
+
+
+Running
+-------
+
+Use the scripts in the bin directory to run the configuration GUI and
+Galleon server.
+
+
+Coding Style
+------------
+The Java code should conform to the Sun Java Coding conventions. The only modification of the convention is that lines 
+up to 120 characters are allowed instead of the standard 80 characters. 
+
+
+
+--------------------------------------
+galleon.sourceforge.net
+javahmo@users.sourceforge.net

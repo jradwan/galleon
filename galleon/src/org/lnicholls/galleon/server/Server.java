@@ -90,6 +90,8 @@ public class Server {
     
     public static void setup(ArrayList errors) {
         System.setProperty("os.user.home", System.getProperty("user.home"));
+        
+        System.setProperty("http.agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
 
         try {
             File file = new File(".");

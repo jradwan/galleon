@@ -21,22 +21,29 @@ package org.lnicholls.galleon.util;
  */
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
@@ -48,12 +55,25 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
 
 import org.lnicholls.galleon.server.*;
+import org.lnicholls.galleon.database.*;
+
+import EDU.oswego.cs.dl.util.concurrent.Callable;
+import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.*;
+
+import java.sql.Blob;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.lob.BlobImpl;
 
 /**
  * @author sthompso
@@ -354,6 +374,8 @@ public class Tools {
 
     public static Image getResourceAsImage(Class theClass, String resource) {
         try {
+            if (!resource.startsWith("/"))
+                resource = "/" + resource;
             InputStream is = theClass.getResourceAsStream(resource);
             BufferedInputStream bis = new BufferedInputStream(is);
             if (is != null) {
@@ -390,29 +412,29 @@ public class Tools {
         }
         return "127.0.0.1";
     }
-    
-    public static String getVersion()
-    {
+
+    public static String getVersion() {
         // TODO Handle development version
-        String version = Constants.CURRENT_VERSION.getMajor()+"."+Constants.CURRENT_VERSION.getRelease()+"."+Constants.CURRENT_VERSION.getMaintenance();
-        if (Constants.CURRENT_VERSION.getDevelopment()!=0)
+        String version = Constants.CURRENT_VERSION.getMajor() + "." + Constants.CURRENT_VERSION.getRelease() + "."
+                + Constants.CURRENT_VERSION.getMaintenance();
+        if (Constants.CURRENT_VERSION.getDevelopment() != 0)
             return version + " beta " + Constants.CURRENT_VERSION.getDevelopment();
         else
             return version;
     }
-    
+
     public static void logMemory() {
         logMemory(null);
     }
 
     public static void logMemory(String message) {
-        if (message!=null)
+        if (message != null)
             log.debug(message);
         log.debug("Max Memory: " + runtime.maxMemory());
         log.debug("Total Memory: " + runtime.totalMemory());
         log.debug("Free Memory: " + runtime.freeMemory());
     }
-    
+
     // If filename ends with .xxx or .xxxx, remove the suffix,
     // otherwise return the original value.
     public static String trimSuffix(String filename) {
@@ -427,43 +449,37 @@ public class Tools {
         }
         return filename;
     }
-    
-    public static String getAttribute(Element element, String name)
-    {
-        String value = element.attributeValue( name );
-        if (value==null)
-        {
-            Element child = element.element( name );
-            if (child!=null)
+
+    public static String getAttribute(Element element, String name) {
+        String value = element.attributeValue(name);
+        if (value == null) {
+            Element child = element.element(name);
+            if (child != null)
                 return child.getTextTrim();
-        }
-        else
+        } else
             value = value.trim();
         return value;
     }
-    
-    public static String getPage(URL url)
-    {
+
+    public static String getPage(URL url) {
         StringBuffer buffer = new StringBuffer();
         byte[] buf = new byte[1024];
         int amount = 0;
-        try
-        {
+        try {
             InputStream input = url.openStream();
             while ((amount = input.read(buf)) > 0) {
                 buffer.append(new String(buf, 0, amount));
             }
         } catch (Exception ex) {
-            Tools.logException(Tools.class, ex, url.getPath() );
+            Tools.logException(Tools.class, ex, url.getPath());
         }
         return buffer.toString();
     }
-    
+
     /*
-     * From com.tivo.hme.sim.SimResource.java Copyright (c) 2003-2004 TiVo Inc. 
+     * From com.tivo.hme.sim.SimResource.java Copyright (c) 2003-2004 TiVo Inc.
      */
-    public static String layout(int width, FontMetrics metrics, String text)
-    {
+    public static String layout(int width, FontMetrics metrics, String text) {
         char chars[] = text.toCharArray();
         int start = 0;
         int eow = -1;
@@ -513,5 +529,155 @@ public class Tools {
             result.append(new String(chars, start, i - start).trim());
         }
         return new String(result);
-    }    
+    }
+
+    public static synchronized Image getImage(Image image) {
+        return new ImageTracker(image).load();
+    }
+
+    private static final class ImageTracker implements ImageObserver {
+
+        public ImageTracker(URL url) {
+            this(Tools.getDefaultToolkit().getImage(url));
+        }
+
+        public ImageTracker(String filename) {
+            this(Tools.getDefaultToolkit().getImage(filename));
+        }
+
+        public ImageTracker(Image image) {
+            mImage = image;
+        }
+
+        public synchronized Image load() {
+            try {
+                if (!Tools.getDefaultToolkit().prepareImage(mImage, -1, -1, this)) {
+                    while (true) {
+                        wait(0);
+                        if (mLoaded) {
+                            if (log.isDebugEnabled())
+                                log.debug("Image Loaded");
+                            break;
+                        } else if (mError) {
+                            log.error("Image Error");
+                            return null;
+                        }
+                    }
+                    if (log.isDebugEnabled())
+                        log.debug("done waiting");
+                }
+                int width = mImage.getWidth(this);
+                int height = mImage.getHeight(this);
+
+                return mImage;
+            } catch (Exception ex) {
+                Tools.logException(Tools.class, ex);
+                return null;
+            }
+        }
+
+        public synchronized boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
+            if ((infoflags & ERROR) != 0) {
+                mError = true;
+                notifyAll();
+                return false;
+            } else if ((infoflags & ABORT) != 0) {
+                mError = true;
+                notifyAll();
+                return false;
+            } else if ((infoflags & (ALLBITS | FRAMEBITS)) != 0) {
+                mLoaded = true;
+                notifyAll();
+                return false;
+            }
+            return true;
+        }
+
+        private Image mImage;
+
+        private boolean mLoaded = false;
+
+        private boolean mError = false;
+    }
+
+    public static void cacheImage(URL url) {
+        if (url != null) {
+            try {
+                Image internetImage = null;
+                if (log.isDebugEnabled())
+                    log.debug("Downloading internet image=" + url.toExternalForm());
+
+                class TimedThread implements Callable {
+                    private URL mUrl;
+
+                    public TimedThread(URL url) {
+                        mUrl = url;
+                    }
+
+                    public synchronized java.lang.Object call() throws java.lang.Exception {
+                        return new ImageTracker(mUrl).load();
+                    }
+                }
+
+                TimedCallable timedCallable = new TimedCallable(new TimedThread(url), 2000 * 60);
+                internetImage = (Image) timedCallable.call();
+
+                if (internetImage == null) {
+                    log.error("Invalid internet image: " + url.getPath());
+                } else {
+                    try {
+                        BufferedImage image = new BufferedImage(internetImage.getWidth(null), internetImage
+                                .getHeight(null), BufferedImage.TYPE_INT_RGB);
+                        Graphics2D graphics2D = image.createGraphics();
+                        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        graphics2D.drawImage(internetImage, 0, 0, internetImage.getWidth(null), internetImage
+                                .getHeight(null), null);
+                        graphics2D.dispose();
+                        graphics2D = null;
+                        internetImage.flush();
+                        internetImage = null;
+
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                        encoder.encode(image);
+                        byteArrayOutputStream.close();
+
+                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
+                                .toByteArray());
+
+                        BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+
+                        Thumbnail thumbnail = new Thumbnail("Cached", "jpg", url.toExternalForm());
+                        thumbnail.setImage(blob);
+                        thumbnail.setDateModified(new Date());
+                        
+                        try {
+                            ThumbnailManager.createThumbnail(thumbnail);
+                        } catch (HibernateException ex) {
+                            log.error("Thumbnail create failed", ex);          
+                        }                        
+
+                        image.flush();
+                        image = null;
+                    } catch (IOException ex) {
+                        Tools.logException(Tools.class, ex, url.toExternalForm());
+                    }
+                }
+            } catch (Exception ex) {
+                Tools.logException(Tools.class, ex, url.toExternalForm());
+            }
+        }
+    }
+
+    public static Image retrieveCachedImage(URL url) {
+        try {
+            return ThumbnailManager.findImageByPath(url.toExternalForm());            
+        } catch (HibernateException ex) {
+            log.error("Image retrieve failed", ex);          
+        } catch (Exception ex) {
+            Tools.logException(Tools.class, ex, url.toExternalForm());
+        }
+        return null;
+    }
 }

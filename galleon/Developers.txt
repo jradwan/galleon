@@ -70,6 +70,12 @@ The GUI communicates with the server using Java RMI which binds to port 1099. Th
 socket connection that JavaHMO used. This will also allow headless systems to remotely configure the server.
 
 
+Weather
+-------
+The Weather.com XML feed is used to obtain the weather data:
+http://registration.weather.com/registration/xmloap/step1
+To comply with the XML feed licence, the configuration GUI will include several links to the Weather.com site.
+
 
 --------------------------------------
 galleon.sourceforge.net

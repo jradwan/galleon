@@ -17,10 +17,15 @@ package org.lnicholls.galleon.apps.weather;
  */
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
@@ -51,7 +56,27 @@ public class WeatherData implements Serializable {
 
         mLinks = new ArrayList();
         
-        getAllWeather();
+        new Thread() {
+            public void run()
+            {
+                getAllWeather();
+                determineLocalRadar();
+                
+                try {
+                    log.debug("mLocalRadar="+mLocalRadar);
+                    if (mLocalRadar!=null)
+                        Tools.cacheImage(new URL(mLocalRadar));
+                } catch (MalformedURLException ex) {
+                    log.error("Could not download local radar", ex);
+                }
+                try {
+                    if (mNationalRadar!=null)
+                        Tools.cacheImage(new URL(mNationalRadar));
+                } catch (MalformedURLException ex) {
+                    log.error("Could not download national radar", ex);
+                }
+            }
+        }.start();
     }
 
     public List getLocations() {
@@ -200,6 +225,65 @@ public class WeatherData implements Serializable {
             log.error("Could not determine weather conditions", ex);
         }
     }
+    
+    public void determineLocalRadar() {
+        try {
+            URL url = new URL("http://w3.weather.com/weather/map/" + mZip);
+            StringBuffer buffer = new StringBuffer();
+            byte[] buf = new byte[1024];
+            int amount = 0;
+            InputStream input = url.openStream();
+            while ((amount = input.read(buf)) > 0) {
+                buffer.append(new String(buf, 0, amount));
+            }
+
+            //if (isMinNS4) var mapNURL = "/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html";
+            String radarurl = "";
+            String REGEX = "var mapNURL = \"(.*)\";";
+            Pattern p = Pattern.compile(REGEX);
+            Matcher m = p.matcher(buffer.toString());
+            if (m.find()) {
+                if (log.isDebugEnabled())
+                    log.debug("Local radar URL: " + m.group(1));
+                radarurl = m.group(1);
+            }
+            if (radarurl.length() == 0) {
+                //    <iframe name="mapI" ID="mapI" width=600 height=560
+                // src="/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html"
+                REGEX = "src=\"/maps/local/local(.*)\"";
+                p = Pattern.compile(REGEX);
+                m = p.matcher(buffer.toString());
+                if (m.find()) {
+                    if (log.isDebugEnabled())
+                        log.debug("Local radar URL: " + m.group(1));
+                    radarurl = "/maps/local/local" + m.group(1);
+                }
+            }
+
+            url = new URL("http://w3.weather.com" + radarurl);
+            buffer = new StringBuffer();
+            buf = new byte[1024];
+            amount = 0;
+            input = url.openStream();
+            while ((amount = input.read(buf)) > 0) {
+                buffer.append(new String(buf, 0, amount));
+            }
+
+            //<IMG NAME="mapImg" SRC="http://image.weather.com/web/radar/us_bos_closeradar_large_usen.jpg" WIDTH=600
+            // HEIGHT=405 BORDER=0 ALT="Doppler Radar 600 Mile"></TD>
+            REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
+            p = Pattern.compile(REGEX);
+            m = p.matcher(buffer.toString());
+            if (m.find()) {
+                mLocalRadar = m.group(1);
+                return;
+            }
+        } catch (Throwable ex) {
+            //Tools.logException(WeatherData.class, ex);
+            ex.printStackTrace();
+        }
+        log.error("Could not find local radar for: "+mCity+","+mState+","+mZip);
+    }    
 
     public static class Location {
         public String getId() {
@@ -866,6 +950,14 @@ public class WeatherData implements Serializable {
     public void setVersion(String version) {
         mVersion = version;
     }
+    
+    public String getLocalRadar() {
+        return mLocalRadar;
+    }
+    
+    public String getNationalRadar() {
+        return mNationalRadar;
+    }
 
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -918,4 +1010,8 @@ public class WeatherData implements Serializable {
     private CurrentConditions mCurrentConditions;
 
     private Forecasts mForecasts;
+    
+    private String mLocalRadar;
+    
+    private String mNationalRadar = "http://image.weather.com/images/maps/current/curwx_600x405.jpg";
 }

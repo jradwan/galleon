@@ -3012,3 +3012,12 @@ You may use these images in your website or product as long as this permission.t
 
 Designed Use:
 These weather images are designed to provide the various weather conditions reported by weather services. It was created for use with Stardock DesktopX (http://www.desktopx.net) and Stardock ObjectDock (http://www.objectdock.com) both of which allow users to monitor the weather conditions from their desktop.
+
+
+------------------------------------------------------
+
+Y) The following software is included in this product:
+BrowserLauncher; Use of any of this software is governed
+by the terms of the license below:     
+
+This code is Copyright 1999-2001 by Eric Albert (ejalbert@cs.stanford.edu) and may be redistributed or modified in any form without restrictions as long as the portion of this comment from this paragraph through the end of the comment is not removed. The author requests that he be notified of any application, applet, or other binary that makes use of this code, but that's more out of curiosity than anything and is not required. This software includes no warranty. The author is not repsonsible for any loss of data or functionality or any adverse or unexpected effects of using this software.

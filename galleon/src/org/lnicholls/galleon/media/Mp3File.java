@@ -786,5 +786,17 @@ public final class Mp3File {
      * ImageIcon(frame.picture.pictureData); } if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
      * frame.picture.pictureData = new byte[0]; icon = new
      * ImageIcon(ClassLoader.getSystemResource("pgbennett/jampal/drop_picture.png")); }
+     * 
      */
+    
+    /*
+/get your blob
+Blob blob = rs.getBlob(1);
+//get the stream
+InputStream is = blob.getBinaryStream();
+//use the sun.* apis
+JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(is);
+//now you have a buffered image
+return decoder.decodeAsBufferedImage();     
+     **/
 }

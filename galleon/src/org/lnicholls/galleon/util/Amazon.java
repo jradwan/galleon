@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.lnicholls.galleon.server.Server;
 
 public class Amazon {
 
@@ -50,7 +51,7 @@ public class Amazon {
                     + URLEncoder.encode(artist) + "&Title=" + URLEncoder.encode(title));
             return getImage(key, url);
         } catch (MalformedURLException ex) {
-            log.error("Could not create AWS url", ex);
+            Tools.logException(Amazon.class, ex, "Could not create AWS url: "+artist+","+title);
         }
         return null;
     }
@@ -62,7 +63,7 @@ public class Amazon {
                     + URLEncoder.encode(keywords));
             return getImage(key, url);
         } catch (MalformedURLException ex) {
-            log.error("Could not create AWS url", ex);
+            Tools.logException(Amazon.class, ex, "Could not create AWS url: "+keywords);
         }
         return null;
     }
@@ -97,9 +98,9 @@ public class Amazon {
                     Element item = (Element) i.next();
 
                     Element someImage = item.element("LargeImage");
-                    if (someImage==null)
+                    if (someImage == null)
                         someImage = item.element("MediumImage");
-                    if (someImage==null)
+                    if (someImage == null)
                         someImage = item.element("SmallImage");
                     if (someImage != null) {
                         Element address = someImage.element("URL");
@@ -109,10 +110,8 @@ public class Amazon {
                             Element height = someImage.element("Height");
                             Element width = someImage.element("Width");
                             try {
-                                Tools.cacheImage(new URL(address.getTextTrim()),
-                                        Integer.parseInt(height.getTextTrim()), Integer.parseInt(width.getTextTrim()),
-                                        key);
-                                image = Tools.retrieveCachedImage(key);
+                                image = Tools.getImage(new URL(address.getTextTrim()),
+                                        Integer.parseInt(height.getTextTrim()), Integer.parseInt(width.getTextTrim()));
                                 break;
                             } catch (Exception ex) {
                                 log.error("Could not download Amazon image: " + address.getTextTrim(), ex);
@@ -122,7 +121,7 @@ public class Amazon {
                 }
             }
         } catch (Exception ex) {
-            log.error("Could not determine weather conditions", ex);
+            Tools.logException(Amazon.class, ex, "Could parse AWS url: "+url.toExternalForm());
         }
 
         mTime = System.currentTimeMillis();
@@ -130,5 +129,4 @@ public class Amazon {
     }
 
     private static long mTime = System.currentTimeMillis();
-
 }

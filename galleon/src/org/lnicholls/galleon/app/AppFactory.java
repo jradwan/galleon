@@ -16,28 +16,31 @@ package org.lnicholls.galleon.app;
  * See the file "COPYING" for more details.
  */
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.lang.reflect.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.apps.weather.WeatherConfiguration;
-import org.lnicholls.galleon.apps.weather.WeatherData;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.util.Configurator;
+import org.lnicholls.galleon.util.Tools;
 
-import com.tivo.hme.sdk.*;
-import com.tivo.hme.io.*;
-import com.tivo.hme.util.*;
-import com.tivo.hme.http.share.*;
-import com.tivo.hme.http.server.*;
+import com.tivo.hme.http.server.HttpRequest;
+import com.tivo.hme.io.FastInputStream;
+import com.tivo.hme.sdk.Factory;
+import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Listener;
+import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.util.Mp3Duration;
 
 public class AppFactory extends Factory {
 
     private static Logger log = Logger.getLogger(AppFactory.class.getName());
-    
+
     public AppFactory(AppContext appContext) {
         super();
         setAppContext(appContext);
@@ -89,10 +92,11 @@ public class AppFactory extends Factory {
     }
 
     // Modified from SDK code
-    public static Factory createFactory(Listener listener, ArgumentList args, AppContext appContext) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException, NoSuchMethodException, IOException, InvocationTargetException {
+    public static Factory createFactory(Listener listener, ArgumentList args, AppContext appContext)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException,
+            IOException, InvocationTargetException {
         AppFactory factory;
-        
+
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
         //
@@ -108,15 +112,15 @@ public class AppFactory extends Factory {
         try {
             // try to load clazz$Factory
             Class factoryClass = classLoader.loadClass(clazz + "$" + clazzNoPackage + "Factory");
-            
+
             Class[] parameters = new Class[1];
             parameters[0] = AppContext.class;
             Constructor constructor = factoryClass.getConstructor(parameters);
             AppContext[] values = new AppContext[1];
-            values[0] = appContext; 
+            values[0] = appContext;
 
-            factory = (AppFactory)constructor.newInstance(values);
-            
+            factory = (AppFactory) constructor.newInstance((Object[]) values);
+
         } catch (ClassNotFoundException ex) {
             log.error(AppFactory.class, ex);
             throw ex;
@@ -127,8 +131,10 @@ public class AppFactory extends Factory {
         factory.setListener(listener);
         factory.setClassName(clazz);
 
+        String title = factory.getAppContext().getConfiguration().getName();
         // name
-        String uri = args.getValue("-uri", getField(clazz, "URI"));
+        String uri = args.getValue("-uri", URLEncoder.encode(title.replaceAll(" ", ""), "UTF-8")); //getField(clazz,
+                                                                                                   // "URI"));
         if (uri == null) {
             uri = clazz;
 
@@ -145,9 +151,7 @@ public class AppFactory extends Factory {
         factory.setURI(uri);
 
         // title
-        String title = factory.getAppContext().getConfiguration().getName();
-        if (title==null)
-        {
+        if (title == null) {
             title = args.getValue("-title", getField(clazz, "TITLE"));
             if (title == null) {
                 title = clazzNoPackage;
@@ -188,7 +192,7 @@ public class AppFactory extends Factory {
         } catch (InvocationTargetException e) {
             System.out.println("error: InvocationTargetException: " + e.getMessage());
         }
-        
+
         System.exit(1);
         return null;
     }
@@ -208,14 +212,15 @@ public class AppFactory extends Factory {
         }
         return appFactory;
     }
-    
+
     public AppFactory addApp(AppContext appContext) {
-        log.debug("addApp: "+appContext);
+        log.debug("addApp: " + appContext);
         AppFactory appFactory = null;
 
         if (mAppManager != null) {
             try {
-                appFactory = (AppFactory) startFactory(mListener, new ArgumentList(appContext.getDescriptor().getClassName()),appContext);
+                appFactory = (AppFactory) startFactory(mListener, new ArgumentList(appContext.getDescriptor()
+                        .getClassName()), appContext);
                 mAppManager.addApp(appFactory);
             } catch (Throwable th) {
                 // TODO
@@ -226,6 +231,38 @@ public class AppFactory extends Factory {
         return appFactory;
     }
 
+    public InputStream getStream(String uri) throws IOException {
+        if (uri.toLowerCase().endsWith(".mp3")) {
+            try {
+                String id = Tools.extractName(uri);
+                Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                File file = new File(audio.getPath());
+                if (file.exists()) {
+                    return new FileInputStream(file);
+                }
+            } catch (Exception ex) {
+                log.error(uri, ex);
+            }
+        }
+
+        return super.getStream(uri);
+    }
+
+    protected void addHeaders(HttpRequest http, String uri) throws IOException {
+        if (uri.toLowerCase().endsWith(".mp3")) {
+            InputStream tmp = getStream(uri);
+            if (tmp != null) {
+                try {
+                    http.addHeader(IHmeProtocol.TIVO_DURATION, String.valueOf(Mp3Duration.getMp3Duration(tmp, tmp
+                            .available())));
+                } finally {
+                    tmp.close();
+                }
+            }
+        }
+        super.addHeaders(http, uri);
+    }
+
     public void setAppContext(AppContext appContext) {
         mAppContext = appContext;
     }
@@ -233,7 +270,7 @@ public class AppFactory extends Factory {
     public AppContext getAppContext() {
         return mAppContext;
     }
-    
+
     private AppManager mAppManager;
 
     private AppContext mAppContext;

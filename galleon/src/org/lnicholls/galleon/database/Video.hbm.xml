@@ -29,7 +29,7 @@ See the file "COPYING" for more details.
     public boolean equals(Object object)
     {
         Video video = (Video)object;
-        return dateRecorded.getTime()==video.dateRecorded.getTime() &amp;&amp; channel.equals(video.channel);
+        return url.equals(video.url);
     }
     
     public String getStatusString() {
@@ -50,6 +50,8 @@ See the file "COPYING" for more details.
             return "Save Error";
         case 128:
             return "Save Selected";
+        case 256:
+            return "Deleted";            
         }
         return "Recorded";
     }
@@ -70,9 +72,11 @@ See the file "COPYING" for more details.
 
     public static int STATUS_USER_SELECTED = 128;
     
+    public static int STATUS_DELETED = 256;    
+    
   </meta>          
   
-		<!--cache usage="read-write" /-->    
+    <cache usage="read-write"/>
     
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>

@@ -98,6 +98,11 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
         Server.getServer().updateVideo(video);
     }
     
+    public void removeVideo(Video video) throws RemoteException
+    {
+        Server.getServer().removeVideo(video);
+    }
+    
     public AppContext createAppContext(AppDescriptor appDescriptor) throws RemoteException
     {
         return Server.getServer().createAppContext(appDescriptor);

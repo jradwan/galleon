@@ -46,6 +46,7 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.app.*;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
@@ -517,9 +518,10 @@ public class Server {
     private void preLoadFonts() {
         if (log.isDebugEnabled())
             log.debug("preLoadFonts()");
-        Font font = new Font("Arial", Font.BOLD, 50);
-        font = new Font("Helvetica", Font.BOLD, 40);
-        font = new Font("Courier", Font.BOLD, 40);
+        try {
+            Font.createFont(Font.TRUETYPE_FONT, Server.class.getClassLoader().getResourceAsStream(ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "default.ttf"));
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -603,6 +605,15 @@ public class Server {
             log.error("Video update failed", ex);
         }
         mDownloadThread.updateVideo(video);
+    }
+    
+    public void removeVideo(Video video)
+    {
+        try {
+            VideoManager.deleteVideo(video);
+        } catch (HibernateException ex) {
+            log.error("Video delete failed", ex);
+        }
     }
     
     public AppContext createAppContext(AppDescriptor appDescriptor)

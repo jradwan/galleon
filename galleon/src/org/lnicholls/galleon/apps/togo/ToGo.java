@@ -16,39 +16,38 @@ package org.lnicholls.galleon.apps.togo;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.*;
-import java.net.*;
+import java.awt.Color;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.*;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-
-import com.tivo.hme.bananas.*;
-
 import net.sf.hibernate.HibernateException;
 
-import org.jdom.Element;
-import org.lnicholls.galleon.server.*;
-import org.lnicholls.galleon.togo.ToGoThread;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.database.*;
-
-import com.tivo.hme.sdk.*;
-
-import org.apache.log4j.Logger;
-
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.database.VideoManager;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.server.TiVo;
+import org.lnicholls.galleon.togo.ToGoThread;
+import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.widget.DefaultScreen;
 
-/**
- * Based on TiVo Bananas sample code by Carl Haynes
- */
+import com.tivo.hme.bananas.BApplication;
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BHighlights;
+import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BScreen;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Resource;
 
 public class ToGo extends BApplication {
 
@@ -69,7 +68,7 @@ public class ToGo extends BApplication {
     private Resource mBlueIcon;
 
     private Resource mEmptyIcon;
-    
+
     protected void init(Context context) {
         super.init(context);
 
@@ -84,49 +83,19 @@ public class ToGo extends BApplication {
         push(new ToGoMenuScreen(this), TRANSITION_NONE);
     }
 
-    public boolean handleAction(BView view, Object action) {
-        if (action.equals("pop")) {
-            pop();
-            return true;
-        }
-        return super.handleAction(view, action);
-    }
-
-    public class DefaultScreen extends BScreen {
-        public DefaultScreen(ToGo app) {
-            super(app);
-
-            below.setResource("cinemabackground.jpg");
-
-            mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 54);
-            mTitle.setValue(" ");
-            mTitle.setColor(Color.yellow);
-            mTitle.setShadow(Color.black, 3);
-            mTitle.setFlags(RSRC_HALIGN_CENTER);
-            mTitle.setFont("default-48.font");
-        }
-
-        public void setTitle(String value) {
-            mTitle.setValue(value);
-        }
-
-        private BText mTitle;
-
-    }
-
     public class ToGoMenuScreen extends DefaultScreen {
         private TGList list;
 
         public ToGoMenuScreen(ToGo app) {
             super(app);
             setTitle("Now Playing List");
-            
+
             int top = SAFE_TITLE_V + 50;
             int border_left = SAFE_TITLE_H + 20;
             int text_width = width - ((SAFE_TITLE_H * 2) + 82);
-            
+
             int start = top;
-            
+
             BText countText = new BText(normal, border_left, start, text_width, 20);
             countText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             countText.setFont("default-18.font");
@@ -152,14 +121,13 @@ public class ToGo extends BApplication {
             availableText.setFont("default-18.font");
             availableText.setColor(Color.GREEN);
             availableText.setShadow(true);
-            
 
             list = new TGList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
                     - ((SAFE_TITLE_H * 2) + 32), 280, 35);
             BHighlights h = list.getHighlights();
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
-            
+
             int totalCount = 0;
             int totalTime = 0;
             long totalSize = 0;
@@ -180,8 +148,7 @@ public class ToGo extends BApplication {
 
                 for (int i = 0; i < videoArray.length; i++) {
                     Video video = (Video) videoArray[i];
-                    if (video.getStatus()!=Video.STATUS_RECORDING)
-                    {
+                    if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED) {
                         list.add(new ToGoScreen(app, video));
                         totalCount = totalCount + 1;
                         totalTime = totalTime + video.getDuration();
@@ -191,23 +158,27 @@ public class ToGo extends BApplication {
             } catch (HibernateException ex) {
                 log.error("Getting recordings failed", ex);
             }
-            
+
             List tivos = Server.getServer().getTiVos();
             Iterator iterator = tivos.iterator();
-            while (iterator.hasNext())
-            {
-                TiVo tivo = (TiVo)iterator.next();
+            while (iterator.hasNext()) {
+                TiVo tivo = (TiVo) iterator.next();
                 totalCapacity = totalCapacity + tivo.getCapacity();
             }
             
-            countText.setValue("Count: "+String.valueOf(totalCount));
+            long available = (totalCapacity * 1024) - (totalSize / (1024 * 1024));
+            if (available<0)
+                available = 0;
+
+            countText.setValue("Total: " + String.valueOf(totalCount));
             SimpleDateFormat timeFormat = new SimpleDateFormat();
             timeFormat.applyPattern("H:mm");
-            long duration = (long)Math.rint(totalTime / 1000 / 60.0);
+            long duration = (long) Math.rint(totalTime / 1000 / 60.0);
             lengthText.setValue("Length: " + timeFormat.format(new Date(duration)));
             DecimalFormat numberFormat = new DecimalFormat("###,###");
             sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
-            availableText.setValue("Available: " + numberFormat.format((totalCapacity*1024) - (totalSize / (1024 * 1024))) + " MB");
+            availableText.setValue("Available: "
+                    + numberFormat.format(available) + " MB");
 
             setFocusDefault(list);
         }
@@ -219,16 +190,6 @@ public class ToGo extends BApplication {
                 return true;
             }
             return super.handleAction(view, action);
-        }
-
-        public boolean handleKeyPress(int code, long rawcode) {
-            switch (code) {
-            case KEY_LEFT:
-                getBApp().setActive(false);
-                return true;
-            }
-
-            return super.handleKeyPress(code, rawcode);
         }
 
         public String toString() {
@@ -253,8 +214,7 @@ public class ToGo extends BApplication {
             protected void createRow(BView parent, int index) {
                 BView icon = new BView(parent, 10, 3, 30, 30);
                 Video video = ((ToGoScreen) get(index)).getVideo();
-                if (video.getIcon()!=null)
-                {
+                if (video.getIcon() != null) {
                     if (video.getIcon().equals("in-progress-recording"))
                         icon.setResource(mRedIcon);
                     else if (video.getIcon().equals("expires-soon-recording"))
@@ -269,12 +229,12 @@ public class ToGo extends BApplication {
 
                 BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
                 name.setShadow(true);
-                if (video.getStatus()==Video.STATUS_DOWNLOADING)
+                if (video.getStatus() == Video.STATUS_DOWNLOADING)
                     name.setFont("default-24-italic.font");
                 else
                     name.setFont("default-24.font");
                 name.setFlags(RSRC_HALIGN_LEFT);
-                name.setValue(trim(video.getTitle(),29));
+                name.setValue(Tools.trim(video.getTitle(), 29));
 
                 mCalendar.setTime(video.getDateRecorded());
                 mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
@@ -297,13 +257,6 @@ public class ToGo extends BApplication {
             }
         }
     }
-    
-    public String trim(String value, int max)
-    {
-        if (value!=null && value.length()>max)
-            return value.substring(0,max-3)+"...";
-        return value;
-    }
 
     public class ToGoScreen extends DefaultScreen {
         protected SimpleDateFormat mDateFormat;
@@ -315,9 +268,11 @@ public class ToGo extends BApplication {
         protected DecimalFormat mNumberFormat;
 
         private BList list;
-        
+
         private final int top = SAFE_TITLE_V + 100;
+
         private final int border_left = SAFE_TITLE_H + 20;
+
         private final int text_width = width - ((SAFE_TITLE_H * 2) + 32);
 
         public ToGoScreen(ToGo app, Video video) {
@@ -331,9 +286,9 @@ public class ToGo extends BApplication {
             mNumberFormat = new DecimalFormat("###,###");
 
             mVideo = video;
-            
+
             setTitle("Program");
-            
+
             int start = top;
 
             int location = 40;
@@ -381,7 +336,7 @@ public class ToGo extends BApplication {
             genreText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             genreText.setFont("default-18.font");
             genreText.setShadow(true);
-            
+
             sizeText = new BText(normal, border_left, start, text_width, 30);
             sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             sizeText.setFont("default-18.font");
@@ -397,23 +352,21 @@ public class ToGo extends BApplication {
             statusText.setShadow(true);
 
             start += 35;
-            
-            statusBarBg = new BView (normal, width - SAFE_TITLE_H - text_width/3, start , text_width/3, 30);
+
+            statusBarBg = new BView(normal, width - SAFE_TITLE_H - text_width / 3, start, text_width / 3, 30);
             statusBarBg.setResource(Color.WHITE);
             statusBarBg.setTransparency(.5f);
             statusBarBg.setVisible(false);
-            statusBar = new BView (normal, width - SAFE_TITLE_H - text_width/3 + 2, start + 2, text_width/3-4, 30 - 4);
+            statusBar = new BView(normal, width - SAFE_TITLE_H - text_width / 3 + 2, start + 2, text_width / 3 - 4,
+                    30 - 4);
             statusBar.setResource(Color.GREEN);
             statusBar.setVisible(false);
             /*
-            speedText = new BText(normal, width - SAFE_TITLE_H - text_width/3, start , text_width/3, 30);
-            speedText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | IHmeProtocol.RSRC_VALIGN_CENTER);
-            speedText.setFont("default-18-bold.font");
-            speedText.setColor(Color.BLACK);
-            speedText.setShadow(Color.DARK_GRAY,1);
-            speedText.setValue(" ");
-            speedText.setVisible(false);
-            */
+             * speedText = new BText(normal, width - SAFE_TITLE_H - text_width/3, start , text_width/3, 30);
+             * speedText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | IHmeProtocol.RSRC_VALIGN_CENTER);
+             * speedText.setFont("default-18-bold.font"); speedText.setColor(Color.BLACK);
+             * speedText.setShadow(Color.DARK_GRAY,1); speedText.setValue(" "); speedText.setVisible(false);
+             */
 
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80,
                     (width - (SAFE_TITLE_H * 2)) / 2, 90, 35);
@@ -421,159 +374,145 @@ public class ToGo extends BApplication {
             list.add("Don't do anything");
 
             setFocusDefault(list);
-            
+
             updateText();
         }
-        
-        private void updateText()
-        {
-            int location = 40;
-            if (mVideo.getIcon()!=null)
-            {
-                if (mVideo.getIcon().equals("in-progress-recording"))
-                    icon.setResource(mRedIcon);
-                else if (mVideo.getIcon().equals("expires-soon-recording"))
-                    icon.setResource(mYellowIcon);
-                else if (mVideo.getIcon().equals("expired-recording"))
-                    icon.setResource(mYellowExclamationIcon);
-                else if (mVideo.getIcon().equals("save-until-i-delete-recording"))
-                    icon.setResource(mGreenIcon);
-                else {
-                    icon.setResource(mEmptyIcon);
+
+        private void updateText() {
+            setPainting(false);
+            try {
+                int location = 40;
+                if (mVideo.getIcon() != null) {
+                    if (mVideo.getIcon().equals("in-progress-recording"))
+                        icon.setResource(mRedIcon);
+                    else if (mVideo.getIcon().equals("expires-soon-recording"))
+                        icon.setResource(mYellowIcon);
+                    else if (mVideo.getIcon().equals("expired-recording"))
+                        icon.setResource(mYellowExclamationIcon);
+                    else if (mVideo.getIcon().equals("save-until-i-delete-recording"))
+                        icon.setResource(mGreenIcon);
+                    else {
+                        icon.setResource(mEmptyIcon);
+                        location = 0;
+                    }
+                } else
                     location = 0;
-                }
-            }
-            else
-                location = 0;
-            titleText.setLocation(border_left + location, top);
+                titleText.setLocation(border_left + location, top);
 
-            titleText.setValue(mVideo.getTitle()==null?"":trim(mVideo.getTitle(),30));
+                titleText.setValue(mVideo.getTitle() == null ? "" : Tools.trim(mVideo.getTitle(), 30));
 
-            mCalendar.setTime(mVideo.getOriginalAirDate()==null?new Date():mVideo.getOriginalAirDate());
-            mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
-                    + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
-            mCalendar.set(GregorianCalendar.SECOND, 0);            
+                mCalendar.setTime(mVideo.getOriginalAirDate() == null ? new Date() : mVideo.getOriginalAirDate());
+                mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
+                        + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
+                mCalendar.set(GregorianCalendar.SECOND, 0);
 
-            String description = null;
-            if (mVideo.getEpisodeTitle()!=null && mVideo.getEpisodeTitle().length()!=0)
-            {
-                description = mVideo.getEpisodeTitle() + " ("+ mCalendar.get(Calendar.YEAR)+")";
-                if (mVideo.getDescription()!=null)
-                    description = description + " "  +mVideo.getDescription();
-            }
-            else
-            {
-                if (mVideo.getDescription()==null)
-                    description = "("+ mCalendar.get(Calendar.YEAR)+")";
-                else
-                    description = mVideo.getDescription()+ " ("+ mCalendar.get(Calendar.YEAR)+") ";
-            }
-            
-            descriptionText.setValue(description);
-
-            mCalendar.setTime(mVideo.getDateRecorded()==null?new Date():mVideo.getDateRecorded());
-            mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
-                    + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
-            mCalendar.set(GregorianCalendar.SECOND, 0);
-
-            dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + mVideo.getChannelMajorNumber() + " "
-                    + mVideo.getStation());
-
-            int duration = (int)Math.rint(mVideo.getDuration() / 1000 / 60.0);
-            mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
-            mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
-            mCalendar.set(GregorianCalendar.SECOND, 0);
-            
-            durationText.setValue("Duration: " + mTimeFormat.format(mCalendar.getTime()));
-
-            ratingText.setValue("Rated: " + (mVideo.getRating()==null?"N/A":mVideo.getRating()));
-
-            videoText.setValue("Video: " + mVideo.getRecordingQuality());
-
-            genreText.setValue("Genre: " + trim(mVideo.getProgramGenre(),40));
-            
-            sizeText.setValue("Size: " + mNumberFormat.format(mVideo.getSize() / (1024 * 1024)) + " MB");
-
-            statusText.setValue(mVideo.getStatusString());
-            
-            if (mVideo.getStatus()==Video.STATUS_DOWNLOADING || mVideo.getStatus()==Video.STATUS_DOWNLOADED)
-            {
-                statusBarBg.setVisible(true);
-                statusBar.setVisible(true);
-                //speedText.setVisible(true);
-                
-                if (mVideo.getDownloadTime()>0)
-                {
-                    long rate = (mVideo.getDownloadSize()/1024)/mVideo.getDownloadTime();
-                    statusText.setValue(mVideo.getStatusString()+": "+rate+" KB/Sec");
-                    //speedText.setValue(rate+" KB/Sec");
-                    if (mVideo.getStatus()==Video.STATUS_DOWNLOADED)
-                    {
-                        statusBar.setSize(statusBarBg.width-4,statusBar.height);
-                    }
+                String description = null;
+                if (mVideo.getEpisodeTitle() != null && mVideo.getEpisodeTitle().length() != 0) {
+                    description = mVideo.getEpisodeTitle() + " (" + mCalendar.get(Calendar.YEAR) + ")";
+                    if (mVideo.getDescription() != null)
+                        description = description + " " + mVideo.getDescription();
+                } else {
+                    if (mVideo.getDescription() == null)
+                        description = "(" + mCalendar.get(Calendar.YEAR) + ")";
                     else
-                    {
-                        float barFraction = mVideo.getDownloadSize()/(float)mVideo.getSize();
-                        if ((statusBarBg.width-4)*barFraction<1)
-                            statusBar.setSize(1,statusBar.height);
-                        else
-                            statusBar.setSize((int)(barFraction*(statusBarBg.width-4)),statusBar.height);
+                        description = mVideo.getDescription() + " (" + mCalendar.get(Calendar.YEAR) + ") ";
+                }
+
+                descriptionText.setValue(description);
+
+                mCalendar.setTime(mVideo.getDateRecorded() == null ? new Date() : mVideo.getDateRecorded());
+                mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
+                        + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
+                mCalendar.set(GregorianCalendar.SECOND, 0);
+
+                dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + mVideo.getChannelMajorNumber()
+                        + " " + mVideo.getStation());
+
+                int duration = (int) Math.rint(mVideo.getDuration() / 1000 / 60.0);
+                mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
+                mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
+                mCalendar.set(GregorianCalendar.SECOND, 0);
+
+                durationText.setValue("Duration: " + mTimeFormat.format(mCalendar.getTime()));
+
+                ratingText.setValue("Rated: " + (mVideo.getRating() == null ? "N/A" : mVideo.getRating()));
+
+                videoText.setValue("Video: " + mVideo.getRecordingQuality());
+
+                genreText.setValue("Genre: " + Tools.trim(mVideo.getProgramGenre(), 40));
+
+                sizeText.setValue("Size: " + mNumberFormat.format(mVideo.getSize() / (1024 * 1024)) + " MB");
+
+                statusText.setValue(mVideo.getStatusString());
+
+                if (mVideo.getStatus() == Video.STATUS_DOWNLOADING || mVideo.getStatus() == Video.STATUS_DOWNLOADED) {
+                    statusBarBg.setVisible(true);
+                    statusBar.setVisible(true);
+                    //speedText.setVisible(true);
+
+                    if (mVideo.getDownloadTime() > 0) {
+                        long rate = (mVideo.getDownloadSize() / 1024) / mVideo.getDownloadTime();
+                        statusText.setValue(mVideo.getStatusString() + ": " + rate + " KB/Sec");
+                        //speedText.setValue(rate+" KB/Sec");
+                        if (mVideo.getStatus() == Video.STATUS_DOWNLOADED) {
+                            statusBar.setSize(statusBarBg.width - 4, statusBar.height);
+                        } else {
+                            float barFraction = mVideo.getDownloadSize() / (float) mVideo.getSize();
+                            if ((statusBarBg.width - 4) * barFraction < 1)
+                                statusBar.setSize(1, statusBar.height);
+                            else
+                                statusBar.setSize((int) (barFraction * (statusBarBg.width - 4)), statusBar.height);
+                        }
+                    } else {
+                        statusText.setValue(mVideo.getStatusString() + ": " + "0 KB/Sec");
+                        //speedText.setValue("0 KB/Sec");
+                        statusBar.setVisible(false);
                     }
-                }
-                else
-                {
-                    statusText.setValue(mVideo.getStatusString()+": "+"0 KB/Sec");
-                    //speedText.setValue("0 KB/Sec");
+                } else {
+                    statusBarBg.setVisible(false);
                     statusBar.setVisible(false);
+                    //speedText.setVisible(false);
                 }
+
+                Boolean status = new Boolean(mVideo.getStatus() == Video.STATUS_RULE_MATCHED
+                        || mVideo.getStatus() == Video.STATUS_USER_SELECTED
+                        || mVideo.getStatus() == Video.STATUS_DOWNLOADING);
+                if (status.booleanValue())
+                    list.set(0, "Don't save to computer");
+                else
+                    list.set(0, "Save to computer");
+            } finally {
+                setPainting(true);
             }
-            else
-            {
-                statusBarBg.setVisible(false);
-                statusBar.setVisible(false);
-                //speedText.setVisible(false);
-            }
-            
-            Boolean status = new Boolean(mVideo.getStatus() == Video.STATUS_RULE_MATCHED
-                    || mVideo.getStatus() == Video.STATUS_USER_SELECTED
-                    || mVideo.getStatus() == Video.STATUS_DOWNLOADING);
-            if (status.booleanValue())
-                list.set(0, "Don't save to computer");
-            else
-                list.set(0, "Save to computer");
-            
+
             if (ToGoScreen.this.getApp().context != null)
                 flush();
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            if (mUpdateThread!=null && mUpdateThread.isAlive())
+            if (mUpdateThread != null && mUpdateThread.isAlive())
                 mUpdateThread.interrupt();
-            
+
             mUpdateThread = new Thread() {
-                public void run()
-                {
+                public void run() {
                     int counter = 0;
-                    while (true)
-                    {
+                    while (true) {
                         if (ToGoScreen.this.getApp().context == null)
                             return;
-                        
-                        try
-                        {
+
+                        try {
                             Video updated = VideoManager.retrieveVideo(mVideo.getId());
                             PropertyUtils.copyProperties(mVideo, updated);
                             updateText();
-                            if (counter++<10)
+                            if (counter++ < 10)
                                 sleep(1000 * 5);
                             else
                                 sleep(1000 * 10);
                         } catch (HibernateException ex) {
-                            try
-                            {
+                            try {
                                 log.error("Video retrieve failed", ex);
+                            } catch (Exception ex2) {
                             }
-                            catch( Exception ex2){}
                             return;
                         } catch (InterruptedException ex) {
                             return;
@@ -588,9 +527,9 @@ public class ToGo extends BApplication {
             mUpdateThread.start();
             return super.handleEnter(arg, isReturn);
         }
-        
+
         public boolean handleExit() {
-            if (mUpdateThread!=null && mUpdateThread.isAlive())
+            if (mUpdateThread != null && mUpdateThread.isAlive())
                 mUpdateThread.interrupt();
             mUpdateThread = null;
             return super.handleExit();
@@ -608,13 +547,12 @@ public class ToGo extends BApplication {
                     return true;
                 }
             case KEY_LEFT:
-                // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
-            }
+            }                
             return super.handleKeyPress(code, rawcode);
         }
-
+        
         public boolean handleAction(BView view, Object action) {
             if (action.equals("record")) {
                 Boolean status = new Boolean(mVideo.getStatus() == Video.STATUS_RULE_MATCHED
@@ -629,13 +567,13 @@ public class ToGo extends BApplication {
                 }
 
                 try {
-                    log.debug("video: "+mVideo.toString());
+                    log.debug("video: " + mVideo.toString());
                     Server.getServer().updateVideo(mVideo);
                     mVideo = VideoManager.retrieveVideo(mVideo.getId());
                 } catch (Exception ex) {
                     log.error("Video update failed", ex);
                 }
-                
+
                 updateText();
 
                 return true;
@@ -682,19 +620,31 @@ public class ToGo extends BApplication {
         private Video mVideo;
 
         private BText statusText;
-        
+
         int location = 40;
+
         private BView icon;
+
         private BText titleText;
+
         private BText descriptionText;
+
         private BText dateText;
+
         private BText durationText;
+
         private BText ratingText;
+
         private BText videoText;
+
         private BText genreText;
+
         private BText sizeText;
+
         private BView statusBarBg;
+
         private BView statusBar;
+
         //private BText speedText;
         private Thread mUpdateThread;
     }

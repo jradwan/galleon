@@ -131,7 +131,7 @@ public class ThumbnailManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            list = session.find("from org.lnicholls.galleon.database.Thumbnail");
+            list = session.createQuery("from org.lnicholls.galleon.database.Thumbnail").list();
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -198,14 +198,14 @@ public class ThumbnailManager {
         }
     }
 
-    public static List findByKey(String path) throws HibernateException {
+    public static List findByKey(String key) throws HibernateException {
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?", path,
-                    Hibernate.STRING);
+            List list = session.createQuery("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?")
+                .setString(0, key).list();
 
             tx.commit();
 
@@ -225,25 +225,16 @@ public class ThumbnailManager {
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?", key,
-                    Hibernate.STRING);
+            List list = session.createQuery("from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?")
+                    .setString(0, key).list();
             
             BufferedImage image = null;
             if (list.size()>0)
             {
                 Thumbnail thumbnail = (Thumbnail)list.get(0);
                 Blob blob = thumbnail.getImage();
-                try {
-                    InputStream is = blob.getBinaryStream();
-                    JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(is);
-                    image = decoder.decodeAsBufferedImage();
-                } catch (ImageFormatException ex) {
-                    Tools.logException(ThumbnailManager.class, ex);
-                } catch (SQLException ex) {
-                    Tools.logException(ThumbnailManager.class, ex);
-                } catch (IOException ex) {
-                    Tools.logException(ThumbnailManager.class, ex);
-                }
+                
+                image = createImage(blob);
             }            
 
             tx.commit();
@@ -256,6 +247,48 @@ public class ThumbnailManager {
         } finally {
             HibernateUtil.closeSession();
         }        
+    }
+    
+    public static BufferedImage findImageById(Integer id) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            Thumbnail thumbnail = (Thumbnail) session.load(Thumbnail.class, id);
+            
+            BufferedImage image = null;
+            Blob blob = thumbnail.getImage();
+            
+            image = createImage(blob);
+
+            tx.commit();
+
+            return image;
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }        
     }    
+    
+    private static BufferedImage createImage(Blob blob)
+    {
+        BufferedImage image = null;
+        try {
+            InputStream is = blob.getBinaryStream();
+            JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(is);
+            image = decoder.decodeAsBufferedImage();
+        } catch (ImageFormatException ex) {
+            Tools.logException(ThumbnailManager.class, ex);
+        } catch (SQLException ex) {
+            Tools.logException(ThumbnailManager.class, ex);
+        } catch (IOException ex) {
+            Tools.logException(ThumbnailManager.class, ex);
+        }        
+        return image; 
+    }
     
 }

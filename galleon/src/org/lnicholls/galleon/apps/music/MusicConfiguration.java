@@ -58,6 +58,22 @@ public class MusicConfiguration implements AppConfiguration {
         mModified = true;
         mPaths.add(nameValue);
     }
+    
+    public void setUseFile(boolean value) {
+        mUseFile = value;
+    }
+
+    public boolean isUseFile() {
+        return mUseFile;
+    }    
+    
+    public void setUseAmazon(boolean value) {
+        mUseAmazon = value;
+    }
+
+    public boolean isUseAmazon() {
+        return mUseAmazon;
+    }    
 
     public void setModified(boolean value) {
         mModified = value;
@@ -74,6 +90,10 @@ public class MusicConfiguration implements AppConfiguration {
     private String mName;
     
     private String mSkin;
+    
+    private boolean mUseFile = true;
+    
+    private boolean mUseAmazon = true;
 
     private boolean mModified;
 

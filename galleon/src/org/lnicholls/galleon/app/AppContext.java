@@ -26,6 +26,7 @@ public class AppContext implements Serializable {
     private static Logger log = Logger.getLogger(AppContext.class.getName());
 
     public AppContext(AppDescriptor appDescriptor) {
+        mId = ++mCounter;
         mAppDescriptor = appDescriptor;
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -53,6 +54,11 @@ public class AppContext implements Serializable {
     public AppDescriptor getDescriptor() {
         return mAppDescriptor;
     }
+    
+    public int getId()
+    {
+        return mId;
+    }
 
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -61,4 +67,8 @@ public class AppContext implements Serializable {
     private AppConfiguration mAppConfiguration;
 
     private AppDescriptor mAppDescriptor;
+    
+    private int mId;
+    
+    private static int mCounter;
 }

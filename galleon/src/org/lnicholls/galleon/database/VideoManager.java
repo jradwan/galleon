@@ -120,7 +120,7 @@ public class VideoManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            list = session.find("from org.lnicholls.galleon.database.Video");
+            list = session.createQuery("from org.lnicholls.galleon.database.Video").list();
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -193,8 +193,8 @@ public class VideoManager {
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.Video as video where video.path=?", path,
-                    Hibernate.STRING);
+            List list = session.createQuery("from org.lnicholls.galleon.database.Video as video where video.path=?")
+                    .setString(0, path).list();
 
             tx.commit();
 

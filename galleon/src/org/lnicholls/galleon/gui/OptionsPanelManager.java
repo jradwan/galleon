@@ -172,7 +172,7 @@ public final class OptionsPanelManager extends InternalFrame implements ActionLi
                     Tools.logException(OptionsPanelManager.class, ex, "Could not delete app : "
                             + mAppNode.getAppContext().getConfiguration());
                 }
-                if (deleted) {
+                if (deleted && false) {
                     mAppNode = null;
                     mScrollPane.setViewportView((Component) new EmptyOptionsPanel(null));
                     setFrameIcon(null);

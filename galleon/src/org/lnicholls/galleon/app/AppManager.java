@@ -221,7 +221,7 @@ public final class AppManager {
         Iterator iterator = mApps.iterator();
         while (iterator.hasNext()) {
             AppFactory app = (AppFactory) iterator.next();
-            if (appContext.getDescriptor().getClassName().equals(app.getAppContext().getDescriptor().getClassName()))
+            if (appContext.getId()==app.getAppContext().getId())
             {
                 mApps.remove(app);
                 return;
@@ -234,7 +234,7 @@ public final class AppManager {
         Iterator iterator = mApps.iterator();
         while (iterator.hasNext()) {
             AppFactory app = (AppFactory) iterator.next();
-            if (appContext.getDescriptor().getClassName().equals(app.getAppContext().getDescriptor().getClassName()))
+            if (appContext.getId()==app.getAppContext().getId())
             {
                 app.setAppContext(appContext);
                 return;

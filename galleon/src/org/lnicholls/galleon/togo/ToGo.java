@@ -95,7 +95,7 @@ public class ToGo {
                         get = new GetMethod(QUERY_CONTAINER + RECURSE + ITEM_COUNT + MAX + ANCHOR_OFFSET + counter);
                         client.executeMethod(get);
 
-                        //System.out.println(get.getResponseBodyAsString());
+                        //log.debug(get.getResponseBodyAsString());
 
                         SAXReader saxReader = new SAXReader();
                         Document document = saxReader.read(get.getResponseBodyAsStream());
@@ -590,7 +590,7 @@ public class ToGo {
             while (iterator.hasNext()) {
                 Video video = (Video) iterator.next();
                 if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED
-                        && video.getStatus() != Video.STATUS_USER_CANCELLED) {
+                        && video.getStatus() != Video.STATUS_USER_CANCELLED && video.getStatus() != Video.STATUS_DELETED) {
                     boolean prohibited = false;
 
                     // Find a rule that restricts downloads

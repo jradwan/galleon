@@ -208,7 +208,6 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                 mUpdating = true;
                 try {
                     //TODO Handle remove
-                    /*
                     ArrayList downloaded = new ArrayList();///
                     ShowTableData model = (ShowTableData) mTable.getModel();
                     int[] selectedRows = mTable.getSelectedRows();
@@ -222,13 +221,15 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                                     if (file.exists())
                                         file.delete();
                                     downloaded.remove(shown);
+                                    // TODO When should these records be removed from database?
+                                    video.setStatus(Video.STATUS_DELETED);
+                                    Galleon.updateVideo(video);
                                     break;
                                 }
                             }
                             model.removeRow(selectedRows[i]);
                         }
                     }
-                    */
                 } catch (Exception ex) {
                     Tools.logException(RulesPanel.class, ex);
                 }

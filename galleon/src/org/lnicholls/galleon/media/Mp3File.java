@@ -19,19 +19,23 @@ package org.lnicholls.galleon.media;
 import helliker.id3.MP3File;
 
 import java.awt.image.BufferedImage;
-
-import java.io.*;
+import java.awt.Image;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.imageio.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
@@ -40,18 +44,18 @@ import net.sf.hibernate.lob.BlobImpl;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
-import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.database.Thumbnail;
 import org.lnicholls.galleon.database.ThumbnailManager;
+import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.util.Amazon;
 import org.lnicholls.galleon.util.Tools;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 public final class Mp3File {
     private static final Logger log = Logger.getLogger(Mp3File.class.getName());
@@ -246,7 +250,7 @@ public final class Mp3File {
 
     private static final String DEFAULT_TITLE = "unknown";
 
-    private static final String DEFAULT_ARTIST = "unknown";
+    public static final String DEFAULT_ARTIST = "unknown";
 
     public static final String DEFAULT_ALBUM = "unknown";
 
@@ -317,17 +321,19 @@ public final class Mp3File {
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
         }
-        
+
         try {
             secondPass(file, audio);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
-        }                try {
+        }
+
+        try {
             thirdPass(file, audio);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
             ex.printStackTrace();
-        }        
+        }
 
         if (audio.getTitle().equals(DEFAULT_TITLE)) {
             String value = Tools.trimSuffix(file.getName());
@@ -337,46 +343,9 @@ public final class Mp3File {
                 audio.setArtist(matcher.group(1));
                 audio.setTitle(matcher.group(2));
             } else
-                audio.setTitle(value);            
-            
+                audio.setTitle(value);
         }
-        
-        if (audio.getCover()==null)
-        {
-            // Ways to get album cover:
-            // 1. Embedded APIC tag.
-            // 2. File system image file.
-            // 3  Amazon image lookup.
-            
-            File directory = new File(file.getParent());
-            File[] files = directory.listFiles();
-            for (int i=0;i<files.length;i++){
-                if (files[i].getName().toLowerCase().equals("folder.jpg"))
-                {
-                    try
-                    {
-                        createCover(new FileInputStream(files[i]), audio, "image/jpg");
-                    } catch (Exception ex) {
-                        Tools.logException(Mp3File.class, ex, "Cannot create cover from folder.jpg");
-                    }
-                    break;
-                }
-            }
-            
-            /*
-            if (audio.getCover()==null)
-            {
-                BufferedImage image = Amazon.getAlbumImage(getKey(audio),audio.getAlbum(), audio.getArtist());
-                try
-                {
-                    createCover(image, audio, "image/jpg");
-                } catch (Exception ex) {
-                    Tools.logException(Mp3File.class, ex, "Cannot create cover from folder.jpg");
-                }
-            }
-            */
-        }
-        
+
         return audio;
     }
 
@@ -410,8 +379,7 @@ public final class Mp3File {
             if (mp3File.getPlayingTime() != DEFAULT_DURATION)
                 audio.setDuration(mp3File.getPlayingTime());
             if (mp3File.getGenre() != null && mp3File.getGenre().trim().length() != 0
-                    && !mp3File.getGenre().equals(DEFAULT_GENRE))
-            {
+                    && !mp3File.getGenre().equals(DEFAULT_GENRE)) {
                 String value = mp3File.getGenre();
                 Pattern pattern = Pattern.compile("\\(([0-9]*)\\).*");
                 Matcher matcher = pattern.matcher(value);
@@ -423,7 +391,7 @@ public final class Mp3File {
                     } catch (NumberFormatException e1) {
                     }
                 } else if (!value.equals(DEFAULT_GENRE))
-                    audio.setGenre(value);                
+                    audio.setGenre(value);
             }
             if (mp3File.getTrack() != DEFAULT_TRACK)
                 audio.setTrack(mp3File.getTrack());
@@ -440,31 +408,27 @@ public final class Mp3File {
                     audio.setVbr(vbr);
             } catch (Exception e1) {
             }
-            
-            pgbennett.id3.ID3v2Tag tag = mp3File.getID3v2Tag();  //jampal
-            if (tag!=null)
-            {
+
+            pgbennett.id3.ID3v2Tag tag = mp3File.getID3v2Tag(); //jampal
+            if (tag != null) {
                 pgbennett.id3.ID3v2Frames frames = tag.getFrames();
                 String id = pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE;
-                pgbennett.id3.ID3v2Frame frame = (pgbennett.id3.ID3v2Frame)frames.get(pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE);
-                if (frame==null)
-                {
+                pgbennett.id3.ID3v2Frame frame = (pgbennett.id3.ID3v2Frame) frames
+                        .get(pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE);
+                if (frame == null) {
                     Iterator iterator = frames.keySet().iterator();
-                    while (iterator.hasNext())
-                    {
-                        String key = (String)iterator.next();
-                        if (key.startsWith(pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE))
-                        {
+                    while (iterator.hasNext()) {
+                        String key = (String) iterator.next();
+                        if (key.startsWith(pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE)) {
                             id = key;
                             break;
                         }
                     }
-                    frame = (pgbennett.id3.ID3v2Frame)frames.get(id);
+                    frame = (pgbennett.id3.ID3v2Frame) frames.get(id);
                 }
-                if (frame!=null)
-                {
+                if (frame != null) {
                     pgbennett.id3.ID3v2Picture pic = frame.getPicture();
-                    
+
                     ByteArrayInputStream input = new ByteArrayInputStream(pic.pictureData);
                     createCover(input, audio, pic.mimeType);
                 }
@@ -575,8 +539,8 @@ public final class Mp3File {
             }
         }
     }
-    
-   // Utility class used to extract meta data within a specified time limit.
+
+    // Utility class used to extract meta data within a specified time limit.
     private static final class TimedThread implements Callable {
         private String path;
 
@@ -587,7 +551,9 @@ public final class Mp3File {
         public synchronized Object call() throws Exception {
             return new MP3File(path, MP3File.EXISTING_TAGS_ONLY);
         }
-    }            private static final void thirdPass(File file, Audio audio) throws Exception {
+    }
+
+    private static final void thirdPass(File file, Audio audio) throws Exception {
         // MP3 library sometimes takes too long to read tags...
         TimedCallable timedCallable = new TimedCallable(new TimedThread(file.getAbsolutePath()), 1000 * 10);
         MP3File mp3File = (MP3File) timedCallable.call();
@@ -727,8 +693,8 @@ public final class Mp3File {
         }
 
         mp3File = null;
-    }    
-    
+    }
+
     private static final void defaultProperties(Audio audio) {
         audio.setTitle(DEFAULT_TITLE);
         audio.setArtist(DEFAULT_ARTIST);
@@ -842,69 +808,147 @@ public final class Mp3File {
         }
         return value;
     }
-    
-    private static void createCover(InputStream input, Audio audio, String mimeType)
-    {
-        try
-        {
+
+    private static void createCover(InputStream input, Audio audio, String mimeType) {
+        try {
             BufferedImage image = ImageIO.read(input);
             createCover(image, audio, mimeType);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, "Cannot create cover");
         }
     }
-    
-    private static void createCover(BufferedImage image, Audio audio, String mimeType)
-    {
-        try
-        {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
-            encoder.encode(image);
-            byteArrayOutputStream.close();
-        
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
-                    .toByteArray());
-        
-            BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-            
-            Thumbnail thumbnail = null;
+
+    private static void createCover(BufferedImage image, Audio audio, String mimeType) {
+        if (image != null) {
             try {
-                List list = ThumbnailManager.findByKey(getKey(audio));
-                if (list!=null && list.size()>0)
-                    thumbnail = (Thumbnail)list.get(0);
-            } catch (HibernateException ex) {
-                log.error("Cover create failed", ex);          
-            }
-            
-            try {
-                if (thumbnail==null)
-                {
-                    thumbnail = new Thumbnail(audio.getTitle(),mimeType,getKey(audio));
-                    thumbnail.setImage(blob);
-                    thumbnail.setDateModified(new Date());
-                    ThumbnailManager.createThumbnail(thumbnail);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                encoder.encode(image);
+                byteArrayOutputStream.close();
+
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
+                        .toByteArray());
+
+                BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+
+                Thumbnail thumbnail = null;
+                try {
+                    List list = ThumbnailManager.findByKey(getKey(audio));
+                    if (list != null && list.size() > 0)
+                        thumbnail = (Thumbnail) list.get(0);
+                } catch (HibernateException ex) {
+                    log.error("Cover create failed", ex);
                 }
-                else
-                {
-                    thumbnail.setImage(blob);
-                    thumbnail.setDateModified(new Date());
-                    ThumbnailManager.updateThumbnail(thumbnail);
+
+                try {
+                    if (thumbnail == null) {
+                        thumbnail = new Thumbnail(audio.getTitle(), mimeType, getKey(audio));
+                        thumbnail.setImage(blob);
+                        thumbnail.setDateModified(new Date());
+                        ThumbnailManager.createThumbnail(thumbnail);
+                    } else {
+                        thumbnail.setImage(blob);
+                        thumbnail.setDateModified(new Date());
+                        ThumbnailManager.updateThumbnail(thumbnail);
+                    }
+                } catch (HibernateException ex) {
+                    log.error("Cover create failed", ex);
                 }
-            } catch (HibernateException ex) {
-                log.error("Cover create failed", ex);          
+                if (thumbnail != null) {
+                    audio.setCover(thumbnail.getId());
+                }
+
+                image.flush();
+                image = null;
+            } catch (Exception ex) {
+                Tools.logException(Mp3File.class, ex, "Cannot create cover");
             }
-            audio.setCover(thumbnail.getId());
-    
-            image.flush();
-            image = null;
-        } catch (Exception ex) {
-            Tools.logException(Mp3File.class, ex, "Cannot create cover");
         }
     }
+
+    public static String getKey(Audio audio) {
+        return audio.getAlbum() + "," + audio.getArtist();
+    }
+
+    public static Image getCover(Audio audio) {
+        return getCover(audio, true, true);
+    }
+
+    public static Image getCover(Audio audio, boolean useAmazon, boolean useFile) {
+        // Ways to get album cover:
+        // 1. Embedded APIC tag.
+        // 2. Amazon image lookup.
+        // 3. File system image file.
+        
+        if (audio.getCover()!=null)
+        {
+            try {
+                java.awt.Image image = ThumbnailManager.findImageById(audio.getCover());
+                if (image != null)
+                    return image;
+            } catch (Exception ex) {
+                Tools.logException(Mp3File.class, ex, "Cannot create cover from id: " + audio.getPath());
+            }
+        }
+
+        try {
+            java.awt.Image image = ThumbnailManager.findImageByKey(Mp3File.getKey(audio));
+            if (image != null)
+                return image;
+        } catch (Exception ex) {
+            Tools.logException(Mp3File.class, ex, "Cannot create cover from key: " + audio.getPath());
+        }
+
+        if (useAmazon) {
+            if (!audio.getAlbum().equals(DEFAULT_ALBUM) && !audio.getArtist().equals(DEFAULT_ARTIST)) {
+                BufferedImage image = Amazon.getAlbumImage(getKey(audio), audio.getArtist(), audio.getAlbum());
+                if (image != null)
+                {
+                    try {
+                        createCover(image, audio, "image/jpg");
     
-    public static String getKey(Audio audio)
-    {
-        return audio.getAlbum()+","+audio.getArtist();
+                        try {
+                            AudioManager.updateAudio(audio);
+                        } catch (HibernateException ex) {
+                            log.error("Cover create failed", ex);
+                        }
+    
+                    } catch (Exception ex) {
+                        Tools.logException(Mp3File.class, ex, "Cannot create cover from Amazon.com: " + audio.getPath());
+                    }
+                    return image;
+                }
+            }
+        }
+
+        if (useFile) {
+            File file = new File(audio.getPath());
+            File directory = new File(file.getParent());
+            File[] files = directory.listFiles(new FileFilter() {
+                public boolean accept(File pathname) {
+                    return pathname.getName().toLowerCase().equals("folder.jpg");
+                }
+            });
+            for (int i = 0; i < files.length; i++) {
+                try {
+                    BufferedImage image = ImageIO.read(new FileInputStream(files[i]));
+                    if (image != null)
+                    {
+                        createCover(new FileInputStream(files[i]), audio, "image/jpg");
+    
+                        try {
+                            AudioManager.updateAudio(audio);
+                        } catch (HibernateException ex) {
+                            log.error("Cover create failed", ex);
+                        }
+                        return image;
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(Mp3File.class, ex, "Cannot create cover from: " + files[i].getAbsolutePath());
+                }
+                break;
+            }
+        }
+        return null;
     }
 }

@@ -3,6 +3,16 @@ Galleon
 
 I recommend deleting the previous beta before installing this beta.
 
+Version 0.0.0 beta 4:
+---------------------
+Support multiple instances of the same app.
+Fixed bug that incorrectly uniquely identified ToGo recordings.
+Right button to exit apps.
+Made album art configurable.
+Music ratings.
+Scrolling widget for weather alerts.
+
+
 Version 0.0.0 beta 3:
 ---------------------
 ToGo bug fixes.

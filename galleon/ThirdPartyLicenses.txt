@@ -64,7 +64,7 @@ by the terms of the license below:
 
 -----------------------------------------------------------------------
 B) The following software is included in this product:
-id3, PJA Toolkit, Java Imaging Utilities; Use of any of this 
+id3, PJA Toolkit, Java Imaging Utilities, Free UCS scalable fonts; Use of any of this 
 software is governed by the terms of the license below:
 
 		    GNU GENERAL PUBLIC LICENSE

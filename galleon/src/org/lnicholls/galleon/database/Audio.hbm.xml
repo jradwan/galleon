@@ -25,7 +25,7 @@ See the file "COPYING" for more details.
     </meta>
     <meta attribute="implements">org.lnicholls.galleon.media.Media</meta>
     
-		<!--cache usage="read-write" /-->    
+    <cache usage="read-write"/>
     
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>
@@ -111,5 +111,11 @@ See the file "COPYING" for more details.
     </many-to-one-->
 
   </class>
+  
+	<sql-query name="testing">
+	  <![CDATA[
+		  select distinct audio.artist from galleon.Audio audio
+  	]]>	
+	</sql-query>  
 
 </hibernate-mapping>

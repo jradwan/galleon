@@ -231,7 +231,7 @@ public class MainFrame extends JFrame {
             AppConfiguration[] values = new AppConfiguration[1];
             values[0] = app.getConfiguration(); 
 
-            appConfigurationPanel = (AppConfigurationPanel)constructor.newInstance(values);
+            appConfigurationPanel = (AppConfigurationPanel)constructor.newInstance((Object[])values);
         } catch (Exception ex) {
             ex.printStackTrace();
             Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel " + appDescriptor.getIcon()

@@ -25,7 +25,7 @@ See the file "COPYING" for more details.
     </meta>
     <meta attribute="implements">org.lnicholls.galleon.media.Media</meta>    
     
-		<!--cache usage="read-write" /-->    
+    <cache usage="read-write"/>
     
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>

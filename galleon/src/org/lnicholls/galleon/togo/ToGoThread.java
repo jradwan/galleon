@@ -62,7 +62,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                     while (iterator.hasNext()) {
                         Video next = (Video) iterator.next();
     
-                        if (next.getStatus() != Video.STATUS_DOWNLOADED) {
+                        if (next.getStatus() != Video.STATUS_DOWNLOADED && next.getStatus() != Video.STATUS_DELETED) {
                             boolean found = false;
                             Iterator downloadedIterator = downloaded.iterator();
                             while (downloadedIterator.hasNext()) {
@@ -98,7 +98,8 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                     if (video.getStatus() == Video.STATUS_DOWNLOADED
                                             || video.getStatus() == Video.STATUS_DOWNLOADING
                                             || video.getStatus() == Video.STATUS_USER_SELECTED
-                                            || video.getStatus() == Video.STATUS_USER_CANCELLED)
+                                            || video.getStatus() == Video.STATUS_USER_CANCELLED
+                                            || video.getStatus() == Video.STATUS_DELETED)
                                         next.setStatus(video.getStatus());
                                     if (video.getStatus() == Video.STATUS_DOWNLOADED)
                                     {

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -74,9 +75,15 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
             }
         }
         defaultCombo(mSkinsField, musicConfiguration.getSkin());
+        mUseAmazonField = new JCheckBox("Use Amazon");
+        mUseAmazonField.setToolTipText("Check to specify that Amazon.com should be used for album art");
+        mUseAmazonField.setSelected(musicConfiguration.isUseAmazon());
+        mUseFileField = new JCheckBox("Use Folder.jpg");
+        mUseFileField.setToolTipText("Check to specify that the Folder.jpg file should be used for album art");
+        mUseFileField.setSelected(musicConfiguration.isUseFile());
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                "pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+                "pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
         //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -89,7 +96,12 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         builder.add(mTitleField, cc.xyw(3, 3, 1));
         builder.addLabel("Winamp Classic Skin", cc.xy(1, 5));
         builder.add(mSkinsField, cc.xyw(3, 5, 1));
-        builder.addSeparator("Directories", cc.xyw(1, 7, 4));
+        builder.addSeparator("Album Art", cc.xyw(1, 7, 4));
+        builder.addLabel("", cc.xy(1, 9));
+        builder.add(mUseAmazonField, cc.xy(3, 9));
+        builder.addLabel("", cc.xy(1, 11));
+        builder.add(mUseFileField, cc.xy(3, 11));
+        builder.addSeparator("Directories", cc.xyw(1, 13, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -107,7 +119,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         columnNames.add(1, "Path");
         //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
         // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 9, 4));
+        builder.add(mFileOptionsTable, cc.xyw(1, 15, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -135,6 +147,10 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
     private JTextComponent mTitleField;
 
     private JComboBox mSkinsField;
+    
+    private JCheckBox mUseFileField; 
+    
+    private JCheckBox mUseAmazonField;
 
     private FileOptionsTable mFileOptionsTable;
 

@@ -132,7 +132,7 @@
         <include name="**/*.hbm.xml"/>
       </fileset>
     </hbm2java>
-  </target>
+  </target> 
 
     <target name="compile" depends="clean, init, codegen">
 
@@ -155,7 +155,7 @@
   <target name="schema" depends="compile" description="Generate DB schema from the O/R mapping files">
 
     <!-- Teach Ant how to use Hibernate's schema generation tool -->
-    <taskdef name="schemaexport" classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+    <taskdef name="schemaexport" classname="org.hibernate.tool.hbm2ddl.SchemaExportTask"
              classpathref="class.path"/>
 <!--      
       <schemaexport
@@ -183,7 +183,7 @@
   
 <target name="schemaupdate" depends="compile">
     <taskdef name="schemaupdate"
-        classname="net.sf.hibernate.tool.hbm2ddl.SchemaUpdateTask"
+        classname="org.hibernate.tool.hbm2ddl.SchemaUpdateTask"
         classpathref="class.path"/>
     
     <schemaupdate
@@ -197,6 +197,8 @@
 </target>      
 
     <target name="build.library" depends="compile">
+    
+        <copy file="./media/fonts/FreeSans.ttf" tofile="${build}/org/lnicholls/galleon/widget/FreeSans.ttf" />    
 
         <echo>Creating Galleon library</echo>
         <jar jarfile="${build}/lib/galleon.jar" compress="yes"
@@ -219,7 +221,7 @@
             <fileset dir="./src" includes="**/*.hbm.xml" />
         </jar>
         
-        <copy file="./media/images/cinemabackground.jpg" tofile="${build}/org/lnicholls/galleon/apps/togo/cinemabackground.jpg" />
+        <copy file="./media/images/cinemabackground.jpg" tofile="${build}/org/lnicholls/galleon/apps/togo/background.jpg" />
         <copy file="./media/images/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
         <jar jarfile="${build}/apps/togo.jar" compress="yes">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**" />
@@ -239,6 +241,7 @@
         <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
         <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/alerticon.png" />        
         <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/Dekadens.ttf" />                
+        <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/weather/star.png" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>

@@ -120,7 +120,7 @@ public class PersistentValueManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            list = session.find("from org.lnicholls.galleon.database.PersistentValue");
+            list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue").list();
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -193,9 +193,8 @@ public class PersistentValueManager {
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?", name,
-                    Hibernate.STRING);
-
+            List list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
+                .setString(0, name).list();
             tx.commit();
 
             if (list.size()>0)
@@ -219,8 +218,8 @@ public class PersistentValueManager {
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?", name,
-                    Hibernate.STRING);
+            List list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
+                        .setString(0, name).list();
 
             tx.commit();
 

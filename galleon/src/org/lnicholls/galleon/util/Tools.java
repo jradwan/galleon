@@ -23,6 +23,7 @@ package org.lnicholls.galleon.util;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -36,6 +37,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.*;
+import java.text.*;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
@@ -83,6 +85,8 @@ public class Tools {
     private static Logger log = Logger.getLogger(Tools.class.getName());
 
     private static Runtime runtime = Runtime.getRuntime();
+    
+    private static final BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 
     // TODO Is the good enough??
     private static Cipher EncryptionCipher = null;
@@ -397,8 +401,8 @@ public class Tools {
 
     public static String getLocalIpAddress() {
         try {
-            for (Enumeration enum = NetworkInterface.getNetworkInterfaces(); enum.hasMoreElements();) {
-                NetworkInterface ni = (NetworkInterface) enum.nextElement();
+            for (Enumeration interfaceEnum = NetworkInterface.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
+                NetworkInterface ni = (NetworkInterface) interfaceEnum.nextElement();
                 Enumeration inetAddresses = ni.getInetAddresses();
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
@@ -476,59 +480,46 @@ public class Tools {
         return buffer.toString();
     }
 
-    /*
-     * From com.tivo.hme.sim.SimResource.java Copyright (c) 2003-2004 TiVo Inc.
-     */
-    public static String layout(int width, FontMetrics metrics, String text) {
-        char chars[] = text.toCharArray();
-        int start = 0;
-        int eow = -1;
-
-        int i;
-        StringBuffer result = new StringBuffer();
-        for (i = 0; i < chars.length;) {
-            char ch = chars[i];
-            boolean isNewline = false;
-            if (Character.isWhitespace(ch)) {
-                if (ch == '\r') {
-                    isNewline = true;
-                    if (i + 1 < chars.length && chars[i + 1] == '\n') {
-                        ++i;
-                    }
-                } else if (ch == '\n') {
-                    isNewline = true;
+    public static String[] layout(int width, FontMetrics metrics, String text) {
+        ArrayList lines = new ArrayList();
+        
+        if (text!=null)
+        {
+            String line = "";
+            BreakIterator boundary = BreakIterator.getWordInstance();
+            boundary.setText(text);
+            int start = boundary.first();
+            for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
+                String word = text.substring(start,end);
+                if (word.equals("\n"))
+                {
+                    lines.add(line.trim());
+                    line = "";
                 }
-                eow = i;
+                else
+                if (metrics.stringWidth(line+word)>width)
+                {
+                    lines.add(line.trim());
+                    line = word;
+                }
+                else
+                    line = line + word;
             }
-
-            int txtWidth = metrics.charsWidth(chars, start, (i - start) + 1);
-            if (txtWidth > width || isNewline) {
-                if (i == start && !isNewline) {
-                    return "";
-                }
-
-                int breakat;
-                int newline;
-                if (eow >= start) {
-                    breakat = eow;
-                    newline = breakat + 1;
-                } else {
-                    breakat = i;
-                    newline = i;
-                }
-
-                result.append(new String(chars, start, breakat - start).trim());
-                result.append('\n');
-                i = start = newline;
-            } else {
-                i++;
-            }
+            if (line.trim().length()>0)
+                lines.add(line.trim());
         }
-
-        if (i > start) {
-            result.append(new String(chars, start, i - start).trim());
+        
+        return (String[]) lines.toArray(new String[0]);
+    }
+    
+    public static FontMetrics getFontMetrics(Font font) {
+        Graphics2D graphics2D = (Graphics2D) buffer.getGraphics();
+        try {
+            FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
+            return fontMetrics;
+        } finally {
+            graphics2D.dispose();
         }
-        return new String(result);
     }
 
     public static synchronized Image getImage(Image image) {
@@ -615,6 +606,73 @@ public class Tools {
     public static void cacheImage(URL url, int width, int height, String key) {
         if (url != null) {
             try {
+                BufferedImage image = getImage(url, width, height);
+
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                encoder.encode(image);
+                byteArrayOutputStream.close();
+
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
+                        .toByteArray());
+
+                BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+                
+                if (key==null)
+                    key = url.toExternalForm();
+                Thumbnail thumbnail = null;
+                try {
+                    List list = ThumbnailManager.findByKey(key);
+                    if (list!=null && list.size()>0)
+                        thumbnail = (Thumbnail)list.get(0);
+                } catch (HibernateException ex) {
+                    log.error("Thumbnail create failed", ex);          
+                }
+                
+                try {
+                    if (thumbnail==null)
+                    {
+                        thumbnail = new Thumbnail("Cached", "jpg", key);
+                        thumbnail.setImage(blob);
+                        thumbnail.setDateModified(new Date());
+                        ThumbnailManager.createThumbnail(thumbnail);
+                    }
+                    else
+                    {
+                        thumbnail.setImage(blob);
+                        thumbnail.setDateModified(new Date());
+                        ThumbnailManager.updateThumbnail(thumbnail);
+                    }
+                } catch (HibernateException ex) {
+                    log.error("Thumbnail create failed", ex);          
+                }                        
+
+                image.flush();
+                image = null;
+            } catch (Exception ex) {
+                Tools.logException(Tools.class, ex, url.toExternalForm());
+            }
+        }
+    }
+    
+    public static Image retrieveCachedImage(URL url) {
+        return retrieveCachedImage(url.toExternalForm());
+    }
+
+    public static BufferedImage retrieveCachedImage(String key) {
+        try {
+            return ThumbnailManager.findImageByKey(key);            
+        } catch (HibernateException ex) {
+            log.error("Image retrieve failed", ex);          
+        } catch (Exception ex) {
+            Tools.logException(Tools.class, ex, key);
+        }
+        return null;
+    }
+    
+    public static BufferedImage getImage(URL url, int width, int height) {
+        if (url != null) {
+            try {
                 Image internetImage = null;
                 if (log.isDebugEnabled())
                     log.debug("Downloading internet image=" + url.toExternalForm());
@@ -637,84 +695,26 @@ public class Tools {
                 if (internetImage == null) {
                     log.error("Invalid internet image: " + url.getPath());
                 } else {
-                    try {
-                        if (width==-1)
-                            internetImage.getWidth(null);
-                        if (height==-1)
-                            internetImage.getHeight(null);
-                        
-                        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                        Graphics2D graphics2D = image.createGraphics();
-                        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                        graphics2D.drawImage(internetImage, 0, 0, width, height, null);
-                        graphics2D.dispose();
-                        graphics2D = null;
-                        internetImage.flush();
-                        internetImage = null;
-
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
-                        encoder.encode(image);
-                        byteArrayOutputStream.close();
-
-                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
-                                .toByteArray());
-
-                        BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-                        
-                        if (key==null)
-                            key = url.toExternalForm();
-                        Thumbnail thumbnail = null;
-                        try {
-                            List list = ThumbnailManager.findByKey(key);
-                            if (list!=null && list.size()>0)
-                                thumbnail = (Thumbnail)list.get(0);
-                        } catch (HibernateException ex) {
-                            log.error("Thumbnail create failed", ex);          
-                        }
-                        
-                        try {
-                            if (thumbnail==null)
-                            {
-                                thumbnail = new Thumbnail("Cached", "jpg", key);
-                                thumbnail.setImage(blob);
-                                thumbnail.setDateModified(new Date());
-                                ThumbnailManager.createThumbnail(thumbnail);
-                            }
-                            else
-                            {
-                                thumbnail.setImage(blob);
-                                thumbnail.setDateModified(new Date());
-                                ThumbnailManager.updateThumbnail(thumbnail);
-                            }
-                        } catch (HibernateException ex) {
-                            log.error("Thumbnail create failed", ex);          
-                        }                        
-
-                        image.flush();
-                        image = null;
-                    } catch (IOException ex) {
-                        Tools.logException(Tools.class, ex, url.toExternalForm());
-                    }
+                    if (width==-1)
+                        internetImage.getWidth(null);
+                    if (height==-1)
+                        internetImage.getHeight(null);
+                    
+                    BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D graphics2D = image.createGraphics();
+                    graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    graphics2D.drawImage(internetImage, 0, 0, width, height, null);
+                    graphics2D.dispose();
+                    graphics2D = null;
+                    internetImage.flush();
+                    internetImage = null;
+                    
+                    return image;
                 }
             } catch (Exception ex) {
                 Tools.logException(Tools.class, ex, url.toExternalForm());
             }
-        }
-    }
-    
-    public static Image retrieveCachedImage(URL url) {
-        return retrieveCachedImage(url.toExternalForm());
-    }
-
-    public static BufferedImage retrieveCachedImage(String key) {
-        try {
-            return ThumbnailManager.findImageByKey(key);            
-        } catch (HibernateException ex) {
-            log.error("Image retrieve failed", ex);          
-        } catch (Exception ex) {
-            Tools.logException(Tools.class, ex, key);
         }
         return null;
     }

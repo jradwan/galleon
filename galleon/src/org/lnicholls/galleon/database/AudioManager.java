@@ -120,7 +120,7 @@ public class AudioManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            list = session.find("from org.lnicholls.galleon.database.Audio");
+            list = session.createQuery("from org.lnicholls.galleon.database.Audio").list();
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -193,8 +193,8 @@ public class AudioManager {
         try {
             tx = session.beginTransaction();
 
-            List list = session.find("from org.lnicholls.galleon.database.Audio as Audio where Audio.path=?", path,
-                    Hibernate.STRING);
+            List list = session.createQuery("from org.lnicholls.galleon.database.Audio as Audio where Audio.path=?")
+                .setString(0, path).list();
 
             tx.commit();
 
@@ -207,85 +207,4 @@ public class AudioManager {
             HibernateUtil.closeSession();
         }
     }
-
-    /*
-     * public List listAllBlogNamesAndItemCounts(int max) throws HibernateException {
-     * 
-     * Session session = HibernateUtil.openSession(); Transaction tx = null; List result = null; try { tx =
-     * session.beginTransaction(); Query q = session.createQuery("select blog.id, blog.name, count(blogItem) " + "from
-     * Blog as blog " + "left outer join blog.items as blogItem " + "group by blog.name, blog.id " + "order by
-     * max(blogItem.datetime)"); q.setMaxResults(max); result = q.list(); tx.commit(); } catch (HibernateException he) {
-     * if (tx != null) tx.rollback(); throw he; } finally { HibernateUtil.closeSession(); } return result; }
-     * 
-     * public Blog getBlogAndAllItems(Long blogid) throws HibernateException {
-     * 
-     * Session session = HibernateUtil.openSession(); Transaction tx = null; Blog blog = null; try { tx =
-     * session.beginTransaction(); Query q = session.createQuery("from Blog as blog " + "left outer join fetch
-     * blog.items " + "where blog.id = :blogid"); q.setParameter("blogid", blogid); blog = (Blog) q.list().get(0);
-     * tx.commit(); } catch (HibernateException he) { if (tx != null) tx.rollback(); throw he; } finally {
-     * HibernateUtil.closeSession(); } return blog; }
-     * 
-     * public List listBlogsAndRecentItems() throws HibernateException {
-     * 
-     * Session session = HibernateUtil.openSession(); Transaction tx = null; List result = null; try { tx =
-     * session.beginTransaction(); Query q = session.createQuery("from Blog as blog " + "inner join blog.items as
-     * blogItem " + "where blogItem.datetime > :minDate");
-     * 
-     * Calendar cal = Calendar.getInstance(); cal.roll(Calendar.MONTH, false); q.setCalendar("minDate", cal);
-     * 
-     * result = q.list(); tx.commit(); } catch (HibernateException he) { if (tx != null) tx.rollback(); throw he; }
-     * finally { HibernateUtil.closeSession(); } return result; }
-     */
-
-    /*
-     * 
-     * Query q = sess.createQuery("select cat.name, cat from DomesticCat cat " + "order by cat.name"); ScrollableResults
-     * cats = q.scroll(); if ( cats.first() ) {
-     *  // find the first name on each page of an alphabetical list of cats by name firstNamesOfPages = new ArrayList();
-     * do { String name = cats.getString(0); firstNamesOfPages.add(name); } while ( cats.scroll(PAGE_SIZE) );
-     *  // Now get the first page of cats pageOfCats = new ArrayList(); cats.beforeFirst(); int i=0; while( ( PAGE_SIZE >
-     * i++ ) && cats.next() ) pageOfCats.add( cats.get(1) );
-     *  }
-     */
-
-    /*
-     * public static List findByTitle(Session session, java.lang.String title) throws SQLException, HibernateException {
-     * List finds = session.find("from org.lnicholls.galleon.database.Audio as Audio where Audio.title=?", title,
-     * Hibernate.STRING); return finds; }
-     * 
-     * public static List findByPath(Session session, java.lang.String filePath) throws SQLException, HibernateException {
-     * List finds = session.find("from org.lnicholls.galleon.database.Audio as Audio where Audio.filePath=?", filePath,
-     * Hibernate.STRING); return finds; }
-     * 
-     * public static List findAll(Session session) throws SQLException, HibernateException { List finds =
-     * session.find("from Audio in class org.lnicholls.galleon.database.Audio"); return finds; }
-     */
-    /*
-     * Criteria crit = session.createCriteria(fromData.getClass()).add( Expression.between(readKey, fromReadValue,
-     * toReadValue));
-     * 
-     * crit.setMaxResults(5); crit.setFirstResult( ( 5 * get_cur_page_number() ) );
-     * 
-     * list = crit.list();
-     */
 }
-
-/*
- * 
- * public class Page {
- * 
- * private List results; private int pageSize; private int page;
- * 
- * public Page(Query query, int page, int pageSize) {
- * 
- * this.page = page; this.pageSize = pageSize; results = query.setFirstResult(page * pageSize)
- * .setMaxResults(pageSize+1) .list();
- *  }
- * 
- * public boolean isNextPage() { return results.size() > pageSize; }
- * 
- * public boolean isPreviousPage() { return page > 0; }
- * 
- * public List getList() { return isNextPage() ? results.subList(0, pageSize-1) : results; }
- *  }
- */

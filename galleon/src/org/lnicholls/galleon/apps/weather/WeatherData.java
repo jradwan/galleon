@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Date;
+import java.text.*;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
@@ -63,6 +65,9 @@ public class WeatherData implements Serializable {
         mZip = zip;
         mWidth = width;
         mHeight = height;
+        
+        mTimeDateFormat = new SimpleDateFormat();
+        mTimeDateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss"); //2005-03-01T00:54:00
 
         mLinks = new ArrayList();
         mAlerts = new ArrayList();
@@ -161,12 +166,14 @@ public class WeatherData implements Serializable {
 
         try {
             SAXReader saxReader = new SAXReader();
+            /*
             URL url = new URL("http://xoap.weather.com/search/search?where=" + zip); // try city, state too
             String page = Tools.getPage(url);
             log.debug("Locations: " + page);
             StringReader stringReader = new StringReader(page);
             Document document = saxReader.read(stringReader);
-            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+            */
+            Document document = saxReader.read(new File("d:/galleon/location.xml"));
 
             Element root = document.getRootElement(); // check for errors
             search.setVersion(Tools.getAttribute(root, "ver"));
@@ -186,6 +193,7 @@ public class WeatherData implements Serializable {
     }
 
     public void getAllWeather() {
+        /*
         try {
             SAXReader saxReader = new SAXReader();
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
@@ -198,10 +206,12 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        //parseWeather("");
+        */
+        parseWeather("");
     }
 
     public void getCurrentWeather() {
+        /*
         try {
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
             URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&prod=xoap&par=" + PARTNER_ID
@@ -212,10 +222,12 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        //parseWeather("");
+        */
+        parseWeather("");
     }
     
     public void getForecastWeather() {
+        /*
         try {
             SAXReader saxReader = new SAXReader();
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
@@ -228,16 +240,17 @@ public class WeatherData implements Serializable {
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
-        //parseWeather("");
+        */
+        parseWeather("");
     }    
 
     public void parseWeather(String page) {
         try {
             SAXReader saxReader = new SAXReader();
             StringReader stringReader = new StringReader(page);
-            Document document = saxReader.read(stringReader);
+            //Document document = saxReader.read(stringReader);
 
-            //Document document = saxReader.read(new File("d:/galleon/weather.xml"));
+            Document document = saxReader.read(new File("d:/galleon/weather.xml"));
 
             Element root = document.getRootElement();
             setVersion(Tools.getAttribute(root, "ver"));
@@ -549,9 +562,36 @@ public class WeatherData implements Serializable {
     }
 
     public static class Alert implements Serializable {
-        public Alert(String headline, String description) {
+        public Alert(String event, Date effective, Date expires, String headline, String description) {
+            mEvent = event.trim();
+            mEffective = effective;
+            mExpires = expires;
             mHeadline = headline.trim();
-            mDescription = description.trim().replaceAll("\\.\\.\\.", ", ");
+            setDescription(description);
+        }
+        
+        public void setEvent(String value) {
+            mEvent = value;
+        }
+
+        public String getEvent() {
+            return mEvent;
+        }
+        
+        public void setEffective(Date value) {
+            mEffective = value;
+        }
+
+        public Date getExpires() {
+            return mExpires;
+        }
+        
+        public void setExpires(Date value) {
+            mExpires = value;
+        }
+
+        public Date getEffective() {
+            return mEffective;
         }
 
         public void setHeadline(String value) {
@@ -563,13 +603,19 @@ public class WeatherData implements Serializable {
         }
 
         public void setDescription(String value) {
-            mDescription = value.trim().replaceAll("\\.\\.\\.", ", ");
+            mDescription = value.trim().replaceAll("\\.\\.\\.", ", ").replaceAll("\\n", " ");
         }
 
         public String getDescription() {
             return mDescription;
         }
 
+        private String mEvent;
+        
+        private Date mEffective;
+        
+        private Date mExpires;
+        
         private String mHeadline;
 
         private String mDescription;
@@ -578,6 +624,12 @@ public class WeatherData implements Serializable {
     private static String CAP_ALERT = "alert";
 
     private static String CAP_INFO = "info";
+    
+    private static String CAP_EVENT = "event";
+    
+    private static String CAP_EFFECTIVE = "effective";
+    
+    private static String CAP_EXPIRES = "expires";
 
     private static String CAP_HEADLINE = "headline";
 
@@ -590,9 +642,9 @@ public class WeatherData implements Serializable {
     private void parseAlerts(String value) {
         try {
             SAXReader saxReader = new SAXReader();
-            //Document document = saxReader.read(new File("d:/galleon/nh.cap.xml"));
-            StringReader stringReader = new StringReader(value);
-            Document document = saxReader.read(stringReader);
+            Document document = saxReader.read(new File("d:/galleon/nh.cap.xml"));
+            //StringReader stringReader = new StringReader(value);
+            //Document document = saxReader.read(stringReader);
 
             // <cap:alert>
             Element root = document.getRootElement();
@@ -600,11 +652,33 @@ public class WeatherData implements Serializable {
             for (Iterator i = root.elementIterator(); i.hasNext();) {
                 Element element = (Element) i.next();
                 boolean found = false;
+                String event = "";
+                Date effective = null;
+                Date expires = null;
                 String headline = "";
                 String description = "";
                 if (element.getName().equals(CAP_INFO)) {
                     for (Iterator elementIterator = element.elementIterator(); elementIterator.hasNext();) {
                         Element infoNode = (Element) elementIterator.next();
+                        if (infoNode.getName().equals(CAP_EVENT)) {
+                            event = infoNode.getText();
+                            if (log.isDebugEnabled())
+                                log.debug("event:" + event);
+                        } else 
+                        if (infoNode.getName().equals(CAP_EFFECTIVE)) {
+                            String dateString = infoNode.getText();
+                            if (dateString!=null)
+                                effective = mTimeDateFormat.parse(dateString);
+                            if (log.isDebugEnabled())
+                                log.debug("effective:" + effective);
+                        } else                            
+                        if (infoNode.getName().equals(CAP_EXPIRES)) {
+                            String dateString = infoNode.getText();
+                            if (dateString!=null)
+                                expires = mTimeDateFormat.parse(dateString);
+                            if (log.isDebugEnabled())
+                                log.debug("expires:" + expires);
+                        } else                            
                         if (infoNode.getName().equals(CAP_HEADLINE)) {
                             headline = infoNode.getText();
                             if (log.isDebugEnabled())
@@ -637,7 +711,7 @@ public class WeatherData implements Serializable {
                     }
                 }
                 if (found) {
-                    mAlerts.add(new Alert(headline, description));
+                    mAlerts.add(new Alert(event, effective, expires, headline, description));
                 }
             }
         } catch (Exception ex) {
@@ -1390,4 +1464,6 @@ public class WeatherData implements Serializable {
     private int mHeight = -1;
     
     private int mTimeCounter = 0;
-}
+    
+    private SimpleDateFormat mTimeDateFormat;
+} 

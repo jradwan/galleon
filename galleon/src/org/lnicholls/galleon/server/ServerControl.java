@@ -48,6 +48,8 @@ public interface ServerControl extends Remote {
 
     public void updateVideo(Video video) throws RemoteException;
     
+    public void removeVideo(Video video) throws RemoteException;
+    
     public AppContext createAppContext(AppDescriptor appDescriptor) throws RemoteException;
     
     public List getRules() throws RemoteException;

@@ -26,6 +26,15 @@ Known issues:
 5. Sections of code have been commented out until all of the JavaHMO code is ported.
 6. The HME ToGo app does not update the status of the recordings when the server starts downloading. You have to exit the app to get the
 status of the shows updated properly.
+7. Weather errors arent handled properly.
+8. Weather web links need parameters.
+9. Weather app removal does not work.
+10. Weather updates creates duplicates.
+11. Cannot determine TiVo's automatically.
+12. Weather currently only uses zip.
+13. Weather alerts do not show all text.
+14. When you start Galleon, it might take some time before the ToGo list is populated.
+15. Forecast for current day does not always have values.
 
 
 How to get started:

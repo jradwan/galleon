@@ -68,11 +68,25 @@ public class Weather extends BApplication {
     private static Logger log = Logger.getLogger(Weather.class.getName());
 
     public final static String TITLE = "Weather";
+    
+    private static int mCurrent = 0;
+    
+    private static DefaultScreen[] screens = new DefaultScreen[5];
 
     protected void init(Context context) {
         super.init(context);
 
-        push(new WeatherMenuScreen(this), TRANSITION_NONE);
+        //push(new WeatherMenuScreen(this), TRANSITION_NONE);
+        
+        WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
+        
+        screens[0] = new CurrentConditionsScreen(this,weatherData);
+        screens[1] = new ForecastScreen(this,weatherData);
+        screens[2] = new LocalRadarScreen(this,weatherData);
+        screens[3] = new NationalRadarScreen(this,weatherData);
+        screens[4] = new AlertsScreen(this,weatherData);            
+        
+        push(screens[0], TRANSITION_NONE);
     }
 
     public boolean handleAction(BView view, Object action) {
@@ -82,7 +96,7 @@ public class Weather extends BApplication {
         }
         return super.handleAction(view, action);
     }
-
+    
     public class DefaultScreen extends BScreen {
         public DefaultScreen(Weather app) {
             super(app);
@@ -95,17 +109,73 @@ public class Weather extends BApplication {
             mTitle.setShadow(Color.black, 3);
             mTitle.setFlags(RSRC_HALIGN_CENTER);
             mTitle.setFont("default-48.font");
+            
+            this.setFocusable(true);
+            
+            BHighlights h = getHighlights();
+            h.setWhisperingArrow(H_LEFT,  A_LEFT+SAFE_TITLE_H, A_BOTTOM-SAFE_TITLE_V, "pop");
+            h.setWhisperingArrow(H_RIGHT, A_RIGHT-SAFE_TITLE_H, A_BOTTOM-SAFE_TITLE_V, "right");
+            
+            setFocusDefault(this);
+        }
+        
+        public boolean getHighlightIsVisible(int visible)
+        {
+            return visible==H_VIS_TRUE;
         }
 
         public void setTitle(String value) {
             mTitle.setValue(value);
         }
-
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            BHighlights h = getHighlights();
+            BHighlight right = h.get(H_RIGHT);
+            BHighlight left = h.get(H_LEFT);
+            if (right != null && left != null) {
+                if (mCurrent==4)
+                    right.setVisible(H_VIS_FALSE);
+                else
+                    right.setVisible(H_VIS_TRUE);
+                if (mCurrent==0)
+                    left.setVisible(H_VIS_FALSE);
+                else
+                    left.setVisible(H_VIS_TRUE);                
+            }
+            return super.handleEnter(arg, isReturn);
+        } 
+        
+        public boolean handleAction(BView view, Object action) {
+            if (action.equals("right"))
+            {
+                if (mCurrent==4)
+                {
+                    getBApp().play("thumbsdown.snd");
+                    return true;
+                }
+                mCurrent = mCurrent + 1;
+                push(screens[mCurrent], TRANSITION_LEFT);
+                return true;
+            }
+            else
+            if (action.equals("pop"))
+            {
+                if (mCurrent==0)
+                {
+                    getBApp().play("thumbsdown.snd");
+                    return true;
+                }
+                --mCurrent;
+                pop();
+                return true;
+            }            
+            return super.handleAction(view, action);
+        }
+        
         private BText mTitle;
-
     }
-
-    public class WeatherMenuScreen extends DefaultScreen {
+    
+        public class WeatherMenuScreen extends DefaultScreen {
         private TGList list;
 
         public WeatherMenuScreen(Weather app) {
@@ -311,11 +381,13 @@ public class Weather extends BApplication {
             copyrightText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
             copyrightText.setFont("default-18.font");
 
+            /*
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Return to menu");
 
             setFocusDefault(list);
+            */
 
             updateText();
         }
@@ -346,6 +418,7 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
+        /*
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
@@ -359,6 +432,7 @@ public class Weather extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
+        */
 
         public String toString() {
             return "Current Conditions";
@@ -449,11 +523,13 @@ public class Weather extends BApplication {
             copyrightText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
             copyrightText.setFont("default-18.font");
 
+            /*
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Return to menu");
 
             setFocusDefault(list);
+            */
 
             updateText();
         }
@@ -505,6 +581,7 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
         
+        /*
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
@@ -518,6 +595,7 @@ public class Weather extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
+        */
 
         public String toString() {
             return "Forecast";
@@ -549,11 +627,13 @@ public class Weather extends BApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
+            /*
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Return to menu");
 
             setFocusDefault(list);
+            */
 
             updateImage();
         }
@@ -588,6 +668,7 @@ public class Weather extends BApplication {
             return super.handleEnter(arg, isReturn);
         }
 
+        /*
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
@@ -601,6 +682,7 @@ public class Weather extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
+        */
 
         public String toString() {
             return "Local Radar";
@@ -624,11 +706,13 @@ public class Weather extends BApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
+            /*
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Return to menu");
 
             setFocusDefault(list);
+            */
 
             updateImage();
         }
@@ -659,7 +743,7 @@ public class Weather extends BApplication {
             }
             return super.handleEnter(arg, isReturn);
         }
-
+/*
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
@@ -673,6 +757,7 @@ public class Weather extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
+*/        
 
         public String toString() {
             return "National Radar";
@@ -722,11 +807,13 @@ public class Weather extends BApplication {
             copyrightText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
             copyrightText.setFont("default-18.font");
 
+            /*
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Return to menu");
 
             setFocusDefault(list);
+            */
 
             updateText();
         }
@@ -748,7 +835,7 @@ public class Weather extends BApplication {
             }
             return super.handleEnter(arg, isReturn);
         }
-
+/*
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
@@ -762,6 +849,7 @@ public class Weather extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
+*/        
 
         public String toString() {
             return "Alerts";

@@ -262,9 +262,14 @@
         </jar>
         <copy file="${build}/apps/weather.jar" tofile="./apps/weather.jar" />                
         
-        <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/music/icon.png" />        
+        <copy file="./media/images/music/icon.png" tofile="${build}/org/lnicholls/galleon/apps/music/icon.png" />        
+        <copy file="./media/images/music/folder.png" tofile="${build}/org/lnicholls/galleon/apps/music/folder.png" />                
+        <copy file="./media/images/music/cd.png" tofile="${build}/org/lnicholls/galleon/apps/music/cd.png" />                
         <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/music/alerticon.png" />        
         <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/music/Dekadens.ttf" />                
+        <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy.gif" />                        
+        <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy2.gif" />                                
+        <copy file="./media/images/music/background.jpg" tofile="${build}/org/lnicholls/galleon/apps/music/background.jpg" />
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.music.Music"/>
@@ -510,9 +515,9 @@
 
     <target name="package-bin-win32">
         <echo>Copying executables</echo>
-        <copy file="./bin/win32/Wrapper.exe" tofile="${build}/bin/Wrapper.exe" />
+        <!--copy file="./bin/win32/Wrapper.exe" tofile="${build}/bin/Wrapper.exe" />
         <copy file="./bin/win32/install.cmd" tofile="${build}/bin/install.cmd" />
-        <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" />
+        <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" /-->
         <copy file="./bin/win32/run.cmd" tofile="${build}/bin/run.cmd" />
         <copy file="./bin/win32/gui.cmd" tofile="${build}/bin/gui.cmd" />        
     </target>

@@ -167,7 +167,7 @@ public class ServerConfiguration implements Serializable {
     public String getMediaAccessKey() {
         return mMediaAccessKey;
     }
-
+    
     public List getTiVos() {
         return mTiVos;
     }
@@ -224,7 +224,7 @@ public class ServerConfiguration implements Serializable {
     private String mRecordingsPath = "";
 
     private String mMediaAccessKey = "";
-
+    
     private List mTiVos;
     
     private List mRules;

@@ -77,7 +77,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     private static final ColumnData mColumns[] = { new ColumnData("Name", 50, JLabel.LEFT),
-            new ColumnData("IP Address", 50, JLabel.LEFT) };
+            new ColumnData("IP Address", 50, JLabel.LEFT), new ColumnData("Capacity", 5, JLabel.RIGHT) };
 
     public TiVoPanel() {
         super();
@@ -98,9 +98,14 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
         mAddressField = new JTextField(30);
         mAddressField.setToolTipText("Enter IP address of your TiVo");
         mAddressField.addKeyListener(this);
+        
+        mCapacityField = new JTextField(5);
+        mCapacityField.setToolTipText("Enter storage capacity of TiVo in GB");
+        mCapacityField.addKeyListener(this);
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, left:pref, right:pref:grow ", "pref, " + //name
-                "3dlu, " + "pref " //address
+                "3dlu, " + "pref " + //address
+                "3dlu, " + "pref " //capacity                
         );
 
         PanelBuilder builder = new PanelBuilder(layout);
@@ -112,6 +117,8 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
         builder.add(mNameField, cc.xy(3, 1));
         builder.addLabel("IP Address", cc.xy(1, 3));
         builder.add(mAddressField, cc.xy(3, 3));
+        builder.addLabel("Capacity (GB)", cc.xy(1, 5));
+        builder.add(mCapacityField, cc.xy(3, 5));
 
         add(builder.getPanel(), BorderLayout.NORTH);
 
@@ -144,7 +151,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 
         mTable.setModel(showsTableData);
         TableColumn column = null;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             column = mTable.getColumnModel().getColumn(i);
             column.setPreferredWidth(mColumns[i].mWidth);
         }
@@ -166,6 +173,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                         ShowTableData model = (ShowTableData) mTable.getModel();
                         mNameField.setText((String) model.getValue(selectedRow, 0));
                         mAddressField.setText((String) model.getValue(selectedRow, 1));
+                        mCapacityField.setText((String) model.getValue(selectedRow, 2));
                     }
 
                     checkButtonStates();
@@ -174,6 +182,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                     if (!mUpdating) {
                         mNameField.setText(" ");
                         mAddressField.setText(" ");
+                        mCapacityField.setText(" ");
                     }
 
                     mDeleteButton.setEnabled(false);
@@ -227,6 +236,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                 int nextRow = model.getRowCount();
                 model.setValueAt(mNameField.getText(), nextRow, 0);
                 model.setValueAt(mAddressField.getText(), nextRow, 1);
+                model.setValueAt(mCapacityField.getText(), nextRow, 1);
             } catch (Exception ex) {
                 Tools.logException(TiVoPanel.class, ex);
             }
@@ -242,6 +252,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                     Object[] values = new Object[4];
                     values[0] = mNameField.getText();
                     values[1] = mAddressField.getText();
+                    values[2] = mCapacityField.getText();
 
                     for (int i = 0; i < values.length; i++) {
                         model.setValueAt(values[i], selectedRow, i);
@@ -311,6 +322,8 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                 return tivo.getName();
             case 1:
                 return tivo.getAddress();
+            case 2:
+                return String.valueOf(tivo.getCapacity());                
             }
             return " ";
         }
@@ -324,6 +337,8 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                 return tivo.getName();
             case 1:
                 return tivo.getAddress();
+            case 2:
+                return String.valueOf(tivo.getCapacity());                
             }
             return " ";
         }
@@ -351,6 +366,13 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
             case 1:
                 tivo.setAddress((String) value);
                 break;
+            case 2:
+                try
+                {
+                    tivo.setCapacity(Integer.parseInt((String) value));
+                }
+                catch (NumberFormatException ex){}
+                break;                
             default:
                 break;
             }
@@ -464,6 +486,8 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
     private JTextField mNameField;
 
     private JTextField mAddressField;
+    
+    private JTextField mCapacityField;
 
     private JButton mAddButton;
 

@@ -110,6 +110,14 @@ public class TiVo implements Serializable {
         mNumShows = value;
     }    
     
+    public int getCapacity() {
+        return mCapacity;
+    }
+
+    public void setCapacity(int value) {
+        mCapacity = value;
+    }    
+    
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         synchronized (buffer) {
@@ -122,6 +130,7 @@ public class TiVo implements Serializable {
             buffer.append("Path=" + mPath + '\n');
             buffer.append("LastChangedDate=" + mLastChangedDate + '\n');
             buffer.append("NumShows=" + mNumShows + '\n');
+            buffer.append("Capacity=" + mCapacity + '\n');
         }
         return buffer.toString();
     }    
@@ -145,4 +154,6 @@ public class TiVo implements Serializable {
     private Date mLastChangedDate = new Date(0);
     
     private int mNumShows = 0;
+    
+    private int mCapacity = 40;  //GB
 }

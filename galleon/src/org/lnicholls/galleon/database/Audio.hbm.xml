@@ -103,11 +103,12 @@ See the file "COPYING" for more details.
       <meta attribute="field-description">The mood of the track</meta>
       <column name="tone" index="AUDIO_TONE" length="50"/>
     </property>    
+    
+    <property name="cover" type="int"/>            
 
-    <!-- TODO Put in another shared table -->
-    <property name="image" type="blob">
-      <meta attribute="field-description">Cover art image</meta>
-    </property>     
+    <!--many-to-one name="cover" class="org.lnicholls.galleon.database.Thumbnail" column="cover" not-null="false">    
+          <meta attribute="field-description">Cover art image</meta>
+    </many-to-one-->
 
   </class>
 

@@ -104,7 +104,7 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_RECORDINGS_PATH = "recordingsPath";
 
     private static String ATTRIBUTE_MEDIA_ACCESS_KEY = "mediaAccessKey";    
-
+    
     public Configurator() {
     }
     

@@ -18,11 +18,16 @@ package org.lnicholls.galleon.media;
 
 import helliker.id3.MP3File;
 
-import java.io.File;
+import java.awt.image.BufferedImage;
+
+import java.io.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import javax.imageio.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,10 +35,19 @@ import java.util.regex.Pattern;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.lob.BlobImpl;
+
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.Image;
+import org.lnicholls.galleon.database.Thumbnail;
+import org.lnicholls.galleon.database.ThumbnailManager;
 import org.lnicholls.galleon.util.Tools;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
@@ -301,22 +315,18 @@ public final class Mp3File {
             firstPass(file, audio);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
-            ex.printStackTrace();
         }
         
         try {
             secondPass(file, audio);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
-            ex.printStackTrace();
-        }
-
-        try {
+        }                try {
             thirdPass(file, audio);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
             ex.printStackTrace();
-        }
+        }        
 
         if (audio.getTitle().equals(DEFAULT_TITLE)) {
             String value = Tools.trimSuffix(file.getName());
@@ -329,13 +339,12 @@ public final class Mp3File {
                 audio.setTitle(value);            
             
         }
-
         return audio;
     }
 
     private static final void firstPass(File file, Audio audio) throws Exception {
         pgbennett.id3.MP3File mp3File = new pgbennett.id3.MP3File();
-        mp3File.init(file, MP3File.EXISTING_TAGS_ONLY);
+        mp3File.init(file, pgbennett.id3.MP3File.EXISTING_TAGS_ONLY);
 
         if (mp3File.isMP3()) {
             /*
@@ -392,6 +401,79 @@ public final class Mp3File {
                 if (vbr != DEFAULT_VBR)
                     audio.setVbr(vbr);
             } catch (Exception e1) {
+            }
+            
+            pgbennett.id3.ID3v2Tag tag = mp3File.getID3v2Tag();  //jampal
+            if (tag!=null)
+            {
+                pgbennett.id3.ID3v2Frames frames = tag.getFrames();
+                String id = pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE;
+                pgbennett.id3.ID3v2Frame frame = (pgbennett.id3.ID3v2Frame)frames.get(pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE);
+                if (frame==null)
+                {
+                    Iterator iterator = frames.keySet().iterator();
+                    while (iterator.hasNext())
+                    {
+                        String key = (String)iterator.next();
+                        if (key.startsWith(pgbennett.id3.ID3v2Frames.ATTACHED_PICTURE))
+                        {
+                            id = key;
+                            break;
+                        }
+                    }
+                    frame = (pgbennett.id3.ID3v2Frame)frames.get(id);
+                }
+                System.out.println("found frame3: "+frame);
+                if (frame!=null)
+                {
+                    System.out.println("found image: "+file.getCanonicalPath());
+                    pgbennett.id3.ID3v2Picture pic = frame.getPicture();
+                    
+                    ByteArrayInputStream input = new ByteArrayInputStream(pic.pictureData);
+                    BufferedImage image = ImageIO.read(input);
+                    
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                    encoder.encode(image);
+                    byteArrayOutputStream.close();
+
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
+                            .toByteArray());
+
+                    BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+                    
+                    Thumbnail thumbnail = null;
+                    try {
+                        List list = ThumbnailManager.findByPath(file.getCanonicalPath());
+                        if (list!=null && list.size()>0)
+                            thumbnail = (Thumbnail)list.get(0);
+                    } catch (HibernateException ex) {
+                        log.error("Cover create failed", ex);          
+                    }
+                    
+                    try {
+                        if (thumbnail==null)
+                        {
+                            thumbnail = new Thumbnail(audio.getTitle(),pic.mimeType,file.getCanonicalPath());
+                            thumbnail.setImage(blob);
+                            thumbnail.setDateModified(new Date());
+                            ThumbnailManager.createThumbnail(thumbnail);
+                        }
+                        else
+                        {
+                            thumbnail.setImage(blob);
+                            thumbnail.setDateModified(new Date());
+                            ThumbnailManager.updateThumbnail(thumbnail);
+                        }
+                    } catch (HibernateException ex) {
+                        log.error("Cover create failed", ex);          
+                    }
+                    
+                    audio.setCover(thumbnail.getId());
+
+                    image.flush();
+                    image = null;
+                }
             }
         }
     }
@@ -499,8 +581,8 @@ public final class Mp3File {
             }
         }
     }
-
-    // Utility class used to extract meta data within a specified time limit.
+    
+   // Utility class used to extract meta data within a specified time limit.
     private static final class TimedThread implements Callable {
         private String path;
 
@@ -511,9 +593,7 @@ public final class Mp3File {
         public synchronized Object call() throws Exception {
             return new MP3File(path, MP3File.EXISTING_TAGS_ONLY);
         }
-    }
-
-    private static final void thirdPass(File file, Audio audio) throws Exception {
+    }            private static final void thirdPass(File file, Audio audio) throws Exception {
         // MP3 library sometimes takes too long to read tags...
         TimedCallable timedCallable = new TimedCallable(new TimedThread(file.getAbsolutePath()), 1000 * 10);
         MP3File mp3File = (MP3File) timedCallable.call();
@@ -653,8 +733,8 @@ public final class Mp3File {
         }
 
         mp3File = null;
-    }
-
+    }    
+    
     private static final void defaultProperties(Audio audio) {
         audio.setTitle(DEFAULT_TITLE);
         audio.setArtist(DEFAULT_ARTIST);
@@ -768,27 +848,6 @@ public final class Mp3File {
         }
         return value;
     }
-    /*
-     * public class ID3v2Picture { public String mimeType; public byte pictureType; public String Description; public
-     * byte[] pictureData; }
-     * 
-     * static ID3v2Picture getMp3Picture(MP3File mp3, String id) throws Exception { ID3v2Picture pic = null; if
-     * (mp3==null) { pic = new ID3v2Picture(); pic.pictureData = new byte[0]; return pic; } ID3v2Tag tag =
-     * mp3.getID3v2Tag(); ID3v2Frames frames = tag.getFrames(); ID3v2Frame frame = (ID3v2Frame)frames.get(id); if
-     * (frame!=null) pic = frame.getPicture(); return pic; }
-     * 
-     * 
-     * if ("image/bmp".equalsIgnoreCase(frame.picture.mimeType)) { ByteArrayInputStream in = new
-     * ByteArrayInputStream(frame.picture.pictureData); // Image image = BMPLoader.read(in); javazoom.Util.BMPLoader bmp =
-     * new javazoom.Util.BMPLoader(); Image image = bmp.getBMPImage(in); icon = new ImageIcon(image); } else { if
-     * (frame.picture.pictureData.length == 0) icon = new
-     * ImageIcon(ClassLoader.getSystemResource("pgbennett/jampal/drop_picture.png")); else icon = new
-     * ImageIcon(frame.picture.pictureData); } if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
-     * frame.picture.pictureData = new byte[0]; icon = new
-     * ImageIcon(ClassLoader.getSystemResource("pgbennett/jampal/drop_picture.png")); }
-     * 
-     */
-    
     /*
 /get your blob
 Blob blob = rs.getBlob(1);

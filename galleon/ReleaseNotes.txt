@@ -1,14 +1,18 @@
 Galleon
 -------
 
-I recommend deleting the previous beta before installing this beta.
+I recommend deleting the previous beta before installing this beta. If
+you dont want to do that, delete the data/galleon directory.
 
 Version 0.0.0 beta 3:
 ---------------------
 ToGo bug fixes.
-Weather app.
+ToGo statistics.
+Music app.
 Fixed class loading bug for paths with spaces.
 Added ToGo rules configuration to main configuration file.
+Changed weather app to use arrow keys instead of menu.
+Album art.
 
 
 Version 0.0.0 beta 2:
@@ -29,9 +33,8 @@ On your TiVo DVR:
 
 
 Known issues:
-
 1. The server needs to be running for the configuration GUI to work.
-2. Most JavaHMO plugins have been ported to Galleon yet.
+2. Most JavaHMO plugins have not been ported to Galleon yet.
 3. HME apps are deployed in the Galleon apps directory. The readme.txt file contains instructions for the Winamp player.
 4. Galleon requires JDK 1.5
 5. Sections of code have been commented out until all of the JavaHMO code is ported.
@@ -45,15 +48,17 @@ Known issues:
 
 
 How to get started:
-1. Run the Galleon configuration GUI using the gui.cmd script in the bin directory.
+1. Run the Galleon server by using the run.cmd script in the bin directory. Wait until you see a message about the ToGo app being registered. 
+2. Run the Galleon configuration GUI using the gui.cmd script in the bin directory.
 2. Configure the ToGo recordings path and media access key using the File/Properties menu.
 3. Use the File/ToGo menu to add your TiVo IP address. (Ignore any warning messages)
-4. Click on the recordings tab and wait for the GUI to download the list of recordings.
-5. Exit from the GUI.
-6. If you want to run the Winamp player, follow the intructions in the apps Readme.txt file.
-7. Run the Galleon server by using the run.cmd script in the bin directory. 
-Wait until you see a message about the ToGo app being registered.
-8. Use your TiVo to pick ToGo recordings to download to your PC.
+4. Add the capacity of each TiVos in GB.
+5. Click on the recordings tab and wait for the GUI to download the list of recordings.
+6. Add applications by using the File/New App menu.
+7. For each app you add, you must press the Apply button to save each app's settings.
+8. Exit from the GUI.
+9. If you want to run the Winamp player, follow the intructions in the apps Readme.txt file.
+10. Use your TiVo to pick ToGo recordings to download to your PC.
 
 =====================================================
 galleon.sourceforge.net

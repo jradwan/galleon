@@ -69,7 +69,7 @@ public class ToGo extends BApplication {
     private Resource mBlueIcon;
 
     private Resource mEmptyIcon;
-
+    
     protected void init(Context context) {
         super.init(context);
 
@@ -120,17 +120,51 @@ public class ToGo extends BApplication {
         public ToGoMenuScreen(ToGo app) {
             super(app);
             setTitle("Now Playing List");
+            
+            int top = SAFE_TITLE_V + 50;
+            int border_left = SAFE_TITLE_H + 20;
+            int text_width = width - ((SAFE_TITLE_H * 2) + 82);
+            
+            int start = top;
+            
+            BText countText = new BText(normal, border_left, start, text_width, 20);
+            countText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+            countText.setFont("default-18.font");
+            countText.setColor(Color.GREEN);
+            countText.setShadow(true);
+
+            BText lengthText = new BText(normal, border_left, start, text_width, 20);
+            lengthText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
+            lengthText.setFont("default-18.font");
+            lengthText.setColor(Color.GREEN);
+            lengthText.setShadow(true);
+
+            start += 20;
+
+            BText sizeText = new BText(normal, border_left, start, text_width, 20);
+            sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+            sizeText.setFont("default-18.font");
+            sizeText.setColor(Color.GREEN);
+            sizeText.setShadow(true);
+
+            BText availableText = new BText(normal, border_left, start, text_width, 20);
+            availableText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
+            availableText.setFont("default-18.font");
+            availableText.setColor(Color.GREEN);
+            availableText.setShadow(true);
+            
 
             list = new TGList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
                     - ((SAFE_TITLE_H * 2) + 32), 280, 35);
             BHighlights h = list.getHighlights();
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
+            
+            int totalCount = 0;
+            int totalTime = 0;
+            long totalSize = 0;
+            int totalCapacity = 0;
 
-            //ArrayList recordings = (ArrayList)app.togoList.load(Video.STATUS_DOWNLOADING | Video.STATUS_RULE_MATCHED
-            // | Video.STATUS_USER_CANCELLED | Video.STATUS_RECORDED | Video.STATUS_INCOMPLETE |
-            // Video.STATUS_USER_SELECTED);
-            // TODO Show progress indicator when recordings data are still being downloaded
             // TODO Update list
             try {
                 List recordings = VideoManager.listAll();
@@ -147,11 +181,33 @@ public class ToGo extends BApplication {
                 for (int i = 0; i < videoArray.length; i++) {
                     Video video = (Video) videoArray[i];
                     if (video.getStatus()!=Video.STATUS_RECORDING && video.getStatus()!=Video.STATUS_DOWNLOADED)
+                    {
                         list.add(new ToGoScreen(app, video));
+                        totalCount = totalCount + 1;
+                        totalTime = totalTime + video.getDuration();
+                        totalSize = totalSize + video.getSize();
+                    }
                 }
             } catch (HibernateException ex) {
                 log.error("Getting recordings failed", ex);
             }
+            
+            List tivos = Server.getServer().getTiVos();
+            Iterator iterator = tivos.iterator();
+            while (iterator.hasNext())
+            {
+                TiVo tivo = (TiVo)iterator.next();
+                totalCapacity = totalCapacity + tivo.getCapacity();
+            }
+            
+            countText.setValue("Count: "+String.valueOf(totalCount));
+            SimpleDateFormat timeFormat = new SimpleDateFormat();
+            timeFormat.applyPattern("H:mm");
+            long duration = (long)Math.rint(totalTime / 1000 / 60.0);
+            lengthText.setValue("Length: " + timeFormat.format(new Date(duration)));
+            DecimalFormat numberFormat = new DecimalFormat("###,###");
+            sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
+            availableText.setValue("Available: " + numberFormat.format((totalCapacity*1024) - (totalSize / (1024 * 1024))) + " MB");
 
             setFocusDefault(list);
         }
@@ -361,7 +417,6 @@ public class ToGo extends BApplication {
 
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80,
                     (width - (SAFE_TITLE_H * 2)) / 2, 90, 35);
-            // TODO Dont show for currently recording show
             list.add("Save to computer");
             list.add("Don't do anything");
 
@@ -435,7 +490,7 @@ public class ToGo extends BApplication {
 
             videoText.setValue("Video: " + mVideo.getRecordingQuality());
 
-            genreText.setValue("Genre: " + mVideo.getProgramGenre());
+            genreText.setValue("Genre: " + trim(mVideo.getProgramGenre(),40));
             
             sizeText.setValue("Size: " + mNumberFormat.format(mVideo.getSize() / (1024 * 1024)) + " MB");
 

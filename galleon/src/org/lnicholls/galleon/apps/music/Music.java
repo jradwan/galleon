@@ -131,12 +131,47 @@ public class Music extends BApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                BScreen screen = (BScreen) (list.get(list.getFocus()));
-                getBApp().push(screen, TRANSITION_LEFT);
+                final BScreen screen = (BScreen) (list.get(list.getFocus()));
+                /*
+                if (screen instanceof PathScreen)
+                {
+                    PathScreen pathScreen = (PathScreen)screen;
+                    if (pathScreen.list.size()==0)
+                    {
+                        BView row = list.getRow(list.getFocus());
+                        BView icon = (BView)row.children[0];
+                        icon.resource.remove();
+                        icon.setResource(getResource("busy2.gif"));
+                        //icon.setResource(getResource("busy.png"));
+                        icon.flush();
+                        play("select.snd");
+                    }
+                }
+                */
+                new Thread() {
+                    public void run()
+                    {
+                        getBApp().push(screen, TRANSITION_LEFT);
+                        getBApp().flush();
+                    }
+                }.start();
                 return true;
             }
             return super.handleAction(view, action);
         }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            BScreen screen = (BScreen) (list.get(list.getFocus()));
+            if (screen instanceof PathScreen)
+            {
+                BView row = list.getRow(list.getFocus());
+                BView icon = (BView)row.children[0];
+                icon.resource.remove();
+                icon.setResource(getResource("folder.png"));
+                icon.flush();
+            }
+            return super.handleEnter(arg, isReturn);
+        }        
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
@@ -161,10 +196,10 @@ public class Music extends BApplication {
 
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 10, 3, 30, 30);
-            if (index == 4)
-                icon.setResource(getResource("alerticon.png"));
+            if (get(index) instanceof PathScreen)
+                icon.setResource(getResource("folder.png"));
             else
-                icon.setResource(getResource("icon.png"));
+                icon.setResource(getResource("cd.png"));
 
             BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
             name.setShadow(true);
@@ -180,14 +215,19 @@ public class Music extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
+        
+        public int getTop()
+        {
+            return top;
+        }
     }
-
+    
     public class PathScreen extends DefaultScreen {
-        private BList list;
+        private TGList list;
 
         private final int top = SAFE_TITLE_V + 100;
 
-        private final int border_left = SAFE_TITLE_H + 256;
+        private final int border_left = SAFE_TITLE_H;
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
@@ -204,28 +244,38 @@ public class Music extends BApplication {
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
             
-            FileSystemContainer fileSystemContainer = new FileSystemContainer(path);
-            List files = fileSystemContainer.getItems();
-            Iterator iterator = files.iterator();
-            while (iterator.hasNext())
-            {
-                NameValue nameValue = (NameValue)iterator.next();
-                File file = new File(nameValue.getValue());
-                if (file.isDirectory())
-                    list.add("> "+nameValue.getName());
-                else
-                {
-                    Audio audio = (Audio)MediaManager.getMedia(nameValue.getValue());
-                    list.add(new MusicScreen(app, audio.getTitle(), nameValue.getValue()));
-                }
-            }
             setFocusDefault(list);
+            
+            //mBusy = new BView (normal, width - SAFE_TITLE_H - 32, SAFE_TITLE_V, 32, 32);
+            //mBusy.setResource(getResource("busy.gif"));
+            //mBusy.setVisible(false);
         }
         
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                BScreen screen = (BScreen) (list.get(list.getFocus()));
-                getBApp().push(screen, TRANSITION_LEFT);
+                final BScreen screen = (BScreen) (list.get(list.getFocus()));
+                /*
+                if (screen instanceof PathScreen)
+                {
+                    PathScreen pathScreen = (PathScreen)screen;
+                    if (pathScreen.list.size()==0)
+                    {
+                        BView row = list.getRow(list.getFocus());
+                        BView icon = (BView)row.children[0];
+                        icon.resource.remove();
+                        icon.setResource(getResource("busy2.gif"));
+                        //icon.setResource(getResource("busy.png"));
+                        icon.flush();
+                    }
+                }
+                */
+                new Thread() {
+                    public void run()
+                    {
+                        getBApp().push(screen, TRANSITION_LEFT);
+                        getBApp().flush();
+                    }
+                }.start();
                 return true;
             }
             return super.handleAction(view, action);
@@ -243,14 +293,89 @@ public class Music extends BApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
-
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            if (list.size()==0)
+            {
+                //mBusy.setVisible(true);
+                
+                FileSystemContainer fileSystemContainer = new FileSystemContainer(mPath);
+                List files = fileSystemContainer.getItems();
+                Iterator iterator = files.iterator();
+                while (iterator.hasNext())
+                {
+                    NameValue nameValue = (NameValue)iterator.next();
+                    File file = new File(nameValue.getValue());
+                    if (file.isDirectory())
+                    {
+                        list.add(new PathScreen((Music)getBApp(), nameValue.getName(), nameValue.getValue()));
+                    }
+                    else
+                    {
+                        Audio audio = null;
+                        try
+                        {
+                            List list = AudioManager.findByPath(nameValue.getValue());
+                            if (list!=null && list.size()>0)
+                            {
+                                audio = (Audio)list.get(0);
+                            }
+                        }
+                        catch (HibernateException ex)
+                        {
+                            log.error(nameValue.getValue(), ex);
+                        }
+                        
+                        if (audio==null)
+                        {
+                            try
+                            {
+                                audio = (Audio)MediaManager.getMedia(nameValue.getValue());
+                                AudioManager.createAudio(audio);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.error(nameValue.getValue(), ex);
+                            }
+                        }
+                        
+                        if (audio!=null)
+                        {
+                            list.add(new MusicScreen((Music)getBApp(), Tools.extractName(nameValue.getName()), audio.getId()));
+                        }
+                    }
+                }
+                //mBusy.setVisible(false);
+                //mBusy.flush();
+                //list.setFocus(0,false);
+                //list.flush();
+            }
+            /*
+            BScreen screen = (BScreen) (list.get(list.getFocus()));
+            if (screen instanceof PathScreen)
+            {
+                BView row = list.getRow(list.getFocus());
+                BView icon = (BView)row.children[0];
+                icon.resource.remove();
+                icon.setResource(getResource("folder.png"));
+                icon.flush();
+            }
+            */
+            return super.handleEnter(arg, isReturn);
+        }
+        
+        public boolean handleExit() {
+            list.clear();
+            return super.handleExit();
+        }
+        
         public String toString() {
             return mName;
         }
         
         private String mPath;
         private String mName;
-
+        private BView mBusy;
     }
 
     public class MusicScreen extends DefaultScreen {
@@ -262,55 +387,128 @@ public class Music extends BApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        public MusicScreen(Music app, String name, String path) {
+        public MusicScreen(Music app, String name, Integer id) {
             super(app);
 
             setTitle(name);
-            mPath = path;
+            mId = id;
             mName = name;
             
             int start = top;
             
-            Audio audio = (Audio)MediaManager.getMedia(mPath);
-            
-            BText titleText = new BText(normal, border_left, start, text_width, 20);
-            titleText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-            titleText.setFont("default-18-bold.font");
-            titleText.setShadow(true);
-            titleText.setValue(audio.getTitle());
-            
-            start+= 30;
-            
-            BText artistText = new BText(normal, border_left, start, text_width, 20);
-            artistText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-            artistText.setFont("default-18-bold.font");
-            artistText.setShadow(true);
-            artistText.setValue(audio.getArtist());
-            
-            start+= 30;
-            
-            BText albumText = new BText(normal, border_left, start, text_width, 20);
-            albumText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-            albumText.setFont("default-18-bold.font");
-            albumText.setShadow(true);
-            albumText.setValue(audio.getAlbum());
-            
-            start+= 30;
-            
-            BText yearText = new BText(normal, border_left, start, text_width, 20);
-            yearText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-            yearText.setFont("default-18-bold.font");
-            yearText.setShadow(true);
-            yearText.setValue(String.valueOf(audio.getDate()));
-            
-            start+= 30;
-            
-            BText genreText = new BText(normal, border_left, start, text_width, 20);
-            genreText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
-            genreText.setFont("default-18-bold.font");
-            genreText.setShadow(true);
-            genreText.setValue(audio.getGenre());
-            
+            try
+            {
+                Audio audio = AudioManager.retrieveAudio(id);
+/*                
+                int start = top;
+
+                int location = 40;
+                icon = new BView(normal, border_left, start + 3, 30, 30);
+
+                BText titleText = new BText(normal, border_left + location, start, text_width - 40, 40);
+                titleText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+                titleText.setFont("default-36.font");
+                titleText.setShadow(true);
+
+                start += 45;
+
+                descriptionText = new BText(normal, border_left, start, text_width, 90);
+                descriptionText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
+                descriptionText.setFont("default-18-bold.font");
+                descriptionText.setShadow(true);
+
+                start += 85;
+
+                dateText = new BText(normal, border_left, start, text_width, 30);
+                dateText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+                dateText.setFont("default-18.font");
+                dateText.setShadow(true);
+
+                durationText = new BText(normal, border_left, start, text_width, 30);
+                durationText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
+                durationText.setFont("default-18.font");
+                durationText.setShadow(true);
+
+                start += 20;
+
+                ratingText = new BText(normal, border_left, start, text_width, 30);
+                ratingText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+                ratingText.setFont("default-18.font");
+                ratingText.setShadow(true);
+
+                videoText = new BText(normal, border_left, start, text_width, 30);
+                videoText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
+                videoText.setFont("default-18.font");
+                videoText.setShadow(true);
+
+                start += 20;
+
+                genreText = new BText(normal, border_left, start, text_width, 30);
+                genreText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+                genreText.setFont("default-18.font");
+                genreText.setShadow(true);
+                
+                sizeText = new BText(normal, border_left, start, text_width, 30);
+                sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
+                sizeText.setFont("default-18.font");
+                sizeText.setShadow(true);
+
+*/                
+                
+                
+                BText titleText = new BText(normal, border_left, start, text_width, 20);
+                titleText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
+                titleText.setFont("default-18-bold.font");
+                titleText.setShadow(true);
+                titleText.setValue(audio.getTitle());
+                
+                start+= 30;
+                
+                BText artistText = new BText(normal, border_left, start, text_width, 20);
+                artistText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
+                artistText.setFont("default-18-bold.font");
+                artistText.setShadow(true);
+                artistText.setValue(audio.getArtist());
+                
+                start+= 30;
+                
+                BText albumText = new BText(normal, border_left, start, text_width, 20);
+                albumText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
+                albumText.setFont("default-18-bold.font");
+                albumText.setShadow(true);
+                albumText.setValue(audio.getAlbum());
+                
+                start+= 30;
+                
+                BText yearText = new BText(normal, border_left, start, text_width, 20);
+                yearText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
+                yearText.setFont("default-18-bold.font");
+                yearText.setShadow(true);
+                yearText.setValue(String.valueOf(audio.getDate()));
+                
+                start+= 30;
+                
+                BText genreText = new BText(normal, border_left, start, text_width, 20);
+                genreText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
+                genreText.setFont("default-18-bold.font");
+                genreText.setShadow(true);
+                genreText.setValue(audio.getGenre());
+                
+                try {
+                    // TODO Use audio thumbnail
+                    java.awt.Image image = ThumbnailManager.findImageByPath(audio.getPath());
+                    if (image!=null)
+                    {
+                        below.setResource(image);
+                    }
+                } catch (HibernateException ex) {
+                    log.error("Could retrieve cover", ex);
+                }
+            }
+            catch (HibernateException ex)
+            {
+                log.error(id, ex);
+            }
             list = new OptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Return to menu");
@@ -340,7 +538,7 @@ public class Music extends BApplication {
             return mName;
         }
         
-        private String mPath;
+        private Integer mId;
         private String mName;
     }
 /*    

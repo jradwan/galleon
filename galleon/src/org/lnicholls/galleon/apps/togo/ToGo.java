@@ -23,34 +23,33 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
 import net.sf.hibernate.HibernateException;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.apps.music.Music.MusicScreen;
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.TiVo;
 import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
-import org.lnicholls.galleon.widget.*;
+import org.lnicholls.galleon.widget.DefaultApplication;
+import org.lnicholls.galleon.widget.DefaultMenuScreen;
+import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultScreen;
 
-import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
+import com.tivo.hme.util.ArgumentList;
 
 public class ToGo extends DefaultApplication {
 
@@ -71,7 +70,7 @@ public class ToGo extends DefaultApplication {
     private Resource mBlueIcon;
 
     private Resource mEmptyIcon;
-    
+
     private ToGoScreen mToGoScreen;
 
     protected void init(Context context) {
@@ -84,7 +83,7 @@ public class ToGo extends DefaultApplication {
         mRedIcon = getResource("redball.png");
         mBlueIcon = getResource("blueball.png");
         mEmptyIcon = getResource("empty.png");
-        
+
         mToGoScreen = new ToGoScreen(this);
 
         push(new ToGoMenuScreen(this), TRANSITION_NONE);
@@ -93,21 +92,23 @@ public class ToGo extends DefaultApplication {
     public class ToGoMenuScreen extends DefaultMenuScreen {
         public ToGoMenuScreen(ToGo app) {
             super(app, "Now Playing List");
-            
+
             mDateFormat = new SimpleDateFormat();
             mDateFormat.applyPattern("EEE M/dd");
             mCalendar = new GregorianCalendar();
 
-            int start = TOP-30;
+            int start = TOP - 30;
             int offset = 30;
 
-            BText countText = new BText(normal, BORDER_LEFT+offset, start, BODY_WIDTH-2*offset, 20);
+            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) context.factory).getAppContext()
+                    .getConfiguration();
+            BText countText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             countText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             countText.setFont("default-18.font");
             countText.setColor(Color.GREEN);
             countText.setShadow(true);
 
-            BText lengthText = new BText(normal, BORDER_LEFT+offset, start, BODY_WIDTH-2*offset, 20);
+            BText lengthText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             lengthText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             lengthText.setFont("default-18.font");
             lengthText.setColor(Color.GREEN);
@@ -115,13 +116,13 @@ public class ToGo extends DefaultApplication {
 
             start += 20;
 
-            BText sizeText = new BText(normal, BORDER_LEFT+offset, start, BODY_WIDTH-2*offset, 20);
+            BText sizeText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             sizeText.setFont("default-18.font");
             sizeText.setColor(Color.GREEN);
             sizeText.setShadow(true);
 
-            BText availableText = new BText(normal, BORDER_LEFT+offset, start, BODY_WIDTH-2*offset, 20);
+            BText availableText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             availableText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             availableText.setFont("default-18.font");
             availableText.setColor(Color.GREEN);
@@ -158,31 +159,31 @@ public class ToGo extends DefaultApplication {
                 log.error("Getting recordings failed", ex);
             }
 
-            List tivos = Server.getServer().getTiVos();
-            Iterator iterator = tivos.iterator();
-            while (iterator.hasNext()) {
-                TiVo tivo = (TiVo) iterator.next();
-                totalCapacity = totalCapacity + tivo.getCapacity();
+            if (togoConfiguration.isShowStats()) {
+                List tivos = Server.getServer().getTiVos();
+                Iterator iterator = tivos.iterator();
+                while (iterator.hasNext()) {
+                    TiVo tivo = (TiVo) iterator.next();
+                    totalCapacity = totalCapacity + tivo.getCapacity();
+                }
+    
+                long available = (totalCapacity * 1024) - (totalSize / (1024 * 1024));
+                if (available < 0)
+                    available = 0;
+                countText.setValue("Total: " + String.valueOf(totalCount));
+                SimpleDateFormat timeFormat = new SimpleDateFormat();
+                timeFormat.applyPattern("H:mm");
+                int duration = (int) Math.rint(totalTime / 1000 / 60.0);
+                mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
+                mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
+                mCalendar.set(GregorianCalendar.SECOND, 0);
+                lengthText.setValue("Length: " + timeFormat.format(mCalendar.getTime()));
+                DecimalFormat numberFormat = new DecimalFormat("###,###");
+                sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
+                availableText.setValue("Available: " + numberFormat.format(available) + " MB");
             }
-            
-            long available = (totalCapacity * 1024) - (totalSize / (1024 * 1024));
-            if (available<0)
-                available = 0;
-
-            countText.setValue("Total: " + String.valueOf(totalCount));
-            SimpleDateFormat timeFormat = new SimpleDateFormat();
-            timeFormat.applyPattern("H:mm");
-            int duration = (int) Math.rint(totalTime / 1000 / 60.0);
-            mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
-            mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
-            mCalendar.set(GregorianCalendar.SECOND, 0);
-            lengthText.setValue("Length: " + timeFormat.format(mCalendar.getTime()));
-            DecimalFormat numberFormat = new DecimalFormat("###,###");
-            sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
-            availableText.setValue("Available: "
-                    + numberFormat.format(available) + " MB");
         }
-        
+
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
                 load();
@@ -195,7 +196,7 @@ public class ToGo extends DefaultApplication {
 
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 10, 3, 30, 30);
-            Video video = (Video)mMenuList.get(index);
+            Video video = (Video) mMenuList.get(index);
             if (video.getIcon() != null) {
                 if (video.getIcon().equals("in-progress-recording"))
                     icon.setResource(mRedIcon);
@@ -227,8 +228,8 @@ public class ToGo extends DefaultApplication {
             date.setShadow(true);
             date.setFlags(RSRC_HALIGN_RIGHT);
             date.setValue(mDateFormat.format(mCalendar.getTime()));
-        }        
-        
+        }
+
         protected SimpleDateFormat mDateFormat;
 
         protected GregorianCalendar mCalendar;
@@ -341,13 +342,13 @@ public class ToGo extends DefaultApplication {
 
             setFocusDefault(list);
         }
-        
+
         private void updateText() {
             setPainting(false);
             try {
                 int location = 40;
                 Video video = getVideo();
-                if (icon.resource!=null)
+                if (icon.resource != null)
                     icon.setResource(mEmptyIcon);
                 if (video.getIcon() != null) {
                     if (video.getIcon().equals("in-progress-recording"))
@@ -392,8 +393,8 @@ public class ToGo extends DefaultApplication {
                         + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
 
-                dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + video.getChannelMajorNumber()
-                        + " " + video.getStation());
+                dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + video.getChannelMajorNumber() + " "
+                        + video.getStation());
 
                 int duration = (int) Math.rint(video.getDuration() / 1000 / 60.0);
                 mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
@@ -457,19 +458,23 @@ public class ToGo extends DefaultApplication {
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            if (mUpdateThread != null && mUpdateThread.isAlive())
-                mUpdateThread.interrupt();
-            
+            setPainting(false);
+            try {
+                if (mUpdateThread != null && mUpdateThread.isAlive())
+                    mUpdateThread.interrupt();
+            } finally {
+                setPainting(true);
+            }
+
             mUpdateThread = new Thread() {
                 public void run() {
                     int counter = 0;
                     while (true) {
-                        try
-                        {
-                            if (ToGoScreen.this.getApp().context == null)
-                                return;
+                        try {
+                            synchronized (this) {
+                                updateText();
+                            }
 
-                            updateText();
                             if (counter++ < 10)
                                 sleep(1000 * 5);
                             else
@@ -483,14 +488,26 @@ public class ToGo extends DefaultApplication {
                         }
                     }
                 }
+
+                public void interrupt() {
+                    synchronized (this)
+                    {
+                        super.interrupt();
+                    }
+                }
             };
             mUpdateThread.start();
             return super.handleEnter(arg, isReturn);
         }
 
         public boolean handleExit() {
-            if (mUpdateThread != null && mUpdateThread.isAlive())
-                mUpdateThread.interrupt();
+            setPainting(false);
+            try {
+                if (mUpdateThread != null && mUpdateThread.isAlive())
+                    mUpdateThread.interrupt();
+            } finally {
+                setPainting(true);
+            }
             mUpdateThread = null;
             return super.handleExit();
         }
@@ -520,29 +537,29 @@ public class ToGo extends DefaultApplication {
                 getBApp().flush();
                 getNextPos();
                 updateText();
-                return true;                
-            }                
+                return true;
+            }
             return super.handleKeyPress(code, rawcode);
         }
-        
+
         public void getNextPos() {
             if (mList != null) {
                 int pos = mList.getFocus() + 1;
-                if (mList.getFocus()==mList.size()-1)
+                if (mList.getFocus() == mList.size() - 1)
                     pos = 0;
-                mList.setFocus(pos,false);
+                mList.setFocus(pos, false);
             }
         }
 
         public void getPrevPos() {
             if (mList != null) {
                 int pos = mList.getFocus() - 1;
-                if (mList.getFocus()==0)
+                if (mList.getFocus() == 0)
                     pos = mList.size() - 1;
-                mList.setFocus(pos,false);
+                mList.setFocus(pos, false);
             }
-        }        
-        
+        }
+
         public boolean handleAction(BView view, Object action) {
             if (action.equals("record")) {
                 Video video = getVideo();
@@ -572,17 +589,14 @@ public class ToGo extends DefaultApplication {
 
             return super.handleAction(view, action);
         }
-        
-        public void setList(BList list)
-        {
+
+        public void setList(BList list) {
             mList = list;
         }
-        
-        private synchronized Video getVideo()
-        {
-            Video video = (Video)mList.get(mList.getFocus());
-            try
-            {
+
+        private synchronized Video getVideo() {
+            Video video = (Video) mList.get(mList.getFocus());
+            try {
                 return VideoManager.retrieveVideo(video.getId());
             } catch (Exception ex) {
                 log.error("Video retrieve failed", ex);
@@ -620,5 +634,16 @@ public class ToGo extends DefaultApplication {
 
         //private BText speedText;
         private Thread mUpdateThread;
+    }
+
+    public static class ToGoFactory extends AppFactory {
+
+        public ToGoFactory(AppContext appContext) {
+            super(appContext);
+        }
+
+        protected void init(ArgumentList args) {
+            super.init(args);
+        }
     }
 }

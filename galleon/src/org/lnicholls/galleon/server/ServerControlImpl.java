@@ -54,13 +54,7 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     
     public List getRecordings() throws RemoteException
     {
-        try
-        {
-            return VideoManager.listAll();
-        } catch (HibernateException ex) {
-            log.error("Video listAll failed", ex);
-        }
-        return new ArrayList();
+        return Server.getServer().getToGoThread().getRecordings();
     }
     
     public List getAppDescriptors() throws RemoteException

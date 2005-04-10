@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.music;
+package org.lnicholls.galleon.apps.togo;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -16,14 +16,10 @@ package org.lnicholls.galleon.apps.music;
  * See the file "COPYING" for more details.
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
-import org.lnicholls.galleon.util.NameValue;
 
-public class MusicConfiguration implements AppConfiguration {
+public class ToGoConfiguration implements AppConfiguration {
 
     public String getName() {
         return mName;
@@ -34,54 +30,14 @@ public class MusicConfiguration implements AppConfiguration {
             mModified = true;
         mName = value;
     }
-    
-    public String getSkin() {
-        return mSkin;
+
+    public void setShowStats(boolean value) {
+        mShowStats = value;
     }
 
-    public void setSkin(String value) {
-        if (mSkin != null && !mSkin.equals(value))
-            mModified = true;
-        mSkin = value;
-    }    
-
-    public List getPaths() {
-        return mPaths;
+    public boolean isShowStats() {
+        return mShowStats;
     }
-
-    public void setPaths(List value) {
-        mModified = true;
-        mPaths = value;
-    }
-
-    public void addPath(NameValue nameValue) {
-        mModified = true;
-        mPaths.add(nameValue);
-    }
-    
-    public void setUseFile(boolean value) {
-        mUseFile = value;
-    }
-
-    public boolean isUseFile() {
-        return mUseFile;
-    }    
-    
-    public void setUseAmazon(boolean value) {
-        mUseAmazon = value;
-    }
-
-    public boolean isUseAmazon() {
-        return mUseAmazon;
-    }
-    
-    public void setShowImages(boolean value) {
-        mShowImages = value;
-    }
-
-    public boolean isShowImages() {
-        return mShowImages;
-    }    
 
     public void setModified(boolean value) {
         mModified = value;
@@ -96,16 +52,8 @@ public class MusicConfiguration implements AppConfiguration {
     }
 
     private String mName;
-    
-    private String mSkin;
-    
-    private boolean mUseFile = true;
-    
-    private boolean mUseAmazon = true;
-    
-    private boolean mShowImages = false;
+
+    private boolean mShowStats = true;
 
     private boolean mModified;
-
-    private List mPaths = new ArrayList();
 }

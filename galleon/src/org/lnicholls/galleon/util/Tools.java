@@ -20,33 +20,34 @@ package org.lnicholls.galleon.util;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.*;
-import java.text.*;
+import java.io.StringWriter;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.*;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.crypto.BadPaddingException;
@@ -57,25 +58,24 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.lob.BlobImpl;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
-
-import org.lnicholls.galleon.server.*;
-import org.lnicholls.galleon.database.*;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.database.Thumbnail;
+import org.lnicholls.galleon.database.ThumbnailManager;
+import org.lnicholls.galleon.server.Constants;
 
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.*;
-
-import java.sql.Blob;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.lob.BlobImpl;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 /**
  * @author sthompso
@@ -85,8 +85,26 @@ public class Tools {
     private static Logger log = Logger.getLogger(Tools.class.getName());
 
     private static Runtime runtime = Runtime.getRuntime();
-    
-    private static final BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+
+    private static BufferedImage buffer = null;
+
+    static {
+        try {
+            buffer = createBufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        } catch (Throwable ex) {
+            System.out.println(ex.getMessage());
+            System.out.println(ex.toString());
+            ex.printStackTrace();
+            Throwable cause = ex.getCause();
+            while (cause!=null)
+            {
+                System.out.println(cause.getMessage());
+                System.out.println(cause.toString());
+                cause.printStackTrace();
+                cause = ex.getCause();    
+            }
+        }
+    }
 
     // TODO Is the good enough??
     private static Cipher EncryptionCipher = null;
@@ -433,10 +451,10 @@ public class Tools {
 
     public static void logMemory(String message) {
         if (message != null)
-            log.debug(message);
-        log.debug("Max Memory: " + runtime.maxMemory());
-        log.debug("Total Memory: " + runtime.totalMemory());
-        log.debug("Free Memory: " + runtime.freeMemory());
+            log.info(message);
+        log.info("Max Memory: " + runtime.maxMemory());
+        log.info("Total Memory: " + runtime.totalMemory());
+        log.info("Free Memory: " + runtime.freeMemory());
     }
 
     // If filename ends with .xxx or .xxxx, remove the suffix,
@@ -474,6 +492,7 @@ public class Tools {
             while ((amount = input.read(buf)) > 0) {
                 buffer.append(new String(buf, 0, amount));
             }
+            input.close();
         } catch (Exception ex) {
             Tools.logException(Tools.class, ex, url.getPath());
         }
@@ -482,36 +501,31 @@ public class Tools {
 
     public static String[] layout(int width, FontMetrics metrics, String text) {
         ArrayList lines = new ArrayList();
-        
-        if (text!=null)
-        {
+
+        if (text != null) {
             String line = "";
             BreakIterator boundary = BreakIterator.getWordInstance();
             boundary.setText(text);
             int start = boundary.first();
             for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
-                String word = text.substring(start,end);
-                if (word.equals("\n"))
-                {
+                String word = text.substring(start, end);
+                String trimmed = word.replaceAll(" ", "");
+                if (trimmed.equals("\n") || trimmed.equals("\r") || trimmed.equals("\r\n")) {
                     lines.add(line.trim());
                     line = "";
-                }
-                else
-                if (metrics.stringWidth(line+word)>width)
-                {
+                } else if (metrics.stringWidth(line + word) > width) {
                     lines.add(line.trim());
                     line = word;
-                }
-                else
+                } else
                     line = line + word;
             }
-            if (line.trim().length()>0)
+            if (line.trim().length() > 0)
                 lines.add(line.trim());
         }
-        
+
         return (String[]) lines.toArray(new String[0]);
     }
-    
+
     public static FontMetrics getFontMetrics(Font font) {
         Graphics2D graphics2D = (Graphics2D) buffer.getGraphics();
         try {
@@ -590,25 +604,25 @@ public class Tools {
 
         private boolean mError = false;
     }
-    
+
     public static void cacheImage(URL url) {
-        cacheImage(url, null);    
+        cacheImage(url, null);
     }
-    
+
     public static void cacheImage(URL url, String key) {
-        cacheImage(url, -1, -1, null);    
+        cacheImage(url, -1, -1, null);
     }
-    
+
     public static void cacheImage(URL url, int width, int height) {
         cacheImage(url, width, height, null);
     }
-    
+
     public static void cacheImage(URL url, int width, int height, String key) {
         if (url != null) {
             BufferedImage image = getImage(url, width, height);
-            if (key==null)
+            if (key == null)
                 key = url.toExternalForm();
-            cacheImage(image, width, height, key);        
+            cacheImage(image, width, height, key);
         }
     }
 
@@ -624,33 +638,30 @@ public class Tools {
                         .toByteArray());
 
                 BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-                
+
                 Thumbnail thumbnail = null;
                 try {
                     List list = ThumbnailManager.findByKey(key);
-                    if (list!=null && list.size()>0)
-                        thumbnail = (Thumbnail)list.get(0);
+                    if (list != null && list.size() > 0)
+                        thumbnail = (Thumbnail) list.get(0);
                 } catch (HibernateException ex) {
-                    log.error("Thumbnail create failed", ex);          
+                    log.error("Thumbnail create failed", ex);
                 }
-                
+
                 try {
-                    if (thumbnail==null)
-                    {
+                    if (thumbnail == null) {
                         thumbnail = new Thumbnail("Cached", "jpg", key);
                         thumbnail.setImage(blob);
                         thumbnail.setDateModified(new Date());
                         ThumbnailManager.createThumbnail(thumbnail);
-                    }
-                    else
-                    {
+                    } else {
                         thumbnail.setImage(blob);
                         thumbnail.setDateModified(new Date());
                         ThumbnailManager.updateThumbnail(thumbnail);
                     }
                 } catch (HibernateException ex) {
-                    log.error("Thumbnail create failed", ex);          
-                }                        
+                    log.error("Thumbnail create failed", ex);
+                }
 
                 image.flush();
                 image = null;
@@ -659,22 +670,22 @@ public class Tools {
             }
         }
     }
-    
+
     public static Image retrieveCachedImage(URL url) {
         return retrieveCachedImage(url.toExternalForm());
     }
 
     public static BufferedImage retrieveCachedImage(String key) {
         try {
-            return ThumbnailManager.findImageByKey(key);            
+            return ThumbnailManager.findImageByKey(key);
         } catch (HibernateException ex) {
-            log.error("Image retrieve failed", ex);          
+            log.error("Image retrieve failed", ex);
         } catch (Exception ex) {
             Tools.logException(Tools.class, ex, key);
         }
         return null;
     }
-    
+
     public static BufferedImage getImage(URL url, int width, int height) {
         if (url != null) {
             try {
@@ -700,11 +711,11 @@ public class Tools {
                 if (internetImage == null) {
                     log.error("Invalid internet image: " + url.getPath());
                 } else {
-                    if (width==-1)
-                        internetImage.getWidth(null);
-                    if (height==-1)
-                        internetImage.getHeight(null);
-                    
+                    if (width == -1)
+                        width = internetImage.getWidth(null);
+                    if (height == -1)
+                        height = internetImage.getHeight(null);
+
                     BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                     Graphics2D graphics2D = image.createGraphics();
                     graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -714,7 +725,7 @@ public class Tools {
                     graphics2D = null;
                     internetImage.flush();
                     internetImage = null;
-                    
+
                     return image;
                 }
             } catch (Exception ex) {
@@ -723,40 +734,34 @@ public class Tools {
         }
         return null;
     }
-    
-    public static void savePersistentValue(String name, String value)
-    {
+
+    public static void savePersistentValue(String name, String value) {
         try {
-            PersistentValue persistentValue = PersistentValueManager.findByName(name);   
-            if (persistentValue==null)
-            {
-                persistentValue = new PersistentValue(name,value);
+            PersistentValue persistentValue = PersistentValueManager.findByName(name);
+            if (persistentValue == null) {
+                persistentValue = new PersistentValue(name, value);
                 PersistentValueManager.createPersistentValue(persistentValue);
-            }
-            else
-            {
+            } else {
                 persistentValue.setValue(value);
                 PersistentValueManager.updatePersistentValue(persistentValue);
             }
         } catch (HibernateException ex) {
-            log.error("PersistentValue create failed", ex);          
-        }        
+            log.error("PersistentValue create failed", ex);
+        }
     }
-    
-    public static String loadPersistentValue(String name)
-    {
+
+    public static String loadPersistentValue(String name) {
         try {
             return PersistentValueManager.findValueByName(name);
         } catch (HibernateException ex) {
-            log.error("PersistentValue retrieve failed", ex);          
+            log.error("PersistentValue retrieve failed", ex);
         } catch (Exception ex) {
             Tools.logException(Tools.class, ex, name);
         }
         return null;
-    }    
-    
-    public static String getPackage(String className)
-    {
+    }
+
+    public static String getPackage(String className) {
         String pkg = className;
         int last = pkg.lastIndexOf('.');
         if (last == -1) {
@@ -764,11 +769,18 @@ public class Tools {
         }
         return pkg.substring(0, last).replace('.', '/');
     }
-    
-    public static String trim(String value, int max)
-    {
-        if (value!=null && value.length()>max)
-            return value.substring(0,max-3)+"...";
+
+    public static String trim(String value, int max) {
+        if (value != null && value.length() > max)
+            return value.substring(0, max - 3) + "...";
         return value;
+    }
+
+    public static BufferedImage createBufferedImage(int width, int height, int imageType) throws Exception {
+        try {
+            return new BufferedImage(width, height, imageType);
+        } catch (Throwable ex) {
+            return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
+        }
     }
 }

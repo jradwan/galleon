@@ -50,7 +50,7 @@ public final class MediaManager {
     {
         if (filename.toLowerCase().endsWith(".m3u"))
         {
-            //return new M3uPlaylistProxy(filename);
+            return new M3uPlaylist(filename);
         }    
         else if (filename.toLowerCase().startsWith("http"))
         {
@@ -58,7 +58,7 @@ public final class MediaManager {
         }    
         else if (filename.toLowerCase().endsWith(".pls"))
         {
-            //return new PlsPlaylistProxy(filename);
+            return new PlsPlaylist(filename);
         }     
         else if (filename.toLowerCase().endsWith(".mp3"))
         {

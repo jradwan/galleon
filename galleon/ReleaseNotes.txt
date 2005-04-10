@@ -3,6 +3,21 @@ Galleon
 
 Delete the previous beta before installing this beta.
 
+Version 0.0.0 beta 6:
+---------------------
+Fixed ToGo database startup error.
+Music lyrics.
+Support dotted directory names.
+Went back to 1.4 JDK.
+Artist web images.
+Removed Winamp player as standalone app (now part of Music app code).
+Added HME directory for non-Galleon HME apps.
+Made ToGo a configurable app.
+Network interface test wizard.
+Support playing folders.
+Support M3U and PLS playlists (no streaming stations yet).
+
+
 Version 0.0.0 beta 5:
 ---------------------
 Optimized ToGo app to be less resource intensive.
@@ -124,6 +139,11 @@ Pause = Pause
 Slow = Stop
 Channel Up = Next
 Channel Down = Previous
+
+
+Running other HME apps:
+1. Copy the jar file of the app into the Galleon HME directory.
+2. Add an entry for the new app in the launcher.txt file.
 
 
 =====================================================

@@ -16,6 +16,7 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BView;
 
@@ -68,6 +69,26 @@ public class DefaultList extends BList {
     protected void createRow(BView parent, int index) {
 
     }
+    
+    public boolean handleKeyPress(int code, long rawcode) {
+        switch (code) {
+        case KEY_ADVANCE:
+            if (getFocus()==(size()-1))
+            {
+                getBApp().play("pageup.snd");
+                getBApp().flush();
+                setFocus(0,false);
+            }
+            else
+            {
+                getBApp().play("pagedown.snd");
+                getBApp().flush();
+                setFocus(size()-1,false);
+            }
+            return true;
+        }
+        return super.handleKeyPress(code, rawcode);
+    }    
 
     public void clearViews() {
         for (int i = 0; i < rows.size(); i++) {

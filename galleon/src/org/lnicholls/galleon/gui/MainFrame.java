@@ -18,9 +18,10 @@ package org.lnicholls.galleon.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Image;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -30,10 +31,20 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.lang.reflect.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
+import javax.jmdns.ServiceListener;
+import javax.jmdns.ServiceTypeListener;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -50,8 +61,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
@@ -61,9 +74,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.server.*;
-import org.lnicholls.galleon.util.*;
-import org.lnicholls.galleon.app.*;
+import org.lnicholls.galleon.app.AppConfiguration;
+import org.lnicholls.galleon.app.AppConfigurationPanel;
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppDescriptor;
+import org.lnicholls.galleon.server.ServerConfiguration;
+import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.Tools;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -76,7 +93,7 @@ public class MainFrame extends JFrame {
     private static Logger log = Logger.getLogger(MainFrame.class.getName());
 
     public MainFrame(String version) {
-        super("Galleon "+version);
+        super("Galleon " + version);
         setDefaultCloseOperation(0);
 
         JMenuBar menuBar = new JMenuBar();
@@ -107,8 +124,8 @@ public class MainFrame extends JFrame {
                 new ToGoDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
             }
 
-        });        
-        fileMenu.addSeparator();        
+        });
+        fileMenu.addSeparator();
         fileMenu.add(new MenuAction("Exit", null, "", new Integer(KeyEvent.VK_X)) {
 
             public void actionPerformed(ActionEvent event) {
@@ -128,7 +145,9 @@ public class MainFrame extends JFrame {
                 JOptionPane
                         .showMessageDialog(
                                 Galleon.getMainFrame(),
-                                "Galleon Version "+ Tools.getVersion() + "\nhttp://galleon.sourceforge.net\nGalleon@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
+                                "Galleon Version "
+                                        + Tools.getVersion()
+                                        + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
                                 "About", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -220,38 +239,38 @@ public class MainFrame extends JFrame {
     private AppNode getAppNode(AppContext app) {
         AppDescriptor appDescriptor = app.getDescriptor();
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        
+
         AppConfigurationPanel appConfigurationPanel = null;
         try {
             Class configurationPanel = classLoader.loadClass(appDescriptor.getConfigurationPanel());
-            
+
             Class[] parameters = new Class[1];
             parameters[0] = AppConfiguration.class;
             Constructor constructor = configurationPanel.getConstructor(parameters);
             AppConfiguration[] values = new AppConfiguration[1];
-            values[0] = app.getConfiguration(); 
+            values[0] = app.getConfiguration();
 
-            appConfigurationPanel = (AppConfigurationPanel)constructor.newInstance((Object[])values);
+            appConfigurationPanel = (AppConfigurationPanel) constructor.newInstance((Object[]) values);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel " + appDescriptor.getIcon()
-                    + " for app " + appDescriptor.getClassName());
-        }        
-        
+            Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel "
+                    + appDescriptor.getIcon() + " for app " + appDescriptor.getClassName());
+        }
+
         ImageIcon icon = null;
         try {
             if (appDescriptor.getIcon() != null && appDescriptor.getIcon().length() > 0) {
                 String pkg = Tools.getPackage(appDescriptor.getClassName());
                 URL url = classLoader.getResource(pkg + "/" + appDescriptor.getIcon());
-                if (url==null)
+                if (url == null)
                     url = classLoader.getResource(appDescriptor.getIcon());
-                icon = new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH));
+                icon = new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
             }
         } catch (Exception ex) {
             Tools.logException(OptionsPanelManager.class, ex, "Could not load icon " + appDescriptor.getIcon()
                     + " for app " + appDescriptor.getClassName());
         }
-        
+
         AppNode appNode = new AppNode(app, icon, appConfigurationPanel);
 
         return appNode;
@@ -454,7 +473,7 @@ public class MainFrame extends JFrame {
                         return;
                     }
                 }
-  
+
                 mOKButton.setEnabled(true);
                 return;
             }
@@ -481,7 +500,6 @@ public class MainFrame extends JFrame {
 
     }
 
-    
     public class ServerDialog extends JDialog implements ActionListener {
 
         class NameValueWrapper extends NameValue {
@@ -497,6 +515,8 @@ public class MainFrame extends JFrame {
         private ServerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
             super(frame, "Server Properties", true);
             mServerConfiguration = serverConfiguration;
+
+            //enable debug logging
 
             mNameField = new JTextField();
             mNameField.setText(serverConfiguration.getName());
@@ -529,22 +549,18 @@ public class MainFrame extends JFrame {
             }
             mIPAddress = new JComboBox();
             mIPAddress.addItem(new NameValueWrapper("Default", ""));
-            try
-            {
+            try {
                 Enumeration enumeration = NetworkInterface.getNetworkInterfaces();
-                while (enumeration.hasMoreElements())
-                {
-                    NetworkInterface networkInterface = (NetworkInterface)enumeration.nextElement();
+                while (enumeration.hasMoreElements()) {
+                    NetworkInterface networkInterface = (NetworkInterface) enumeration.nextElement();
                     Enumeration inetAddressEnumeration = networkInterface.getInetAddresses();
-                    while (inetAddressEnumeration.hasMoreElements())
-                    {
-                        InetAddress inetAddress = (InetAddress)inetAddressEnumeration.nextElement();
-                        mIPAddress.addItem(new NameValueWrapper(inetAddress.getHostAddress(), inetAddress.getHostAddress()));
+                    while (inetAddressEnumeration.hasMoreElements()) {
+                        InetAddress inetAddress = (InetAddress) inetAddressEnumeration.nextElement();
+                        mIPAddress.addItem(new NameValueWrapper(inetAddress.getHostAddress(), inetAddress
+                                .getHostAddress()));
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Tools.logException(MainFrame.class, ex, "Could not get network interfaces");
             }
             defaultCombo(mIPAddress, serverConfiguration.getIPAddress());
@@ -596,6 +612,10 @@ public class MainFrame extends JFrame {
             builder.add(mPort, cc.xy(3, 17));
             builder.addLabel("IP Address", cc.xy(1, 19));
             builder.add(mIPAddress, cc.xy(3, 19));
+            button = new JButton("<< Test...");
+            button.setActionCommand("network");
+            button.addActionListener(this);
+            builder.add(button, cc.xyw(5, 19, 2));
 
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -616,7 +636,7 @@ public class MainFrame extends JFrame {
             pack();
             setLocationRelativeTo(frame);
         }
-        
+
         public void defaultCombo(JComboBox combo, String value) {
             for (int i = 0; i < combo.getItemCount(); i++) {
                 if (((NameValue) combo.getItemAt(i)).getValue().equals(value)) {
@@ -638,8 +658,7 @@ public class MainFrame extends JFrame {
                     } catch (NumberFormatException ex) {
                         Tools.logException(MainFrame.class, ex, "Invalid port: " + mPort.getText());
                     }
-                    mServerConfiguration.setIPAddress(((NameValue) mIPAddress.getSelectedItem())
-                            .getValue());
+                    mServerConfiguration.setIPAddress(((NameValue) mIPAddress.getSelectedItem()).getValue());
                     mServerConfiguration.setShuffleItems(mShuffleItems.isSelected());
                     mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
                     mServerConfiguration.setUseStreamingProxy(mStreamingProxy.isSelected());
@@ -650,9 +669,10 @@ public class MainFrame extends JFrame {
                 } catch (Exception ex) {
                     Tools.logException(MainFrame.class, ex, "Could not configure server");
                 }
-                JOptionPane.showMessageDialog(this, "You need to restart Galleon for any changes in the server properties to take effect.", "Warning",
-                        JOptionPane.WARNING_MESSAGE);
-                
+                JOptionPane.showMessageDialog(this,
+                        "You need to restart Galleon for any changes in the server properties to take effect.",
+                        "Warning", JOptionPane.WARNING_MESSAGE);
+
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             } else if ("help".equals(e.getActionCommand())) {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -660,13 +680,11 @@ public class MainFrame extends JFrame {
                     URL url = getClass().getClassLoader().getResource("server.html");
                     displayHelp(url);
                 } catch (Exception ex) {
-                    Tools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
+                    Tools.logException(MainFrame.class, ex, "Could not find server help ");
                 }
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 return;
-            }
-            else
-            if ("pick".equals(e.getActionCommand())) {
+            } else if ("pick".equals(e.getActionCommand())) {
                 final JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 fc.addChoosableFileFilter(new FileFilter() {
@@ -691,7 +709,11 @@ public class MainFrame extends JFrame {
                 }
                 this.toFront();
                 return;
-            }            
+            } else if ("network".equals(e.getActionCommand())) {
+                new NetworkDialog(this).setVisible(true);
+                this.toFront();
+                return;
+            }
 
             this.setVisible(false);
         }
@@ -713,6 +735,7 @@ public class MainFrame extends JFrame {
         private JComboBox mIPAddress;
 
         private JTextField mRecordingsPath;
+
         private JTextField mMediaAccessKey;
 
         private ServerConfiguration mServerConfiguration;
@@ -726,6 +749,199 @@ public class MainFrame extends JFrame {
 
         mHelpDialog = new HelpDialog(this, url);
         mHelpDialog.setVisible(true);
+    }
+
+    public class NetworkDialog extends JDialog implements ActionListener {
+
+        private NetworkDialog(final ServerDialog serverDialog) {
+            super(serverDialog, "Network Wizard", true);
+
+            //enable debug logging
+
+            mProgressBar = new JProgressBar(0, 30);
+            mProgressBar.setValue(0);
+            //mProgressBar.setStringPainted(true);
+            mResultsField = new JTextArea(3, 60);
+            mResultsField.setEditable(false);
+
+            getContentPane().setLayout(new BorderLayout());
+
+            FormLayout layout = new FormLayout("right:pref, 3dlu, pref, right:pref:grow", "pref, " + //progress
+                    "3dlu, " + "pref" //results
+            );
+
+            PanelBuilder builder = new PanelBuilder(layout);
+            builder.setDefaultDialogBorder();
+
+            CellConstraints cc = new CellConstraints();
+
+            builder.add(mProgressBar, cc.xyw(1, 1, 4));
+            builder.add(mResultsField, cc.xyw(1, 3, 4));
+
+            getContentPane().add(builder.getPanel(), "Center");
+
+            JButton[] array = new JButton[2];
+            array[0] = new JButton("Close");
+            array[0].setActionCommand("cancel");
+            array[0].addActionListener(this);
+            array[1] = new JButton("Help");
+            array[1].setActionCommand("help");
+            array[1].addActionListener(this);
+            JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+
+            buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            getContentPane().add(buttons, "South");
+            pack();
+            setLocationRelativeTo(serverDialog);
+
+            mTimer = new Timer();
+            mTimer.schedule(new TimerTask() {
+                int counter = 0;
+
+                public void run() {
+                    if (counter == 0) {
+                        mResultsField.setText("Searching...");
+                        mTiVoListener = new TiVoListener(((NameValue) serverDialog.mIPAddress.getSelectedItem())
+                                .getValue());
+                    }
+                    mProgressBar.setValue(counter);
+                    if (counter++ > 30) {
+                        Toolkit.getDefaultToolkit().beep();
+                        mProgressBar.setValue(mProgressBar.getMinimum());
+                        mProgressBar.setString("");
+                        mTiVoListener.stop();
+                        if (!mTiVoListener.found())
+                            mResultsField.setText("No TiVos found on this network interface");
+                        this.cancel();
+                    }
+                }
+            }, 0, 1000);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            if ("cancel".equals(e.getActionCommand())) {
+                mTiVoListener.stop();
+                mTimer.cancel();
+            } else if ("help".equals(e.getActionCommand())) {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                try {
+                    URL url = getClass().getClassLoader().getResource("network.html");
+                    displayHelp(url);
+                } catch (Exception ex) {
+                    Tools.logException(MainFrame.class, ex, "Could not find network help ");
+                }
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                return;
+            }
+            this.setVisible(false);
+        }
+
+        private final class TiVoListener implements ServiceListener, ServiceTypeListener {
+            // TiVo with 7.1 software supports rendevouz and has a web server
+            private final static String HTTP_SERVICE = "_http._tcp.local.";
+
+            private final static String TIVO_PLATFORM = "platform";
+
+            private final static String TIVO_PLATFORM_PREFIX = "tcd"; // platform=tcd/Series2
+
+            private final static String TIVO_TSN = "TSN";
+
+            private final static String TIVO_SW_VERSION = "swversion";
+
+            private final static String TIVO_PATH = "path";
+
+            public TiVoListener(String address) {
+                try {
+                    InetAddress inetAddress = null;
+                    if (address.equals("Default"))
+                        inetAddress = InetAddress.getLocalHost();
+                    else
+                        inetAddress = InetAddress.getByName(address);
+
+                    mJmDNS = new JmDNS(inetAddress);
+                    mJmDNS.addServiceListener(HTTP_SERVICE, this);
+                    log.debug("Interface: " + mJmDNS.getInterface());
+                } catch (IOException ex) {
+                    Tools.logException(TiVoListener.class, ex);
+                }
+            }
+
+            public void addService(JmDNS jmdns, String type, String name) {
+                if (name.endsWith("." + type)) {
+                    name = name.substring(0, name.length() - (type.length() + 1));
+                }
+                log.debug("addService: " + name);
+
+                ServiceInfo service = jmdns.getServiceInfo(type, name);
+                if (service == null) {
+                    log.error("Service not found: " + type + " (" + name + ")");
+                } else {
+                    if (!name.endsWith(".")) {
+                        name = name + "." + type;
+                    }
+                    jmdns.requestServiceInfo(type, name);
+                }
+            }
+
+            public void removeService(JmDNS jmdns, String type, String name) {
+                if (name.endsWith("." + type)) {
+                    name = name.substring(0, name.length() - (type.length() + 1));
+                }
+                log.debug("removeService: " + name);
+            }
+
+            public void addServiceType(JmDNS jmdns, String type) {
+                log.debug("addServiceType: " + type);
+            }
+
+            public void resolveService(JmDNS jmdns, String type, String name, ServiceInfo info) {
+                log.debug("resolveService: " + type + " (" + name + ")");
+
+                if (type.equals(HTTP_SERVICE)) {
+                    if (info == null) {
+                        log.error("Service not found: " + type + "(" + name + ")");
+                    } else {
+                        for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
+                            String prop = (String) names.nextElement();
+                            if (prop.equals(TIVO_PLATFORM)) {
+                                if (info.getPropertyString(prop).startsWith(TIVO_PLATFORM_PREFIX)) {
+                                    mFound = true;
+                                }
+                            }
+                        }
+
+                        if (mFound) {
+                            mResultsField.setText((mResultsField.getText().equals("Searching...") ? "" : mResultsField
+                                    .getText()
+                                    + ", ")
+                                    + name.substring(0, name.length() - (type.length() + 1)));
+                        }
+                    }
+                }
+            }
+
+            public void stop() {
+                mJmDNS.removeServiceListener(this);
+            }
+
+            public boolean found() {
+                return mFound;
+            }
+
+            private JmDNS mJmDNS;
+        }
+
+        private JProgressBar mProgressBar;
+
+        private JTextArea mResultsField;
+
+        private ServerConfiguration mServerConfiguration;
+
+        private Timer mTimer;
+
+        private TiVoListener mTiVoListener;
+
+        private boolean mFound;
     }
 
     private AppTree mAppTree;

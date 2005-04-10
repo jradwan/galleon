@@ -53,10 +53,12 @@ public class DownloadThread extends Thread implements Constants {
 
                     mDownloading = true;
 
-                    mSelectedVideo.setStatus(Video.STATUS_DOWNLOADING);
-                    mSelectedVideo.setDownloadSize(0);
-                    mSelectedVideo.setDownloadTime(0);
-                    VideoManager.updateVideo(mSelectedVideo);
+                    synchronized (this) {
+                        mSelectedVideo.setStatus(Video.STATUS_DOWNLOADING);
+                        mSelectedVideo.setDownloadSize(0);
+                        mSelectedVideo.setDownloadTime(0);
+                        VideoManager.updateVideo(mSelectedVideo);
+                    }
                     
                     synchronized (this) {
                         notifyAll();
@@ -72,10 +74,12 @@ public class DownloadThread extends Thread implements Constants {
 
                     if (success) {
                         if (!mCancelThread.cancel()) {
-                            // TODO Track download stats
-                            mSelectedVideo = VideoManager.retrieveVideo(mSelectedVideo.getId());
-                            mSelectedVideo.setStatus(Video.STATUS_DOWNLOADED);
-                            VideoManager.updateVideo(mSelectedVideo);
+                            synchronized (this) {
+                                // TODO Track download stats
+                                mSelectedVideo = VideoManager.retrieveVideo(mSelectedVideo.getId());
+                                mSelectedVideo.setStatus(Video.STATUS_DOWNLOADED);
+                                VideoManager.updateVideo(mSelectedVideo);
+                            }
                         }
                     }
                 } else
@@ -116,6 +120,14 @@ public class DownloadThread extends Thread implements Constants {
             }
         }
     }
+    
+    public void interrupt()
+    {
+        synchronized (this)
+        {
+            super.interrupt();
+        }
+    }
 
     class CancelThread extends Thread implements CancelDownload {
         public CancelThread(Video video) throws IOException {
@@ -128,12 +140,15 @@ public class DownloadThread extends Thread implements Constants {
         public void run() {
             while (!mCancel) {
                 try {
-                    mVideo = VideoManager.retrieveVideo(mVideo.getId());
-
-                    if (mVideo.getStatus() == Video.STATUS_USER_CANCELLED) {
-                        log.info("Download cancelled by user: " + mVideo.getTitle());
-                        mCancel = true;
-                        break;
+                    synchronized(this)
+                    {
+                        mVideo = VideoManager.retrieveVideo(mVideo.getId());
+    
+                        if (mVideo.getStatus() == Video.STATUS_USER_CANCELLED) {
+                            log.info("Download cancelled by user: " + mVideo.getTitle());
+                            mCancel = true;
+                            break;
+                        }
                     }
                     sleep(1000 * 30 * 1);
                 } catch (InterruptedException ex) {
@@ -151,6 +166,14 @@ public class DownloadThread extends Thread implements Constants {
 
         public void setCancel(boolean cancel) {
             mCancel = cancel;
+        }
+        
+        public void interrupt()
+        {
+            synchronized (this)
+            {
+                super.interrupt();
+            }
         }
 
         private Video mVideo;

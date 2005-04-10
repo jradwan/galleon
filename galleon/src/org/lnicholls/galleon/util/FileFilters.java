@@ -217,6 +217,7 @@ public class FileFilters {
         imageDirectoryFilter.addFilter(imageFilter);
         imageDirectoryFilter.addFilter(directoryFilter);            }        public static final PositiveFilter audioDirectoryFilter = new PositiveFilter();        static     {
         audioDirectoryFilter.addFilter(audioFilter);
+        audioDirectoryFilter.addFilter(playlistFilter);
         audioDirectoryFilter.addFilter(directoryFilter);            }        
     
     // Helper function that matches a simple  filter parameter (i.e. only one filter type)

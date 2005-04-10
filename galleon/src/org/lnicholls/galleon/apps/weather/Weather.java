@@ -305,8 +305,9 @@ public class Weather extends DefaultApplication {
             setFooter("weather.com");
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+            list.add("Press SELECT to go back");
             setFocusDefault(list);
 
             updateText();
@@ -379,12 +380,6 @@ public class Weather extends DefaultApplication {
     public class ForecastScreen extends DefaultScreen {
         private BList list;
 
-        private final int top = SAFE_TITLE_V + 80;
-
-        private final int border_left = SAFE_TITLE_H;
-
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
-
         public ForecastScreen(Weather app, WeatherData data) {
             super(app);
 
@@ -394,40 +389,40 @@ public class Weather extends DefaultApplication {
 
             int gap = 6;
 
-            int dayWidth = (text_width - 4 * gap) / 5;
+            int dayWidth = (BODY_WIDTH - 4 * gap) / 5;
 
             for (int i = 0; i < 5; i++) {
-                int start = top;
+                int start = TOP;
 
                 int x = (dayWidth + gap / 2) * i;
 
-                dayText[i] = new BText(normal, border_left + x, start, dayWidth, 20);
+                dayText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 20);
                 dayText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
                 dayText[i].setFont("default-18-bold.font");
                 dayText[i].setShadow(true);
 
                 start = start + 20;
 
-                icon[i] = new BView(normal, border_left + x, start, dayWidth, dayWidth);
+                icon[i] = new BView(normal, BORDER_LEFT + x, start, dayWidth, dayWidth);
                 icon[i].setResource("NA.png");
 
                 start = start + dayWidth;
 
-                hiText[i] = new BText(normal, border_left + x, start, dayWidth, 30);
+                hiText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 30);
                 hiText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
                 hiText[i].setFont("default-24-bold.font");
                 hiText[i].setShadow(true);
 
                 start = start + 30;
 
-                loText[i] = new BText(normal, border_left + x, start, dayWidth, 20);
+                loText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 20);
                 loText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
                 loText[i].setFont("default-18-bold.font");
                 loText[i].setShadow(true);
 
                 start = start + 20;
 
-                descriptionText[i] = new BText(normal, border_left + x, start, dayWidth, 60);
+                descriptionText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 60);
                 descriptionText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
                 descriptionText[i].setFont("default-18-bold.font");
                 descriptionText[i].setColor(new Color(127, 235, 192));
@@ -437,8 +432,9 @@ public class Weather extends DefaultApplication {
             setFooter("weather.gov");
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+            list.add("Press SELECT to go back");
             setFocusDefault(list);
 
             updateText();
@@ -455,7 +451,7 @@ public class Weather extends DefaultApplication {
                 WeatherData.Part dayPart = forecast.getDayForecast();
                 WeatherData.Part nightPart = forecast.getNightForecast();
                 java.awt.Image image = Tools.getResourceAsImage(getClass(), pad(dayPart.getIcon()) + ".png")
-                        .getScaledInstance(text_width / 5, text_width / 5, java.awt.Image.SCALE_SMOOTH);
+                        .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
                 image = Tools.getImage(image);
                 icon[counter].setResource(image);
 
@@ -535,8 +531,9 @@ public class Weather extends DefaultApplication {
                     - (SAFE_TITLE_V * 2));
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+            list.add("Press SELECT to go back");
             setFocusDefault(list);
 
             updateImage();
@@ -608,8 +605,9 @@ public class Weather extends DefaultApplication {
                     - (SAFE_TITLE_V * 2));
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list.add("Press SELECT to go back");
+            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             setFocusDefault(list);
 
             updateImage();
@@ -667,12 +665,6 @@ public class Weather extends DefaultApplication {
     public class AlertsScreen extends DefaultScreen {
         private BList list;
 
-        private final int top = SAFE_TITLE_V + 100;
-
-        private final int border_left = SAFE_TITLE_H;
-
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
-
         public AlertsScreen(Weather app, WeatherData data) {
             super(app);
 
@@ -683,9 +675,9 @@ public class Weather extends DefaultApplication {
 
             setTitle("Alerts");
 
-            int start = top - 30;
+            int start = TOP - 30;
 
-            eventText = new BText(normal, border_left, start, text_width, 30);
+            eventText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
             eventText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
             eventText.setFont("default-24-bold.font");
             eventText.setColor(new Color(150, 100, 100));
@@ -693,7 +685,7 @@ public class Weather extends DefaultApplication {
 
             start += 30;
 
-            datesText = new BText(normal, border_left, start, text_width, 20);
+            datesText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             datesText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
             datesText.setFont("default-18-bold.font");
             eventText.setColor(new Color(150, 100, 100));
@@ -701,7 +693,7 @@ public class Weather extends DefaultApplication {
 
             start += 25;
 
-            scrollText = new ScrollText(normal, SAFE_TITLE_H, start, text_width - 10, height - 2 * SAFE_TITLE_V - 193,
+            scrollText = new ScrollText(normal, SAFE_TITLE_H, start, BODY_WIDTH - 10, height - 2 * SAFE_TITLE_V - 193,
                     "");
 
             setFocusDefault(scrollText);
@@ -709,8 +701,9 @@ public class Weather extends DefaultApplication {
             setFooter("weather.gov");
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
-            list.add("Return to menu");
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+            list.add("Press SELECT to go back");
             setFocusDefault(list);
 
             updateText();
@@ -748,6 +741,8 @@ public class Weather extends DefaultApplication {
             case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
+            case KEY_UP:
+            case KEY_DOWN:
             case KEY_CHANNELUP:
             case KEY_CHANNELDOWN:
                 return scrollText.handleKeyPress(code, rawcode);

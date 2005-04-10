@@ -69,51 +69,57 @@ public class MediaRefreshThread extends Thread {
         FileGatherer.gatherDirectory(new File(pathInfo.mPath), pathInfo.mFilter, true,
                 new FileGatherer.GathererCallback() {
                     public void visit(File file, File originalFile) {
-                        try {
-                            List list = AudioManager.findByPath(file.getAbsolutePath());
-                            if (list.size() > 0) {
-                                Audio audio = (Audio) list.get(0);
-                                Date date = new Date(file.lastModified());
-                                if (date.getTime() > audio.getDateModified().getTime()) {
+                        synchronized(this)
+                        {
+                            try {
+                                List list = AudioManager.findByPath(file.getAbsolutePath());
+                                if (list.size() > 0) {
+                                    Audio audio = (Audio) list.get(0);
+                                    Date date = new Date(file.lastModified());
+                                    if (date.getTime() > audio.getDateModified().getTime()) {
+                                        if (log.isDebugEnabled())
+                                            log.debug("Changed: "+file.getAbsolutePath());
+                                        audio = (Audio) MediaManager.getMedia(audio, file.getAbsolutePath());
+                                        AudioManager.updateAudio(audio);
+                                    }
+                                } else {
                                     if (log.isDebugEnabled())
-                                        log.debug("Changed: "+file.getAbsolutePath());
-                                    audio = (Audio) MediaManager.getMedia(audio, file.getAbsolutePath());
-                                    AudioManager.updateAudio(audio);
+                                        log.debug("New: "+file.getAbsolutePath());
+                                    Audio audio = (Audio) MediaManager.getMedia(file.getAbsolutePath());
+                                    AudioManager.createAudio(audio);
                                 }
-                            } else {
-                                if (log.isDebugEnabled())
-                                    log.debug("New: "+file.getAbsolutePath());
-                                Audio audio = (Audio) MediaManager.getMedia(file.getAbsolutePath());
-                                AudioManager.createAudio(audio);
+                                Thread.sleep(10); // give the CPU some breathing time
+                            } catch (Exception ex) {
+                                Tools.logException(MediaRefreshThread.class, ex, file.getAbsolutePath());
                             }
-                            Thread.sleep(10); // give the CPU some breathing time
-                        } catch (Exception ex) {
-                            Tools.logException(MediaRefreshThread.class, ex, file.getAbsolutePath());
                         }
                     }
                 });
         // Determine any records that need to be removed
-        try {
-            AudioManager.scroll(new AudioManager.Callback() {
-                public void visit(Session session, Audio audio) {
-                    File file = new File(audio.getPath());
-                    if (!file.exists())
-                    {
-                        if (log.isDebugEnabled())
-                            log.debug("Removed: "+file.getAbsolutePath());
-                        
-                        try
+        synchronized(this)
+        {
+            try {
+                AudioManager.scroll(new AudioManager.Callback() {
+                    public void visit(Session session, Audio audio) {
+                        File file = new File(audio.getPath());
+                        if (!file.exists())
                         {
-                            session.delete(audio);
-                            Thread.sleep(10);  // give the CPU some breathing time
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            if (log.isDebugEnabled())
+                                log.debug("Removed: "+file.getAbsolutePath());
+                            
+                            try
+                            {
+                                session.delete(audio);
+                                Thread.sleep(10);  // give the CPU some breathing time
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
         
         System.gc();
@@ -145,6 +151,14 @@ public class MediaRefreshThread extends Thread {
     public void removePath(PathInfo pathInfo)
     {
         mPaths.remove(pathInfo);
+    }
+    
+    public void interrupt()
+    {
+        synchronized(this)
+        {
+            super.interrupt();
+        }
     }
 
     private ArrayList mPaths;

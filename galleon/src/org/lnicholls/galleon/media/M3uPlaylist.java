@@ -1,0 +1,174 @@
+package org.lnicholls.galleon.media;
+
+/*
+ * Copyright (C) 2005 Leon Nicholls
+ * 
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * See the file "COPYING" for more details.
+ */
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.apache.log4j.Logger;
+import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
+
+/*
+ * M3U Playlists of audio files and URLs.
+ */
+
+public class M3uPlaylist extends Playlist {
+    private static final String M3U_EXTENDED = "#EXTM3U";
+
+    private static final String M3U_ENTRY = "#EXTINF";
+
+    private static Logger log = Logger.getLogger(M3uPlaylist.class.getName());
+
+    public M3uPlaylist(String path) {
+        super(path);
+        loadMetaData();
+    }
+
+    // Delegate method to gather all of the items before applying all of the request criteria
+    protected final void loadMetaData() {
+        mItems.clear();
+        FileInputStream fileInputStream = null;
+        try {
+            File playlist = new File(mPath);
+            fileInputStream = new FileInputStream(playlist);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
+
+            // Check the first line to see if this is an extended m3u playlist
+            boolean extended = false;
+            String inputLine = reader.readLine();
+            if (inputLine == null) {
+                log.error("Invalid playlist: " + getPath());
+                return;
+            }
+
+            if (inputLine.startsWith(M3U_EXTENDED)) {
+                extended = true;
+                inputLine = reader.readLine();
+            }
+
+            // Now read the rest. Extended playlist lines come in pairs...
+            String name = "";
+            String duration = "";
+            boolean useStreamingProxy = Server.getServer().getUseStreamingProxy();
+
+            do {
+                inputLine = inputLine.trim();
+                if (inputLine.length() == 0)
+                    continue;
+
+                if (extended && inputLine.startsWith(M3U_ENTRY)) {
+                    // Format of the line is
+                    // #EXTINF:[0-9]+,.+
+                    // Where [0-9]+ is the song length in seconds and .+ is the
+                    // name of the song.
+                    String subLine = inputLine.substring(M3U_ENTRY.length() + 1);
+                    int comma = subLine.indexOf(",");
+
+                    if (comma != -1) {
+                        duration = subLine.substring(0, comma);
+                        name = subLine.substring(comma + 1);
+                    } else {
+                        // We're a forgiving parser... just skip invalid lines.
+                        log.error("Invalid line '" + inputLine + "' in playlist: " + getPath());
+                        duration = "";
+                        name = "";
+                    }
+                }
+                // All other lines are a uri to a song
+                else {
+                    // If name wasn't given, name is just the root of the filename
+                    if (name.length() == 0) {
+                        String normalized = inputLine.replace('\\', '/');
+                        name = normalized.substring(normalized.lastIndexOf("/") + 1);
+                        if (name.lastIndexOf(".") != -1)
+                            name = name.substring(0, name.lastIndexOf("."));
+                    }
+
+                    if (log.isDebugEnabled())
+                        log.debug("PlaylistItem: " + name + "=" + inputLine);
+
+                    Audio audio = null;
+
+                    // Handle urls
+                    if (inputLine.startsWith("http")) {
+                        /*
+                         * try { itemURL = new ItemURL(inputLine); } catch (MalformedURLException ex) { // Log it and
+                         * continue -- we are very forgiving log.error("Invalid format: " + name + "=" + inputLine + "
+                         * in " + getPath()); continue; }
+                         *  // Set up the Mp3UrlProxy for this entry if (useStreamingProxy) { String proxyAddr =
+                         * StreamingServlet.getProxyAddres(inputLine); proxy = new Mp3UrlProxy(proxyAddr, proxyAddr); } //
+                         * Only allow format: http://205.188.234.66:8010 else if (itemURL.getFile() == null ||
+                         * itemURL.getFile().length() == 0) { proxy = new Mp3UrlProxy(inputLine, inputLine); }
+                         */
+                    }
+                    // Handle files
+                    else {
+                        File file = getFile(playlist, inputLine);
+                        if (file != null) {
+                            try {
+                                audio = (Audio) MediaManager.getMedia(file.getCanonicalPath());
+                            } catch (Exception ex) {
+                            }
+                        }
+                    }
+
+                    if (audio != null) {
+                        audio.setTitle(name);
+
+                        // Do we know the length of the song?
+                        if (extended && duration.length() != 0) {
+                            try {
+                                int length = Integer.parseInt(duration);
+                                if (length != -1)
+                                    audio.setDuration(length);
+                            } catch (NumberFormatException e) {
+                                // Ignore
+                            }
+                        }
+
+                        try {
+                            AudioManager.updateAudio(audio);
+                        } catch (Exception ex) {
+                            Tools.logException(M3uPlaylist.class, ex);
+                        }
+
+                        mItems.add(new NameFile(name, new File(audio.getPath())));
+                    }
+
+                    name = "";
+                    duration = "";
+                }
+            } while ((inputLine = reader.readLine()) != null);
+        } catch (IOException e) {
+            log.error("Invalid playlist: " + getPath());
+        } finally {
+            if (fileInputStream != null)
+                try {
+                    fileInputStream.close();
+                } catch (IOException ioe) {
+                    // Ignore
+                }
+        }
+    }
+}

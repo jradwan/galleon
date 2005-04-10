@@ -27,6 +27,7 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.Tools;
@@ -54,8 +55,8 @@ public class AppFactory extends Factory {
     }
 
     public void loadApps() {
-        if (System.getProperty("apps") != null) {
-            File file = new File(System.getProperty("apps") + "/launcher.txt");
+        if (System.getProperty("hme") != null) {
+            File file = new File(System.getProperty("hme") + "/launcher.txt");
             if (file.exists()) {
 
                 FastInputStream in = null;
@@ -219,16 +220,7 @@ public class AppFactory extends Factory {
 
     public InputStream getStream(String uri) throws IOException {
         if (uri.toLowerCase().endsWith(".mp3")) {
-            try {
-                String id = Tools.extractName(uri);
-                Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
-                File file = new File(audio.getPath());
-                if (file.exists()) {
-                    return new FileInputStream(file);
-                }
-            } catch (Exception ex) {
-                Tools.logException(AppFactory.class, ex, uri);
-            }
+            return Mp3File.getStream(uri);
         }
 
         return super.getStream(uri);
@@ -236,15 +228,29 @@ public class AppFactory extends Factory {
 
     protected void addHeaders(HttpRequest http, String uri) throws IOException {
         if (uri.toLowerCase().endsWith(".mp3")) {
-            InputStream tmp = getStream(uri);
-            if (tmp != null) {
-                try {
-                    http.addHeader(IHmeProtocol.TIVO_DURATION, String.valueOf(Mp3Duration.getMp3Duration(tmp, tmp
-                            .available())));
-                } finally {
-                    tmp.close();
+            long duration = -1;
+            try {
+                String id = Tools.extractName(uri);
+                Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                duration = audio.getDuration();
+            } catch (Exception ex) {
+                Tools.logException(AppFactory.class, ex, uri);
+            }
+
+            if (duration==-1)
+            {
+                InputStream tmp = getStream(uri);
+                if (tmp != null) {
+                    try {
+                        duration = Mp3Duration.getMp3Duration(tmp, tmp.available());
+                    } finally {
+                        tmp.close();
+                    }
                 }
             }
+            
+            if (duration!=-1)
+                http.addHeader(IHmeProtocol.TIVO_DURATION, String.valueOf(duration));
         }
         super.addHeaders(http, uri);
     }
@@ -262,12 +268,15 @@ public class AppFactory extends Factory {
             try {
                 ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
                 String arguments = "";
-                if (serverConfiguration.getIPAddress()!=null && serverConfiguration.getIPAddress().trim().length() > 0) {
-                    arguments = (arguments.length() == 0 ? "" : " ") + "-i " + serverConfiguration.getIPAddress();
+                if (serverConfiguration.getIPAddress() != null
+                        && serverConfiguration.getIPAddress().trim().length() > 0) {
+                    arguments = "-i " + serverConfiguration.getIPAddress();
                 }
                 if (serverConfiguration.getPort() != 0) {
-                    arguments = (arguments.length() == 0 ? "" : " ") + "-port " + serverConfiguration.getPort();
+                    arguments = arguments + (arguments.length() == 0 ? "" : " ") + "-port "
+                            + serverConfiguration.getPort();
                 }
+                log.debug("arguments: " + arguments);
                 ArgumentList argumentList = new ArgumentList(arguments);
                 mListener = new Listener(argumentList);
             } catch (Exception ex) {

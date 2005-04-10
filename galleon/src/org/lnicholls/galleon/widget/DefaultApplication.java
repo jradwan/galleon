@@ -16,7 +16,7 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,17 +170,20 @@ public class DefaultApplication extends BApplication {
         }
 
         public void playTrack(String url) {
+            //System.out.println("playTrack:"+url);
             if (mStreamResource != null) {
+                //System.out.println("playTrack: remove");
                 mStreamResource.removeHandler(this);
-                mStreamResource.remove();
-                mDefaultApplication.flush();
+                mStreamResource.close();
             }
             mPlayerState = PLAY;
             mStreamResource = mDefaultApplication.createStream(url, "audio/mp3", true);
+            //System.out.println("mStreamResource="+mStreamResource.getID());
             mStreamResource.addHandler(this);
         }
 
         public void playTrack() {
+            //System.out.println("playTrack:");
             if (mPlayerState != PLAY) {
                 if (mStreamResource != null) {
                     mPlayerState = PLAY;
@@ -191,6 +194,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void startTrack() {
+            //System.out.println("startTrack:");
             if (mTracker != null) {
                 try {
                     if (mTracker.getPos() == -1)
@@ -215,6 +219,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void pauseTrack() {
+            //System.out.println("pauseTrack:");
             if (mPlayerState != STOP) {
                 if (mPlayerState == PAUSE) {
                     playTrack();
@@ -228,11 +233,13 @@ public class DefaultApplication extends BApplication {
         }
 
         public void stopTrack() {
+            //System.out.println("stopTrack:");
             if (mPlayerState != STOP) {
                 if (mStreamResource != null) {
                     mPlayerState = STOP;
 
-                    mStreamResource.remove();
+                    mStreamResource.removeHandler(this);
+                    mStreamResource.close();
                     mStreamResource = null;
                     reset();
                 }
@@ -240,6 +247,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void postEvent(HmeEvent event) {
+            //System.out.println("postEvent:");
             // TODO Implement listeners
             HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo) event;
             switch (event.opcode) {
@@ -273,6 +281,7 @@ public class DefaultApplication extends BApplication {
                     mDefaultApplication.getCurrentScreen().handleEvent(
                             new BEvent.Action(mDefaultApplication.getCurrentScreen(), "ready"));
                 } else if (info.status >= RSRC_STATUS_CLOSED) {
+                    //System.out.println("postEvent:RSRC_STATUS_CLOSED");
                     if (mPlayerState != STOP) {
                         stopTrack();
 
@@ -290,6 +299,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void getNextPos() {
+            //System.out.println("getNextPos:");
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
                 NameFile nameFile = (NameFile) mTracker.getList().get(pos);
@@ -301,6 +311,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void getPrevPos() {
+            //System.out.println("getPrevPos:");
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
                 NameFile nameFile = (NameFile) mTracker.getList().get(pos);
@@ -312,6 +323,7 @@ public class DefaultApplication extends BApplication {
         }
 
         private void reset() {
+            //System.out.println("reset:");
             mCurrentPosition = 0;
             mTotal = 0;
             mBitrate = 0;
@@ -423,6 +435,26 @@ public class DefaultApplication extends BApplication {
         log.debug(this + " handleApplicationError(" + errorCode + "," + errorText + ")");
         return true;
     }
+    
+    /*
+    protected void writeStream(String filename) throws IOException
+    {
+        InputStream in = getApp().getStream(filename);
+        try {
+            while (true) {
+                int count = in.read(buf, 0, buf.length);
+                if (count < 0) {
+                    break;
+                }
+                context.out.write(buf, 0, count);
+            }
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) { }
+        }
+    }
+    */
     
     // TODO Need to handle multiple apps
     private Player mPlayer;

@@ -17,6 +17,7 @@ package org.lnicholls.galleon.server;
  */
 
 import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.InetAddress;
@@ -36,6 +37,7 @@ import java.util.TimerTask;
 
 import net.sf.hibernate.HibernateException;
 
+import org.apache.derby.impl.sql.compile.GetCurrentConnectionNode;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
@@ -81,8 +83,7 @@ public class Server {
 
             // Log the system properties
             printSystemProperties();
-
-            log.info("Galleon version=" + Tools.getVersion());
+            printServerProperties();
 
             // Redirect standard out; some third-party libraries use this for error logging
             // TODO
@@ -137,6 +138,20 @@ public class Server {
             check = new File(System.getProperty("apps"));
             if (!check.exists() || !check.isDirectory())
                 errors.add("Invalid system propery: apps=" + System.getProperty("apps"));
+            
+            if (System.getProperty("hme") == null)
+                System.setProperty("hme", file.getAbsolutePath() + "/../hme");
+
+            check = new File(System.getProperty("hme"));
+            if (!check.exists() || !check.isDirectory())
+                errors.add("Invalid system propery: hme=" + System.getProperty("hme"));            
+            
+            if (System.getProperty("skins") == null)
+                System.setProperty("skins", file.getAbsolutePath() + "/../skins");
+
+            check = new File(System.getProperty("skins"));
+            if (!check.exists() || !check.isDirectory())
+                errors.add("Invalid system propery: skins=" + System.getProperty("skins"));            
 
             if (System.getProperty("logs") == null)
                 System.setProperty("logs", file.getAbsolutePath() + "/../logs");
@@ -181,8 +196,6 @@ public class Server {
         if (log.isDebugEnabled())
             log.debug("start()");
         try {
-            mTiVoListener = new TiVoListener();
-
             // Start the database
             NetworkServerManager.initialize();
 
@@ -202,6 +215,8 @@ public class Server {
             // Read the conf/configure.xml file
             mConfigurator = new Configurator();
             mConfigurator.load(mAppManager);
+            
+            mTiVoListener = new TiVoListener();            
 
             mAppManager.loadApps();
 
@@ -313,14 +328,14 @@ public class Server {
             InetAddress inetAddress = InetAddress.getLocalHost();
 
             log.info("Galleon Version=" + getVersion());
-            System.setProperty("version", getVersion());
             log.info("Local IP=" + inetAddress.getHostAddress());
             log.info("Host=" + inetAddress.getHostName());
-            System.setProperty("host", inetAddress.getHostName());
 
             Tools.logMemory();
         } catch (UnknownHostException ex) {
             Tools.logException(Server.class, ex);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -495,7 +510,8 @@ public class Server {
         try {
             Font.createFont(Font.TRUETYPE_FONT, Server.class.getClassLoader().getResourceAsStream(
                     ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "default.ttf"));
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            Tools.logException(Server.class, e);
         }
     }
 
@@ -529,7 +545,7 @@ public class Server {
          * log.error("Server configuration update failed", ex); }
          */
         save();
-        mToGoThread.interrupt();
+        //mToGoThread.interrupt();
     }
 
     public List getAppDescriptors() {
@@ -548,7 +564,7 @@ public class Server {
     public void updateTiVos(List tivos) {
         mServerConfiguration.setTiVos(tivos);
         save();
-        mToGoThread.interrupt();
+        //mToGoThread.interrupt();
     }
 
     public void removeApp(AppContext app) {
@@ -589,7 +605,7 @@ public class Server {
     public void updateRules(List rules) {
         mServerConfiguration.setRules(rules);
         save();
-        mToGoThread.interrupt();
+        //mToGoThread.interrupt();
     }
 
     public List getSkins() {
@@ -614,20 +630,55 @@ public class Server {
                 return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
             }
         });
-        URL urlList[] = new URL[files.length];
+        ArrayList urls = new ArrayList();
         for (int i = 0; i < files.length; ++i) {
             try {
-                urlList[i] = files[i].toURI().toURL();
-                log.debug("Found app: " + urlList[i]);
+                URL url = files[i].toURI().toURL();
+                urls.add(url);
+                log.debug("Found app: " + url);
             } catch (Exception ex) {
                 // should never happen
             }
         }
+        
+        directory = new File(System.getProperty("hme"));
+        // TODO Handle reloading; what if list changes?
+        files = directory.listFiles(new FileFilter() {
+            public final boolean accept(File file) {
+                return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
+            }
+        });
+        for (int i = 0; i < files.length; ++i) {
+            try {
+                URL url = files[i].toURI().toURL();
+                urls.add(url);
+                log.debug("Found HME app: " + url);
+            } catch (Exception ex) {
+                // should never happen
+            }
+        }        
 
-        mAppClassLoader = new URLClassLoader(urlList);
+        mAppClassLoader = new URLClassLoader((URL[]) urls.toArray(new URL[0]));
     }
 
     public static void main(String args[]) {
+        
+        try {
+            BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        } catch (Throwable ex) {
+            System.out.println(ex.getMessage());
+            System.out.println(ex.toString());
+            ex.printStackTrace();
+            Throwable cause = ex.getCause();
+            while (cause!=null)
+            {
+                System.out.println(cause.getMessage());
+                System.out.println(cause.toString());
+                cause.printStackTrace();
+                cause = cause.getCause();    
+            }
+        }        
+        
         Server server = getServer();
     }
 

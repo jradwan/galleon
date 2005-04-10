@@ -1,7 +1,7 @@
 package org.lnicholls.galleon.media;
 
 /*
- * Copyright (C) 2004 Leon Nicholls
+ * Copyright (C) 2005 Leon Nicholls
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
@@ -22,7 +22,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.net.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +51,16 @@ import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.util.Amazon;
 import org.lnicholls.galleon.util.Tools;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
+import javazoom.spi.mpeg.sampled.file.tag.*;
+import javazoom.spi.mpeg.sampled.file.*;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
@@ -879,9 +890,8 @@ public final class Mp3File {
         // 1. Embedded APIC tag.
         // 2. Amazon image lookup.
         // 3. File system image file.
-        
-        if (audio.getCover()!=null)
-        {
+
+        if (audio.getCover() != null) {
             try {
                 java.awt.Image image = ThumbnailManager.findImageById(audio.getCover());
                 if (image != null)
@@ -902,19 +912,20 @@ public final class Mp3File {
         if (useAmazon) {
             if (!audio.getAlbum().equals(DEFAULT_ALBUM) && !audio.getArtist().equals(DEFAULT_ARTIST)) {
                 BufferedImage image = Amazon.getAlbumImage(getKey(audio), audio.getArtist(), audio.getAlbum());
-                if (image != null)
-                {
+                if (image != null) {
                     try {
                         createCover(image, audio, "image/jpg");
-    
+
                         try {
                             AudioManager.updateAudio(audio);
                         } catch (HibernateException ex) {
                             log.error("Cover create failed", ex);
                         }
-    
+
                     } catch (Exception ex) {
-                        Tools.logException(Mp3File.class, ex, "Cannot create cover from Amazon.com: " + audio.getPath());
+                        Tools
+                                .logException(Mp3File.class, ex, "Cannot create cover from Amazon.com: "
+                                        + audio.getPath());
                     }
                     return image;
                 }
@@ -932,10 +943,9 @@ public final class Mp3File {
             for (int i = 0; i < files.length; i++) {
                 try {
                     BufferedImage image = ImageIO.read(new FileInputStream(files[i]));
-                    if (image != null)
-                    {
+                    if (image != null) {
                         createCover(new FileInputStream(files[i]), audio, "image/jpg");
-    
+
                         try {
                             AudioManager.updateAudio(audio);
                         } catch (HibernateException ex) {
@@ -950,5 +960,108 @@ public final class Mp3File {
             }
         }
         return null;
+    }
+
+    public static InputStream getStream(String uri) throws IOException {
+        if (uri.toLowerCase().endsWith(".mp3")) {
+            log.debug("getStream: " + uri);
+            
+            if (!uri.startsWith("http"))
+            {
+                try {
+                    String id = Tools.extractName(uri);
+                    Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                    File file = new File(audio.getPath());
+                    if (file.exists()) {
+                        AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
+                        log.debug("Audio Type : " + aff.getType());
+                        AudioInputStream in = AudioSystem.getAudioInputStream(file);
+                        AudioFormat baseFormat = in.getFormat();
+                        log.debug("Source Format : " + baseFormat.toString());
+                        return in;
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(Mp3File.class, ex, uri);
+                }
+            }
+
+            //URL url = new URL("http://64.236.34.4:80/stream/1065");
+            URL url = new URL(uri);
+            URLConnection conn = url.openConnection();
+            conn.setRequestProperty("Icy-Metadata", "1");
+            System.out.println("conn.getContentLength()="+conn.getContentLength());
+            IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn.getContentLength()));
+            System.out.println("available="+input.available());
+            final IcyListener icyListener = IcyListener.getInstance();
+            input.addTagParseListener(icyListener);
+            
+            new Thread(){
+                public void run()
+                {
+                    try
+                    {
+                        String title = "";
+                        while (true)
+                        {
+                            if (!title.equals(icyListener.getStreamTitle()))
+                            {
+                                title = icyListener.getStreamTitle();
+                                System.out.println(title);
+                            }
+                            sleep(1000*10);
+                        }
+                    }
+                    catch (Exception ex){}
+                }
+            }.start();
+            
+            return input;
+
+            /* 
+            try { 
+                 String id = Tools.extractName(uri); 
+                 Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                 File file = new File(audio.getPath()); 
+                 if (file.exists()) { return new FileInputStream(file); } 
+              } catch (Exception ex) { Tools.logException(Mp3File.class, ex, uri); }
+              */
+        }
+        return Mp3File.class.getResourceAsStream("/couldnotconnect.mp3");
+    }
+    
+    private static final class URLStream extends FilterInputStream
+    {
+        URLStream(InputStream in, long contentLength)
+        {
+            super(in);
+            mContentLength = contentLength;
+        }
+        public int available()
+        {
+            return (int) mContentLength;
+        }
+        public int read() throws IOException
+        {
+            mContentLength -= 1;
+            return in.read();
+        }
+        public int read(byte b[], int off, int length) throws IOException
+        {
+            int n = super.read(b, off, length);
+            if (n > 0) {
+                mContentLength -= n;
+            }
+            return n;
+        }
+        public long skip(long n) throws IOException
+        {
+            n = super.skip(n);
+            if (n > 0) {
+                mContentLength -= n;
+            }
+            return n;
+        }
+        
+        private long mContentLength;
     }
 }

@@ -25,7 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import EDU.oswego.cs.dl.util.concurrent.FIFOReadWriteLock;
 
 import javax.imageio.ImageIO;
 
@@ -125,7 +125,7 @@ public final class JpgFile {
             }
 
             if (thumbnailImage == null) {
-                mLock.writeLock().lock();
+                mLock.writeLock().acquire();
                 try {
                     FileInputStream is = new FileInputStream(image.getPath());
                     if (is != null) {
@@ -161,7 +161,7 @@ public final class JpgFile {
                         photo = null;
                     }
                 } finally {
-                    mLock.writeLock().unlock();
+                    mLock.writeLock().release();
                 }
             }
             return thumbnailImage;
@@ -184,5 +184,5 @@ public final class JpgFile {
      *  
      */
 
-    private static ReentrantReadWriteLock mLock = new ReentrantReadWriteLock();
+    private static FIFOReadWriteLock mLock = new FIFOReadWriteLock();
 }

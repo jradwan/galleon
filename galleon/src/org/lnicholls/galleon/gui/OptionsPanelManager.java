@@ -51,7 +51,7 @@ public final class OptionsPanelManager extends InternalFrame implements ActionLi
 
         JPanel defaultPanel = new JPanel();
         defaultPanel.setLayout(new GridLayout(0, 1));
-        defaultPanel.add(new JLabel("Use the File/New App menu to add new apps", SwingConstants.CENTER));
+        defaultPanel.add(new JLabel("Use the File/Properies menu to configure Galleon. Use the File/New App menu to add new apps.", SwingConstants.CENTER));
         mScrollPane = MainFrame.createScrollPane(defaultPanel);
 
         content.add(mScrollPane, "Center");

@@ -17,6 +17,7 @@ package org.lnicholls.galleon.togo;
  */
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,11 +52,20 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                 List tivos = (List) serverConfiguration.getTiVos();
                 log.debug("tivos=" + tivos.size());
 
-                ArrayList downloaded = mToGo.getRecordings(tivos, this);
-                if (downloaded.size()>0)
+                ArrayList downloaded = null;
+                synchronized(mToGo)
+                {
+                    downloaded = mToGo.getRecordings(tivos, this);
+                }
+                
+                if (downloaded!=null && downloaded.size()>0)
                 {
                     log.debug("downloaded.size()=" + downloaded.size());
-                    List recordings = VideoManager.listAll();
+                    List recordings = null; 
+                    synchronized(mToGo)
+                    {
+                        recordings = VideoManager.listAll();
+                    }
     
                     // Remove recordings that dont exist on TiVo anymore
                     Iterator iterator = recordings.listIterator();
@@ -73,16 +83,22 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                 }
                             }
                             if (!found) {
-                                try {
-                                    VideoManager.deleteVideo(next);
-                                } catch (HibernateException ex) {
-                                    log.error("Video delete failed", ex);
+                                synchronized(mToGo)
+                                {
+                                    try {
+                                        VideoManager.deleteVideo(next);
+                                    } catch (HibernateException ex) {
+                                        log.error("Video delete failed", ex);
+                                    }
                                 }
                             }
                         }
                     }
                     recordings.clear();
-                    recordings = VideoManager.listAll();
+                    synchronized(mToGo)
+                    {
+                        recordings = VideoManager.listAll();
+                    }
     
                     // Update status of recordings
                     iterator = downloaded.iterator();
@@ -94,46 +110,59 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                         while (recordingsIterator.hasNext()) {
                             Video video = (Video) recordingsIterator.next();
                             if (video.equals(next)) {
-                                try {
-                                    if (video.getStatus() == Video.STATUS_DOWNLOADED
-                                            || video.getStatus() == Video.STATUS_DOWNLOADING
-                                            || video.getStatus() == Video.STATUS_USER_SELECTED
-                                            || video.getStatus() == Video.STATUS_USER_CANCELLED
-                                            || video.getStatus() == Video.STATUS_DELETED)
-                                        next.setStatus(video.getStatus());
-                                    if (video.getStatus() == Video.STATUS_DOWNLOADED)
-                                    {
-                                        next.setPath(video.getPath());
-                                        next.setDownloadSize(video.getDownloadSize());
-                                        next.setDownloadTime(video.getDownloadTime());
+                                synchronized(mToGo)
+                                {
+                                    try {
+                                        if (video.getStatus() == Video.STATUS_DOWNLOADED
+                                                || video.getStatus() == Video.STATUS_DOWNLOADING
+                                                || video.getStatus() == Video.STATUS_USER_SELECTED
+                                                || video.getStatus() == Video.STATUS_USER_CANCELLED
+                                                || video.getStatus() == Video.STATUS_DELETED)
+                                            next.setStatus(video.getStatus());
+                                        if (video.getStatus() == Video.STATUS_DOWNLOADED)
+                                        {
+                                            next.setPath(video.getPath());
+                                            next.setDownloadSize(video.getDownloadSize());
+                                            next.setDownloadTime(video.getDownloadTime());
+                                        }
+                                        PropertyUtils.copyProperties(video, next);
+                                        VideoManager.updateVideo(video);
+                                    } catch (HibernateException ex) {
+                                        log.error("Video update failed", ex);
+                                    } catch (Exception ex) {
+                                        log.error("Video properties update failed", ex);
                                     }
-                                    PropertyUtils.copyProperties(video, next);
-                                    VideoManager.updateVideo(video);
-                                } catch (HibernateException ex) {
-                                    log.error("Video update failed", ex);
-                                } catch (Exception ex) {
-                                    log.error("Video properties update failed", ex);
                                 }
                                 found = true;
                                 break;
                             }
                         }
                         if (!found) {
-                            try {
-                                VideoManager.createVideo(next);
-                            } catch (HibernateException ex) {
-                                log.error("Video delete failed", ex);
+                            synchronized(mToGo)
+                            {
+                                try {
+                                    VideoManager.createVideo(next);
+                                } catch (HibernateException ex) {
+                                    log.error("Video create failed", ex);
+                                }
                             }
                         }
                     }
-                    mToGo.applyRules();
+                    synchronized(mToGo)
+                    {
+                        mToGo.applyRules();
+                    }
     
                     recordings.clear();
                     downloaded.clear();
+                    
+                    sleep(1000 * 60 * 10);
                 }
-
-                sleep(1000 * 60 * 10);
+                else
+                    sleep(1000 * 10);
+                
             } catch (InterruptedException ex) {
+                Tools.logException(ToGoThread.class, ex);
             } // handle silently for waking up
             catch (Exception ex2) {
                 Tools.logException(ToGoThread.class, ex2);
@@ -144,6 +173,28 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
     public void progress(String value) {
         if (log.isDebugEnabled())
             log.debug(value);
+    }
+    
+    public void interrupt()
+    {
+        synchronized(mToGo)
+        {
+            super.interrupt();
+        }
+    }
+    
+    public List getRecordings() throws RemoteException
+    {
+        synchronized(mToGo)
+        {
+            try
+            {
+                return VideoManager.listAll();
+            } catch (HibernateException ex) {
+                log.error("Video listAll failed", ex);
+            }
+        }
+        return new ArrayList();
     }
     
     private Server mServer;

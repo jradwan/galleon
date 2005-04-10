@@ -60,23 +60,23 @@ public class DefaultScreen extends BScreen {
         }
     }
 
-    public DefaultScreen(BApplication app) {
+    public DefaultScreen(DefaultApplication app) {
         this(app, "background.jpg");
     }
 
-    public DefaultScreen(BApplication app, String background) {
+    public DefaultScreen(DefaultApplication app, String background) {
         this(app, background, null, false);
     }
 
-    public DefaultScreen(BApplication app, boolean hints) {
+    public DefaultScreen(DefaultApplication app, boolean hints) {
         this(app, "background.jpg", null, hints);
     }
 
-    public DefaultScreen(BApplication app, String title, boolean hints) {
+    public DefaultScreen(DefaultApplication app, String title, boolean hints) {
         this(app, "background.jpg", title, hints);
     }
 
-    public DefaultScreen(BApplication app, String background, String title, boolean hints) {
+    public DefaultScreen(DefaultApplication app, String background, String title, boolean hints) {
         super(app);
         setTitle(title);
 
@@ -86,6 +86,10 @@ public class DefaultScreen extends BScreen {
         if (hints)
             mHints = new HintsView(above, SAFE_TITLE_H, SAFE_TITLE_V, width - 2 * SAFE_TITLE_H, height - 2
                     * SAFE_TITLE_V, true);
+        
+        mBusy = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
+        mBusy.setResource(app.mBusy2Icon);
+        mBusy.setVisible(false);
     }
 
     public boolean handleAction(BView view, Object action) {
@@ -156,4 +160,6 @@ public class DefaultScreen extends BScreen {
     private BText mFooter;
 
     private HintsView mHints;
+    
+    protected BView mBusy;
 }

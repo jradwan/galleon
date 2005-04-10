@@ -48,6 +48,7 @@ import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.Grid;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -71,7 +72,7 @@ public class Photos extends DefaultApplication {
     private Resource mLargeFolderIcon;
 
     private Resource mCameraIcon;
-
+    
     protected void init(Context context) {
         super.init(context);
 
@@ -87,8 +88,30 @@ public class Photos extends DefaultApplication {
             Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
             setTracker(tracker);
         }
-
-        push(new PhotosMenuScreen(this), TRANSITION_NONE);
+        
+        PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
+        .getAppContext().getConfiguration();
+        
+        if (imagesConfiguration.getPaths().size()==1)
+        {
+            try
+            {
+                NameValue nameValue = (NameValue) imagesConfiguration.getPaths().get(0);
+                NameFile nameFile = new NameFile(nameValue.getName(), new File(nameValue.getValue()));
+                FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                        .getCanonicalPath());
+                setCurrentDirectory(nameFile.getFile().getCanonicalPath());
+                Tracker tracker = new Tracker(fileSystemContainer
+                        .getItems(FileFilters.imageDirectoryFilter), 0);
+                PathScreen pathScreen = new PathScreen(this, tracker, true);
+                push(pathScreen, TRANSITION_LEFT);
+                flush();
+            } catch (Exception ex) {
+                Tools.logException(Photos.class, ex);
+            }
+        }
+        else        
+            push(new PhotosMenuScreen(this), TRANSITION_NONE);
     }
 
     public class PhotosMenuScreen extends DefaultMenuScreen {
@@ -170,22 +193,44 @@ public class Photos extends DefaultApplication {
                     Thread thread = new Thread() {
                         public void run() {
                             try {
-                                parent.setResource(Color.GRAY);
-                                parent.setTransparency(0.5f);
-                                parent.flush();
-
-                                Image image = getImage(nameFile.getFile().getCanonicalPath());
-
-                                BufferedImage thumbnail = JpgFile.getThumbnail(image);
-                                if (thumbnail != null) {
-                                    parent.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
-                                    parent.setTransparency(0.0f);
+                                synchronized(this)
+                                {
+                                    parent.setResource(Color.GRAY);
+                                    parent.setTransparency(0.5f);
                                     parent.flush();
+                                }
+
+                                Image image = null;
+                                synchronized(this)
+                                {
+                                    image = getImage(nameFile.getFile().getCanonicalPath());
+                                }
+
+                                BufferedImage thumbnail = null;
+                                synchronized(this)
+                                {
+                                    thumbnail = JpgFile.getThumbnail(image);
+                                }
+                                if (thumbnail != null) {
+                                    synchronized(this)
+                                    {
+                                        parent.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
+                                        parent.setTransparency(0.0f);
+                                        parent.flush();
+                                    }
                                 }
                             } catch (Throwable ex) {
                                 log.error(ex);
                             } finally {
                                 mThreads.remove(this);
+                            }
+                        }
+                        
+                        public void interrupt()
+                        {
+                            synchronized (this)
+                            {
+                                super.interrupt();
                             }
                         }
                     };
@@ -213,14 +258,21 @@ public class Photos extends DefaultApplication {
         }
 
         public void shutdown() {
-            Iterator iterator = mThreads.iterator();
-            while (iterator.hasNext()) {
-                Thread thread = (Thread) iterator.next();
-                if (thread.isAlive()) {
-                    thread.interrupt();
+            setPainting(false);
+            try {
+                Iterator iterator = mThreads.iterator();
+                while (iterator.hasNext()) {
+                    Thread thread = (Thread) iterator.next();
+                    if (thread.isAlive()) {
+                        thread.interrupt();
+                    }
                 }
+                mThreads.clear();
             }
-            mThreads.clear();
+            finally
+            {
+                setPainting(true);
+            }
         }
 
         private Vector mThreads;
@@ -228,13 +280,18 @@ public class Photos extends DefaultApplication {
 
     public class PathScreen extends DefaultScreen {
         private PGrid grid;
-
+        
         public PathScreen(Photos app, Tracker tracker) {
+            this(app, tracker, false);
+        }
+
+        public PathScreen(Photos app, Tracker tracker, boolean first) {
             super(app);
 
             setTitle("Photos");
 
             mTracker = tracker;
+            mFirst = first;
 
             int w = width - 2 * SAFE_TITLE_H;
             int h = height - 2 * SAFE_TITLE_V - 60;
@@ -282,8 +339,6 @@ public class Photos extends DefaultApplication {
                     new Thread() {
                         public void run() {
                             try {
-                                Image image = getImage(nameFile.getFile().getCanonicalPath());
-
                                 PhotosScreen photosScreen = new PhotosScreen((Photos) getBApp());
                                 mTracker.setPos(grid.getPos());
                                 photosScreen.setTracker(mTracker);
@@ -299,6 +354,50 @@ public class Photos extends DefaultApplication {
 
                 return true;
             }
+            else
+            if (action.equals("play")) {
+                Object object = grid.get(grid.getFocus());
+                getBApp().play("select.snd");
+                getBApp().flush();
+
+                mTop = grid.getTop();
+
+                ArrayList photos = (ArrayList) object;
+                final NameFile nameFile = (NameFile) photos.get(grid.getPos() % 3);
+                if (nameFile.getFile().isDirectory()) {
+                    new Thread() {
+                        public void run() {
+                            try {
+                                mTracker.setPos(grid.getPos());
+
+                                FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                                        .getCanonicalPath());
+                                Tracker tracker = new Tracker(fileSystemContainer
+                                        .getItems(FileFilters.imageDirectoryFilter), 0);
+                                getBApp().push(new SlideshowScreen((Photos) getBApp(), tracker), TRANSITION_LEFT);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                Tools.logException(Photos.class, ex);
+                            }
+                        }
+                    }.start();
+                } else {
+                    new Thread() {
+                        public void run() {
+                            try {
+                                PhotosScreen photosScreen = new PhotosScreen((Photos) getBApp());
+                                mTracker.setPos(grid.getPos());
+                                getBApp().push(new SlideshowScreen((Photos) getBApp(), mTracker), TRANSITION_LEFT);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                Tools.logException(Photos.class, ex);
+                            }
+                        }
+                    }.start();
+                }
+
+                return true;
+            }                
             return super.handleAction(view, action);
         }
 
@@ -345,17 +444,25 @@ public class Photos extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_LEFT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
+                if (!mFirst)
+                {
+                    postEvent(new BEvent.Action(this, "pop"));
+                    return true;
+                }
+                break;
+            case KEY_PLAY:
+                postEvent(new BEvent.Action(this, "play"));
+                return true;                    
             }
+            
             return super.handleKeyPress(code, rawcode);
         }
 
         private Tracker mTracker;
 
-        private BView mBusy;
-
         private int mTop;
+        
+        private boolean mFirst;
     }
 
     public class PhotosScreen extends DefaultScreen {
@@ -442,8 +549,15 @@ public class Photos extends DefaultApplication {
 
                     final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                             .getAppContext().getConfiguration();
-                    if (mThumbnailThread != null && mThumbnailThread.isAlive())
-                        mThumbnailThread.interrupt();
+                    setPainting(false);
+                    try {
+                        if (mThumbnailThread != null && mThumbnailThread.isAlive())
+                            mThumbnailThread.interrupt();
+                    }
+                    finally
+                    {
+                        setPainting(true);
+                    }
                     mThumbnailThread = new Thread() {
                         public void run() {
                             try {
@@ -451,16 +565,27 @@ public class Photos extends DefaultApplication {
                                 if (thumbnail != null) {
                                     synchronized (mThumbnail) {
                                         if (mThumbnail.getID() != -1) {
-                                            mThumbnail.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
-                                            mThumbnail.setVisible(true);
-                                            mThumbnail.setTransparency(1.0f);
-                                            mThumbnail.setTransparency(0.0f, mAnim);
-                                            mThumbnail.flush();
+                                            synchronized(this)
+                                            {
+                                                mThumbnail.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
+                                                mThumbnail.setVisible(true);
+                                                mThumbnail.setTransparency(1.0f);
+                                                mThumbnail.setTransparency(0.0f, mAnim);
+                                                mThumbnail.flush();
+                                            }
                                         }
                                     }
                                 }
                             } catch (Exception ex) {
                                 Tools.logException(Photos.class, ex, "Could retrieve thumbnail");
+                            }
+                        }
+                        
+                        public void interrupt()
+                        {
+                            synchronized (this)
+                            {
+                                super.interrupt();
                             }
                         }
                     };
@@ -482,9 +607,16 @@ public class Photos extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            if (mThumbnailThread != null && mThumbnailThread.isAlive())
-                mThumbnailThread.interrupt();
-            clearThumbnail();
+            setPainting(false);
+            try {
+                if (mThumbnailThread != null && mThumbnailThread.isAlive())
+                    mThumbnailThread.interrupt();
+                clearThumbnail();
+            }
+            finally
+            {
+                setPainting(true);
+            }
             return super.handleExit();
         }
 
@@ -645,7 +777,7 @@ public class Photos extends DefaultApplication {
     public class SlideshowScreen extends DefaultScreen {
 
         public SlideshowScreen(Photos app, Tracker tracker) {
-            super(app, null, false);
+            super(app, null, null, false);
 
             mTracker = tracker;
 
@@ -914,6 +1046,14 @@ public class Photos extends DefaultApplication {
                 } catch (Exception ex2) {
                     Tools.logException(Photos.class, ex2);
                 }
+            }
+        }
+        
+        public void interrupt()
+        {
+            synchronized (this)
+            {
+                super.interrupt();
             }
         }
 

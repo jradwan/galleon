@@ -39,11 +39,11 @@ public class VideoManager {
         public void visit(Session session, Video video);
     }
 
-    public static Video retrieveVideo(Video Video) throws HibernateException {
+    public static  Video retrieveVideo(Video Video) throws HibernateException {
         return retrieveVideo(Video.getId());
     }
 
-    public static Video retrieveVideo(Integer id) throws HibernateException {
+    public static  Video retrieveVideo(Integer id) throws HibernateException {
 
         Video result = null;
         Session session = HibernateUtil.openSession();
@@ -62,7 +62,7 @@ public class VideoManager {
         return result;
     }
 
-    public static Video createVideo(Video Video) throws HibernateException {
+    public static  Video createVideo(Video Video) throws HibernateException {
 
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
@@ -80,7 +80,7 @@ public class VideoManager {
         return Video;
     }
 
-    public static void updateVideo(Video Video) throws HibernateException {
+    public static  void updateVideo(Video Video) throws HibernateException {
 
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
@@ -97,7 +97,7 @@ public class VideoManager {
         }
     }
 
-    public static void deleteVideo(Video Video) throws HibernateException {
+    public static  void deleteVideo(Video Video) throws HibernateException {
 
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
@@ -114,7 +114,7 @@ public class VideoManager {
         }
     }
 
-    public static List listAll() throws HibernateException {
+    public static  List listAll() throws HibernateException {
         List list = new ArrayList();
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
@@ -132,7 +132,7 @@ public class VideoManager {
         return list;
     }
 
-    public static List listBetween(int start, int end) throws HibernateException {
+    public static  List listBetween(int start, int end) throws HibernateException {
         List list = new ArrayList();
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
@@ -162,7 +162,7 @@ public class VideoManager {
         return list;
     }
 
-    public static void scroll(Callback callback) throws HibernateException {
+    public static  void scroll(Callback callback) throws HibernateException {
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {
@@ -187,7 +187,7 @@ public class VideoManager {
         }
     }
 
-    public static List findByPath(String path) throws HibernateException {
+    public static  List findByPath(String path) throws HibernateException {
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {

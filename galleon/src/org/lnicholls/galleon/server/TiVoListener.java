@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.net.*;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -47,8 +48,15 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
 
     public TiVoListener() {
         try {
-            JmDNS jmdns = new JmDNS();
+            ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+            String address = serverConfiguration.getIPAddress();
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            if (address!=null && address.length()>0)
+                inetAddress = InetAddress.getByName(address);
+            
+            JmDNS jmdns = new JmDNS(inetAddress);
             jmdns.addServiceListener(HTTP_SERVICE, this);
+            log.debug("Interface: "+jmdns.getInterface());
         } catch (IOException ex) {
             Tools.logException(TiVoListener.class, ex);
         }
@@ -124,20 +132,46 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
                         TiVo knownTiVo = (TiVo) iterator.next();
                         if (knownTiVo.getAddress().equals(tivo.getAddress())) {
                             matched = true;
-                            knownTiVo.setPlatform(tivo.getPlatform());
-                            knownTiVo.setServiceNumber(tivo.getServiceNumber());
-                            knownTiVo.setSoftwareVersion(tivo.getSoftwareVersion());
-                            knownTiVo.setPath(tivo.getPath());
-                            knownTiVo.setServer(tivo.getServer());
-                            knownTiVo.setPort(tivo.getPort());
+                            boolean modified = false;
+                            if (!tivo.getPlatform().equals(knownTiVo.getPlatform()))
+                            {
+                                knownTiVo.setPlatform(tivo.getPlatform());
+                                modified = true;
+                            }
+                            if (!tivo.getServiceNumber().equals(knownTiVo.getServiceNumber()))
+                            {
+                                knownTiVo.setServiceNumber(tivo.getServiceNumber());
+                                modified = true;
+                            }
+                            if (!tivo.getSoftwareVersion().equals(knownTiVo.getSoftwareVersion()))
+                            {
+                                knownTiVo.setSoftwareVersion(tivo.getSoftwareVersion());
+                                modified = true;
+                            }
+                            if (!tivo.getPath().equals(knownTiVo.getPath()))
+                            {
+                                knownTiVo.setPath(tivo.getPath());
+                                modified = true;
+                            }
+                            if (!tivo.getServer().equals(knownTiVo.getServer()))
+                            {
+                                knownTiVo.setServer(tivo.getServer());
+                                modified = true;
+                            }
+                            if (tivo.getPort()!=knownTiVo.getPort())
+                            {
+                                knownTiVo.setPort(tivo.getPort());
+                                modified = true;
+                            }
+                            if (modified)
+                                Server.getServer().updateTiVos(tivos);
                         }
                     }
                     if (!matched) {
                         tivos.add(tivo);
+                        Server.getServer().updateTiVos(tivos);
+                        log.info("Found TiVo: " + tivo.toString());
                     }
-                    Server.getServer().updateTiVos(tivos);
-
-                    log.info("Found TiVo: " + tivo.toString());
                 }
             }
         }

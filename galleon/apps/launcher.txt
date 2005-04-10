@@ -29,5 +29,3 @@
 #com.tivo.hme.samples.tictactoe.TicTacToe
 
 #com.tivo.hme.samples.bananas.BananasSample
-
-org.lnicholls.galleon.apps.togo.ToGo

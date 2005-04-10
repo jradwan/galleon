@@ -72,6 +72,29 @@ public final class AppManager {
                 log.error("Could not create app descriptor", ex);
             }
         }
+        
+        /*
+        directory = new File(System.getProperty("hme"));
+        files = directory.listFiles(new FileFilter() {
+            public final boolean accept(File file) {
+                return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
+            }
+        });
+        for (int i = 0; i < files.length; ++i) {
+            try {
+                log.debug("Found HME app: " + files[i].getAbsolutePath());
+                File file = new File(files[i].getCanonicalPath());
+                mJars.add(file);
+                
+                AppDescriptor appDescriptor = new AppDescriptor(file);
+                log.debug("appDescriptor=" + appDescriptor);
+                if (appDescriptor.getClassName()!=null)
+                    mAppDescriptors.add(appDescriptor);
+            } catch (Exception ex) {
+                log.error("Could not create app descriptor", ex);
+            }
+        } 
+        */       
     }
     
     public void addHMEApp(String launcher) {

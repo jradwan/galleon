@@ -46,13 +46,16 @@ public class DefaultMenuScreen extends DefaultScreen {
     }
 
     public void load() {
-        BView row = mMenuList.getRow(mMenuList.getFocus());
-        BView icon = (BView) row.children[0];
-        icon.setResource(((DefaultApplication) getApp()).mBusy2Icon);
-        icon.flush();
-
-        getBApp().play("select.snd");
-        getBApp().flush();
+        if (mMenuList.getFocus()!=-1)
+        {
+            BView row = mMenuList.getRow(mMenuList.getFocus());
+            BView icon = (BView) row.children[0];
+            icon.setResource(((DefaultApplication) getApp()).mBusy2Icon);
+            icon.flush();
+    
+            getBApp().play("select.snd");
+            getBApp().flush();
+        }
     }
 
     protected void createRow(BView parent, int index) {
@@ -72,6 +75,9 @@ public class DefaultMenuScreen extends DefaultScreen {
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
+            case KEY_PLAY:
+                postEvent(new BEvent.Action(this, "play"));
+                return true;
             case KEY_SELECT:
                 postEvent(new BEvent.Action(this, "push"));
                 return true;

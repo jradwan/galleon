@@ -18,6 +18,7 @@ package org.lnicholls.galleon.widget;
 
 import java.util.List;
 
+import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BRect;
 import com.tivo.hme.bananas.BView;
@@ -132,6 +133,20 @@ public class Grid extends BList {
                         getBApp().flush();
                         return true;
                     }
+                case KEY_ADVANCE:
+                    if (getFocus()==(size()-1))
+                    {
+                        getBApp().play("pageup.snd");
+                        getBApp().flush();
+                        setFocus(0,false);
+                    }
+                    else
+                    {
+                        getBApp().play("pagedown.snd");
+                        getBApp().flush();
+                        setFocus(size()-1,false);
+                    }
+                    return true;
                 default:
                     return super.handleKeyPress(code, rawcode);
                 }

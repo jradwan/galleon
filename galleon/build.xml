@@ -11,9 +11,6 @@
         <fileset dir="${basedir}/lib" >
           <include name="**/*.jar"/>
         </fileset>
-        <fileset dir="${basedir}/apps" >
-          <include name="**/winamp.jar"/>
-        </fileset>        
         <pathelement path="${basedir}/conf" />
     </path>
 
@@ -118,6 +115,8 @@
         <mkdir dir="${build}/media" />
         <mkdir dir="${build}/data" />        
         <mkdir dir="${build}/apps" />        
+        <mkdir dir="${build}/skins" />        
+        <mkdir dir="${build}/hme" />                
 
     </target>
     
@@ -138,7 +137,7 @@
 
         <echo>Compiling Java sources</echo>
 
-        <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off">
+        <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off" source="1.4" target="1.4">
             <include name="**/*.java" />
             <classpath>
                 <path refid="class.path" />
@@ -212,22 +211,40 @@
             <fileset dir="./media/images" includes="galleon.png" />                        
             <fileset dir="./media/images" includes="guiicon.png" />                                    
             <fileset dir="./media/images" includes="guiicon.gif" />                                                
-            <fileset dir="./media/images" includes="yellowball.gif" />                                                
-            <fileset dir="./media/images" includes="yellowball!.gif" />                                                            
-            <fileset dir="./media/images" includes="whiteball.gif" />                                                            
-            <fileset dir="./media/images" includes="greenball.gif" />                                                            
-            <fileset dir="./media/images" includes="redball.gif" />                                                                        
-            <fileset dir="./media/images" includes="blueball.gif" />                                                                        
-            <fileset dir="./media/images" includes="empty.gif" />                                                                                    
-            <fileset dir="./media/images" includes="busy.gif" />
-            <fileset dir="./media/images" includes="busy2.gif" />            
-            <fileset dir="./media/images" includes="star.png" />            
+            <fileset dir="./media/images" includes="busy.gif" />                                                            
+            <fileset dir="./media/images" includes="busy2.gif" />                                                                        
+            <fileset dir="./media/images" includes="star.png" />
+            <fileset dir="./media/sounds" includes="couldnotconnect.mp3" />
+            <fileset dir="./media/images" includes="yellowball.gif" />
+            <fileset dir="./media/images" includes="yellowball!.gif" />
+            <fileset dir="./media/images" includes="whiteball.gif" />
+            <fileset dir="./media/images" includes="greenball.gif" />
+            <fileset dir="./media/images" includes="redball.gif" />
+            <fileset dir="./media/images" includes="blueball.gif" />
+            <fileset dir="./media/images" includes="empty.gif" />
             <fileset dir="./src" includes="**/*.hbm.xml" />
         </jar>
         
         <copy file="./media/images/cinemabackground.jpg" tofile="${build}/org/lnicholls/galleon/apps/togo/background.jpg" />
         <copy file="./media/images/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
-        <jar jarfile="${build}/apps/togo.jar" compress="yes">
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.togo.ToGo"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="ToGo"/>
+            <attribute name="Icon" value="icon.png"/>
+            <attribute name="ReleaseDate" value="04/03/05"/>          
+            <attribute name="Description" value="ToGo"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.togo.ToGoOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/togo.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/togo" excludes="*.java" />
             <fileset dir="./media/images" includes="cinemabackground.jpg" />                        
@@ -253,7 +270,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Weather"/>
             <attribute name="Icon" value="icon.png"/>
-            <attribute name="ReleaseDate" value="06/03/05"/>          
+            <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Weather"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
@@ -274,6 +291,7 @@
         <copy file="./media/images/music/icon.png" tofile="${build}/org/lnicholls/galleon/apps/music/icon.png" />        
         <copy file="./media/images/music/folder.png" tofile="${build}/org/lnicholls/galleon/apps/music/folder.png" />                
         <copy file="./media/images/music/cd.png" tofile="${build}/org/lnicholls/galleon/apps/music/cd.png" />                
+        <copy file="./media/images/music/playlist.png" tofile="${build}/org/lnicholls/galleon/apps/music/playlist.png" />                        
         <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy.gif" />                        
         <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy2.gif" />                                
         <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/music/star.png" />                                        
@@ -290,7 +308,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Music"/>
             <attribute name="Icon" value="icon.png"/>
-            <attribute name="ReleaseDate" value="06/03/05"/>          
+            <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Music"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
@@ -323,7 +341,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Photos"/>
             <attribute name="Icon" value="icon.png"/>
-            <attribute name="ReleaseDate" value="06/03/05"/>          
+            <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Photos"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
@@ -340,9 +358,8 @@
         <copy file="${build}/apps/photos.jar" tofile="./apps/photos.jar" />                                
 
 
-        <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                
+        <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
-        <copy file="./apps/winamp.jar" tofile="${build}/apps/winamp.jar" />
         
 <!--
         <echo>Creating plugins</echo>
@@ -514,6 +531,20 @@
         <delete dir="${build}/org" />
 
     </target>
+    
+    <target name="combinejars">    
+        <mkdir dir="${build}/combined-${jarfile}" />        
+
+        <unjar dest="${build}/combined-${jarfile}">
+          <fileset dir="./lib" includes="${fileset}"/>
+        </unjar>    
+        
+        <jar jarfile="${build}/lib/${jarfile}" compress="yes">
+            <fileset dir="${build}/combined-${jarfile}"/>
+        </jar>
+        
+        <delete dir="${build}/combined-${jarfile}" />    
+    </target>
 
     <target name="package" depends="clean,build.library">
         <echo>Packaging build</echo>
@@ -537,9 +568,42 @@
     </target>
 
     <target name="package-lib">
+        <echo>Combining libraries</echo>
+
+        <antcall target="combinejars">
+          <param name="fileset" value="**/commons*.jar"/>
+          <param name="jarfile" value="commons.jar"/>          
+        </antcall>        
+
+        
+        <antcall target="combinejars">
+          <param name="fileset" value="**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar"/>          
+          <param name="jarfile" value="hibernate.jar"/>          
+        </antcall>                
+
+        <antcall target="combinejars">
+          <param name="fileset" value="**/derby*.jar"/>
+          <param name="jarfile" value="derby.jar"/>          
+        </antcall>                        
+        
+        <antcall target="combinejars">
+          <param name="fileset" value="**/jax*.jar"/>
+          <param name="jarfile" value="jax.jar"/>          
+        </antcall>                                
+        
+        <antcall target="combinejars">
+          <param name="fileset" value="**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar"/>
+          <param name="jarfile" value="javazoom.jar"/>          
+        </antcall>                                        
+        
+        <antcall target="combinejars">
+          <param name="fileset" value="**/forms.jar,**/looks.jar"/>
+          <param name="jarfile" value="forms.jar"/>          
+        </antcall>                                                
+
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" />
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />
@@ -606,9 +670,10 @@
         <echo>Copying executables</echo>
         <copy file="./bin/unix/bash.script" tofile="${build}/bin/bash.script" filtering="true" />
         <copy file="./bin/unix/sh.script" tofile="${build}/bin/sh.script" />
-        <copy file="./bin/unix/realpath" tofile="${build}/bin/realpath" />
-        <copy file="./bin/unix/wrapper" tofile="${build}/bin/wrapper" />
-        <copy file="./bin/unix/galleon" tofile="${build}/bin/galleon" />
+        <copy file="./bin/unix/Realpath" tofile="${build}/bin/Realpath" />
+        <copy file="./bin/unix/Wrapper" tofile="${build}/bin/Wrapper" />
+        <copy file="./bin/unix/Galleon" tofile="${build}/bin/Galleon" />
+        <chmod file="${build}/bin/*" perm="a+rx" />        
     </target>
 
     <target name="package-misc-unix">
@@ -708,8 +773,13 @@
             <fileset dir="./media/fonts" includes="**/Dekadens.ttf,**/FreeSans.ttf" />
         </copy>                
         
+        <echo>Copying sounds</echo>
+        <mkdir dir="${build}/media/sounds" />
+        <copy todir="${build}/media/sounds">
+            <fileset dir="./media/sounds" includes="**/*.mp3" />
+        </copy>                
+        
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
-        <copy file="./apps/winamp.jar" tofile="${build}/apps/winamp.jar" />                                
 
     </target>
 </project>

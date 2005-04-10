@@ -18,6 +18,8 @@ package org.lnicholls.galleon.widget;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Toolkit;
+import java.awt.Font;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -38,14 +40,14 @@ import com.tivo.hme.sdk.Resource;
 public class ScrollText extends BView {
 
     private static final Logger log = Logger.getLogger(ScrollText.class.getName());
-
+    
     private static Font DEFAULT_FONT = null;
     static {
         try {
             DEFAULT_FONT = Font.createFont(Font.TRUETYPE_FONT, ScrollText.class.getClassLoader().getResourceAsStream(
                     ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "FreeSans.ttf"));
-        } catch (Exception ex) {
-            log.error(ex);
+        } catch (Throwable ex) {
+            Tools.logException(ScrollText.class, ex);
         }
     }
 
@@ -153,15 +155,13 @@ public class ScrollText extends BView {
         mTextLineViews = new LinkedList();
         mFont = font;
 
-        setText(text);
-
         if (hints) {
             BHighlights h = getHighlights();
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
         }
-
-        refresh();
+        
+        setText(text);
     }
 
     public void refresh() {

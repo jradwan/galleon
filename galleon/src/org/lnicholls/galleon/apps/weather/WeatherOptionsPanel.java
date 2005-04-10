@@ -17,6 +17,7 @@ package org.lnicholls.galleon.apps.weather;
  */
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -138,6 +139,8 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         // TODO Determine list dynamically
         JLabel label = new JLabel("Pollen Reports");
         label.setForeground(Color.blue);
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.setToolTipText("Open site in web browser");
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 try {
@@ -149,6 +152,8 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         builder.add(label, cc.xyw(1, 15, 3));
         label = new JLabel("Airport Delays");
         label.setForeground(Color.blue);
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.setToolTipText("Open site in web browser");
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 try {
@@ -160,6 +165,8 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         builder.add(label, cc.xyw(1, 17, 3));
         label = new JLabel("Special Events");
         label.setForeground(Color.blue);
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.setToolTipText("Open site in web browser");
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 try {

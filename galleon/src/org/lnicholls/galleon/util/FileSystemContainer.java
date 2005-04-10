@@ -28,7 +28,12 @@ public class FileSystemContainer {
     private static Logger log = Logger.getLogger(FileSystemContainer.class.getName());
 
     public FileSystemContainer(String path) {
+         this(path, false);
+    }
+    
+    public FileSystemContainer(String path, boolean recursive) {
         mPath = path;
+        mRecursive = recursive;
     }
 
     public List getItems(FileFilter fileFilter) {
@@ -39,12 +44,12 @@ public class FileSystemContainer {
 
         File directory = FileGatherer.resolveLink(new File(getPath())); // Handle shortcuts
         if (!directory.isHidden() && directory.isDirectory()) {
-            FileGatherer.gatherDirectory(directory, fileFilter, false, new FileGatherer.GathererCallback() {
+            FileGatherer.gatherDirectory(directory, fileFilter, mRecursive, new FileGatherer.GathererCallback() {
                 public void visit(File file, File originalFile) {
                     if (originalFile.equals(file))
-                        items.add(new NameFile(Tools.extractName(file.getName()), file));
+                        items.add(new NameFile(file.isDirectory()?file.getName():Tools.extractName(file.getName()), file));
                     else
-                        items.add(new NameFile(Tools.extractName(originalFile.getName()), file));
+                        items.add(new NameFile(originalFile.isDirectory()?originalFile.getName():Tools.extractName(originalFile.getName()), file));
                 }
             });
         }
@@ -98,4 +103,6 @@ public class FileSystemContainer {
     }
 
     private String mPath;
+    
+    private boolean mRecursive;
 }

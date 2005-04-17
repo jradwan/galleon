@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
 
@@ -82,6 +83,9 @@ public class NetworkServerManager {
                 mNetworkServerControl = new NetworkServerControl(InetAddress.getByName("127.0.0.1"), mPort);
                 mNetworkServerControl.start(null);
     
+                if (SystemUtils.IS_OS_MAC_OSX)
+                    System.setProperty("derby.storage.fileSyncTransactionLog", "true");  // OSX bug
+                
                 testDatabase();
     
                 log.info("Created Database Network Server");

@@ -224,8 +224,8 @@
             <fileset dir="./media/images" includes="empty.gif" />
             <fileset dir="./src" includes="**/*.hbm.xml" />
         </jar>
-        
-        <copy file="./media/images/cinemabackground.jpg" tofile="${build}/org/lnicholls/galleon/apps/togo/background.jpg" />
+
+        <echo>Creating apps</echo>
         <copy file="./media/images/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
@@ -233,7 +233,6 @@
           <attribute name="HME-Arguments" value=""/>
           <section name="Galleon">
             <attribute name="Title" value="ToGo"/>
-            <attribute name="Icon" value="icon.png"/>
             <attribute name="ReleaseDate" value="04/03/05"/>          
             <attribute name="Description" value="ToGo"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
@@ -247,29 +246,17 @@
         <jar jarfile="${build}/apps/togo.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/togo" excludes="*.java" />
-            <fileset dir="./media/images" includes="cinemabackground.jpg" />                        
-            <fileset dir="./media/images" includes="icon.png" />                                    
-            <fileset dir="./media/images" includes="yellowball.png" />                                                
-            <fileset dir="./media/images" includes="yellowball!.png" />                                                            
-            <fileset dir="./media/images" includes="whiteball.png" />                                                            
-            <fileset dir="./media/images" includes="greenball.png" />                                                            
-            <fileset dir="./media/images" includes="redball.png" />                                                                        
-            <fileset dir="./media/images" includes="blueball.png" />                                                                        
-            <fileset dir="./media/images" includes="empty.png" />                                                                                    
         </jar>
         <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
         
         <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
-        <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/alerticon.png" />        
         <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/Dekadens.ttf" />                
-        <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/weather/star.png" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
           <attribute name="HME-Arguments" value=""/>
           <section name="Galleon">
             <attribute name="Title" value="Weather"/>
-            <attribute name="Icon" value="icon.png"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Weather"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
@@ -283,19 +270,11 @@
         <jar jarfile="${build}/apps/weather.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/weather" excludes="*.java" />
-            <fileset dir="./media/images/weather" includes="*.png,*.jpg"/>                                                
             <fileset dir="./media/fonts" includes="Dekadens.ttf"/>
         </jar>
         <copy file="${build}/apps/weather.jar" tofile="./apps/weather.jar" />                
         
         <copy file="./media/images/music/icon.png" tofile="${build}/org/lnicholls/galleon/apps/music/icon.png" />        
-        <copy file="./media/images/music/folder.png" tofile="${build}/org/lnicholls/galleon/apps/music/folder.png" />                
-        <copy file="./media/images/music/cd.png" tofile="${build}/org/lnicholls/galleon/apps/music/cd.png" />                
-        <copy file="./media/images/music/playlist.png" tofile="${build}/org/lnicholls/galleon/apps/music/playlist.png" />                        
-        <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy.gif" />                        
-        <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/music/busy2.gif" />                                
-        <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/music/star.png" />                                        
-        <copy file="./media/images/music/background.jpg" tofile="${build}/org/lnicholls/galleon/apps/music/background.jpg" />
         <copy todir="${build}/media">
           <fileset dir="./media">
             <include name="**/*.wsz"/>
@@ -307,7 +286,6 @@
           <attribute name="HME-Arguments" value=""/>
           <section name="Galleon">
             <attribute name="Title" value="Music"/>
-            <attribute name="Icon" value="icon.png"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Music"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
@@ -321,26 +299,17 @@
         <jar jarfile="${build}/apps/music.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/music/**" />
             <fileset dir="./src/org/lnicholls/galleon/apps/music" excludes="*.java" />
-            <fileset dir="./media/fonts" includes="Dekadens.ttf"/>
         </jar>
         <copy file="${build}/apps/music.jar" tofile="./apps/music.jar" />                        
         
         
         <copy file="./media/images/photos/icon.png" tofile="${build}/org/lnicholls/galleon/apps/photos/icon.png" />        
-        <copy file="./media/images/photos/folder.png" tofile="${build}/org/lnicholls/galleon/apps/photos/folder.png" />        
-        <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/org/lnicholls/galleon/apps/photos/folder_red_open.png" />        
-        <copy file="./media/images/photos/camera.png" tofile="${build}/org/lnicholls/galleon/apps/photos/camera.png" />                
-        <copy file="./media/images/busy.gif" tofile="${build}/org/lnicholls/galleon/apps/photos/busy.gif" />                        
-        <copy file="./media/images/busy2.gif" tofile="${build}/org/lnicholls/galleon/apps/photos/busy2.gif" />                                
-        <copy file="./media/images/star.png" tofile="${build}/org/lnicholls/galleon/apps/photos/star.png" />                                                
-        <copy file="./media/images/photos/background.jpg" tofile="${build}/org/lnicholls/galleon/apps/photos/background.jpg" />
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.photos.Photos"/>
           <attribute name="HME-Arguments" value=""/>
           <section name="Galleon">
             <attribute name="Title" value="Photos"/>
-            <attribute name="Icon" value="icon.png"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Photos"/>                    
             <attribute name="Documentaton" value="help.html"/>                              
@@ -356,6 +325,30 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/photos" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/photos.jar" tofile="./apps/photos.jar" />                                
+        
+        <copy file="./media/images/shoutcast/icon.png" tofile="${build}/org/lnicholls/galleon/apps/shoutcast/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.shoutcast.Shoutcast"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Shoutcast"/>
+            <attribute name="ReleaseDate" value="04/16/05"/>          
+            <attribute name="Description" value="Shoutcast"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/shoutcast.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/shoutcast/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/shoutcast" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/shoutcast.jar" tofile="./apps/shoutcast.jar" />                                
+        
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
@@ -527,9 +520,60 @@
         <copy file="${build}/plugins/stocks.jar" tofile="./plugins/stocks.jar" />
         
 -->                
-        
+
         <delete dir="${build}/org" />
 
+        <echo>Creating skin</echo>
+        <copy file="./media/images/busy2.gif" tofile="${build}/skins/music/busy.gif" />                                
+        <copy file="./media/images/star.png" tofile="${build}/skins/music/star.png" />                                        
+
+        <copy file="./media/images/music/icon.png" tofile="${build}/skins/music/icon.png" />        
+        <copy file="./media/images/music/folder.png" tofile="${build}/skins/music/folder.png" />                
+        <copy file="./media/images/music/cd.png" tofile="${build}/skins/music/cd.png" />                
+        <copy file="./media/images/music/playlist.png" tofile="${build}/skins/music/playlist.png" />                        
+        <copy file="./media/images/music/background.jpg" tofile="${build}/skins/music/background.jpg" />
+
+        <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
+        <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
+        <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
+        <copy file="./media/images/photos/camera.png" tofile="${build}/skins/photos/camera.png" />                
+        <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
+        
+        <copy file="./media/images/cinemabackground.jpg" tofile="${build}/skins/togo/background.jpg" />
+        <copy file="./media/images/icon.png" tofile="${build}/skins/togo/icon.png" />                
+        <copy file="./media/images/yellowball.png" tofile="${build}/skins/togo/yellowball.png" />                
+        <copy file="./media/images/yellowball!.png" tofile="${build}/skins/togo/yellowball!.png" />                        
+        <copy file="./media/images/greenball.png" tofile="${build}/skins/togo/greenball.png" />                                        
+        <copy file="./media/images/redball.png" tofile="${build}/skins/togo/redball.png" />                                                
+        <copy file="./media/images/blueball.png" tofile="${build}/skins/togo/blueball.png" />                                                        
+        <copy file="./media/images/empty.png" tofile="${build}/skins/togo/empty.png" />                                                                
+        
+        <copy file="./media/images/weather/background.jpg" tofile="${build}/skins/weather/background.jpg" />
+        <copy todir="${build}/skins/weather/">
+            <fileset dir="./media/images/weather" includes="*.png" />
+        </copy>        
+        
+
+        <copy file="./media/images/busy2.gif" tofile="${build}/skins/shoutcast/busy.gif" />                                
+        <copy file="./media/images/star.png" tofile="${build}/skins/shoutcast/star.png" />                                        
+        <copy file="./media/images/shoutcast/icon.png" tofile="${build}/skins/shoutcast/icon.png" />        
+        <copy file="./media/images/shoutcast/folder.png" tofile="${build}/skins/shoutcast/folder.png" />                
+        <copy file="./media/images/shoutcast/station.png" tofile="${build}/skins/shoutcast/station.png" />                
+        <copy file="./media/images/shoutcast/background.jpg" tofile="${build}/skins/shoutcast/background.jpg" />        
+
+        <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
+        <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
+        <zip destfile="${build}/skins/galleon.gln" basedir="${build}/skins" compress="yes"/>
+        <copy file="${build}/skins/galleon.gln" tofile="./skins/galleon.gln" />                                
+
+
+        <delete dir="${build}/skins/music" />
+        <delete dir="${build}/skins/photos" />        
+        <delete dir="${build}/skins/shoutcast" />        
+        <delete dir="${build}/skins/togo" />                
+        <delete dir="${build}/skins/weather" />                
+        <delete file="${build}/skins/skin.xml" />                        
+        <delete file="${build}/skins/Readme.txt" />                                
     </target>
     
     <target name="combinejars">    
@@ -780,6 +824,9 @@
         </copy>                
         
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
+        
+        <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />                                        
+        <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                                                
 
     </target>
 </project>

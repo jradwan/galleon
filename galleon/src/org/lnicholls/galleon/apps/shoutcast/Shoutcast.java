@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.music;
+package org.lnicholls.galleon.apps.shoutcast;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,6 +50,8 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
@@ -59,9 +61,9 @@ import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 import com.tivo.hme.util.ArgumentList;
 
-public class Music extends DefaultApplication {
+public class Shoutcast extends DefaultApplication {
 
-    private static Logger log = Logger.getLogger(Music.class.getName());
+    private static Logger log = Logger.getLogger(Shoutcast.class.getName());
 
     public final static String TITLE = "Music";
 
@@ -97,38 +99,30 @@ public class Music extends DefaultApplication {
 
         mMusicScreen = new MusicScreen(this);
 
-        MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory).getAppContext()
+        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory).getAppContext()
                 .getConfiguration();
-
-        if (musicConfiguration.getPaths().size() == 1) {
-            try {
-                NameValue nameValue = (NameValue) musicConfiguration.getPaths().get(0);
-                File file = new File(nameValue.getValue());
-                FileItem nameFile = new FileItem(nameValue.getName(), file);
-                FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-                setCurrentDirectory(file.getCanonicalPath());
-                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
-                PathScreen pathScreen = new PathScreen(this, tracker, true);
-                push(pathScreen, TRANSITION_LEFT);
-            } catch (Exception ex) {
-                Tools.logException(Music.class, ex);
-            }
-        } else
-            push(new MusicMenuScreen(this), TRANSITION_NONE);
+        
+        push(new MusicMenuScreen(this), TRANSITION_NONE);
     }
 
     public class MusicMenuScreen extends DefaultMenuScreen {
-        public MusicMenuScreen(Music app) {
+        public MusicMenuScreen(Shoutcast app) {
             super(app, "Music");
 
             below.setResource(mMenuBackground);
 
-            MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
                     .getAppContext().getConfiguration();
 
-            for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
-                NameValue nameValue = (NameValue) i.next();
-                mMenuList.add(new FileItem(nameValue.getName(), new File(nameValue.getValue())));
+            try
+            {
+                List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
+                for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+                    String genre = (String) i.next();
+                    mMenuList.add(new NameValue(genre,genre));
+                }
+            } catch (Exception ex) {
+                Tools.logException(Shoutcast.class, ex);
             }
         }
 
@@ -139,17 +133,20 @@ public class Music extends DefaultApplication {
                 new Thread() {
                     public void run() {
                         try {
-                            FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            File file = (File) nameFile.getValue();
-                            FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-                            ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
-                            Tracker tracker = new Tracker(fileSystemContainer
-                                    .getItems(FileFilters.audioDirectoryFilter), 0);
-                            PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                            NameValue nameValue = (NameValue) (mMenuList.get(mMenuList.getFocus()));
+                            List list = AudioManager.findByOrigenGenre(ShoutcastStations.SHOUTCAST, nameValue.getValue());
+                            List nameFiles = new ArrayList();
+                            for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+                                Audio audio = (Audio) i.next();
+                                nameFiles.add(new Item(audio.getTitle(),audio.getPath()));
+                            }           
+                            
+                            Tracker tracker = new Tracker(nameFiles, 0);
+                            PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
                             getBApp().push(pathScreen, TRANSITION_LEFT);
                             getBApp().flush();
                         } catch (Exception ex) {
-                            Tools.logException(Music.class, ex);
+                            Tools.logException(Shoutcast.class, ex);
                         }
                     }
                 }.start();
@@ -160,28 +157,24 @@ public class Music extends DefaultApplication {
 
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 9, 2, 32, 32);
-            Item nameFile = (Item) mMenuList.get(index);
-            if (nameFile.isFolder()) {
-                icon.setResource(mFolderIcon);
-            } else {
-                icon.setResource(mCDIcon);
-            }
+            NameValue nameValue = (NameValue) mMenuList.get(index);
+            icon.setResource(mFolderIcon);
 
             BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
-            name.setValue(Tools.trim(nameFile.getName(), 40));
+            name.setValue(Tools.trim(StringUtils.capitalize(nameValue.getName().toLowerCase()), 40));
         }
 
     }
 
     public class PathScreen extends DefaultMenuScreen {
 
-        public PathScreen(Music app, Tracker tracker) {
+        public PathScreen(Shoutcast app, Tracker tracker) {
             this(app, tracker, false);
         }
 
-        public PathScreen(Music app, Tracker tracker, boolean first) {
+        public PathScreen(Shoutcast app, Tracker tracker, boolean first) {
             super(app, "Music");
 
             below.setResource(mMenuBackground);
@@ -211,11 +204,11 @@ public class Music extends DefaultApplication {
                                 ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
-                                PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                                PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
+                                Tools.logException(Shoutcast.class, ex);
                             }
                         }
                     }.start();
@@ -225,7 +218,7 @@ public class Music extends DefaultApplication {
                             File file = (File) nameFile.getValue();
                             Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
                             Tracker tracker = new Tracker(playlist.getList(), 0);
-                            PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                            PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
                             getBApp().push(pathScreen, TRANSITION_LEFT);
                             getBApp().flush();
                         } catch (Exception ex) {
@@ -238,10 +231,12 @@ public class Music extends DefaultApplication {
                                     mTracker.setPos(mMenuList.getFocus());
                                     mMusicScreen.setTracker(mTracker);
 
-                                    getBApp().push(mMusicScreen, TRANSITION_LEFT);
+                                    //getBApp().push(mMusicScreen, TRANSITION_LEFT);
+                                    //getBApp().flush();
+                                    getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
                                     getBApp().flush();
                                 } catch (Exception ex) {
-                                    Tools.logException(Music.class, ex);
+                                    Tools.logException(Shoutcast.class, ex);
                                 }
                             }
                         }.start();
@@ -264,10 +259,10 @@ public class Music extends DefaultApplication {
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
 
-                                getBApp().push(new PlayerScreen((Music) getBApp(), tracker), TRANSITION_LEFT);
+                                getBApp().push(new PlayerScreen((Shoutcast) getBApp(), tracker), TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
+                                Tools.logException(Shoutcast.class, ex);
                             }
                         }
                     }.start();
@@ -276,10 +271,12 @@ public class Music extends DefaultApplication {
                         public void run() {
                             try {
                                 mTracker.setPos(mMenuList.getFocus());
-                                getBApp().push(new PlayerScreen((Music) getBApp(), mTracker), TRANSITION_LEFT);
+                                //getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
+                                //getBApp().flush();
+                                getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
+                                Tools.logException(Shoutcast.class, ex);
                             }
                         }
                     }.start();
@@ -326,7 +323,7 @@ public class Music extends DefaultApplication {
 
         private BList list;
 
-        public MusicScreen(Music app) {
+        public MusicScreen(Shoutcast app) {
             super(app, "Song", true);
 
             below.setResource(mInfoBackground);
@@ -350,11 +347,13 @@ public class Music extends DefaultApplication {
             mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mSongText.setFont("default-18-bold.font");
             mSongText.setShadow(true);
+            mSongText.setVisible(false);
 
             mDurationText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mDurationText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mDurationText.setFont("default-18-bold.font");
             mDurationText.setShadow(true);
+            mDurationText.setVisible(false);
 
             start += 20;
 
@@ -362,11 +361,13 @@ public class Music extends DefaultApplication {
             mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mAlbumText.setFont("default-18-bold.font");
             mAlbumText.setShadow(true);
+            mAlbumText.setVisible(false);
 
             mYearText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mYearText.setFont("default-18-bold.font");
             mYearText.setShadow(true);
+            mYearText.setVisible(false);
 
             start += 20;
 
@@ -374,6 +375,7 @@ public class Music extends DefaultApplication {
             mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mArtistText.setFont("default-18-bold.font");
             mArtistText.setShadow(true);
+            mArtistText.setVisible(false);
 
             mGenreText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
             mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
@@ -424,7 +426,7 @@ public class Music extends DefaultApplication {
 
                     updateHints();
 
-                    final MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+                    final ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
                             .getAppContext().getConfiguration();
                     setPainting(false);
                     try {
@@ -450,7 +452,7 @@ public class Music extends DefaultApplication {
                                         }
                                     }
                                 } catch (Exception ex) {
-                                    Tools.logException(Music.class, ex, "Could retrieve cover");
+                                    Tools.logException(Shoutcast.class, ex, "Could retrieve cover");
                                 }
                             }
 
@@ -494,7 +496,7 @@ public class Music extends DefaultApplication {
                         audio.setRating(Math.max(audio.getRating() - 1, 0));
                         AudioManager.updateAudio(audio);
                     } catch (Exception ex) {
-                        Tools.logException(Music.class, ex);
+                        Tools.logException(Shoutcast.class, ex);
                     }
                     setRating();
                 } else {
@@ -510,7 +512,7 @@ public class Music extends DefaultApplication {
                         audio.setRating(Math.min(audio.getRating() + 1, 5));
                         AudioManager.updateAudio(audio);
                     } catch (Exception ex) {
-                        Tools.logException(Music.class, ex);
+                        Tools.logException(Shoutcast.class, ex);
                     }
                     setRating();
                 } else {
@@ -588,7 +590,7 @@ public class Music extends DefaultApplication {
 
                 new Thread() {
                     public void run() {
-                        getBApp().push(new PlayerScreen((Music) getBApp(), mTracker), TRANSITION_LEFT);
+                        getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
                         getBApp().flush();
                     }
                 }.start();
@@ -613,7 +615,7 @@ public class Music extends DefaultApplication {
                             return getAudio((String) nameFile.getValue());
                     }
                 } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
+                    Tools.logException(Shoutcast.class, ex);
                 }
             }
             return null;
@@ -648,7 +650,7 @@ public class Music extends DefaultApplication {
 
     public class PlayerScreen extends DefaultScreen {
 
-        public PlayerScreen(Music app, Tracker tracker) {
+        public PlayerScreen(Shoutcast app, Tracker tracker) {
             super(app, true);
 
             below.setResource(mPlayerBackground);
@@ -659,7 +661,7 @@ public class Music extends DefaultApplication {
 
             setTitle(" ");
 
-            MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
                     .getAppContext().getConfiguration();
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
             if (musicPlayerConfiguration.isShowImages())
@@ -673,7 +675,7 @@ public class Music extends DefaultApplication {
         private void updatePlayer() {
             new Thread() {
                 public void run() {
-                    MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+                    ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
                             .getAppContext().getConfiguration();
                     //ClassicSkin classicSkin = new ClassicSkin(musicConfiguration.getSkin());
                     if (mClassicSkin != null) {
@@ -943,18 +945,18 @@ public class Music extends DefaultApplication {
             case KEY_INFO:
                 getBApp().play("select.snd");
                 getBApp().flush();
-                LyricsScreen lyricsScreen = new LyricsScreen((Music) getBApp(), mTracker);
+                LyricsScreen lyricsScreen = new LyricsScreen((Shoutcast) getBApp(), mTracker);
                 getBApp().push(lyricsScreen, TRANSITION_LEFT);
                 getBApp().flush();
                 return true;
             case KEY_NUM0:
-                MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) context.factory)
+                ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
                         .getAppContext().getConfiguration();
                 MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
                 if (musicPlayerConfiguration.isShowImages()) {
                     getBApp().play("select.snd");
                     getBApp().flush();
-                    ImagesScreen imagesScreen = new ImagesScreen((Music) getBApp(), mTracker);
+                    ImagesScreen imagesScreen = new ImagesScreen((Shoutcast) getBApp(), mTracker);
                     getBApp().push(imagesScreen, TRANSITION_LEFT);
                     getBApp().flush();
                     return true;
@@ -1008,7 +1010,7 @@ public class Music extends DefaultApplication {
                     } else
                         title = nameFile.getName();
                 } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
+                    Tools.logException(Shoutcast.class, ex);
                 }
 
                 if (mPlaying) {
@@ -1162,7 +1164,7 @@ public class Music extends DefaultApplication {
                 audio = (Audio) list.get(0);
             }
         } catch (Exception ex) {
-            Tools.logException(Music.class, ex);
+            Tools.logException(Shoutcast.class, ex);
         }
 
         if (audio == null) {
@@ -1170,7 +1172,7 @@ public class Music extends DefaultApplication {
                 audio = (Audio) MediaManager.getMedia(path);
                 AudioManager.createAudio(audio);
             } catch (Exception ex) {
-                Tools.logException(Music.class, ex);
+                Tools.logException(Shoutcast.class, ex);
             }
         }
         return audio;
@@ -1179,7 +1181,7 @@ public class Music extends DefaultApplication {
     public class LyricsScreen extends DefaultScreen {
         private BList list;
 
-        public LyricsScreen(Music app, Tracker tracker) {
+        public LyricsScreen(Shoutcast app, Tracker tracker) {
             super(app, "Lyrics", false);
 
             below.setResource(mLyricsBackground);
@@ -1224,7 +1226,7 @@ public class Music extends DefaultApplication {
                     audio = (Audio) list.get(0);
                 }
             } catch (Exception ex) {
-                Tools.logException(Music.class, ex);
+                Tools.logException(Shoutcast.class, ex);
             }
             if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
                 setPainting(false);
@@ -1252,7 +1254,7 @@ public class Music extends DefaultApplication {
                                         lyricsAudio.setLyrics(lyrics);
                                         AudioManager.updateAudio(lyricsAudio);
                                     } catch (Exception ex) {
-                                        Tools.logException(Music.class, ex, "Could not update lyrics");
+                                        Tools.logException(Shoutcast.class, ex, "Could not update lyrics");
                                     }
                                 }
                             }
@@ -1269,7 +1271,7 @@ public class Music extends DefaultApplication {
                                 }
                             }
                         } catch (Exception ex) {
-                            Tools.logException(Music.class, ex, "Could retrieve lyrics");
+                            Tools.logException(Shoutcast.class, ex, "Could retrieve lyrics");
                         }
                     }
 
@@ -1331,7 +1333,7 @@ public class Music extends DefaultApplication {
     public class ImagesScreen extends DefaultScreen {
         private BList list;
 
-        public ImagesScreen(Music app, Tracker tracker) {
+        public ImagesScreen(Shoutcast app, Tracker tracker) {
             super(app, "Images", true);
 
             below.setResource(mImagesBackground);
@@ -1377,7 +1379,7 @@ public class Music extends DefaultApplication {
                     audio = (Audio) list.get(0);
                 }
             } catch (Exception ex) {
-                Tools.logException(Music.class, ex);
+                Tools.logException(Shoutcast.class, ex);
             }
             final Audio lyricsAudio = audio;
 
@@ -1431,7 +1433,7 @@ public class Music extends DefaultApplication {
                         }
 
                     } catch (Exception ex) {
-                        Tools.logException(Music.class, ex, "Could not retrieve image");
+                        Tools.logException(Shoutcast.class, ex, "Could not retrieve image");
                         mResults.remove(mPos);
                     } finally {
                         synchronized (this) {
@@ -1542,7 +1544,7 @@ public class Music extends DefaultApplication {
                 } catch (InterruptedException ex) {
                     return;
                 } catch (Exception ex2) {
-                    Tools.logException(Music.class, ex2);
+                    Tools.logException(Shoutcast.class, ex2);
                 }
             }
         }
@@ -1556,15 +1558,15 @@ public class Music extends DefaultApplication {
         private PlayerScreen mPlayerScreen;
     }
 
-    public static class MusicFactory extends AppFactory {
+    public static class ShoutcastFactory extends AppFactory {
 
-        public MusicFactory(AppContext appContext) {
+        public ShoutcastFactory(AppContext appContext) {
             super(appContext);
         }
 
         protected void init(ArgumentList args) {
             super.init(args);
-            MusicConfiguration musicConfiguration = (MusicConfiguration) getAppContext().getConfiguration();
+            ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) getAppContext().getConfiguration();
 
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
             String skin = null;
@@ -1576,8 +1578,12 @@ public class Music extends DefaultApplication {
             else
                 skin = musicPlayerConfiguration.getSkin();
             mClassicSkin = new ClassicSkin(skin);
+            
+            mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
         }
     }
 
     private static ClassicSkin mClassicSkin;
+    
+    private static ShoutcastStations mShoutcastStations;
 }

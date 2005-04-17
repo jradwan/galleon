@@ -47,9 +47,29 @@ public class FileSystemContainer {
             FileGatherer.gatherDirectory(directory, fileFilter, mRecursive, new FileGatherer.GathererCallback() {
                 public void visit(File file, File originalFile) {
                     if (originalFile.equals(file))
-                        items.add(new NameFile(file.isDirectory()?file.getName():Tools.extractName(file.getName()), file));
+                    {
+                        if (file.isDirectory())
+                            items.add(new FolderItem(file.getName(), file));
+                        else
+                        {
+                            if (FileFilters.playlistFilter.accept(file))
+                                items.add(new PlaylistItem(Tools.extractName(file.getName()), file));
+                            else
+                                items.add(new FileItem(Tools.extractName(file.getName()), file));
+                        }
+                    }
                     else
-                        items.add(new NameFile(originalFile.isDirectory()?originalFile.getName():Tools.extractName(originalFile.getName()), file));
+                    {
+                        if (file.isDirectory())
+                            items.add(new FolderItem(originalFile.getName(), file));
+                        else
+                        {
+                            if (FileFilters.playlistFilter.accept(file))
+                                items.add(new PlaylistItem(Tools.extractName(originalFile.getName()), file));
+                            else
+                                items.add(new FileItem(Tools.extractName(originalFile.getName()), file));
+                        }
+                    }
                 }
             });
         }
@@ -71,35 +91,77 @@ public class FileSystemContainer {
         mPath = path;
     }
 
-    public static class NameFile {
-        public NameFile(String name, File file) {
-            this.mName = name;
-            this.mFile = file;
+    public static class Item
+    {
+        public Item(String name, Object value)
+        {
+            mName = name;
+            mValue = value;
         }
-
-        public String getName() {
+        
+        public String getName()
+        {
             return mName;
         }
-
-        public void setName(String value) {
-            mName = value;
+        public Object getValue()
+        {
+            return mValue;
         }
-
-        public File getFile() {
-            return mFile;
+        
+        public boolean isFile()
+        {
+            return false;
         }
-
-        public void setFile(File value) {
-            mFile = value;
+        public boolean isFolder()
+        {
+            return false;
         }
-
-        public String toString() {
-            return mName;
+        public boolean isPlaylist()
+        {
+            return false;
         }
-
+        
         private String mName;
-
-        private File mFile;
+        private Object mValue;
+    }
+    
+    public static class FileItem extends Item
+    {
+        public FileItem(String name, Object value)
+        {
+            super(name,value);
+        }
+        
+        public boolean isFile()
+        {
+            return true;
+        }
+    }
+    
+    public static class FolderItem extends Item
+    {
+        public FolderItem(String name, Object value)
+        {
+            super(name,value);
+        }
+        
+        public boolean isFolder()
+        {
+            return true;
+        }
+    }
+    
+    public static class PlaylistItem extends Item
+    {
+        public PlaylistItem(String name, Object value)
+        {
+            super(name,value);
+        }
+        
+        public boolean isPlaylist()
+        {
+            return true;
+        }
     }
 
     private String mPath;

@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.music;
+package org.lnicholls.galleon.winamp;
 
 /*
  * Copyright (C) 2005 Leon Nicholls

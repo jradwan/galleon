@@ -783,4 +783,8 @@ public class Tools {
             return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
         }
     }
+    
+    public static BufferedImage getDefaultImage() {
+        return new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+    }
 }

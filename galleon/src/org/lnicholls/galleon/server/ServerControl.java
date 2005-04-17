@@ -56,5 +56,7 @@ public interface ServerControl extends Remote {
     
     public void updateRules(List rules) throws RemoteException;
     
+    public List getWinampSkins() throws RemoteException;
+    
     public List getSkins() throws RemoteException;
 }

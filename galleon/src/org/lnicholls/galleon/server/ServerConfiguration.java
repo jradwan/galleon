@@ -106,15 +106,6 @@ public class ServerConfiguration implements Serializable {
         return mGenerateThumbnails;
     }
 
-    //  Used by AudioPlaylistTiVoItem to determine if proxy should be used for streaming stations
-    public void setUseStreamingProxy(boolean useStreamingProxy) {
-        mUseStreamingProxy = useStreamingProxy;
-    }
-
-    public boolean getUseStreamingProxy() {
-        return mUseStreamingProxy;
-    }
-
     public void setRecordingsPath(String value) {
         mRecordingsPath = value;
     }
@@ -164,6 +155,22 @@ public class ServerConfiguration implements Serializable {
         return true;
     }
     
+    public void setSkin(String value) {
+        mSkin = value;
+    }
+
+    public String getSkin() {
+        return mSkin;
+    }
+    
+    public void setMusicPlayerConfiguration(MusicPlayerConfiguration value) {
+        mMusicPlayerConfiguration = value;
+    }
+
+    public MusicPlayerConfiguration getMusicPlayerConfiguration() {
+        return mMusicPlayerConfiguration;
+    }
+    
     private String mVersion = Tools.getVersion();
 
     private String mName;
@@ -178,8 +185,6 @@ public class ServerConfiguration implements Serializable {
 
     private boolean mGenerateThumbnails = false; // defaults to false, thumbnails are not generated at startup.
 
-    private boolean mUseStreamingProxy = true; // defaults to true, proxy is used.
-
     private String mRecordingsPath = "";
 
     private String mMediaAccessKey = "";
@@ -187,4 +192,8 @@ public class ServerConfiguration implements Serializable {
     private List mTiVos;
 
     private List mRules;
+    
+    private String mSkin = "";
+    
+    private MusicPlayerConfiguration mMusicPlayerConfiguration = new MusicPlayerConfiguration();
 }

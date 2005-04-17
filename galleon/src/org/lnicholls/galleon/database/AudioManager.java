@@ -207,4 +207,77 @@ public class AudioManager {
             HibernateUtil.closeSession();
         }
     }
+    
+    public static List findByOrigen(String origen) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = session.createQuery("from org.lnicholls.galleon.database.Audio as Audio where Audio.origen=?")
+                .setString(0, origen).list();
+
+            tx.commit();
+
+            return list;
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }
+    
+    public static List listGenres(String origen) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = new ArrayList();
+            if (origen!=null)
+            {
+                list = session.createQuery("select distinct upper(audio.genre) from org.lnicholls.galleon.database.Audio audio where audio.origen=? order by audio.genre asc").setString(0, origen).list();
+            }
+            else
+                list = session.createQuery("select distinct upper(audio.genre) from org.lnicholls.galleon.database.Audio audio where (1=1) order by audio.genre asc").setCacheable(true).list();
+
+            tx.commit();
+
+            return list;
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }
+    
+    public static List findByOrigenGenre(String origen, String genre) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = new ArrayList();
+            if (origen!=null)
+                list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and upper(audio.genre)=?")
+                .setString(0, origen).setString(1, genre).list();
+            else
+                list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where upper(audio.genre)= ?")
+                .setString(0, genre).list();
+
+            tx.commit();
+
+            return list;
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }
 }

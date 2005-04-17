@@ -54,7 +54,7 @@ public final class MediaManager {
         }    
         else if (filename.toLowerCase().startsWith("http"))
         {
-            //return new Mp3UrlProxy(filename);
+            return Mp3Url.getAudio(filename);
         }    
         else if (filename.toLowerCase().endsWith(".pls"))
         {

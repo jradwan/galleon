@@ -25,9 +25,9 @@ import java.io.InputStreamReader;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
+import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 
 /*
  * M3U Playlists of audio files and URLs.
@@ -70,8 +70,6 @@ public class M3uPlaylist extends Playlist {
             // Now read the rest. Extended playlist lines come in pairs...
             String name = "";
             String duration = "";
-            boolean useStreamingProxy = Server.getServer().getUseStreamingProxy();
-
             do {
                 inputLine = inputLine.trim();
                 if (inputLine.length() == 0)
@@ -108,19 +106,15 @@ public class M3uPlaylist extends Playlist {
                     if (log.isDebugEnabled())
                         log.debug("PlaylistItem: " + name + "=" + inputLine);
 
+                    /*
                     Audio audio = null;
 
                     // Handle urls
                     if (inputLine.startsWith("http")) {
-                        /*
-                         * try { itemURL = new ItemURL(inputLine); } catch (MalformedURLException ex) { // Log it and
-                         * continue -- we are very forgiving log.error("Invalid format: " + name + "=" + inputLine + "
-                         * in " + getPath()); continue; }
-                         *  // Set up the Mp3UrlProxy for this entry if (useStreamingProxy) { String proxyAddr =
-                         * StreamingServlet.getProxyAddres(inputLine); proxy = new Mp3UrlProxy(proxyAddr, proxyAddr); } //
-                         * Only allow format: http://205.188.234.66:8010 else if (itemURL.getFile() == null ||
-                         * itemURL.getFile().length() == 0) { proxy = new Mp3UrlProxy(inputLine, inputLine); }
-                         */
+                        try {
+                            audio = (Audio) MediaManager.getMedia(inputLine);
+                        } catch (Exception ex) {
+                        }
                     }
                     // Handle files
                     else {
@@ -148,13 +142,24 @@ public class M3uPlaylist extends Playlist {
                         }
 
                         try {
-                            AudioManager.updateAudio(audio);
+                            if (audio.getId() != null)
+                                AudioManager.updateAudio(audio);
+                            else
+                                AudioManager.createAudio(audio);
                         } catch (Exception ex) {
                             Tools.logException(M3uPlaylist.class, ex);
                         }
 
-                        mItems.add(new NameFile(name, new File(audio.getPath())));
+                        if (audio.getPath().startsWith("http"))
+                            mItems.add(new Item(name, audio.getPath()));
+                        else
+                            mItems.add(new FileItem(name, new File(audio.getPath())));
                     }
+                    */
+                    if (inputLine.startsWith("http"))
+                        mItems.add(new Item(name, inputLine));
+                    else
+                        mItems.add(new FileItem(name, new File(inputLine)));
 
                     name = "";
                     duration = "";

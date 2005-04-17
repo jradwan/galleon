@@ -105,6 +105,8 @@ See the file "COPYING" for more details.
     </property>    
     
     <property name="cover" type="int"/>            
+    
+    <property name="origen" type="string" length="30"/>        
 
   </class>
   

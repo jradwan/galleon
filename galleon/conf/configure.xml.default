@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration version="0.0.0 beta 6">
-<server title="Galleon" reload="60" shuffleItems="true" generateThumbnails="false" useStreamingProxy="true"/>
+<configuration version="0.0.0 beta 7">
+<server title="Galleon" reload="60" shuffleItems="true" generateThumbnails="false"/>
 </configuration>

@@ -16,7 +16,10 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.io.UnsupportedEncodingException;
+import javax.imageio.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +28,11 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.media.MediaManager;
+import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BEvent;
@@ -44,22 +49,40 @@ public class DefaultApplication extends BApplication {
     private static final Logger log = Logger.getLogger(DefaultApplication.class.getName());
 
     public static String TRACKER = "org.lnicholls.galleon.widget.DefaultApplication.Tracker";
-    
+
     protected Resource mBusyIcon;
-    protected Resource mBusy2Icon;
+
     protected Resource mStarIcon;
 
     protected void init(Context context) {
         super.init(context);
-        
-        mBusyIcon = getResource("busy.gif");
-        mBusy2Icon = getResource("busy2.gif");
-        mStarIcon = getResource("star.png");
-        
+
+        mBusyIcon = getSkinImage(null, "busy");
+        mStarIcon = getSkinImage(null, "star");
 
         mCallbacks = new ArrayList();
 
         mPlayer = new Player(this);
+    }
+
+    protected Resource getSkinImage(String screen, String key) {
+        ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, key);
+        if (baos != null)
+        {
+            /*
+            if (image.getWidth() > 640 || image.getHeight() > 480)
+                image = ImageManipulator.getScaledImage(image, 640, 480);
+                */
+            try
+            {
+                return createImage(baos.toByteArray());
+            }
+            catch (Exception ex)
+            {
+                Tools.logException(DefaultApplication.class, ex);
+            }
+        }
+        return createImage(Tools.getDefaultImage());
     }
 
     protected void dispatchEvent(HmeEvent event) {
@@ -115,6 +138,9 @@ public class DefaultApplication extends BApplication {
         case KEY_SLOW:
             mPlayer.stopTrack();
             break;
+        case KEY_CLEAR:
+            setActive(false);
+            break;            
         }
         return super.handleKeyPress(code, rawcode);
     }
@@ -174,7 +200,9 @@ public class DefaultApplication extends BApplication {
             if (mStreamResource != null) {
                 //System.out.println("playTrack: remove");
                 mStreamResource.removeHandler(this);
-                mStreamResource.close();
+                mStreamResource.remove();
+                //mStreamResource.close();
+                mDefaultApplication.flush();
             }
             mPlayerState = PLAY;
             mStreamResource = mDefaultApplication.createStream(url, "audio/mp3", true);
@@ -199,14 +227,25 @@ public class DefaultApplication extends BApplication {
                 try {
                     if (mTracker.getPos() == -1)
                         getNextPos();
-                    NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
-                    Audio audio = getAudio(nameFile.getFile().getCanonicalPath());
-
+                    Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+                    Audio audio = null;
+                    if (nameFile.isFile()) {
+                        File file = (File) nameFile.getValue();
+                        audio = getAudio(file.getCanonicalPath());
+                    } else
+                        audio = getAudio((String) nameFile.getValue());
+                    
                     if (audio != null) {
+                        setTitle("");
                         stopTrack();
                         String url = mDefaultApplication.getContext().base.toString();
                         try {
-                            url += URLEncoder.encode(audio.getId() + ".mp3", "UTF-8");
+                            if (nameFile.isFile())
+                                url += URLEncoder.encode(mDefaultApplication.hashCode() + "/" + audio.getId() + ".mp3",
+                                        "UTF-8");
+                            else
+                                url += URLEncoder.encode(mDefaultApplication.hashCode() + "/" + audio.getId()
+                                        + ".http.mp3", "UTF-8");
                         } catch (UnsupportedEncodingException ex) {
                             Tools.logException(DefaultApplication.class, ex, url);
                         }
@@ -239,8 +278,10 @@ public class DefaultApplication extends BApplication {
                     mPlayerState = STOP;
 
                     mStreamResource.removeHandler(this);
-                    mStreamResource.close();
+                    mStreamResource.remove();
+                    //mStreamResource.close();
                     mStreamResource = null;
+                    mDefaultApplication.flush();
                     reset();
                 }
             }
@@ -298,14 +339,20 @@ public class DefaultApplication extends BApplication {
             }
         }
 
+        public void setTitle(String value) {
+            mTitle = value;
+            mDefaultApplication.getCurrentScreen().handleEvent(
+                    new BEvent.Action(mDefaultApplication.getCurrentScreen(), "update"));
+        }
+
         public void getNextPos() {
             //System.out.println("getNextPos:");
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
-                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
-                while (nameFile.getFile().isDirectory()) {
+                Item nameFile = (Item) mTracker.getList().get(pos);
+                while (nameFile.isFolder()) {
                     pos = mTracker.getNextPos();
-                    nameFile = (NameFile) mTracker.getList().get(pos);
+                    nameFile = (Item) mTracker.getList().get(pos);
                 }
             }
         }
@@ -314,10 +361,10 @@ public class DefaultApplication extends BApplication {
             //System.out.println("getPrevPos:");
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
-                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
-                while (nameFile.getFile().isDirectory()) {
+                Item nameFile = (Item) mTracker.getList().get(pos);
+                while (nameFile.isFolder()) {
                     pos = mTracker.getPrevPos();
-                    nameFile = (NameFile) mTracker.getList().get(pos);
+                    nameFile = (Item) mTracker.getList().get(pos);
                 }
             }
         }
@@ -327,6 +374,7 @@ public class DefaultApplication extends BApplication {
             mCurrentPosition = 0;
             mTotal = 0;
             mBitrate = 0;
+            mTitle = "";
         }
 
         public void setTracker(Tracker tracker) {
@@ -356,6 +404,10 @@ public class DefaultApplication extends BApplication {
             return mPlayerState;
         }
 
+        public String getTitle() {
+            return mTitle;
+        }
+
         private DefaultApplication mDefaultApplication;
 
         private StreamResource mStreamResource;
@@ -369,6 +421,8 @@ public class DefaultApplication extends BApplication {
         private int mTotal;
 
         private int mBitrate;
+
+        private String mTitle = "";
     }
 
     private static Audio getAudio(String path) {
@@ -417,8 +471,11 @@ public class DefaultApplication extends BApplication {
         mPlayer.setTracker(tracker);
         List list = tracker.getList();
         if (list.size() > 0) {
-            NameFile nameFile = (NameFile) list.get(0);
-            Tools.savePersistentValue(DefaultApplication.TRACKER, nameFile.getFile().getParent());
+            Item nameFile = (Item) list.get(0);
+            if (nameFile.isFile()) {
+                File file = (File) nameFile.getValue();
+                Tools.savePersistentValue(DefaultApplication.TRACKER, file.getParent());
+            }
         }
     }
 
@@ -429,33 +486,18 @@ public class DefaultApplication extends BApplication {
     public void setCurrentDirectory(String dir) {
         mCurrentDir = dir;
     }
-    
-    public boolean handleApplicationError(int errorCode, String errorText)
-    {
+
+    public boolean handleApplicationError(int errorCode, String errorText) {
         log.debug(this + " handleApplicationError(" + errorCode + "," + errorText + ")");
         return true;
     }
-    
+
     /*
-    protected void writeStream(String filename) throws IOException
-    {
-        InputStream in = getApp().getStream(filename);
-        try {
-            while (true) {
-                int count = in.read(buf, 0, buf.length);
-                if (count < 0) {
-                    break;
-                }
-                context.out.write(buf, 0, count);
-            }
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) { }
-        }
-    }
-    */
-    
+     * protected void writeStream(String filename) throws IOException { InputStream in = getApp().getStream(filename);
+     * try { while (true) { int count = in.read(buf, 0, buf.length); if (count < 0) { break; } context.out.write(buf, 0,
+     * count); } } finally { try { in.close(); } catch (IOException e) { } } }
+     */
+
     // TODO Need to handle multiple apps
     private Player mPlayer;
 

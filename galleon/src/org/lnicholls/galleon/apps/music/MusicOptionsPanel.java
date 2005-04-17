@@ -68,55 +68,15 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
 
         MusicConfiguration musicConfiguration = (MusicConfiguration) appConfiguration;
 
-        List skins = Galleon.getSkins();
+        List skins = Galleon.getWinampSkins();
 
         mTitleField = new JTextField(musicConfiguration.getName());
 
-        mSkinsField = new JComboBox();
-        mSkinsField.setToolTipText("Select a Winamp classic skin for music player");
-        Iterator iterator = skins.iterator();
-        while (iterator.hasNext()) {
-            File file = (File) iterator.next();
-            try {
-                String name = Tools.extractName(file.getCanonicalPath());
-                mSkinsField.addItem(new SkinWrapper(name, file.getCanonicalPath()));
-            } catch (Exception ex) {
-            }
-        }
-        defaultCombo(mSkinsField, musicConfiguration.getSkin());
-        mUseAmazonField = new JCheckBox("Use Amazon.com");
-        mUseAmazonField.setToolTipText("Check to specify that Amazon.com should be used for album art");
-        mUseAmazonField.setSelected(musicConfiguration.isUseAmazon());
-        mUseAmazonField.setForeground(Color.blue);
-        mUseAmazonField.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        mUseAmazonField.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.amazon.com/exec/obidos/tg/browse/-/5174/ref%3Dtab%5Fm%5Fm%5F9/104-1230741-3818310");
-                } catch (Exception ex) {
-                }
-            }
-        });        
-        
-        mUseFileField = new JCheckBox("Use Folder.jpg");
-        mUseFileField.setToolTipText("Check to specify that the Folder.jpg file should be used for album art");
-        mUseFileField.setSelected(musicConfiguration.isUseFile());
-        
-        mShowImagesField = new JCheckBox("Show web images");
-        mShowImagesField.setToolTipText("Check to specify that web images of the artist should be shown");
-        mShowImagesField.setSelected(musicConfiguration.isShowImages());
-        mShowImagesField.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (mShowImagesField.isSelected())
-                {
-                    JOptionPane.showMessageDialog(MusicOptionsPanel.this, "All search engine queries for images are configured to filter out adult content by default.\nHowever, it is still possible that undesirable content might be returned in these search results.", "Warning",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            }
-        });
-        
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                "pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+                "pref, " + // general
+                "9dlu, pref, " + // title
+                "9dlu, pref, " +  // directories
+                "9dlu, pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
         //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -127,30 +87,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        //builder.addLabel("Winamp Classic Skin", cc.xy(1, 5));
-        JLabel label = new JLabel("Winamp Classic Skin");
-        label.setToolTipText("Open Winamp site in web browser");
-        label.setForeground(Color.blue);
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        label.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.winamp.com/skins");
-                } catch (Exception ex) {
-                }
-            }
-        });
-        builder.add(label, cc.xy(1, 5));
-        builder.add(mSkinsField, cc.xyw(3, 5, 1));
-        builder.addSeparator("Album Art", cc.xyw(1, 7, 4));
-        builder.addLabel("", cc.xy(1, 9));
-        builder.add(mUseAmazonField, cc.xy(3, 9));
-        builder.addLabel("", cc.xy(1, 11));
-        builder.add(mUseFileField, cc.xy(3, 11));
-        builder.addLabel("", cc.xy(1, 13));
-        builder.add(mShowImagesField, cc.xy(3, 13));
-        builder.addSeparator("Directories", cc.xyw(1, 15, 4));
-        
+        builder.addSeparator("Directories", cc.xyw(1, 5, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -168,7 +105,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         columnNames.add(1, "Path");
         //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
         // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 17, 4));
+        builder.add(mFileOptionsTable, cc.xyw(1, 7, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -182,7 +119,6 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         log.debug("save()");
         MusicConfiguration musicConfiguration = (MusicConfiguration) mAppConfiguration;
         musicConfiguration.setName(mTitleField.getText());
-        musicConfiguration.setSkin(((NameValue) mSkinsField.getSelectedItem()).getValue());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
         while (iterator.hasNext()) {
@@ -191,22 +127,11 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
             newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
         }
         musicConfiguration.setPaths(newItems);
-        musicConfiguration.setUseAmazon(mUseAmazonField.isSelected());
-        musicConfiguration.setUseFile(mUseFileField.isSelected());
-        musicConfiguration.setShowImages(mShowImagesField.isSelected());
     }
 
     private JTextComponent mTitleField;
 
-    private JComboBox mSkinsField;
-    
-    private JCheckBox mUseFileField; 
-    
-    private JCheckBox mUseAmazonField;
-    
-    private JCheckBox mShowImagesField;
-
-    private FileOptionsTable mFileOptionsTable;
+        private FileOptionsTable mFileOptionsTable;
 
     private ArrayList mColumnValues;
 }

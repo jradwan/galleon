@@ -88,7 +88,7 @@ public class DefaultScreen extends BScreen {
                     * SAFE_TITLE_V, true);
         
         mBusy = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
-        mBusy.setResource(app.mBusy2Icon);
+        mBusy.setResource(app.mBusyIcon);
         mBusy.setVisible(false);
     }
 
@@ -141,7 +141,9 @@ public class DefaultScreen extends BScreen {
 
     public void setBackground(String value) {
         if (value != null)
-            below.setResource(value);
+        {
+            //below.setResource(value);
+        }
     }
 
     protected void updateHints() {

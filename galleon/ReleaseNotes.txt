@@ -3,6 +3,17 @@ Galleon
 
 Delete the previous beta before installing this beta.
 
+Version 0.0.0 beta 7:
+---------------------
+Added skinning support for images.
+Added CLEAR button to exit any app.
+Support streaming MP3 stations.
+Support displaying streaming meta tags.
+Shoutcast app.
+Music player settings moved to its own menu item in configuration GUI.
+Improved playlist parsing performance.
+
+
 Version 0.0.0 beta 6:
 ---------------------
 Fixed ToGo database startup error.
@@ -106,7 +117,7 @@ How to get started:
 7. For each app you add, you must press the Apply button to save each app's settings.
 8. Exit from the GUI.
 9. Use your TiVo to pick ToGo recordings to download to your PC.
-10. Use left arrow to exit any app.
+10. Use left arrow or CLEAR to exit any app.
 
 
 How to play music with slideshow:
@@ -144,6 +155,25 @@ Channel Down = Previous
 Running other HME apps:
 1. Copy the jar file of the app into the Galleon HME directory.
 2. Add an entry for the new app in the launcher.txt file.
+
+
+How to configure Galleon on a headless system:
+1. It is possible to remotely configure Galleon. Simply append the IP address of the PC running Galleon to the command to launch the configuration GUI.
+
+
+How to create your own skin:
+The easy way:
+1. Unzip the default skin located in the skins directory, galleon.gln.
+2. Modify the images.
+3. Zip the files (including the existing skin.xml file) and rename to *.gln.
+4. Put the skin file in the skins directory.
+5. Use the configuration GUI File/Properties menu to change the selected skin.
+The harder way:
+1. Unzip the default skin, galleon.gln.
+2. Modify the skin.xml file (it is self-documented).
+3. Zip the files (including the new skin.xml file) and rename to *.gln.
+4. Put the skin file in the skins directory.
+5. Use the configuration GUI File/Properties menu to change the selected skin.
 
 
 =====================================================

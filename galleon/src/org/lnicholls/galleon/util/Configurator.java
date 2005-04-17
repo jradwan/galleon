@@ -74,6 +74,8 @@ public class Configurator implements Constants {
     private static String TAG_TIVO = "tivo";
     
     private static String TAG_RULE = "rule";
+    
+    private static String TAG_MUSIC_PLAYER_CONFIGURATION = "musicPlayerConfiguration";
 
     private static String ATTRIBUTE_VERSION = "version";
 
@@ -97,13 +99,13 @@ public class Configurator implements Constants {
 
     private static String ATTRIBUTE_GENERATE_THUMBNAILS = "generateThumbnails";
 
-    private static String ATTRIBUTE_USE_STREAMING_PROXY = "useStreamingProxy";
-
     private static String ATTRIBUTE_USE_TIVO_BEACON = "useTiVoBeacon";
     
     private static String ATTRIBUTE_RECORDINGS_PATH = "recordingsPath";
 
     private static String ATTRIBUTE_MEDIA_ACCESS_KEY = "mediaAccessKey";    
+    
+    private static String ATTRIBUTE_SKIN = "skin";
     
     public Configurator() {
     }
@@ -270,15 +272,6 @@ public class Configurator implements Constants {
                                         .booleanValue());
                             }
 
-                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_USE_STREAMING_PROXY);
-                            if (attribute != null) {
-                                if (log.isDebugEnabled())
-                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
-                                            + attribute.getNodeValue());
-                                serverConfiguration.setUseStreamingProxy(Boolean.valueOf(attribute.getNodeValue())
-                                        .booleanValue());
-                            }
-                            
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_RECORDINGS_PATH);
                             if (attribute != null) {
                                 if (log.isDebugEnabled())
@@ -293,6 +286,14 @@ public class Configurator implements Constants {
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue().length());
                                 serverConfiguration.setMediaAccessKey(attribute.getNodeValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_SKIN);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue().length());
+                                serverConfiguration.setSkin(attribute.getNodeValue());
                             }
                         }
                     } else if (node.getNodeName().equals(TAG_APP)) {
@@ -419,7 +420,34 @@ public class Configurator implements Constants {
                             if (log.isDebugEnabled())
                                 log.debug("Rule=" + rule);
                         } catch (IntrospectionException ex) {
-                            log.error("Could not load tivo");
+                            log.error("Could not load rule");
+                        }
+                    } else if (node.getNodeName().equals(TAG_MUSIC_PLAYER_CONFIGURATION)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Found Music Player Configuration");
+                        try {
+                            BeanReader beanReader = new BeanReader();
+                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.registerBeanClass("musicPlayerConfiguration", MusicPlayerConfiguration.class);
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            OutputFormat of = new OutputFormat("XML", ENCODING, true);
+                            XMLSerializer serializer = new XMLSerializer(bos, of);
+                            serializer.asDOMSerializer();
+                            serializer.serialize((Element) node);
+
+                            log.debug("node=" + bos.toString());
+                            StringReader xmlReader = new StringReader(bos.toString());
+                            bos.close();
+
+                            MusicPlayerConfiguration musicPlayerConfiguration = (MusicPlayerConfiguration) beanReader.parse(xmlReader);
+
+                            serverConfiguration.setMusicPlayerConfiguration(musicPlayerConfiguration);
+
+                            if (log.isDebugEnabled())
+                                log.debug("MusicPlayerConfiguration=" + musicPlayerConfiguration);
+                        } catch (IntrospectionException ex) {
+                            log.error("Could not load Music Player Configuration");
                         }
                     }
                 }
@@ -481,6 +509,7 @@ public class Configurator implements Constants {
                         || beanProperty.getPropertyName().equals("group")
                         || beanProperty.getPropertyName().equals("url")
                         || beanProperty.getPropertyName().equals("modified")
+                        || beanProperty.getPropertyName().equals("musicPlayerConfiguration")
                         || beanProperty.getPropertyName().equals("items"))
                     return null;
 
@@ -520,12 +549,12 @@ public class Configurator implements Constants {
                         serverConfiguration.getShuffleItems()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_GENERATE_THUMBNAILS).append("=\"").append(
                         serverConfiguration.getGenerateThumbnails()).append("\"");
-                buffer.append(" ").append(ATTRIBUTE_USE_STREAMING_PROXY).append("=\"").append(
-                        serverConfiguration.getUseStreamingProxy()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_RECORDINGS_PATH).append("=\"").append(
                         URLEncoder.encode(Tools.escapeXMLChars(serverConfiguration.getRecordingsPath()), ENCODING)).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_MEDIA_ACCESS_KEY).append("=\"").append(
                         serverConfiguration.getMediaAccessKey()).append("\"");
+                buffer.append(" ").append(ATTRIBUTE_SKIN).append("=\"").append(
+                        serverConfiguration.getSkin()).append("\"");                
                 buffer.append("/>\n");
 
                 // Apps
@@ -607,6 +636,29 @@ public class Configurator implements Constants {
                         Tools.logException(Configurator.class, ex, "Could not save rule: " + rule.getCriteriaString());
                     }
                 }                
+                
+                // Music Player Configuration
+                MusicPlayerConfiguration musicPlayerConfiguration = null;
+                try {
+                    musicPlayerConfiguration = serverConfiguration.getMusicPlayerConfiguration();
+                    log.debug("MusicPlayerConfiguration: " + musicPlayerConfiguration);
+                    StringWriter outputWriter = new StringWriter();
+
+                    // Create a BeanWriter which writes to our prepared stream
+                    BeanWriter beanWriter = new BeanWriter(outputWriter);
+
+                    AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    beanWriter.setXMLIntrospector(appXMLIntrospector);
+
+                    beanWriter.enablePrettyPrint();
+
+                    beanWriter.write("musicPlayerConfiguration", musicPlayerConfiguration);
+
+                    buffer.append(outputWriter.toString());
+                } catch (Exception ex) {
+                    Tools.logException(Configurator.class, ex, "Could not save music player configuration: " + musicPlayerConfiguration);
+                }
 
                 buffer.append("</").append(TAG_CONFIGURATION).append(">\n");
             }

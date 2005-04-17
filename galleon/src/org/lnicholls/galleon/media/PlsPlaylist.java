@@ -31,9 +31,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
+import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 
 /*
  * .pls Playlists of audio files and URLs.
@@ -132,25 +131,18 @@ public class PlsPlaylist extends Playlist {
         }
         lines.clear();
 
-        boolean useStreamingProxy = Server.getServer().getUseStreamingProxy();
         i = songs.iterator();
         while (i.hasNext()) {
             plsEntry = (PlsEntry) i.next();
 
-            /*
-             * try { itemURL = new ItemURL(plsEntry.file); } catch (MalformedURLException ex) { log.error("Skipping
-             * invalid format: '" + plsEntry.file + "' in " + getPath()); continue; }
-             */
-
             // Only allow format: http://205.188.234.66:8010
+            /*
             Audio audio = null;
             if (plsEntry.file.startsWith("http")) {
-                /*
-                 * if (useStreamingProxy) { proxy = new Mp3UrlProxy(StreamingServlet.getProxyAddres(plsEntry.file),
-                 * StreamingServlet.getProxyAddres(plsEntry.file)); } else if (itemURL.getFile() == null ||
-                 * itemURL.getFile().length() == 0) { proxy = new Mp3UrlProxy(plsEntry.file, getUrl() + "/" +
-                 * mItems.size()); }
-                 */
+                try {
+                    audio = (Audio) MediaManager.getMedia(plsEntry.file);
+                } catch (Exception ex) {
+                }
             } else {
                 File file = getFile(playlist, plsEntry.file);
                 if (file != null) {
@@ -168,13 +160,18 @@ public class PlsPlaylist extends Playlist {
                     audio.setDuration(plsEntry.length);
 
                 try {
-                    AudioManager.updateAudio(audio);
+                    if (audio.getId() != null)
+                        AudioManager.updateAudio(audio);
+                    else
+                        AudioManager.createAudio(audio);
                 } catch (Exception ex) {
                     Tools.logException(M3uPlaylist.class, ex);
                 }
 
-                mItems.add(new NameFile(plsEntry.title, new File(audio.getPath())));
+                mItems.add(new FileItem(plsEntry.title, new File(audio.getPath())));
             }
+            */
+            mItems.add(new FileItem(plsEntry.title, new File(plsEntry.file)));
         }
     }
 

@@ -17,6 +17,7 @@ package org.lnicholls.galleon.gui;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -28,6 +29,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -36,10 +39,12 @@ import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.List;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -79,6 +84,7 @@ import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.server.ServerConfiguration;
+import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 
@@ -88,6 +94,8 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.plaf.BorderStyle;
 import com.jgoodies.plaf.HeaderStyle;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 public class MainFrame extends JFrame {
     private static Logger log = Logger.getLogger(MainFrame.class.getName());
@@ -115,6 +123,13 @@ public class MainFrame extends JFrame {
 
             public void actionPerformed(ActionEvent event) {
                 new ServerDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
+            }
+
+        });
+        fileMenu.add(new MenuAction("Music Player...", null, "", new Integer(KeyEvent.VK_M)) {
+
+            public void actionPerformed(ActionEvent event) {
+                new MusicPlayerDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
             }
 
         });
@@ -254,21 +269,19 @@ public class MainFrame extends JFrame {
         } catch (Exception ex) {
             ex.printStackTrace();
             Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel "
-                    + appDescriptor.getIcon() + " for app " + appDescriptor.getClassName());
+                    + appDescriptor.getConfigurationPanel() + " for app " + appDescriptor.getClassName());
         }
 
         ImageIcon icon = null;
         try {
-            if (appDescriptor.getIcon() != null && appDescriptor.getIcon().length() > 0) {
-                String pkg = Tools.getPackage(appDescriptor.getClassName());
-                URL url = classLoader.getResource(pkg + "/" + appDescriptor.getIcon());
-                if (url == null)
-                    url = classLoader.getResource(appDescriptor.getIcon());
-                icon = new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-            }
+            String pkg = Tools.getPackage(appDescriptor.getClassName());
+            URL url = classLoader.getResource(pkg + "/icon.png");
+            if (url == null)
+                url = classLoader.getResource("icon.png");
+            icon = new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
-            Tools.logException(OptionsPanelManager.class, ex, "Could not load icon " + appDescriptor.getIcon()
-                    + " for app " + appDescriptor.getClassName());
+            Tools.logException(OptionsPanelManager.class, ex, "Could not load icon " + 
+                    " for app " + appDescriptor.getClassName());
         }
 
         AppNode appNode = new AppNode(app, icon, appConfigurationPanel);
@@ -534,8 +547,22 @@ public class MainFrame extends JFrame {
             mReloadCombo.addItem(new NameValueWrapper("6 hours", "720"));
             mReloadCombo.addItem(new NameValueWrapper("24 hours", "1440"));
             defaultCombo(mReloadCombo, Integer.toString(serverConfiguration.getReload()));
-            mStreamingProxy = new JCheckBox("Streaming Proxy");
-            mStreamingProxy.setSelected(serverConfiguration.getUseStreamingProxy());
+            mSkinCombo = new JComboBox();
+            mSkinCombo.setToolTipText("Select a skin for the Galleon apps");
+            List skins = Galleon.getSkins();
+            Iterator iterator = skins.iterator();
+            String defaultSkin = "";
+            while (iterator.hasNext()) {
+                File file = (File) iterator.next();
+                try {
+                    String name = Tools.extractName(file.getCanonicalPath());
+                    mSkinCombo.addItem(new NameValueWrapper(name, file.getCanonicalPath()));
+                    if (defaultSkin.length()==0)
+                        defaultSkin = file.getCanonicalPath();
+                } catch (Exception ex) {
+                }
+            }
+            defaultCombo(mSkinCombo, serverConfiguration.getSkin().length()==0?defaultSkin:serverConfiguration.getSkin());
             mGenerateThumbnails = new JCheckBox("Generate Thumbnails");
             mGenerateThumbnails.setSelected(serverConfiguration.getGenerateThumbnails());
             mShuffleItems = new JCheckBox("Shuffle Items");
@@ -575,6 +602,7 @@ public class MainFrame extends JFrame {
                     "6dlu, " + "pref, " + //name
                     "3dlu, " + "pref, " + //version
                     "3dlu, " + "pref, " + //reload
+                    "3dlu, " + "pref, " + //reload
                     "3dlu, " + "pref, " + //generatethumbnails, streamingproxy
                     "3dlu, " + "pref, " + //recordings path
                     "3dlu, " + "pref, " + //media access key
@@ -595,27 +623,28 @@ public class MainFrame extends JFrame {
             builder.add(mVersionField, cc.xyw(3, 5, 2));
             builder.addLabel("Reload", cc.xy(1, 7));
             builder.add(mReloadCombo, cc.xyw(3, 7, 2));
+            builder.addLabel("Skin", cc.xy(1, 9));
+            builder.add(mSkinCombo, cc.xyw(3, 9, 2));
             // TODO Only show for Windows
-            builder.add(mGenerateThumbnails, cc.xy(3, 9));
-            builder.add(mStreamingProxy, cc.xy(4, 9));
+            builder.add(mGenerateThumbnails, cc.xy(3, 11));
             JButton button = new JButton("...");
             button.setActionCommand("pick");
             button.addActionListener(this);
-            builder.addLabel("Recordings Path", cc.xy(1, 11));
-            builder.add(mRecordingsPath, cc.xyw(3, 11, 2));
-            builder.add(button, cc.xyw(6, 11, 1));
-            builder.addLabel("Media Access Key", cc.xy(1, 13));
-            builder.add(mMediaAccessKey, cc.xyw(3, 13, 2));
+            builder.addLabel("Recordings Path", cc.xy(1, 13));
+            builder.add(mRecordingsPath, cc.xyw(3, 13, 2));
+            builder.add(button, cc.xyw(6, 13, 1));
+            builder.addLabel("Media Access Key", cc.xy(1, 15));
+            builder.add(mMediaAccessKey, cc.xyw(3, 15, 2));
 
-            builder.addSeparator("Network", cc.xyw(1, 15, 6));
-            builder.addLabel("Port", cc.xy(1, 17));
-            builder.add(mPort, cc.xy(3, 17));
-            builder.addLabel("IP Address", cc.xy(1, 19));
-            builder.add(mIPAddress, cc.xy(3, 19));
+            builder.addSeparator("Network", cc.xyw(1, 17, 6));
+            builder.addLabel("Port", cc.xy(1, 19));
+            builder.add(mPort, cc.xy(3, 19));
+            builder.addLabel("IP Address", cc.xy(1, 21));
+            builder.add(mIPAddress, cc.xy(3, 21));
             button = new JButton("<< Test...");
             button.setActionCommand("network");
             button.addActionListener(this);
-            builder.add(button, cc.xyw(5, 19, 2));
+            builder.add(button, cc.xyw(5, 21, 2));
 
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -653,6 +682,7 @@ public class MainFrame extends JFrame {
                     mServerConfiguration.setName(mNameField.getText());
                     mServerConfiguration.setReload(Integer.parseInt(((NameValue) mReloadCombo.getSelectedItem())
                             .getValue()));
+                    mServerConfiguration.setSkin(((NameValue) mSkinCombo.getSelectedItem()).getValue());
                     try {
                         mServerConfiguration.setPort(Integer.parseInt(mPort.getText()));
                     } catch (NumberFormatException ex) {
@@ -661,7 +691,6 @@ public class MainFrame extends JFrame {
                     mServerConfiguration.setIPAddress(((NameValue) mIPAddress.getSelectedItem()).getValue());
                     mServerConfiguration.setShuffleItems(mShuffleItems.isSelected());
                     mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
-                    mServerConfiguration.setUseStreamingProxy(mStreamingProxy.isSelected());
                     mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
                     mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText()));
 
@@ -723,8 +752,8 @@ public class MainFrame extends JFrame {
         private JTextField mVersionField;
 
         private JComboBox mReloadCombo;
-
-        private JCheckBox mStreamingProxy;
+        
+        private JComboBox mSkinCombo;
 
         private JCheckBox mGenerateThumbnails;
 
@@ -740,6 +769,168 @@ public class MainFrame extends JFrame {
 
         private ServerConfiguration mServerConfiguration;
     }
+    
+    public class MusicPlayerDialog extends JDialog implements ActionListener {
+
+        class SkinWrapper extends NameValue {
+            public SkinWrapper(String name, String value) {
+                super(name, value);
+            }
+
+            public String toString() {
+                return getName();
+            }
+        }
+
+        private MusicPlayerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+            super(frame, "Music Player", true);
+            mServerConfiguration = serverConfiguration;
+            MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
+
+            List skins = Galleon.getWinampSkins();
+
+            mSkinsField = new JComboBox();
+            mSkinsField.setToolTipText("Select a Winamp classic skin for music player");
+            Iterator iterator = skins.iterator();
+            while (iterator.hasNext()) {
+                File file = (File) iterator.next();
+                try {
+                    String name = Tools.extractName(file.getCanonicalPath());
+                    mSkinsField.addItem(new SkinWrapper(name, file.getCanonicalPath()));
+                } catch (Exception ex) {
+                }
+            }
+            defaultCombo(mSkinsField, musicPlayerConfiguration.getSkin());
+            mUseAmazonField = new JCheckBox("Use Amazon.com        ");
+            mUseAmazonField.setToolTipText("Check to specify that Amazon.com should be used for album art");
+            mUseAmazonField.setSelected(musicPlayerConfiguration.isUseAmazon());
+            mUseAmazonField.setForeground(Color.blue);
+            mUseAmazonField.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            mUseAmazonField.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    try {
+                        BrowserLauncher.openURL("http://www.amazon.com/exec/obidos/tg/browse/-/5174/ref%3Dtab%5Fm%5Fm%5F9/104-1230741-3818310");
+                    } catch (Exception ex) {
+                    }
+                }
+            });        
+            
+            mUseFileField = new JCheckBox("Use Folder.jpg          ");
+            mUseFileField.setToolTipText("Check to specify that the Folder.jpg file should be used for album art");
+            mUseFileField.setSelected(musicPlayerConfiguration.isUseFile());
+            
+            mShowImagesField = new JCheckBox("Show web images        ");
+            mShowImagesField.setToolTipText("Check to specify that web images of the artist should be shown");
+            mShowImagesField.setSelected(musicPlayerConfiguration.isShowImages());
+            mShowImagesField.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    if (mShowImagesField.isSelected())
+                    {
+                        JOptionPane.showMessageDialog(MainFrame.this, "All search engine queries for images are configured to filter out adult content by default.\nHowever, it is still possible that undesirable content might be returned in these search results.", "Warning",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            });
+            
+            FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
+                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+
+            PanelBuilder builder = new PanelBuilder(layout);
+            //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
+            builder.setDefaultDialogBorder();
+
+            CellConstraints cc = new CellConstraints();
+
+            builder.addSeparator("General", cc.xyw(1, 1, 4));
+            //builder.addLabel("Winamp Classic Skin", cc.xy(1, 5));
+            JLabel label = new JLabel("Winamp Classic Skin");
+            label.setToolTipText("Open Winamp site in web browser");
+            label.setForeground(Color.blue);
+            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            label.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    try {
+                        BrowserLauncher.openURL("http://www.winamp.com/skins");
+                    } catch (Exception ex) {
+                    }
+                }
+            });
+            builder.add(label, cc.xy(1, 5));
+            builder.add(mSkinsField, cc.xyw(3, 5, 1));
+            builder.addSeparator("Album Art", cc.xyw(1, 7, 4));
+            builder.add(mUseAmazonField, cc.xyw(1, 9, 3));
+            builder.add(mUseFileField, cc.xyw(1, 11, 3));
+            builder.add(mShowImagesField, cc.xyw(1, 13, 3));
+            
+            getContentPane().add(builder.getPanel(), "Center");
+
+            JButton[] array = new JButton[3];
+            array[0] = new JButton("OK");
+            array[0].setActionCommand("ok");
+            array[0].addActionListener(this);
+            array[1] = new JButton("Cancel");
+            array[1].setActionCommand("cancel");
+            array[1].addActionListener(this);
+            array[2] = new JButton("Help");
+            array[2].setActionCommand("help");
+            array[2].addActionListener(this);
+            JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+
+            buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            getContentPane().add(buttons, "South");
+            pack();
+            setLocationRelativeTo(frame);
+        }
+
+        public void defaultCombo(JComboBox combo, String value) {
+            for (int i = 0; i < combo.getItemCount(); i++) {
+                if (((NameValue) combo.getItemAt(i)).getValue().equals(value)) {
+                    combo.setSelectedIndex(i);
+                    return;
+                }
+            }
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            if ("ok".equals(e.getActionCommand())) {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                try {
+                    MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
+                    musicPlayerConfiguration.setSkin(((NameValue) mSkinsField.getSelectedItem()).getValue());
+                    musicPlayerConfiguration.setUseAmazon(mUseAmazonField.isSelected());
+                    musicPlayerConfiguration.setUseFile(mUseFileField.isSelected());
+                    musicPlayerConfiguration.setShowImages(mShowImagesField.isSelected());                    
+
+                    Galleon.updateServerConfiguration(mServerConfiguration);
+                } catch (Exception ex) {
+                    Tools.logException(MainFrame.class, ex, "Could not configure server");
+                }
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            } else if ("help".equals(e.getActionCommand())) {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                try {
+                    URL url = getClass().getClassLoader().getResource("server.html");
+                    displayHelp(url);
+                } catch (Exception ex) {
+                    Tools.logException(MainFrame.class, ex, "Could not find server help ");
+                }
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                return;
+            }
+            
+            this.setVisible(false);
+        }
+
+        private JComboBox mSkinsField;
+        
+        private JCheckBox mUseFileField; 
+        
+        private JCheckBox mUseAmazonField;
+        
+        private JCheckBox mShowImagesField;
+
+        private ServerConfiguration mServerConfiguration;
+    }    
 
     public void displayHelp(URL url) {
         if (mHelpDialog != null) {

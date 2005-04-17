@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.music;
+package org.lnicholls.galleon.server;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -16,39 +16,50 @@ package org.lnicholls.galleon.apps.music;
  * See the file "COPYING" for more details.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.lnicholls.galleon.app.AppConfiguration;
-import org.lnicholls.galleon.util.NameValue;
 
-public class MusicConfiguration implements AppConfiguration {
+public class MusicPlayerConfiguration implements Serializable {
 
-    public String getName() {
-        return mName;
+    public MusicPlayerConfiguration() {
+
     }
 
-    public void setName(String value) {
-        if (mName != null && !mName.equals(value))
+    public String getSkin() {
+        return mSkin;
+    }
+
+    public void setSkin(String value) {
+        if (mSkin != null && !mSkin.equals(value))
             mModified = true;
-        mName = value;
-    }
-    
-    public List getPaths() {
-        return mPaths;
+        mSkin = value;
     }
 
-    public void setPaths(List value) {
-        mModified = true;
-        mPaths = value;
+    public void setUseFile(boolean value) {
+        mUseFile = value;
     }
 
-    public void addPath(NameValue nameValue) {
-        mModified = true;
-        mPaths.add(nameValue);
+    public boolean isUseFile() {
+        return mUseFile;
     }
-    
+
+    public void setUseAmazon(boolean value) {
+        mUseAmazon = value;
+    }
+
+    public boolean isUseAmazon() {
+        return mUseAmazon;
+    }
+
+    public void setShowImages(boolean value) {
+        mShowImages = value;
+    }
+
+    public boolean isShowImages() {
+        return mShowImages;
+    }
+
     public void setModified(boolean value) {
         mModified = value;
     }
@@ -61,9 +72,13 @@ public class MusicConfiguration implements AppConfiguration {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    private String mName;
-    
-    private boolean mModified;
+    private String mSkin;
 
-    private List mPaths = new ArrayList();
+    private boolean mUseFile = true;
+
+    private boolean mUseAmazon = true;
+
+    private boolean mShowImages = false;
+
+    private boolean mModified;
 }

@@ -18,15 +18,20 @@ package org.lnicholls.galleon.apps.weather;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import javax.imageio.*;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
@@ -37,7 +42,6 @@ import org.lnicholls.galleon.widget.ScrollText;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
-import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
@@ -56,20 +60,24 @@ public class Weather extends DefaultApplication {
 
     private static WeatherScreen[] screens = new WeatherScreen[5];
 
-    private Resource mBackground;
+    private Resource mMenuBackground;
+
+    private Resource mInfoBackground;
 
     private Resource mAlertIcon;
 
     private Resource mIcon;
 
+    private Resource mNA;
+
     protected void init(Context context) {
         super.init(context);
 
-        mBackground = getResource("background.jpg");
-
-        mAlertIcon = getResource("alerticon.png");
-
-        mIcon = getResource("icon.png");
+        mMenuBackground = getSkinImage("menu", "background");
+        mInfoBackground = getSkinImage("info", "background");
+        mAlertIcon = getSkinImage("menu", "alert");
+        mIcon = getSkinImage("menu", "item");
+        mNA = getSkinImage(null, "na");
 
         push(new WeatherMenuScreen(this), TRANSITION_NONE);
 
@@ -155,6 +163,8 @@ public class Weather extends DefaultApplication {
         public WeatherMenuScreen(Weather app) {
             super(app, "Weather");
 
+            below.setResource(mMenuBackground);
+
             WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
 
             mMenuList.add(new CurrentConditionsScreen(app, weatherData));
@@ -196,10 +206,12 @@ public class Weather extends DefaultApplication {
 
         private final int text_width = width - border_left - (SAFE_TITLE_H);
 
-        private BList list;
+        private WeatherList list;
 
         public CurrentConditionsScreen(Weather app, WeatherData data) {
             super(app);
+
+            below.setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -208,7 +220,7 @@ public class Weather extends DefaultApplication {
             int start = top;
 
             icon = new BView(normal, SAFE_TITLE_H, SAFE_TITLE_V + 30, 256, 256);
-            icon.setResource("NA.png");
+            icon.setResource(mNA);
 
             Resource font = createFont("Dekadens.ttf", Font.BOLD, 60);
             temperatureText = new BText(normal, border_left, SAFE_TITLE_V + 70, text_width - 70, 70);
@@ -304,9 +316,8 @@ public class Weather extends DefaultApplication {
 
             setFooter("weather.com");
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
 
@@ -316,7 +327,7 @@ public class Weather extends DefaultApplication {
         private void updateText() {
             temperatureText.setValue(mWeatherData.getCurrentConditions().getTemperature());
             conditionsText.setValue(mWeatherData.getCurrentConditions().getConditions());
-            icon.setResource(pad(mWeatherData.getCurrentConditions().getIcon()) + ".png");
+            icon.setResource(getSkinImage(null, pad(mWeatherData.getCurrentConditions().getIcon())));
             uvIndexText.setValue(mWeatherData.getCurrentConditions().getUltraVioletIndex() + " "
                     + mWeatherData.getCurrentConditions().getUltraVioletDescription());
             windText.setValue("From " + mWeatherData.getCurrentConditions().getWindDescription() + " at "
@@ -378,10 +389,12 @@ public class Weather extends DefaultApplication {
     }
 
     public class ForecastScreen extends DefaultScreen {
-        private BList list;
+        private WeatherList list;
 
         public ForecastScreen(Weather app, WeatherData data) {
             super(app);
+
+            below.setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -404,7 +417,7 @@ public class Weather extends DefaultApplication {
                 start = start + 20;
 
                 icon[i] = new BView(normal, BORDER_LEFT + x, start, dayWidth, dayWidth);
-                icon[i].setResource("NA.png");
+                icon[i].setResource(mNA);
 
                 start = start + dayWidth;
 
@@ -429,11 +442,10 @@ public class Weather extends DefaultApplication {
                 descriptionText[i].setShadow(true);
             }
 
-            setFooter("weather.gov");
+            setFooter("weather.com");
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
 
@@ -447,24 +459,36 @@ public class Weather extends DefaultApplication {
             int counter = 0;
             Iterator iterator = forecasts.getForecast();
             while (iterator.hasNext()) {
-                WeatherData.Forecast forecast = (WeatherData.Forecast) iterator.next();
-                WeatherData.Part dayPart = forecast.getDayForecast();
-                WeatherData.Part nightPart = forecast.getNightForecast();
-                java.awt.Image image = Tools.getResourceAsImage(getClass(), pad(dayPart.getIcon()) + ".png")
-                        .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
-                image = Tools.getImage(image);
-                icon[counter].setResource(image);
-
-                dayText[counter].setValue(forecast.getDescription());
-                String value = forecast.getHigh();
-                if (value.equals("N/A"))
-                    value = mWeatherData.getCurrentConditions().getTemperature();
-                hiText[counter].setValue(value);
-                loText[counter].setValue(forecast.getLow());
-                value = dayPart.getDescription();
-                if (value.equals("N/A"))
-                    value = nightPart.getDescription();
-                descriptionText[counter].setValue(value);
+                try
+                {
+                    WeatherData.Forecast forecast = (WeatherData.Forecast) iterator.next();
+                    WeatherData.Part dayPart = forecast.getDayForecast();
+                    WeatherData.Part nightPart = forecast.getNightForecast();
+                    ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(Weather.this.getClass().getName(), null, pad(dayPart.getIcon()));
+                    java.awt.Image image = ImageIO.read(new ByteArrayInputStream(baos.toByteArray())).getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
+                    //BufferedImage image = (BufferedImage) getSkinImage(null, pad(dayPart.getIcon())).getScaledInstance(
+                    //        BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
+                    //java.awt.Image image = Tools.getResourceAsImage(getClass(), pad(dayPart.getIcon()) + ".png")
+                    //        .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
+                    image = (BufferedImage) Tools.getImage(image);
+                    //icon[counter].setResource(getSkinImage(null, pad(dayPart.getIcon())), RSRC_IMAGE_BESTFIT);
+                    icon[counter].setResource(createImage(image));
+                    
+                    dayText[counter].setValue(forecast.getDescription());
+                    String value = forecast.getHigh();
+                    if (value.equals("N/A"))
+                        value = mWeatherData.getCurrentConditions().getTemperature();
+                    hiText[counter].setValue(value);
+                    loText[counter].setValue(forecast.getLow());
+                    value = dayPart.getDescription();
+                    if (value.equals("N/A"))
+                        value = nightPart.getDescription();
+                    descriptionText[counter].setValue(value);
+                }
+                catch (Exception ex)
+                {
+                    log.error("Could not update weather image", ex);    
+                }
 
                 counter = counter + 1;
             }
@@ -518,10 +542,12 @@ public class Weather extends DefaultApplication {
     }
 
     public class LocalRadarScreen extends DefaultScreen {
-        private BList list;
+        private WeatherList list;
 
         public LocalRadarScreen(Weather app, WeatherData data) {
             super(app);
+
+            below.setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -530,9 +556,8 @@ public class Weather extends DefaultApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
 
@@ -556,8 +581,7 @@ public class Weather extends DefaultApplication {
                 log.error("Could not update weather local radar", ex);
             }
 
-            below.setResource(mBackground);
-            image.setResource("NA.png");
+            image.setResource(mNA);
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -592,10 +616,12 @@ public class Weather extends DefaultApplication {
     }
 
     public class NationalRadarScreen extends DefaultScreen {
-        private BList list;
+        private WeatherList list;
 
         public NationalRadarScreen(Weather app, WeatherData data) {
             super(app);
+
+            below.setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -604,10 +630,9 @@ public class Weather extends DefaultApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             setFocusDefault(list);
 
             updateImage();
@@ -627,8 +652,7 @@ public class Weather extends DefaultApplication {
             } catch (MalformedURLException ex) {
                 log.error("Could not update weather local radar", ex);
             }
-            below.setResource(mBackground);
-            image.setResource("NA.png");
+            image.setResource(mNA);
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -663,10 +687,12 @@ public class Weather extends DefaultApplication {
     }
 
     public class AlertsScreen extends DefaultScreen {
-        private BList list;
+        private WeatherList list;
 
         public AlertsScreen(Weather app, WeatherData data) {
             super(app);
+
+            below.setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -700,9 +726,8 @@ public class Weather extends DefaultApplication {
 
             setFooter("weather.gov");
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 50, (int) Math
+            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
 
@@ -765,6 +790,25 @@ public class Weather extends DefaultApplication {
         WeatherData mWeatherData;
     }
 
+    class WeatherList extends DefaultOptionList {
+        public WeatherList(BView parent, int x, int y, int width, int height, int rowHeight) {
+            super(parent, x, y, width, height, rowHeight);
+
+            setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+        }
+
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_LEFT:
+                getBApp().play("select.snd");
+                getBApp().flush();
+                postEvent(new BEvent.Action(this, "pop"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
+        }
+    }
+
     public static class WeatherFactory extends AppFactory {
         WeatherData weatherData = null;
 
@@ -788,6 +832,14 @@ public class Weather extends DefaultApplication {
                 }
             }
             super.handleHTTP(http, uri);
+        }
+
+        public InputStream getStream(String uri) throws IOException {
+            if (uri.toLowerCase().equals("alerticon.png")) {
+                return getImage("alert");
+            }
+
+            return super.getStream(uri);
         }
 
         public WeatherData getWeatherData() {

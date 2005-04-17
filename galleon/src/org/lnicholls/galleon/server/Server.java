@@ -37,7 +37,6 @@ import java.util.TimerTask;
 
 import net.sf.hibernate.HibernateException;
 
-import org.apache.derby.impl.sql.compile.GetCurrentConnectionNode;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
@@ -54,6 +53,7 @@ import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.skin.Skin;
 
 /*
  * Main class. Called by service wrapper to initialise and start Galleon.
@@ -64,6 +64,8 @@ public class Server {
         mServer = this;
 
         try {
+            System.out.println("Galleon is starting...");
+            
             ArrayList errors = new ArrayList();
             setup(errors);
 
@@ -242,6 +244,8 @@ public class Server {
                 mToGoThread = null;
                 mDownloadThread = null;
             }
+            
+            System.out.println("Galleon is ready.");
 
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
@@ -303,15 +307,6 @@ public class Server {
 
     public boolean getGenerateThumbnails() {
         return mServerConfiguration.getGenerateThumbnails();
-    }
-
-    //	Used by AudioPlaylistTiVoItem to determine if proxy should be used for streaming stations
-    public void setUseStreamingProxy(boolean useStreamingProxy) {
-        mServerConfiguration.setUseStreamingProxy(useStreamingProxy);
-    }
-
-    public boolean getUseStreamingProxy() {
-        return mServerConfiguration.getUseStreamingProxy();
     }
 
     private void printSystemProperties() {
@@ -413,6 +408,29 @@ public class Server {
         mServerConfiguration.setVersion(version);
     }
 
+    public Skin getSkin() {
+        if (mSkin == null || !mSkin.getPath().equals(mServerConfiguration.getSkin()))
+        {
+            String skin = null;
+            if (mServerConfiguration.getSkin().length()==0)
+            {
+                try
+                {
+                    File file = (File)getSkins().get(0);
+                    skin = file.getCanonicalPath();
+                }
+                catch (Exception ex) {}
+            }
+            else
+                skin = mServerConfiguration.getSkin();
+            if (skin!=null)
+                mSkin = new Skin(skin);
+            else
+                log.error("No skin configured.");
+        }
+        return mSkin;
+    }
+    
     public String getVersion() {
         return mServerConfiguration.getVersion();
     }
@@ -608,12 +626,26 @@ public class Server {
         //mToGoThread.interrupt();
     }
 
-    public List getSkins() {
+    public List getWinampSkins() {
         File skinsDirectory = new File(System.getProperty("root") + "/media/winamp");
         if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden()) {
             File[] files = skinsDirectory.listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
                     return pathname.getName().endsWith(".wsz"); // Winamp skins
+                }
+            });
+            return Arrays.asList(files);
+        }
+
+        return new ArrayList();
+    }
+    
+    public List getSkins() {
+        File skinsDirectory = new File(System.getProperty("skins"));
+        if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden()) {
+            File[] files = skinsDirectory.listFiles(new FileFilter() {
+                public boolean accept(File pathname) {
+                    return pathname.getName().endsWith(".gln"); // Galleon skins
                 }
             });
             return Arrays.asList(files);
@@ -659,6 +691,11 @@ public class Server {
         }        
 
         mAppClassLoader = new URLClassLoader((URL[]) urls.toArray(new URL[0]));
+    }
+    
+    public MusicPlayerConfiguration getMusicPlayerConfiguration()
+    {
+        return mServerConfiguration.getMusicPlayerConfiguration();
     }
 
     public static void main(String args[]) {
@@ -707,4 +744,6 @@ public class Server {
     private static TiVoListener mTiVoListener;
 
     private static URLClassLoader mAppClassLoader;
+    
+    private static Skin mSkin;
 }

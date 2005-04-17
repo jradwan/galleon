@@ -50,7 +50,7 @@ public class DefaultMenuScreen extends DefaultScreen {
         {
             BView row = mMenuList.getRow(mMenuList.getFocus());
             BView icon = (BView) row.children[0];
-            icon.setResource(((DefaultApplication) getApp()).mBusy2Icon);
+            icon.setResource(((DefaultApplication) getApp()).mBusyIcon);
             icon.flush();
     
             getBApp().play("select.snd");

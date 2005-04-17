@@ -706,7 +706,7 @@ public final class Mp3File {
         mp3File = null;
     }
 
-    private static final void defaultProperties(Audio audio) {
+    public static final void defaultProperties(Audio audio) {
         audio.setTitle(DEFAULT_TITLE);
         audio.setArtist(DEFAULT_ARTIST);
         audio.setAlbum(DEFAULT_ALBUM);
@@ -966,102 +966,22 @@ public final class Mp3File {
         if (uri.toLowerCase().endsWith(".mp3")) {
             log.debug("getStream: " + uri);
             
-            if (!uri.startsWith("http"))
-            {
-                try {
-                    String id = Tools.extractName(uri);
-                    Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
-                    File file = new File(audio.getPath());
-                    if (file.exists()) {
-                        AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
-                        log.debug("Audio Type : " + aff.getType());
-                        AudioInputStream in = AudioSystem.getAudioInputStream(file);
-                        AudioFormat baseFormat = in.getFormat();
-                        log.debug("Source Format : " + baseFormat.toString());
-                        return in;
-                    }
-                } catch (Exception ex) {
-                    Tools.logException(Mp3File.class, ex, uri);
+            try {
+                String id = Tools.extractName(uri);
+                Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                File file = new File(audio.getPath());
+                if (file.exists()) {
+                    AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
+                    log.debug("Audio Type : " + aff.getType());
+                    AudioInputStream in = AudioSystem.getAudioInputStream(file);
+                    AudioFormat baseFormat = in.getFormat();
+                    log.debug("Source Format : " + baseFormat.toString());
+                    return in;
                 }
+            } catch (Exception ex) {
+                Tools.logException(Mp3File.class, ex, uri);
             }
-
-            //URL url = new URL("http://64.236.34.4:80/stream/1065");
-            URL url = new URL(uri);
-            URLConnection conn = url.openConnection();
-            conn.setRequestProperty("Icy-Metadata", "1");
-            System.out.println("conn.getContentLength()="+conn.getContentLength());
-            IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn.getContentLength()));
-            System.out.println("available="+input.available());
-            final IcyListener icyListener = IcyListener.getInstance();
-            input.addTagParseListener(icyListener);
-            
-            new Thread(){
-                public void run()
-                {
-                    try
-                    {
-                        String title = "";
-                        while (true)
-                        {
-                            if (!title.equals(icyListener.getStreamTitle()))
-                            {
-                                title = icyListener.getStreamTitle();
-                                System.out.println(title);
-                            }
-                            sleep(1000*10);
-                        }
-                    }
-                    catch (Exception ex){}
-                }
-            }.start();
-            
-            return input;
-
-            /* 
-            try { 
-                 String id = Tools.extractName(uri); 
-                 Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
-                 File file = new File(audio.getPath()); 
-                 if (file.exists()) { return new FileInputStream(file); } 
-              } catch (Exception ex) { Tools.logException(Mp3File.class, ex, uri); }
-              */
         }
         return Mp3File.class.getResourceAsStream("/couldnotconnect.mp3");
-    }
-    
-    private static final class URLStream extends FilterInputStream
-    {
-        URLStream(InputStream in, long contentLength)
-        {
-            super(in);
-            mContentLength = contentLength;
-        }
-        public int available()
-        {
-            return (int) mContentLength;
-        }
-        public int read() throws IOException
-        {
-            mContentLength -= 1;
-            return in.read();
-        }
-        public int read(byte b[], int off, int length) throws IOException
-        {
-            int n = super.read(b, off, length);
-            if (n > 0) {
-                mContentLength -= n;
-            }
-            return n;
-        }
-        public long skip(long n) throws IOException
-        {
-            n = super.skip(n);
-            if (n > 0) {
-                mContentLength -= n;
-            }
-            return n;
-        }
-        
-        private long mContentLength;
     }
 }

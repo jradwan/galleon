@@ -39,8 +39,6 @@ public class AppDescriptor implements Serializable {
 
     private static final String TITLE = "Title";
 
-    private static final String ICON = "Icon";
-
     private static final String RELEASE_DATE = "ReleaseDate";
 
     private static final String DESCRIPTION = "Description";
@@ -83,8 +81,6 @@ public class AppDescriptor implements Serializable {
                     if (attributes != null) {
                         if (attributes.getValue(TITLE) != null)
                             mTitle = (String) attributes.getValue(TITLE);
-                        if (attributes.getValue(ICON) != null)
-                            mIcon = (String) attributes.getValue(ICON);
                         if (attributes.getValue(RELEASE_DATE) != null)
                             mReleaseDate = (String) attributes.getValue(RELEASE_DATE);
                         if (attributes.getValue(DESCRIPTION) != null)
@@ -127,14 +123,6 @@ public class AppDescriptor implements Serializable {
 
     public String getTitle() {
         return mTitle;
-    }
-
-    public void setIcon(String value) {
-        mIcon = value;
-    }
-
-    public String getIcon() {
-        return mIcon;
     }
 
     public void setClassName(String value) {
@@ -238,8 +226,6 @@ public class AppDescriptor implements Serializable {
     private File mJar;
 
     private String mTitle;
-
-    private String mIcon;
 
     private String mClassName;
 

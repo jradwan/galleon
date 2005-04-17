@@ -17,6 +17,7 @@ package org.lnicholls.galleon.apps.togo;
  */
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -56,6 +57,10 @@ public class ToGo extends DefaultApplication {
     private static Logger log = Logger.getLogger(ToGo.class.getName());
 
     public final static String TITLE = "ToGo";
+    
+    private Resource mMenuBackground;
+    
+    private Resource mInfoBackground;    
 
     private Resource mYellowIcon;
 
@@ -75,15 +80,17 @@ public class ToGo extends DefaultApplication {
 
     protected void init(Context context) {
         super.init(context);
-
-        mYellowIcon = getResource("yellowball.png");
-        mYellowExclamationIcon = getResource("yellowball!.png");
-        mWhiteIcon = getResource("whiteball.png");
-        mGreenIcon = getResource("greenball.png");
-        mRedIcon = getResource("redball.png");
-        mBlueIcon = getResource("blueball.png");
-        mEmptyIcon = getResource("empty.png");
-
+        
+        mMenuBackground = getSkinImage("menu", "background");
+        mInfoBackground = getSkinImage("info", "background");
+        mYellowIcon = getSkinImage("menu", "expiresSoon");
+        mYellowExclamationIcon = getSkinImage("menu", "expired");
+        mWhiteIcon = getSkinImage("menu", "info");
+        mGreenIcon = getSkinImage("menu", "saveUntilDelete");
+        mRedIcon = getSkinImage("menu", "recording");
+        mBlueIcon = getSkinImage("menu", "suggestion");
+        mEmptyIcon = getSkinImage("menu", "empty");
+        
         mToGoScreen = new ToGoScreen(this);
 
         push(new ToGoMenuScreen(this), TRANSITION_NONE);
@@ -92,6 +99,8 @@ public class ToGo extends DefaultApplication {
     public class ToGoMenuScreen extends DefaultMenuScreen {
         public ToGoMenuScreen(ToGo app) {
             super(app, "Now Playing List");
+            
+            below.setResource(mMenuBackground);
 
             mDateFormat = new SimpleDateFormat();
             mDateFormat.applyPattern("EEE M/dd");
@@ -248,6 +257,8 @@ public class ToGo extends DefaultApplication {
 
         public ToGoScreen(ToGo app) {
             super(app, "Program", true);
+            
+            below.setResource(mInfoBackground);
 
             mDateFormat = new SimpleDateFormat();
             mDateFormat.applyPattern("EEE M/d hh:mm a");

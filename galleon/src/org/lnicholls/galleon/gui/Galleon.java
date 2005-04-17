@@ -369,6 +369,19 @@ public final class Galleon implements Constants {
         }
     }
     
+    public static List getWinampSkins(){
+        try {
+            ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
+            return serverControl.getWinampSkins();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get Winamp skins from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+    
     public static List getSkins(){
         try {
             ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
@@ -380,7 +393,7 @@ public final class Galleon implements Constants {
                     JOptionPane.ERROR_MESSAGE);
         }
         return null;
-    }
+    }    
 
     private static Logger log;
 

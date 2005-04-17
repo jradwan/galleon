@@ -137,7 +137,8 @@ See the file "COPYING" for more details.
     </property>               
     <property name="downloadSize" type="long" not-null="true">    
       <meta attribute="field-description">Download size in bytes</meta>
-    </property>                   
+    </property>     
+    <property name="origen" type="string" length="30"/>            
   </class>
 
 </hibernate-mapping>

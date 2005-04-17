@@ -46,7 +46,7 @@ public class Yahoo {
         if ((System.currentTimeMillis() - mTime < 1000 * 60 * 60 * 24)) {
             if (mCounter <= 0) {
                 // Not allowed to exceed daily limit
-                log.error("Exceeded daily search limite for: " + key);
+                log.error("Exceeded daily search limit for: " + key);
                 return results;
             }
         } else {

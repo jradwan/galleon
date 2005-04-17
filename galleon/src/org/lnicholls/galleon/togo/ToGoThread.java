@@ -159,7 +159,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                     sleep(1000 * 60 * 10);
                 }
                 else
-                    sleep(1000 * 10);
+                    sleep(1000 * 60 * 5);
                 
             } catch (InterruptedException ex) {
                 Tools.logException(ToGoThread.class, ex);
@@ -185,16 +185,13 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
     
     public List getRecordings() throws RemoteException
     {
-        synchronized(mToGo)
+        try
         {
-            try
-            {
-                return VideoManager.listAll();
-            } catch (HibernateException ex) {
-                log.error("Video listAll failed", ex);
-            }
+            return VideoManager.listAll();
+        } catch (HibernateException ex) {
+            log.error("Video listAll failed", ex);
         }
-        return new ArrayList();
+        return null;
     }
     
     private Server mServer;

@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.music;
+package org.lnicholls.galleon.apps.shoutcast;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 
-public class MusicConfiguration implements AppConfiguration {
+public class ShoutcastConfiguration implements AppConfiguration {
 
     public String getName() {
         return mName;
@@ -34,21 +34,21 @@ public class MusicConfiguration implements AppConfiguration {
             mModified = true;
         mName = value;
     }
-    
-    public List getPaths() {
-        return mPaths;
-    }
 
-    public void setPaths(List value) {
+    public void setGenres(List value) {
         mModified = true;
-        mPaths = value;
-    }
-
-    public void addPath(NameValue nameValue) {
-        mModified = true;
-        mPaths.add(nameValue);
+        mGenre = value;
     }
     
+    public List getGenres() {
+        return mGenre;
+    }    
+
+    public void addGenre(String value) {
+        mModified = true;
+        mGenre.add(value);
+    }
+
     public void setModified(boolean value) {
         mModified = value;
     }
@@ -62,8 +62,8 @@ public class MusicConfiguration implements AppConfiguration {
     }
 
     private String mName;
-    
+
     private boolean mModified;
 
-    private List mPaths = new ArrayList();
+    private List mGenre = new ArrayList();
 }

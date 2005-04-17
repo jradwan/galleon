@@ -82,6 +82,8 @@ See the file "COPYING" for more details.
     <property name="rotation" type="int"/>        
     
     <property name="thumbnail" type="int"/>                
+    
+    <property name="origen" type="string" length="30"/>        
 
   </class>
   

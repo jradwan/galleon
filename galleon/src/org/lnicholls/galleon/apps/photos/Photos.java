@@ -33,8 +33,8 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.database.ImageManager;
+import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.media.JpgFile;
 import org.lnicholls.galleon.media.MediaManager;
@@ -42,7 +42,8 @@ import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.NameFile;
+import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
@@ -66,7 +67,11 @@ public class Photos extends DefaultApplication {
     private final static Runtime runtime = Runtime.getRuntime();
 
     public final static String TITLE = "Photos";
-
+    
+    private Resource mMenuBackground;
+    
+    private Resource mInfoBackground;
+    
     private Resource mFolderIcon;
 
     private Resource mLargeFolderIcon;
@@ -75,12 +80,12 @@ public class Photos extends DefaultApplication {
     
     protected void init(Context context) {
         super.init(context);
-
-        mFolderIcon = getResource("folder.png");
-
-        mLargeFolderIcon = getResource("folder_red_open.png");
-
-        mCameraIcon = getResource("camera.png");
+        
+        mMenuBackground = getSkinImage("menu", "background");
+        mInfoBackground = getSkinImage("info", "background");
+        mFolderIcon = getSkinImage("menu", "folder");
+        mLargeFolderIcon = getSkinImage("menu", "gridFolder");
+        mCameraIcon = getSkinImage("menu", "file");
 
         String path = Tools.loadPersistentValue(DefaultApplication.TRACKER);
         if (path != null) {
@@ -97,10 +102,11 @@ public class Photos extends DefaultApplication {
             try
             {
                 NameValue nameValue = (NameValue) imagesConfiguration.getPaths().get(0);
-                NameFile nameFile = new NameFile(nameValue.getName(), new File(nameValue.getValue()));
-                FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                File file = new File(nameValue.getValue());
+                FileItem nameFile = new FileItem(nameValue.getName(), file);
+                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                         .getCanonicalPath());
-                setCurrentDirectory(nameFile.getFile().getCanonicalPath());
+                setCurrentDirectory(file.getCanonicalPath());
                 Tracker tracker = new Tracker(fileSystemContainer
                         .getItems(FileFilters.imageDirectoryFilter), 0);
                 PathScreen pathScreen = new PathScreen(this, tracker, true);
@@ -117,13 +123,15 @@ public class Photos extends DefaultApplication {
     public class PhotosMenuScreen extends DefaultMenuScreen {
         public PhotosMenuScreen(Photos app) {
             super(app, "Photos");
+            
+            below.setResource(mMenuBackground);
 
             PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                     .getAppContext().getConfiguration();
 
             for (Iterator i = imagesConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
                 NameValue nameValue = (NameValue) i.next();
-                mMenuList.add(new NameFile(nameValue.getName(), new File(nameValue.getValue())));
+                mMenuList.add(new FileItem(nameValue.getName(), new File(nameValue.getValue())));
             }
         }
 
@@ -134,8 +142,9 @@ public class Photos extends DefaultApplication {
                 new Thread() {
                     public void run() {
                         try {
-                            NameFile nameFile = (NameFile) (mMenuList.get(mMenuList.getFocus()));
-                            FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                            FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
+                            File file = (File)nameFile.getValue();
+                            FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                     .getCanonicalPath());
                             Tracker tracker = new Tracker(fileSystemContainer
                                     .getItems(FileFilters.imageDirectoryFilter), 0);
@@ -154,8 +163,8 @@ public class Photos extends DefaultApplication {
 
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 9, 2, 32, 32);
-            NameFile nameFile = (NameFile) mMenuList.get(index);
-            if (nameFile.getFile().isDirectory()) {
+            Item nameFile = (Item) mMenuList.get(index);
+            if (nameFile.isFolder()) {
                 icon.setResource(mFolderIcon);
             } else {
                 icon.setResource(mCameraIcon);
@@ -177,8 +186,8 @@ public class Photos extends DefaultApplication {
         public void createCell(final BView parent, int row, int column, boolean selected) {
             ArrayList photos = (ArrayList) get(row);
             if (column < photos.size()) {
-                final NameFile nameFile = (NameFile) photos.get(column);
-                if (nameFile.getFile().isDirectory()) {
+                final Item nameFile = (Item) photos.get(column);
+                if (nameFile.isFolder()) {
                     BView folderImage = new BView(parent, 0, 0, parent.width, parent.height);
                     folderImage.setResource(mLargeFolderIcon);
 
@@ -203,7 +212,7 @@ public class Photos extends DefaultApplication {
                                 Image image = null;
                                 synchronized(this)
                                 {
-                                    image = getImage(nameFile.getFile().getCanonicalPath());
+                                    image = getImage(((File)nameFile.getValue()).getCanonicalPath());
                                 }
 
                                 BufferedImage thumbnail = null;
@@ -287,6 +296,8 @@ public class Photos extends DefaultApplication {
 
         public PathScreen(Photos app, Tracker tracker, boolean first) {
             super(app);
+            
+            below.setResource(mMenuBackground);
 
             setTitle("Photos");
 
@@ -309,50 +320,54 @@ public class Photos extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                Object object = grid.get(grid.getFocus());
-                getBApp().play("select.snd");
-                getBApp().flush();
-
-                mTop = grid.getTop();
-
-                ArrayList photos = (ArrayList) object;
-                final NameFile nameFile = (NameFile) photos.get(grid.getPos() % 3);
-                if (nameFile.getFile().isDirectory()) {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                mTracker.setPos(grid.getPos());
-
-                                FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
-                                        .getCanonicalPath());
-                                Tracker tracker = new Tracker(fileSystemContainer
-                                        .getItems(FileFilters.imageDirectoryFilter), 0);
-                                PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
-                                getBApp().push(pathScreen, TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(Photos.class, ex);
+                if (grid.getFocus()!=-1)
+                {
+                    Object object = grid.get(grid.getFocus());
+                    getBApp().play("select.snd");
+                    getBApp().flush();
+    
+                    mTop = grid.getTop();
+    
+                    ArrayList photos = (ArrayList) object;
+                    final Item nameFile = (Item) photos.get(grid.getPos() % 3);
+                    if (nameFile.isFolder()) {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    mTracker.setPos(grid.getPos());
+    
+                                    File file = (File)nameFile.getValue();
+                                    FileSystemContainer fileSystemContainer = new FileSystemContainer(file
+                                            .getCanonicalPath());
+                                    Tracker tracker = new Tracker(fileSystemContainer
+                                            .getItems(FileFilters.imageDirectoryFilter), 0);
+                                    PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
+                                    getBApp().push(pathScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(Photos.class, ex);
+                                }
                             }
-                        }
-                    }.start();
-                } else {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                PhotosScreen photosScreen = new PhotosScreen((Photos) getBApp());
-                                mTracker.setPos(grid.getPos());
-                                photosScreen.setTracker(mTracker);
-
-                                getBApp().push(photosScreen, TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(Photos.class, ex);
+                        }.start();
+                    } else {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    PhotosScreen photosScreen = new PhotosScreen((Photos) getBApp());
+                                    mTracker.setPos(grid.getPos());
+                                    photosScreen.setTracker(mTracker);
+    
+                                    getBApp().push(photosScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(Photos.class, ex);
+                                }
                             }
-                        }
-                    }.start();
+                        }.start();
+                    }
+    
+                    return true;
                 }
-
-                return true;
             }
             else
             if (action.equals("play")) {
@@ -363,14 +378,15 @@ public class Photos extends DefaultApplication {
                 mTop = grid.getTop();
 
                 ArrayList photos = (ArrayList) object;
-                final NameFile nameFile = (NameFile) photos.get(grid.getPos() % 3);
-                if (nameFile.getFile().isDirectory()) {
+                final Item nameFile = (Item) photos.get(grid.getPos() % 3);
+                if (nameFile.isFolder()) {
                     new Thread() {
                         public void run() {
                             try {
                                 mTracker.setPos(grid.getPos());
 
-                                FileSystemContainer fileSystemContainer = new FileSystemContainer(nameFile.getFile()
+                                File file = (File)nameFile.getValue();
+                                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.imageDirectoryFilter), 0);
@@ -411,7 +427,7 @@ public class Photos extends DefaultApplication {
                     ArrayList photos = new ArrayList();
                     Iterator iterator = mTracker.getList().iterator();
                     while (iterator.hasNext()) {
-                        NameFile nameFile = (NameFile) iterator.next();
+                        Item nameFile = (Item) iterator.next();
                         photos.add(nameFile);
                         if (photos.size() == 3) {
                             grid.add(photos);
@@ -471,6 +487,8 @@ public class Photos extends DefaultApplication {
 
         public PhotosScreen(Photos app) {
             super(app, true);
+            
+            below.setResource(mInfoBackground);
 
             setTitle("Photo");
 
@@ -686,10 +704,10 @@ public class Photos extends DefaultApplication {
         public void getNextPos() {
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
-                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
-                while (nameFile.getFile().isDirectory()) {
+                Item nameFile = (Item) mTracker.getList().get(pos);
+                while (nameFile.isFolder()) {
                     pos = mTracker.getNextPos();
-                    nameFile = (NameFile) mTracker.getList().get(pos);
+                    nameFile = (FileItem) mTracker.getList().get(pos);
                 }
             }
         }
@@ -697,10 +715,10 @@ public class Photos extends DefaultApplication {
         public void getPrevPos() {
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
-                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
-                while (nameFile.getFile().isDirectory()) {
+                Item nameFile = (Item) mTracker.getList().get(pos);
+                while (nameFile.isFolder()) {
                     pos = mTracker.getPrevPos();
-                    nameFile = (NameFile) mTracker.getList().get(pos);
+                    nameFile = (FileItem) mTracker.getList().get(pos);
                 }
             }
         }
@@ -742,9 +760,9 @@ public class Photos extends DefaultApplication {
         private Image currentImage() {
             if (mTracker != null) {
                 try {
-                    NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
+                    FileItem nameFile = (FileItem) mTracker.getList().get(mTracker.getPos());
                     if (nameFile != null) {
-                        return getImage(nameFile.getFile().getCanonicalPath());
+                        return getImage(((File)nameFile.getValue()).getCanonicalPath());
                     }
                 } catch (Exception ex) {
                     Tools.logException(Photos.class, ex);
@@ -894,10 +912,10 @@ public class Photos extends DefaultApplication {
         public void getNextPos() {
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
-                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
-                while (nameFile.getFile().isDirectory()) {
+                Item nameFile = (Item) mTracker.getList().get(pos);
+                while (nameFile.isFolder()) {
                     pos = mTracker.getNextPos();
-                    nameFile = (NameFile) mTracker.getList().get(pos);
+                    nameFile = (FileItem) mTracker.getList().get(pos);
                 }
             }
         }
@@ -905,10 +923,10 @@ public class Photos extends DefaultApplication {
         public void getPrevPos() {
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
-                NameFile nameFile = (NameFile) mTracker.getList().get(pos);
-                while (nameFile.getFile().isDirectory()) {
+                Item nameFile = (Item) mTracker.getList().get(pos);
+                while (nameFile.isFolder()) {
                     pos = mTracker.getPrevPos();
-                    nameFile = (NameFile) mTracker.getList().get(pos);
+                    nameFile = (FileItem) mTracker.getList().get(pos);
                 }
             }
         }
@@ -916,9 +934,9 @@ public class Photos extends DefaultApplication {
         private Image currentImage() {
             if (mTracker != null) {
                 try {
-                    NameFile nameFile = (NameFile) mTracker.getList().get(mTracker.getPos());
+                    FileItem nameFile = (FileItem) mTracker.getList().get(mTracker.getPos());
                     if (nameFile != null) {
-                        return getImage(nameFile.getFile().getCanonicalPath());
+                        return getImage(((File)nameFile.getValue()).getCanonicalPath());
                     }
                 } catch (Exception ex) {
                     Tools.logException(Photos.class, ex);

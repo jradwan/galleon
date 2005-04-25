@@ -21,11 +21,13 @@ import java.awt.*;
 import java.awt.image.*;import java.io.*;
 import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;public class FontUtil {
+import java.util.TimerTask;
+
+import org.lnicholls.galleon.util.Tools;public class FontUtil {
 
      public static int getLineHeight(Font font)
      {
-        BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        BufferedImage buffer = Tools.createBufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = (Graphics2D)buffer.getGraphics();
         try
         {
@@ -41,7 +43,7 @@ import java.util.TimerTask;public class FontUtil {
      
      public static int getStringWidth(Font font, String value)
      {
-        BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        BufferedImage buffer = Tools.createBufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = (Graphics2D)buffer.getGraphics();
         try
         {

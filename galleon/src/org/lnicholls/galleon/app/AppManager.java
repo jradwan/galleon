@@ -135,7 +135,7 @@ public final class AppManager {
             AppFactory app = (AppFactory) iterator.next();
             // TODO Handle multiple instances
             if (app.getClass().getName().equals(className + "Factory")) {
-                app.getAppContext().setConfiguration(appConfiguration);
+                app.setConfiguration(appConfiguration);
             }
         }
     }

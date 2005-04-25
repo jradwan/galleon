@@ -220,6 +220,14 @@ public class FileFilters {
         audioDirectoryFilter.addFilter(playlistFilter);
         audioDirectoryFilter.addFilter(directoryFilter);            }        
     
+    public static final PositiveFilter audioFileDirectoryFilter = new PositiveFilter();
+    
+    static 
+    {
+        audioFileDirectoryFilter.addFilter(audioFilter);
+        audioFileDirectoryFilter.addFilter(directoryFilter);        
+    }    
+    
     // Helper function that matches a simple  filter parameter (i.e. only one filter type)
     private static final FileFilter matchFileFilter(String parameterFilter) {
         if (parameterFilter.equals(FILTER_IMAGE)

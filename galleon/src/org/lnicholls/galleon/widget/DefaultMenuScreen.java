@@ -37,10 +37,12 @@ public class DefaultMenuScreen extends DefaultScreen {
 
     public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
         mMenuList.init();
+        mMenuList.setFocus(mFocus,false);
         return super.handleEnter(arg, isReturn);
     }
 
     public boolean handleExit() {
+        mFocus = mMenuList.getFocus();
         mMenuList.clearViews();
         return super.handleExit();
     }
@@ -101,4 +103,6 @@ public class DefaultMenuScreen extends DefaultScreen {
     }
 
     protected MenuList mMenuList;
+    
+    protected int mFocus;
 }

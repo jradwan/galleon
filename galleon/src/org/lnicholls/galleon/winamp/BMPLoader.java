@@ -31,6 +31,8 @@ import java.awt.image.MemoryImageSource;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.lnicholls.galleon.util.Tools;
+
 /**
  * A decoder for Windows bitmap (.BMP) files.
  * Compression not supported.
@@ -63,7 +65,7 @@ public class BMPLoader
     public Image getBMPImage(InputStream stream) throws Exception
     {
 		read(stream);
-		return Toolkit.getDefaultToolkit().createImage(getImageSource());
+		return Tools.createImage(getImageSource());
 	}
 
 	private int readInt() throws IOException {

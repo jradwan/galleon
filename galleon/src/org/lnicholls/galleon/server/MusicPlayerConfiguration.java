@@ -21,6 +21,10 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class MusicPlayerConfiguration implements Serializable {
+    
+    public static String CLASSIC = "classic";
+    
+    public static String WINAMP = "winamp";
 
     public MusicPlayerConfiguration() {
 
@@ -67,6 +71,16 @@ public class MusicPlayerConfiguration implements Serializable {
     public boolean isModified() {
         return mModified;
     }
+    
+    public String getPlayer() {
+        return mPlayer;
+    }
+
+    public void setPlayer(String value) {
+        if (mPlayer != null && !mPlayer.equals(value))
+            mModified = true;
+        mPlayer = value;
+    }    
 
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -79,6 +93,8 @@ public class MusicPlayerConfiguration implements Serializable {
     private boolean mUseAmazon = true;
 
     private boolean mShowImages = false;
+    
+    private String mPlayer = WINAMP;
 
     private boolean mModified;
 }

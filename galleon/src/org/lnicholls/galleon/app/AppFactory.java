@@ -61,6 +61,10 @@ public class AppFactory extends Factory {
         mAppManager = appManager;
         setClassLoader(Thread.currentThread().getContextClassLoader());
     }
+    
+    public void setConfiguration(AppConfiguration appConfiguration) {
+        getAppContext().setConfiguration(appConfiguration);
+    }
 
     public void loadApps() {
         if (System.getProperty("hme") != null) {
@@ -336,7 +340,7 @@ public class AppFactory extends Factory {
         }
         return mListener;
     }
-
+    
     private AppManager mAppManager;
 
     private AppContext mAppContext;

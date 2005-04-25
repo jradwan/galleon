@@ -19,6 +19,8 @@ package org.lnicholls.galleon.winamp;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
+import org.lnicholls.galleon.util.Tools;
+
 import com.tivo.hme.sdk.View;
 
 /* Modified from JavaZoom code: http://www.javazoom.net
@@ -359,7 +361,7 @@ public class ClassicSkin {
         int x, y, width, height;
         int j = 0;
         for (int i = 0; i < images.length; i++) {
-            images[i] = new BufferedImage(panel[j + 2] * SCALE_FACTOR, panel[j + 3] * SCALE_FACTOR,
+            images[i] = Tools.createBufferedImage(panel[j + 2] * SCALE_FACTOR, panel[j + 3] * SCALE_FACTOR,
                     BufferedImage.TYPE_INT_RGB);
             x = panel[j] * SCALE_FACTOR;
             y = panel[j + 1] * SCALE_FACTOR;

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import net.jimmc.jshortcut.JShellLink;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 
 // TODO Keep shorcut names
@@ -50,21 +51,25 @@ public class FileGatherer {
 
     // Dereference a Windows file shortcut. Returns null on error
     public static final File followLink(File file) {
-        if (!file.exists()) {
-            if (log.isDebugEnabled())
-                log.debug("followLink() does not exist: " + file.getAbsolutePath());
-            return null;
+        if (SystemUtils.IS_OS_WINDOWS)
+        {
+            if (!file.exists()) {
+                if (log.isDebugEnabled())
+                    log.debug("followLink() does not exist: " + file.getAbsolutePath());
+                return null;
+            }
+            try {
+                JShellLink windowsShortcut = new JShellLink(file.getParent(), file.getName().substring(0,
+                        file.getName().lastIndexOf(".")));
+                windowsShortcut.load();
+                file = new File(windowsShortcut.getPath());
+                return file;
+            } catch (Exception ex) {
+                Tools.logException(FileGatherer.class, ex, file.getAbsolutePath());
+                return null;
+            }
         }
-        try {
-            JShellLink windowsShortcut = new JShellLink(file.getParent(), file.getName().substring(0,
-                    file.getName().lastIndexOf(".")));
-            windowsShortcut.load();
-            file = new File(windowsShortcut.getPath());
-            return file;
-        } catch (Exception ex) {
-            Tools.logException(FileGatherer.class, ex, file.getAbsolutePath());
-            return null;
-        }
+        return file;
     }
 
     // Check a file to see if it is a Windows shortcut. If not, return

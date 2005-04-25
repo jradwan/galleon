@@ -350,6 +350,52 @@
         <copy file="${build}/apps/shoutcast.jar" tofile="./apps/shoutcast.jar" />                                
         
 
+        <copy file="./media/images/musicOrganizer/icon.png" tofile="${build}/org/lnicholls/galleon/apps/musicOrganizer/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizer"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Music Organizer"/>
+            <attribute name="ReleaseDate" value="04/22/05"/>          
+            <attribute name="Description" value="Music Organizer"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/musicOrganizer.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/musicOrganizer/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/musicOrganizer" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/musicOrganizer.jar" tofile="./apps/musicOrganizer.jar" />                        
+        
+        <copy file="./media/images/rss/icon.png" tofile="${build}/org/lnicholls/galleon/apps/rss/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.rss.RSS"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="RSS"/>
+            <attribute name="ReleaseDate" value="04/23/05"/>          
+            <attribute name="Description" value="RSS"/>                    
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.rss.RSSOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/rss.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/rss/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/rss" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/rss.jar" tofile="./apps/rss.jar" />                                
+
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
@@ -532,6 +578,10 @@
         <copy file="./media/images/music/cd.png" tofile="${build}/skins/music/cd.png" />                
         <copy file="./media/images/music/playlist.png" tofile="${build}/skins/music/playlist.png" />                        
         <copy file="./media/images/music/background.jpg" tofile="${build}/skins/music/background.jpg" />
+        <copy file="./media/images/music/stop.png" tofile="${build}/skins/music/stop.png" />        
+        <copy file="./media/images/music/play.png" tofile="${build}/skins/music/play.png" />                
+        <copy file="./media/images/music/pause.png" tofile="${build}/skins/music/pause.png" />
+        <copy file="./media/images/music/overlay.png" tofile="${build}/skins/music/overlay.png" />        
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
@@ -560,6 +610,25 @@
         <copy file="./media/images/shoutcast/folder.png" tofile="${build}/skins/shoutcast/folder.png" />                
         <copy file="./media/images/shoutcast/station.png" tofile="${build}/skins/shoutcast/station.png" />                
         <copy file="./media/images/shoutcast/background.jpg" tofile="${build}/skins/shoutcast/background.jpg" />        
+        <copy file="./media/images/music/stop.png" tofile="${build}/skins/shoutcast/stop.png" />        
+        <copy file="./media/images/music/play.png" tofile="${build}/skins/shoutcast/play.png" />                
+        <copy file="./media/images/music/pause.png" tofile="${build}/skins/shoutcast/pause.png" />        
+        <copy file="./media/images/music/overlay.png" tofile="${build}/skins/shoutcast/overlay.png" />                        
+        
+        <copy file="./media/images/musicOrganizer/icon.png" tofile="${build}/skins/musicOrganizer/icon.png" />        
+        <copy file="./media/images/musicOrganizer/folder.png" tofile="${build}/skins/musicOrganizer/folder.png" />                
+        <copy file="./media/images/musicOrganizer/cd.png" tofile="${build}/skins/musicOrganizer/cd.png" />                
+        <copy file="./media/images/musicOrganizer/background.jpg" tofile="${build}/skins/musicOrganizer/background.jpg" />
+        <copy file="./media/images/music/stop.png" tofile="${build}/skins/musicOrganizer/stop.png" />        
+        <copy file="./media/images/music/play.png" tofile="${build}/skins/musicOrganizer/play.png" />                
+        <copy file="./media/images/music/pause.png" tofile="${build}/skins/musicOrganizer/pause.png" />
+        <copy file="./media/images/music/overlay.png" tofile="${build}/skins/musicOrganizer/overlay.png" />                                
+        
+        <copy file="./media/images/rss/icon.png" tofile="${build}/skins/rss/icon.png" />        
+        <copy file="./media/images/rss/folder.png" tofile="${build}/skins/rss/folder.png" />                
+        <copy file="./media/images/rss/item.png" tofile="${build}/skins/rss/item.png" />                
+        <copy file="./media/images/rss/background.jpg" tofile="${build}/skins/rss/background.jpg" />        
+        
 
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                

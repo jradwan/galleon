@@ -36,6 +36,8 @@ public class DefaultScreen extends BScreen {
     protected final int BORDER_LEFT = SAFE_TITLE_H;
 
     protected final int BODY_WIDTH = width - BORDER_LEFT - (SAFE_TITLE_H);
+    
+    protected final int BODY_HEIGHT = height - 2 * SAFE_TITLE_V;
 
     static final class HintsView extends BView {
         public HintsView(BView parent, int x, int y, int width, int height, boolean visible) {
@@ -115,11 +117,12 @@ public class DefaultScreen extends BScreen {
     public void setTitle(String value) {
         if (value != null && value.length() > 0) {
             if (mTitle == null) {
-                mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 50);
+                mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 110);
                 mTitle.setValue(" ");
                 mTitle.setColor(Color.yellow);
                 mTitle.setShadow(Color.black, 3);
-                mTitle.setFlags(RSRC_HALIGN_CENTER);
+                //mTitle.setFlags(RSRC_HALIGN_CENTER);
+                mTitle.setFlags(RSRC_HALIGN_CENTER | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
                 mTitle.setFont("default-48.font");
             }
 

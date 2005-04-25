@@ -37,7 +37,6 @@ import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.TiVo;
-import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
@@ -494,7 +493,7 @@ public class ToGo extends DefaultApplication {
                             return;
                         } // handle silently for waking up
                         catch (Exception ex2) {
-                            Tools.logException(ToGoThread.class, ex2);
+                            Tools.logException(ToGo.class, ex2);
                             return;
                         }
                     }

@@ -20,18 +20,18 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
-import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.media.Playlist;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
@@ -41,24 +41,23 @@ import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
-import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
+import org.lnicholls.galleon.widget.MusicInfo;
+import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.winamp.*;
-
-import org.apache.commons.lang.StringUtils;
+import org.lnicholls.galleon.winamp.ClassicSkin;
+import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.sdk.View;
 import com.tivo.hme.util.ArgumentList;
 
 public class Shoutcast extends DefaultApplication {
@@ -94,14 +93,14 @@ public class Shoutcast extends DefaultApplication {
         mLyricsBackground = getSkinImage("lyrics", "background");
         mImagesBackground = getSkinImage("images", "background");
         mFolderIcon = getSkinImage("menu", "folder");
-        mCDIcon= getSkinImage("menu", "item");
-        mPlaylistIcon= getSkinImage("menu", "playlist");
+        mCDIcon = getSkinImage("menu", "item");
+        mPlaylistIcon = getSkinImage("menu", "playlist");
 
         mMusicScreen = new MusicScreen(this);
 
-        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory).getAppContext()
-                .getConfiguration();
-        
+        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
+                .getAppContext().getConfiguration();
+
         push(new MusicMenuScreen(this), TRANSITION_NONE);
     }
 
@@ -114,12 +113,11 @@ public class Shoutcast extends DefaultApplication {
             ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
                     .getAppContext().getConfiguration();
 
-            try
-            {
+            try {
                 List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
                 for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
                     String genre = (String) i.next();
-                    mMenuList.add(new NameValue(genre,genre));
+                    mMenuList.add(new NameValue(genre, genre));
                 }
             } catch (Exception ex) {
                 Tools.logException(Shoutcast.class, ex);
@@ -134,13 +132,14 @@ public class Shoutcast extends DefaultApplication {
                     public void run() {
                         try {
                             NameValue nameValue = (NameValue) (mMenuList.get(mMenuList.getFocus()));
-                            List list = AudioManager.findByOrigenGenre(ShoutcastStations.SHOUTCAST, nameValue.getValue());
+                            List list = AudioManager.findByOrigenGenre(ShoutcastStations.SHOUTCAST, nameValue
+                                    .getValue());
                             List nameFiles = new ArrayList();
                             for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
                                 Audio audio = (Audio) i.next();
-                                nameFiles.add(new Item(audio.getTitle(),audio.getPath()));
-                            }           
-                            
+                                nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
+                            }
+
                             Tracker tracker = new Tracker(nameFiles, 0);
                             PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
                             getBApp().push(pathScreen, TRANSITION_LEFT);
@@ -328,66 +327,8 @@ public class Shoutcast extends DefaultApplication {
 
             below.setResource(mInfoBackground);
 
-            mTimeFormat = new SimpleDateFormat();
-            mTimeFormat.applyPattern("mm:ss");
-
-            int start = TOP;
-
-            mCover = new BView(below, width - SAFE_TITLE_H - 210, height - SAFE_TITLE_V - 200, 200, 200, false);
-
-            mTitleText = new BText(normal, BORDER_LEFT, start - 30, BODY_WIDTH, 70);
-            mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
-            mTitleText.setFont("default-30-bold.font");
-            mTitleText.setColor(Color.CYAN);
-            mTitleText.setShadow(true);
-
-            start += 40;
-
-            mSongText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
-            mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            mSongText.setFont("default-18-bold.font");
-            mSongText.setShadow(true);
-            mSongText.setVisible(false);
-
-            mDurationText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
-            mDurationText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-            mDurationText.setFont("default-18-bold.font");
-            mDurationText.setShadow(true);
-            mDurationText.setVisible(false);
-
-            start += 20;
-
-            mAlbumText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
-            mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            mAlbumText.setFont("default-18-bold.font");
-            mAlbumText.setShadow(true);
-            mAlbumText.setVisible(false);
-
-            mYearText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
-            mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-            mYearText.setFont("default-18-bold.font");
-            mYearText.setShadow(true);
-            mYearText.setVisible(false);
-
-            start += 20;
-
-            mArtistText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
-            mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            mArtistText.setFont("default-18-bold.font");
-            mArtistText.setShadow(true);
-            mArtistText.setVisible(false);
-
-            mGenreText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
-            mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-            mGenreText.setFont("default-18-bold.font");
-            mGenreText.setShadow(true);
-
-            mStars = new BView[5];
-            for (int i = 0; i < 5; i++) {
-                mStars[i] = new BView(normal, BORDER_LEFT + (i * 40), height - SAFE_TITLE_V - 200, 34, 34, true);
-                mStars[i].setResource(mStarIcon, RSRC_IMAGE_BESTFIT);
-                mStars[i].setTransparency(0.6f);
-            }
+            mMusicInfo = new MusicInfo(this.normal, BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
+                    - (TOP - 30 - SAFE_TITLE_V), true);
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
@@ -398,128 +339,29 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            below.setResource(mInfoBackground);
             updateView();
 
             return super.handleEnter(arg, isReturn);
         }
 
         private void updateView() {
-            final Audio audio = currentAudio();
-            if (audio != null) {
-                setPainting(false);
-                try {
-
-                    clearCover();
-
-                    Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-                    //File file = new File(audio.getPath());
-                    //String name = Tools.extractName(file.getName());
-                    mTitleText.setValue(nameFile.getName());
-                    mSongText.setValue("Song: " + Tools.trim(audio.getTitle(), 40));
-                    mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
-                    mAlbumText.setValue("Album: " + Tools.trim(audio.getAlbum(), 40));
-                    mYearText.setValue("Year: " + String.valueOf(audio.getDate()));
-                    mArtistText.setValue("Artist: " + Tools.trim(audio.getArtist(), 40));
-                    mGenreText.setValue("Genre: " + audio.getGenre());
-
-                    setRating();
-
-                    updateHints();
-
-                    final ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
-                            .getAppContext().getConfiguration();
-                    setPainting(false);
-                    try {
-                        if (mCoverThread != null && mCoverThread.isAlive())
-                            mCoverThread.interrupt();
-                    } finally {
-                        setPainting(true);
-                    }
-                    if (nameFile.isFile()) {
-                        mCoverThread = new Thread() {
-                            public void run() {
-                                try {
-                                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-                                    java.awt.Image image = Mp3File.getCover(audio, musicPlayerConfiguration.isUseAmazon(),
-                                            musicPlayerConfiguration.isUseFile());
-                                    if (image != null) {
-                                        synchronized (this) {
-                                            mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-                                            mCover.setVisible(true);
-                                            mCover.setTransparency(1.0f);
-                                            mCover.setTransparency(0.0f, mAnim);
-                                            getBApp().flush();
-                                        }
-                                    }
-                                } catch (Exception ex) {
-                                    Tools.logException(Shoutcast.class, ex, "Could retrieve cover");
-                                }
-                            }
-
-                            public void interrupt() {
-                                synchronized (this) {
-                                    super.interrupt();
-                                }
-                            }
-                        };
-                        mCoverThread.start();
-                    }
-
-                } finally {
-                    setPainting(true);
-                }
-            }
-        }
-
-        private void clearCover() {
             Audio audio = currentAudio();
             if (audio != null) {
-                mCover.setVisible(false);
-                if (mCover.resource != null)
-                    mCover.resource.remove();
+                mMusicInfo.setAudio(audio);
             }
         }
 
         public boolean handleExit() {
-            clearCover();
+            mMusicInfo.clearResource();
             return super.handleExit();
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
+            if (mMusicInfo.handleKeyPress(code, rawcode))
+                return true;
             Audio audio = currentAudio();
             switch (code) {
-            case KEY_THUMBSDOWN:
-                if (audio != null && audio.getRating() > 0) {
-                    getBApp().play("thumbsdown.snd");
-                    getBApp().flush();
-                    try {
-                        audio.setRating(Math.max(audio.getRating() - 1, 0));
-                        AudioManager.updateAudio(audio);
-                    } catch (Exception ex) {
-                        Tools.logException(Shoutcast.class, ex);
-                    }
-                    setRating();
-                } else {
-                    getBApp().play("bonk.snd");
-                    getBApp().flush();
-                }
-                return true;
-            case KEY_THUMBSUP:
-                if (audio != null && audio.getRating() < 5) {
-                    getBApp().play("thumbsup.snd");
-                    getBApp().flush();
-                    try {
-                        audio.setRating(Math.min(audio.getRating() + 1, 5));
-                        AudioManager.updateAudio(audio);
-                    } catch (Exception ex) {
-                        Tools.logException(Shoutcast.class, ex);
-                    }
-                    setRating();
-                } else {
-                    getBApp().play("bonk.snd");
-                    getBApp().flush();
-                }
-                return true;
             case KEY_SELECT:
             case KEY_RIGHT:
                 if (list.getFocus() == 0) {
@@ -552,9 +394,9 @@ public class Shoutcast extends DefaultApplication {
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
-                while (nameFile.isFolder()) {
+                while (nameFile.isFolder() || nameFile.isPlaylist()) {
                     pos = mTracker.getNextPos();
-                    nameFile = (FileItem) mTracker.getList().get(pos);
+                    nameFile = (Item) mTracker.getList().get(pos);
                 }
             }
         }
@@ -563,21 +405,9 @@ public class Shoutcast extends DefaultApplication {
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
-                while (nameFile.isFolder()) {
+                while (nameFile.isFolder() || nameFile.isPlaylist()) {
                     pos = mTracker.getPrevPos();
-                    nameFile = (FileItem) mTracker.getList().get(pos);
-                }
-            }
-        }
-
-        private void setRating() {
-            Audio audio = currentAudio();
-            if (audio != null) {
-                for (int i = 0; i < 5; i++) {
-                    if (i < audio.getRating())
-                        mStars[i].setTransparency(0.0f);
-                    else
-                        mStars[i].setTransparency(0.6f);
+                    nameFile = (Item) mTracker.getList().get(pos);
                 }
             }
         }
@@ -615,37 +445,15 @@ public class Shoutcast extends DefaultApplication {
                             return getAudio((String) nameFile.getValue());
                     }
                 } catch (Exception ex) {
-                    Tools.logException(Shoutcast.class, ex);
+                    Tools.logException(Music.class, ex);
                 }
             }
             return null;
         }
 
-        private SimpleDateFormat mTimeFormat;
-
-        private Resource mAnim = getResource("*2000");
-
-        private BView mCover;
-
-        private BText mTitleText;
-
-        private BText mSongText;
-
-        private BText mArtistText;
-
-        private BText mAlbumText;
-
-        private BText mDurationText;
-
-        private BText mYearText;
-
-        private BText mGenreText;
+        private MusicInfo mMusicInfo;
 
         private Tracker mTracker;
-
-        private BView[] mStars;
-
-        private Thread mCoverThread;
     }
 
     public class PlayerScreen extends DefaultScreen {
@@ -657,88 +465,48 @@ public class Shoutcast extends DefaultApplication {
 
             mTracker = tracker;
 
-            app.setTracker(tracker);
-
             setTitle(" ");
 
-            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
-                    .getAppContext().getConfiguration();
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
             if (musicPlayerConfiguration.isShowImages())
                 setFooter("Press INFO for lyrics, 0 for images");
             else
                 setFooter("Press INFO for lyrics");
 
+            app.setTracker(mTracker);
             getPlayer().startTrack();
         }
 
-        private void updatePlayer() {
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             new Thread() {
                 public void run() {
-                    ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
-                            .getAppContext().getConfiguration();
-                    //ClassicSkin classicSkin = new ClassicSkin(musicConfiguration.getSkin());
-                    if (mClassicSkin != null) {
-                        mBusy.setVisible(true);
-                        synchronized (this) {
-                            setPainting(false);
-                            try {
-                                player = mClassicSkin.getMain(PlayerScreen.this);
-                                previousControl = mClassicSkin.getPreviousControl(player);
-                                playControl = mClassicSkin.getPlayControl(player);
-                                pauseControl = mClassicSkin.getPauseControl(player);
-                                stopControl = mClassicSkin.getStopControl(player);
-                                nextControl = mClassicSkin.getNextControl(player);
-                                ejectControl = mClassicSkin.getEjectControl(player);
-                                title = mClassicSkin.getTitle(player);
+                    mBusy.setVisible(true);
+                    mBusy.flush();
 
-                                stereo = mClassicSkin.getStereoActive(player);
-                                mono = mClassicSkin.getMonoPassive(player);
-
-                                sampleRate = mClassicSkin.getSampleRate(player, "44");
-                                bitRate = mClassicSkin.getBitRate(player, " 96");
-
-                                stopIcon = mClassicSkin.getStopIcon(player);
-                                stopIcon.setVisible(false);
-                                playIcon = mClassicSkin.getPlayIcon(player);
-                                playIcon.setVisible(false);
-                                pauseIcon = mClassicSkin.getPauseIcon(player);
-                                pauseIcon.setVisible(false);
-
-                                repeat = mClassicSkin.getRepeatActive(player);
-                                shuffle = mClassicSkin.getShufflePassive(player);
-
-                                positionControl = mClassicSkin.getPosition(player, 0);
-
-                                seconds1 = mClassicSkin.getSeconds1(player);
-                                seconds2 = mClassicSkin.getSeconds2(player);
-                                minutes1 = mClassicSkin.getMinutes1(player);
-                                minutes2 = mClassicSkin.getMinutes2(player);
-
-                                try {
-                                    Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-                                    Audio audio = null;
-                                    if (nameFile.isFile())
-                                        audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                                    else
-                                        audio = getAudio((String) nameFile.getValue());
-
-                                    setTitleText(createTitle(audio));
-                                } catch (Exception ex) {
-                                }
-
-                                playPlayer();
-
-                                mPlaying = true;
-
-                                mBusy.setVisible(false);
-
-                            } finally {
-                                setPainting(true);
-                            }
+                    synchronized (this) {
+                        setPainting(false);
+                        try {
+                            MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                                    .getMusicPlayerConfiguration();
+                            if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
+                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
+                                        BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker);
+                            else
+                                player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.width,
+                                        PlayerScreen.this.height, false, (DefaultApplication) getApp(), mTracker);
+                            player.updatePlayer();
+                            player.setVisible(true);
+                        } finally {
+                            setPainting(true);
                         }
-                        getBApp().flush();
                     }
+                    setFocusDefault(player);
+                    setFocus(player);
+                    mBusy.setVisible(false);
+
+                    mScreenSaver = new ScreenSaver(PlayerScreen.this);
+                    mScreenSaver.start();
+                    getBApp().flush();
                 }
 
                 public void interrupt() {
@@ -747,156 +515,23 @@ public class Shoutcast extends DefaultApplication {
                     }
                 }
             }.start();
-        }
 
-        private void updateTime(int seconds) {
-            int secondD = 0, second = 0, minuteD = 0, minute = 0;
-            int minutes = (int) Math.floor(seconds / 60);
-            int hours = (int) Math.floor(minutes / 60);
-            minutes = minutes - hours * 60;
-            seconds = seconds - minutes * 60 - hours * 3600;
-            if (seconds < 10) {
-                secondD = 0;
-                second = seconds;
-            } else {
-                secondD = ((int) seconds / 10);
-                second = ((int) (seconds - (((int) seconds / 10)) * 10));
-            }
-            if (minutes < 10) {
-                minuteD = 0;
-                minute = minutes;
-            } else {
-                minuteD = ((int) minutes / 10);
-                minute = ((int) (minutes - (((int) minutes / 10)) * 10));
-            }
-
-            setPainting(false);
-            try {
-                seconds1.setImage(second);
-                seconds2.setImage(secondD);
-                minutes1.setImage(minute);
-                minutes2.setImage(minuteD);
-            } finally {
-                setPainting(true);
-            }
-        }
-
-        private void setTitleText(String text) {
-            text = Tools.extractName(text);
-
-            if (!text.toUpperCase().equals(title.getText())) {
-                setPainting(false);
-                try {
-                    title.setText(text);
-                } finally {
-                    setPainting(true);
-                }
-            }
-
-            mLastTitle = text;
-        }
-
-        public void stopPlayer() {
-            if (stopIcon != null) {
-                setPainting(false);
-                try {
-                    stopIcon.setVisible(true);
-                    playIcon.setVisible(false);
-                    pauseIcon.setVisible(false);
-                    positionControl.setPosition(0);
-                } finally {
-                    setPainting(true);
-                }
-                try {
-                    Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-                    Audio audio = null;
-                    if (nameFile.isFile())
-                        audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                    else
-                        audio = getAudio((String) nameFile.getValue());
-
-                    if (mPlaying) {
-                        setTitleText(createTitle(audio));
-                    } else
-                        mLastTitle = createTitle(audio);
-                } catch (Exception ex) {
-                }
-            }
-        }
-
-        public void playPlayer() {
-            if (stopIcon != null) {
-                setPainting(false);
-                try {
-                    stopIcon.setVisible(false);
-                    playIcon.setVisible(true);
-                    pauseIcon.setVisible(false);
-                } finally {
-                    setPainting(true);
-                }
-            }
-        }
-
-        public void pausePlayer() {
-            if (stopIcon != null) {
-                if (getPlayer().getState() != Player.STOP) {
-                    setPainting(false);
-                    try {
-                        stopIcon.setVisible(false);
-                        playIcon.setVisible(false);
-                        if (getPlayer().getState() == Player.PAUSE) {
-                            pauseIcon.setVisible(false);
-                            playIcon.setVisible(true);
-                        } else {
-                            pauseIcon.setVisible(true);
-                        }
-                    } finally {
-                        setPainting(true);
-                    }
-                }
-            }
-        }
-
-        public void nextPlayer() {
-            if (stopIcon != null) {
-                setPainting(false);
-                try {
-                    stopIcon.setVisible(false);
-                    playIcon.setVisible(true);
-                    pauseIcon.setVisible(false);
-                } finally {
-                    setPainting(true);
-                }
-            }
-        }
-
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            getBApp().flush();
-            updatePlayer();
-
-            mScreenSaver = new ScreenSaver(this);
-            mScreenSaver.start();
             return super.handleEnter(arg, isReturn);
         }
 
         public boolean handleExit() {
-            mPlaying = false;
             setPainting(false);
             try {
-                stopPlayer();
+                player.stopPlayer();
 
                 if (mScreenSaver != null && mScreenSaver.isAlive()) {
                     mScreenSaver.interrupt();
                     mScreenSaver = null;
                 }
                 if (player != null) {
-                    setPainting(false);
-                    try {
-                        player.setVisible(false);
-                        player.remove();
-                    } finally {
-                        setPainting(true);
-                    }
+                    player.setVisible(false);
+                    player.remove();
+                    player = null;
                 }
             } finally {
                 setPainting(true);
@@ -908,40 +543,6 @@ public class Shoutcast extends DefaultApplication {
             if (transparency != 0.0f)
                 setTransparency(0.0f);
             switch (code) {
-            case KEY_PAUSE:
-                if (pauseControl != null)
-                    pauseControl.setSelected(true);
-                pausePlayer();
-                break;
-            case KEY_PLAY:
-                if (playControl != null)
-                    playControl.setSelected(true);
-                playPlayer();
-                break;
-            case KEY_CHANNELUP:
-                //getBApp().play("select.snd");
-                //getBApp().flush();
-                if (previousControl != null)
-                    previousControl.setSelected(true);
-                break;
-            case KEY_CHANNELDOWN:
-                //getBApp().play("select.snd");
-                //getBApp().flush();
-                if (nextControl != null)
-                    nextControl.setSelected(true);
-                break;
-            case KEY_SLOW:
-                if (stopControl != null)
-                    stopControl.setSelected(true);
-                stopPlayer();
-                break;
-            case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
             case KEY_INFO:
                 getBApp().play("select.snd");
                 getBApp().flush();
@@ -966,194 +567,13 @@ public class Shoutcast extends DefaultApplication {
             return super.handleKeyPress(code, rawcode);
         }
 
-        public boolean handleKeyRelease(int code, long rawcode) {
-            switch (code) {
-            case KEY_PAUSE:
-                if (pauseControl != null)
-                    pauseControl.setSelected(false);
-                break;
-            case KEY_PLAY:
-                if (playControl != null)
-                    playControl.setSelected(false);
-                break;
-            case KEY_CHANNELUP:
-                if (previousControl != null)
-                    previousControl.setSelected(false);
-                break;
-            case KEY_CHANNELDOWN:
-                if (nextControl != null)
-                    nextControl.setSelected(false);
-                break;
-            case KEY_SLOW:
-                if (stopControl != null)
-                    stopControl.setSelected(false);
-                break;
-            case KEY_ENTER:
-                if (ejectControl != null)
-                    ejectControl.setSelected(false);
-                break;
-            }
-            return super.handleKeyRelease(code, rawcode);
-        }
+        //private WinampPlayer player;
 
-        public boolean handleAction(BView view, Object action) {
-            Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-            if (action.equals("ready")) {
-                if (mPlaying) {
-                    playPlayer();
-                }
-                String title = nameFile.getName();
-                try {
-                    if (nameFile.isFile()) {
-                        Audio audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                        title = createTitle(audio);
-                    } else
-                        title = nameFile.getName();
-                } catch (Exception ex) {
-                    Tools.logException(Shoutcast.class, ex);
-                }
-
-                if (mPlaying) {
-                    setTitleText(title);
-                } else
-                    mLastTitle = title;
-            } else if (action.equals("playing")) {
-                if (mPlaying) {
-                    if (getPlayer().getTotal() != 0) {
-                        int value = (int) Math.round(getPlayer().getCurrentPosition() / (float) getPlayer().getTotal()
-                                * 100);
-                        try {
-                            Audio audio = null;
-                            if (nameFile.isFile())
-                                audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                            else
-                                audio = getAudio((String) nameFile.getValue());
-                            if (audio != null && audio.getDuration() != -1)
-                                positionControl.setPosition(value);
-                        } catch (Exception ex) {
-                        }
-                        updateTime(getPlayer().getCurrentPosition() / 1000);
-                    }
-
-                    int value = getPlayer().getBitrate();
-                    String newValue = Integer.toString(value);
-                    if (value < 100)
-                        newValue = " " + newValue;
-                    bitRate.setText(newValue);
-                }
-
-                return true;
-            } else if (action.equals("stopped")) {
-                if (mPlaying) {
-                    stopPlayer();
-                    setTitleText(" ");
-                    updateTime(0);
-                }
-                return true;
-            } else if (action.equals("update")) {
-                if (mPlaying) {
-                    setTitleText(getPlayer().getTitle());
-                } else
-                    mLastTitle = getPlayer().getTitle();
-                return true;
-            }
-
-            return super.handleAction(view, action);
-        }
-
-        public boolean handleEvent(HmeEvent event) {
-            switch (event.opcode) {
-            case EVT_KEY: {
-                if (title != null && title.handleEvent(event))
-                    return true;
-                break;
-            }
-            }
-            return super.handleEvent(event);
-        }
-
-        private String createTitle(Audio audio) {
-            String details = "";
-            if (!audio.getTitle().equals(Mp3File.DEFAULT_ARTIST)) {
-                details = audio.getTitle();
-            }
-            if (!audio.getArtist().equals(Mp3File.DEFAULT_ARTIST)) {
-                if (details.length() == 0)
-                    details = audio.getArtist();
-                else
-                    details = details + " - " + audio.getArtist();
-            }
-            if (!audio.getAlbum().equals(Mp3File.DEFAULT_ARTIST)) {
-                if (details.length() == 0)
-                    details = audio.getAlbum();
-                else
-                    details = details + " - " + audio.getAlbum();
-            }
-            if (audio.getDate() != 0) {
-                if (details.length() == 0)
-                    details = String.valueOf(audio.getDate());
-                else
-                    details = details + " - " + String.valueOf(audio.getDate());
-            }
-            return details;
-        }
-
-        Audio mAudio;
-
-        // when did the last key press occur
-        long lastKeyPress;
-
-        View player;
-
-        ImageControl previousControl;
-
-        ImageControl playControl;
-
-        ImageControl pauseControl;
-
-        ImageControl stopControl;
-
-        ImageControl nextControl;
-
-        ImageControl ejectControl;
-
-        ScrollTextControl title;
-
-        View stereo;
-
-        View mono;
-
-        TextControl bitRate;
-
-        TextControl sampleRate;
-
-        View stopIcon;
-
-        View playIcon;
-
-        View pauseIcon;
-
-        View repeat;
-
-        View shuffle;
-
-        PositionControl positionControl;
-
-        ImageView seconds1;
-
-        ImageView seconds2;
-
-        ImageView minutes1;
-
-        ImageView minutes2;
+        private DefaultPlayer player;
 
         private Tracker mTracker;
 
         private ScreenSaver mScreenSaver;
-
-        private boolean mPlaying;
-
-        private String mLastTitle = "";
     }
 
     private static Audio getAudio(String path) {
@@ -1201,8 +621,8 @@ public class Shoutcast extends DefaultApplication {
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-            list.add("Press SELECT to go back");
+            //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+            list.add("Back to player");
             setFocusDefault(list);
         }
 
@@ -1361,8 +781,8 @@ public class Shoutcast extends DefaultApplication {
 
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-            list.add("Press SELECT to go back");
+            //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+            list.add("Back to player");
             setFocusDefault(list);
         }
 
@@ -1439,7 +859,11 @@ public class Shoutcast extends DefaultApplication {
                         synchronized (this) {
                             setPainting(false);
                             try {
-                                mPosText.setValue(String.valueOf(mPos + 1) + " of " + String.valueOf(mResults.size()));
+                                if (mResults != null && mResults.size() > 0)
+                                    mPosText.setValue(String.valueOf(mPos + 1) + " of "
+                                            + String.valueOf(mResults.size()));
+                                else
+                                    mPosText.setValue("No images found");
                                 mBusy.setVisible(false);
                             } finally {
                                 setPainting(true);
@@ -1570,20 +994,18 @@ public class Shoutcast extends DefaultApplication {
 
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
             String skin = null;
-            if (musicPlayerConfiguration==null || musicPlayerConfiguration.getSkin()==null)
-            {
+            if (musicPlayerConfiguration == null || musicPlayerConfiguration.getSkin() == null) {
                 List skins = Server.getServer().getWinampSkins();
-                skin = ((File)skins.get(0)).getAbsolutePath();
-            }
-            else
+                skin = ((File) skins.get(0)).getAbsolutePath();
+            } else
                 skin = musicPlayerConfiguration.getSkin();
             mClassicSkin = new ClassicSkin(skin);
-            
+
             mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
         }
     }
 
     private static ClassicSkin mClassicSkin;
-    
+
     private static ShoutcastStations mShoutcastStations;
 }

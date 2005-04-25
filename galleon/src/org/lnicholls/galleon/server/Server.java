@@ -529,7 +529,6 @@ public class Server {
             Font.createFont(Font.TRUETYPE_FONT, Server.class.getClassLoader().getResourceAsStream(
                     ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "default.ttf"));
         } catch (Throwable e) {
-            Tools.logException(Server.class, e);
         }
     }
 
@@ -699,23 +698,6 @@ public class Server {
     }
 
     public static void main(String args[]) {
-        
-        try {
-            BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-        } catch (Throwable ex) {
-            System.out.println(ex.getMessage());
-            System.out.println(ex.toString());
-            ex.printStackTrace();
-            Throwable cause = ex.getCause();
-            while (cause!=null)
-            {
-                System.out.println(cause.getMessage());
-                System.out.println(cause.toString());
-                cause.printStackTrace();
-                cause = cause.getCause();    
-            }
-        }        
-        
         Server server = getServer();
     }
 

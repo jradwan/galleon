@@ -280,4 +280,25 @@ public class AudioManager {
             HibernateUtil.closeSession();
         }
     }
+    
+    public static List findByTitle(String title) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = session.createQuery("from org.lnicholls.galleon.database.Audio as Audio where Audio.title=?")
+                .setString(0, title).list();
+
+            tx.commit();
+
+            return list;
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }    
 }

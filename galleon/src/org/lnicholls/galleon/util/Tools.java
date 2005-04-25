@@ -380,18 +380,33 @@ public class Tools {
     }
 
     public static Toolkit getDefaultToolkit() {
-        String headless = System.getProperty("java.awt.headless");
-        if (headless == null || !headless.equals("true"))
-            try {
-                if (SystemUtils.IS_OS_WINDOWS)
-                    return (Toolkit) Class.forName("sun.awt.windows.WToolkit").newInstance();
-                else if (SystemUtils.IS_OS_LINUX)
-                    return (Toolkit) Class.forName("sun.awt.motif.MToolkit").newInstance();
-                else if (SystemUtils.IS_OS_MAC_OSX)
-                    return (Toolkit) Class.forName("apple.awt.CToolkit").newInstance();
-            } catch (Throwable ex) {
+        try
+        {
+            String headless = System.getProperty("java.awt.headless");
+            if (headless == null || !headless.equals("true"))
+                try {
+                    if (SystemUtils.IS_OS_WINDOWS)
+                        return (Toolkit) Class.forName("sun.awt.windows.WToolkit").newInstance();
+                    else if (SystemUtils.IS_OS_LINUX)
+                        return (Toolkit) Class.forName("sun.awt.motif.MToolkit").newInstance();
+                    else if (SystemUtils.IS_OS_MAC_OSX)
+                        return (Toolkit) Class.forName("apple.awt.CToolkit").newInstance();
+                } catch (Throwable ex) {
+                }
+            return Toolkit.getDefaultToolkit();
+        }
+        catch (Throwable ex)
+        {
+            try
+            {
+                return (Toolkit) Class.forName("com.eteks.awt.PJAToolkit").newInstance();
             }
-        return Toolkit.getDefaultToolkit();
+            catch (Exception ex2)
+            {
+                
+            }
+        }
+        return null;
     }
 
     public static Image getResourceAsImage(Class theClass, String resource) {
@@ -610,7 +625,7 @@ public class Tools {
     }
 
     public static void cacheImage(URL url, String key) {
-        cacheImage(url, -1, -1, null);
+        cacheImage(url, -1, -1, key);
     }
 
     public static void cacheImage(URL url, int width, int height) {
@@ -662,7 +677,6 @@ public class Tools {
                 } catch (HibernateException ex) {
                     log.error("Thumbnail create failed", ex);
                 }
-
                 image.flush();
                 image = null;
             } catch (Exception ex) {
@@ -716,7 +730,7 @@ public class Tools {
                     if (height == -1)
                         height = internetImage.getHeight(null);
 
-                    BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                    BufferedImage image = createBufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                     Graphics2D graphics2D = image.createGraphics();
                     graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -776,7 +790,10 @@ public class Tools {
         return value;
     }
 
-    public static BufferedImage createBufferedImage(int width, int height, int imageType) throws Exception {
+    public static BufferedImage createBufferedImage(int width, int height, int imageType) {
+        if (java.awt.GraphicsEnvironment.isHeadless())
+            return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
+        else
         try {
             return new BufferedImage(width, height, imageType);
         } catch (Throwable ex) {
@@ -785,6 +802,18 @@ public class Tools {
     }
     
     public static BufferedImage getDefaultImage() {
-        return new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+        return createBufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+    }
+    
+    public static Image createImage(java.awt.image.ImageProducer producer) throws Exception
+    {
+      try
+      {
+          return Toolkit.getDefaultToolkit().createImage(producer);
+      }
+      catch (Throwable th)
+      {
+          return new com.eteks.awt.PJAImage (producer);
+      }
     }
 }

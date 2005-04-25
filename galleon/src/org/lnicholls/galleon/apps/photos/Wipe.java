@@ -77,7 +77,7 @@ public class Wipe extends Effect {
             int[] direction = getDirection(view);
             view2.setLocation(direction[0], direction[1], anim);
         } else
-            view2.setLocation(Math.round(mX*view.width), Math.round(mY*view.height), anim);
+            view2.setLocation(Math.round(mX*view.parent.width), Math.round(mY*view.parent.height), anim);
         if (mOutTransparent)
             view2.setTransparency(1, anim);
 
@@ -88,40 +88,40 @@ public class Wipe extends Effect {
         int[] values = new int[2];
         switch (mDirection) {
         case LEFT:
-            values[0] = -view.width;
-            values[1] = 0;
+            values[0] = -view.parent.width;
+            values[1] = view.y;
             break;
         case RIGHT:
-            values[0] = view.width;
-            values[1] = 0;
+            values[0] = view.parent.width;
+            values[1] = view.y;;
             break;
         case TOP:
-            values[0] = 0;
-            values[1] = -view.height;
+            values[0] = view.x;
+            values[1] = -view.parent.height;
             break;
         case BOTTOM:
-            values[0] = 0;
-            values[1] = view.height;
+            values[0] = view.x;
+            values[1] = view.parent.height;
             break;
         case NW:
-            values[0] = -view.width;
-            values[1] = -view.height;
+            values[0] = -view.parent.width;
+            values[1] = -view.parent.height;
             break;
         case NE:
-            values[0] = view.width;
-            values[1] = -view.height;
+            values[0] = view.parent.width;
+            values[1] = -view.parent.height;
             break;
         case SE:
-            values[0] = view.width;
-            values[1] = view.height;
+            values[0] = view.parent.width;
+            values[1] = view.parent.height;
             break;
         case SW:
-            values[0] = -view.width;
-            values[1] = view.height;
+            values[0] = -view.parent.width;
+            values[1] = view.parent.height;
             break;
         default:
-            values[0] = view.width;
-            values[1] = 0;
+            values[0] = view.parent.width;
+            values[1] = view.y;
             break;
         }
         return values;

@@ -58,9 +58,19 @@ public class ShoutcastStations {
 
     public void getPlaylists() {
         List list = mConfiguration.getGenres();
-        for (Iterator i=list.iterator();i.hasNext();)
+        String lastGenre = Tools.loadPersistentValue(this.getClass().getName() + "." + "genre");
+        int start = 0;
+        if (lastGenre!=null)
         {
-            String genre = (String)i.next();
+            try
+            {
+                start = Integer.parseInt(lastGenre);
+            }
+            catch (Exception ex){}
+        }
+        int next = (start+1)%list.size();
+        while (mCounter > 0) {
+            String genre = (String)list.get(next);
             int genreCounter = MAX_REQUESTS_PER_DAY/4; 
             try {
                 HttpClient httpclient = new HttpClient();
@@ -78,7 +88,7 @@ public class ShoutcastStations {
     
                     if (strGetResponseBody != null) {
                         //"/sbin/shoutcast-playlist.pls?rn=5224&file=filename.pls"
-                        String REGEX = "=\"/sbin/shoutcast-playlist.pls(.*)\">";
+                        String REGEX = "=\"/sbin/shoutcast-playlist.pls([^<]*)\">";
                         Pattern p = Pattern.compile(REGEX);
                         Matcher m = p.matcher(strGetResponseBody);
                         boolean found = false;
@@ -109,9 +119,7 @@ public class ShoutcastStations {
                                         } catch (Exception ex) {
                                         }
     
-                                        if (audio != null)
-                                            break;
-                                        else if (audio == null) {
+                                        if (audio == null) {
                                             try {
                                                 audio = (Audio) MediaManager.getMedia(u);
                                                 audio.setTitle(t);
@@ -119,9 +127,21 @@ public class ShoutcastStations {
                                                 audio.setOrigen(SHOUTCAST);
                                                 AudioManager.createAudio(audio);
                                                 found = true;
-                                                break;
                                             } catch (Exception ex) {
                                             }
+                                        }
+                                        // Remove duplicates
+                                        try {
+                                            List same = AudioManager.findByTitle(t);
+                                            for (Iterator iterator = same.iterator();;iterator.next())
+                                            {
+                                                Audio sameTitle = (Audio)iterator.next();
+                                                if (!sameTitle.getId().equals(audio.getId()))
+                                                {
+                                                    AudioManager.deleteAudio(sameTitle);
+                                                }
+                                            }
+                                        } catch (Exception ex) {
                                         }
                                     }
                                 }
@@ -129,6 +149,8 @@ public class ShoutcastStations {
                             }
                             found = genreCounter--==0;
                         }
+                        if (isLimit())
+                            Tools.savePersistentValue(this.getClass().getName() + "." + "genre", String.valueOf(next));
                     }
                 } catch (Exception ex) {
                     log.error("Could not download stations", ex);
@@ -138,6 +160,7 @@ public class ShoutcastStations {
             } catch (Exception ex) {
                 Tools.logException(ShoutcastStations.class, ex);
             }
+            next = (next+1)%list.size();
         }
     }
     

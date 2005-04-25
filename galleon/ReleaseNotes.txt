@@ -3,6 +3,15 @@ Galleon
 
 Delete the previous beta before installing this beta.
 
+Version 0.0.0 beta 8:
+---------------------
+Added option to control safe viewing area for slideshows.
+RSS reader.
+Music organizer.
+Fixed Shoutcast caching bugs.
+Added optional HMO-like music player.
+
+
 Version 0.0.0 beta 7:
 ---------------------
 Added skinning support for images.

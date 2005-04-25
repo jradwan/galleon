@@ -121,6 +121,11 @@ public class FileSystemContainer {
             return false;
         }
         
+        public String toString()
+        {
+            return mName;
+        }
+        
         private String mName;
         private Object mValue;
     }
@@ -138,7 +143,7 @@ public class FileSystemContainer {
         }
     }
     
-    public static class FolderItem extends Item
+    public static class FolderItem extends FileItem
     {
         public FolderItem(String name, Object value)
         {

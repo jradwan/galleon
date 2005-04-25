@@ -78,6 +78,7 @@ import javax.swing.text.MaskFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
@@ -772,8 +773,8 @@ public class MainFrame extends JFrame {
     
     public class MusicPlayerDialog extends JDialog implements ActionListener {
 
-        class SkinWrapper extends NameValue {
-            public SkinWrapper(String name, String value) {
+        class MusicWrapper extends NameValue {
+            public MusicWrapper(String name, String value) {
                 super(name, value);
             }
 
@@ -785,23 +786,31 @@ public class MainFrame extends JFrame {
         private MusicPlayerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
             super(frame, "Music Player", true);
             mServerConfiguration = serverConfiguration;
+            
             MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
+            
+            mPlayersField = new JComboBox();
+            mPlayersField.setToolTipText("Select a music player");
+            mPlayersField.addItem(new MusicWrapper(StringUtils.capitalize(MusicPlayerConfiguration.CLASSIC), MusicPlayerConfiguration.CLASSIC));
+            mPlayersField.addItem(new MusicWrapper(StringUtils.capitalize(MusicPlayerConfiguration.WINAMP), MusicPlayerConfiguration.WINAMP));
+            defaultCombo(mPlayersField, musicPlayerConfiguration.getPlayer());
 
             List skins = Galleon.getWinampSkins();
 
             mSkinsField = new JComboBox();
+            mSkinsField.setPreferredSize(new Dimension(400, 20));
             mSkinsField.setToolTipText("Select a Winamp classic skin for music player");
             Iterator iterator = skins.iterator();
             while (iterator.hasNext()) {
                 File file = (File) iterator.next();
                 try {
                     String name = Tools.extractName(file.getCanonicalPath());
-                    mSkinsField.addItem(new SkinWrapper(name, file.getCanonicalPath()));
+                    mSkinsField.addItem(new MusicWrapper(name, file.getCanonicalPath()));
                 } catch (Exception ex) {
                 }
             }
             defaultCombo(mSkinsField, musicPlayerConfiguration.getSkin());
-            mUseAmazonField = new JCheckBox("Use Amazon.com        ");
+            mUseAmazonField = new JCheckBox("Use Amazon.com ");
             mUseAmazonField.setToolTipText("Check to specify that Amazon.com should be used for album art");
             mUseAmazonField.setSelected(musicPlayerConfiguration.isUseAmazon());
             mUseAmazonField.setForeground(Color.blue);
@@ -832,8 +841,8 @@ public class MainFrame extends JFrame {
                 }
             });
             
-            FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+            FormLayout layout = new FormLayout("right:pref, 3dlu, 100dlu:g, right:pref:grow",
+                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
 
             PanelBuilder builder = new PanelBuilder(layout);
             //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -842,7 +851,8 @@ public class MainFrame extends JFrame {
             CellConstraints cc = new CellConstraints();
 
             builder.addSeparator("General", cc.xyw(1, 1, 4));
-            //builder.addLabel("Winamp Classic Skin", cc.xy(1, 5));
+            builder.addLabel("Player", cc.xy(1, 5));
+            builder.add(mPlayersField, cc.xyw(3, 5, 1));
             JLabel label = new JLabel("Winamp Classic Skin");
             label.setToolTipText("Open Winamp site in web browser");
             label.setForeground(Color.blue);
@@ -855,12 +865,12 @@ public class MainFrame extends JFrame {
                     }
                 }
             });
-            builder.add(label, cc.xy(1, 5));
-            builder.add(mSkinsField, cc.xyw(3, 5, 1));
-            builder.addSeparator("Album Art", cc.xyw(1, 7, 4));
-            builder.add(mUseAmazonField, cc.xyw(1, 9, 3));
-            builder.add(mUseFileField, cc.xyw(1, 11, 3));
-            builder.add(mShowImagesField, cc.xyw(1, 13, 3));
+            builder.add(label, cc.xy(1, 7));
+            builder.add(mSkinsField, cc.xyw(3, 7, 1));
+            builder.addSeparator("Album Art", cc.xyw(1, 9, 4));
+            builder.add(mUseAmazonField, cc.xyw(1, 11, 3));
+            builder.add(mUseFileField, cc.xyw(1, 13, 3));
+            builder.add(mShowImagesField, cc.xyw(1, 15, 3));
             
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -896,6 +906,7 @@ public class MainFrame extends JFrame {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 try {
                     MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
+                    musicPlayerConfiguration.setPlayer(((NameValue) mPlayersField.getSelectedItem()).getValue());
                     musicPlayerConfiguration.setSkin(((NameValue) mSkinsField.getSelectedItem()).getValue());
                     musicPlayerConfiguration.setUseAmazon(mUseAmazonField.isSelected());
                     musicPlayerConfiguration.setUseFile(mUseFileField.isSelected());
@@ -921,6 +932,8 @@ public class MainFrame extends JFrame {
             this.setVisible(false);
         }
 
+        private JComboBox mPlayersField;
+        
         private JComboBox mSkinsField;
         
         private JCheckBox mUseFileField; 

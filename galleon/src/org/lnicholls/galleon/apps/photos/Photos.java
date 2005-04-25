@@ -42,6 +42,7 @@ import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
@@ -85,7 +86,7 @@ public class Photos extends DefaultApplication {
         mInfoBackground = getSkinImage("info", "background");
         mFolderIcon = getSkinImage("menu", "folder");
         mLargeFolderIcon = getSkinImage("menu", "gridFolder");
-        mCameraIcon = getSkinImage("menu", "file");
+        mCameraIcon = getSkinImage("menu", "item");
 
         String path = Tools.loadPersistentValue(DefaultApplication.TRACKER);
         if (path != null) {
@@ -131,7 +132,7 @@ public class Photos extends DefaultApplication {
 
             for (Iterator i = imagesConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
                 NameValue nameValue = (NameValue) i.next();
-                mMenuList.add(new FileItem(nameValue.getName(), new File(nameValue.getValue())));
+                mMenuList.add(new FolderItem(nameValue.getName(), new File(nameValue.getValue())));
             }
         }
 
@@ -489,6 +490,7 @@ public class Photos extends DefaultApplication {
             super(app, true);
             
             below.setResource(mInfoBackground);
+            below.flush();
 
             setTitle("Photo");
 
@@ -801,10 +803,12 @@ public class Photos extends DefaultApplication {
 
             setTitle(" ");
 
-            mPhoto = new View(below, 0, 0, width, height);
-
             PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
-                    .getAppContext().getConfiguration();
+            .getAppContext().getConfiguration();
+            if (imagesConfiguration.isUseSafe())
+                mPhoto = new View(below, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT);
+            else
+                mPhoto = new View(below, 0, 0, width, height);
         }
 
         private void updateView() {

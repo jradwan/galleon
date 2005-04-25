@@ -47,6 +47,10 @@
     <!-- id = Galleon identifier for screen -->
     <screen id="player">        
       <image source="music/background.jpg" id="background"/>        
+      <image source="music/stop.png" id="stop"/>  
+    	<image source="music/play.png" id="play"/>
+    	<image source="music/pause.png" id="pause"/>	      
+    	<image source="music/overlay.png" id="overlay"/>	      
     </screen>              
     <!-- id = Galleon identifier for screen -->
     <!-- background = name of image for background -->    
@@ -145,6 +149,36 @@
   	<image source="shoutcast/station.png" id="item"/>
   	<image source="shoutcast/folder.png" id="folder"/>	
     <image source="shoutcast/background.jpg" id="background"/>
+
+    <screen id="player">        
+      <image source="shoutcast/stop.png" id="stop"/>  
+    	<image source="shoutcast/play.png" id="play"/>
+    	<image source="shoutcast/pause.png" id="pause"/>	      
+    	<image source="shoutcast/overlay.png" id="overlay"/>	          	
+    </screen>                  
   </app>
+  
+
+  <app id="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizer">
+    <image source="musicOrganizer/icon.png" id="icon"/>  
+  	<image source="musicOrganizer/cd.png" id="item"/>
+  	<image source="musicOrganizer/folder.png" id="folder"/>	
+    <image source="musicOrganizer/background.jpg" id="background"/>
+
+    <screen id="player">        
+      <image source="musicOrganizer/stop.png" id="stop"/>  
+    	<image source="musicOrganizer/play.png" id="play"/>
+    	<image source="musicOrganizer/pause.png" id="pause"/>	      
+    	<image source="musicOrganizer/overlay.png" id="overlay"/>	          	
+    </screen>                  
+  </app>  
+  
+  
+  <app id="org.lnicholls.galleon.apps.rss.RSS">  
+    <image source="rss/icon.png" id="icon"/>  
+    <image source="rss/folder.png" id="folder"/>
+    <image source="rss/item.png" id="item"/>
+    <image source="rss/background.jpg" id="background"/>    
+  </app>    
 
 </skin>

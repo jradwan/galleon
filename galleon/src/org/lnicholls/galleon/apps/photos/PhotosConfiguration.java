@@ -73,6 +73,14 @@ public class PhotosConfiguration implements AppConfiguration {
 
     public int getTransitionTime() {
         return mTransitionTime;
+    }
+    
+    public void setUseSafe(boolean value) {
+        mUseSafe = value;
+    }
+
+    public boolean isUseSafe() {
+        return mUseSafe;
     }    
 
     public void setModified(boolean value) {
@@ -94,6 +102,8 @@ public class PhotosConfiguration implements AppConfiguration {
     private int mDisplayTime = 5;  // seconds
     
     private int mTransitionTime = 2; // seconds
+    
+    private boolean mUseSafe;
 
     private boolean mModified;
 

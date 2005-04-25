@@ -16,24 +16,20 @@ package org.lnicholls.galleon.media;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
-import java.util.*;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 
+import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.database.AudioManager.Callback;
-import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileGatherer;
-import org.lnicholls.galleon.util.*;
-
-import org.apache.log4j.Logger;
+import org.lnicholls.galleon.util.Tools;
 
 public class MediaRefreshThread extends Thread {
     private static Logger log = Logger.getLogger(MediaRefreshThread.class.getName());
@@ -69,24 +65,26 @@ public class MediaRefreshThread extends Thread {
         FileGatherer.gatherDirectory(new File(pathInfo.mPath), pathInfo.mFilter, true,
                 new FileGatherer.GathererCallback() {
                     public void visit(File file, File originalFile) {
-                        synchronized(this)
-                        {
+                        synchronized (this) {
                             try {
-                                List list = AudioManager.findByPath(file.getAbsolutePath());
-                                if (list.size() > 0) {
-                                    Audio audio = (Audio) list.get(0);
-                                    Date date = new Date(file.lastModified());
-                                    if (date.getTime() > audio.getDateModified().getTime()) {
+                                if (!file.isDirectory())
+                                {
+                                    List list = AudioManager.findByPath(file.getAbsolutePath());
+                                    if (list.size() > 0) {
+                                        Audio audio = (Audio) list.get(0);
+                                        Date date = new Date(file.lastModified());
+                                        if (date.getTime() > audio.getDateModified().getTime()) {
+                                            if (log.isDebugEnabled())
+                                                log.debug("Changed: " + file.getAbsolutePath());
+                                            audio = (Audio) MediaManager.getMedia(audio, file.getAbsolutePath());
+                                            AudioManager.updateAudio(audio);
+                                        }
+                                    } else {
                                         if (log.isDebugEnabled())
-                                            log.debug("Changed: "+file.getAbsolutePath());
-                                        audio = (Audio) MediaManager.getMedia(audio, file.getAbsolutePath());
-                                        AudioManager.updateAudio(audio);
+                                            log.debug("New: " + file.getAbsolutePath());
+                                        Audio audio = (Audio) MediaManager.getMedia(file.getAbsolutePath());
+                                        AudioManager.createAudio(audio);
                                     }
-                                } else {
-                                    if (log.isDebugEnabled())
-                                        log.debug("New: "+file.getAbsolutePath());
-                                    Audio audio = (Audio) MediaManager.getMedia(file.getAbsolutePath());
-                                    AudioManager.createAudio(audio);
                                 }
                                 Thread.sleep(10); // give the CPU some breathing time
                             } catch (Exception ex) {
@@ -96,23 +94,23 @@ public class MediaRefreshThread extends Thread {
                     }
                 });
         // Determine any records that need to be removed
-        synchronized(this)
-        {
+        synchronized (this) {
             try {
                 AudioManager.scroll(new AudioManager.Callback() {
                     public void visit(Session session, Audio audio) {
-                        File file = new File(audio.getPath());
-                        if (!file.exists())
+                        if (!audio.getPath().startsWith("http"))
                         {
-                            if (log.isDebugEnabled())
-                                log.debug("Removed: "+file.getAbsolutePath());
-                            
-                            try
-                            {
-                                session.delete(audio);
-                                Thread.sleep(10);  // give the CPU some breathing time
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
+                            File file = new File(audio.getPath());
+                            if (!file.exists()) {
+                                if (log.isDebugEnabled())
+                                    log.debug("Removed: " + file.getAbsolutePath());
+    
+                                try {
+                                    session.delete(audio);
+                                    Thread.sleep(10); // give the CPU some breathing time
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
                             }
                         }
                     }
@@ -121,42 +119,40 @@ public class MediaRefreshThread extends Thread {
                 ex.printStackTrace();
             }
         }
-        
+
         System.gc();
 
         long estimatedTime = System.currentTimeMillis() - startTime;
-        log.info("Refreshing media took " + (estimatedTime/1000) + " seconds");
+        log.info("Refreshing media took " + (estimatedTime / 1000) + " seconds");
         if (log.isDebugEnabled())
             Tools.logMemory("refresh2");
     }
     
-    public static class PathInfo
-    {
-        public PathInfo(String path, FileFilter filter)
-        {
+    public static class PathInfo {
+        public PathInfo(String path, FileFilter filter) {
             mPath = path;
             mFilter = filter;
         }
-        
+
         private String mPath;
+
         private FileFilter mFilter;
     }
-    
-    
-    public void addPath(PathInfo pathInfo)
-    {
+
+    public void addPath(PathInfo pathInfo) {
         mPaths.add(pathInfo);
     }
-    
-    public void removePath(PathInfo pathInfo)
-    {
+
+    public void removePath(PathInfo pathInfo) {
         mPaths.remove(pathInfo);
     }
-    
-    public void interrupt()
-    {
-        synchronized(this)
-        {
+
+    public void removePaths() {
+        mPaths.clear();
+    }
+
+    public void interrupt() {
+        synchronized (this) {
             super.interrupt();
         }
     }

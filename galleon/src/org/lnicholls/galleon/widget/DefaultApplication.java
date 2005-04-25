@@ -64,6 +64,16 @@ public class DefaultApplication extends BApplication {
 
         mPlayer = new Player(this);
     }
+    
+    public Resource getStarIcon()
+    {
+        return mStarIcon;
+    }
+    
+    public Resource getBusyIcon()
+    {
+        return mBusyIcon;
+    }
 
     protected Resource getSkinImage(String screen, String key) {
         ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, key);
@@ -206,7 +216,7 @@ public class DefaultApplication extends BApplication {
             }
             mPlayerState = PLAY;
             mStreamResource = mDefaultApplication.createStream(url, "audio/mp3", true);
-            //System.out.println("mStreamResource="+mStreamResource.getID());
+            log.debug("mStreamResource="+mStreamResource.getID());
             mStreamResource.addHandler(this);
         }
 
@@ -313,14 +323,16 @@ public class DefaultApplication extends BApplication {
                         }
                     }
                 }
-                mDefaultApplication.getCurrentScreen().handleEvent(
-                        new BEvent.Action(mDefaultApplication.getCurrentScreen(), ResourceInfo
+                if (mDefaultApplication.getCurrentScreen().focus!=null)    
+                    mDefaultApplication.getCurrentScreen().focus.handleEvent(
+                        new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, ResourceInfo
                                 .statusToString(info.status)));
                 return;
             case StreamResource.EVT_RSRC_STATUS:
                 if (info.status == RSRC_STATUS_PLAYING) {
-                    mDefaultApplication.getCurrentScreen().handleEvent(
-                            new BEvent.Action(mDefaultApplication.getCurrentScreen(), "ready"));
+                    if (mDefaultApplication.getCurrentScreen().focus!=null)
+                        mDefaultApplication.getCurrentScreen().focus.handleEvent(
+                            new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, "ready"));
                 } else if (info.status >= RSRC_STATUS_CLOSED) {
                     //System.out.println("postEvent:RSRC_STATUS_CLOSED");
                     if (mPlayerState != STOP) {
@@ -331,8 +343,9 @@ public class DefaultApplication extends BApplication {
                         getNextPos();
                         startTrack();
 
-                        mDefaultApplication.getCurrentScreen().handleEvent(
-                                new BEvent.Action(mDefaultApplication.getCurrentScreen(), "stopped"));
+                        if (mDefaultApplication.getCurrentScreen().focus!=null)
+                            mDefaultApplication.getCurrentScreen().focus.handleEvent(
+                                new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, "stopped"));
                     }
                 }
                 return;
@@ -341,8 +354,9 @@ public class DefaultApplication extends BApplication {
 
         public void setTitle(String value) {
             mTitle = value;
-            mDefaultApplication.getCurrentScreen().handleEvent(
-                    new BEvent.Action(mDefaultApplication.getCurrentScreen(), "update"));
+            if (mDefaultApplication.getCurrentScreen().focus!=null)
+                mDefaultApplication.getCurrentScreen().focus.handleEvent(
+                    new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, "update"));
         }
 
         public void getNextPos() {
@@ -350,7 +364,7 @@ public class DefaultApplication extends BApplication {
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
-                while (nameFile.isFolder()) {
+                while (nameFile.isFolder() || nameFile.isPlaylist()) {
                     pos = mTracker.getNextPos();
                     nameFile = (Item) mTracker.getList().get(pos);
                 }
@@ -362,7 +376,7 @@ public class DefaultApplication extends BApplication {
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
-                while (nameFile.isFolder()) {
+                while (nameFile.isFolder() || nameFile.isPlaylist()) {
                     pos = mTracker.getPrevPos();
                     nameFile = (Item) mTracker.getList().get(pos);
                 }

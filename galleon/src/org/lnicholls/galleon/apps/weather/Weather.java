@@ -330,7 +330,10 @@ public class Weather extends DefaultApplication {
             icon.setResource(getSkinImage(null, pad(mWeatherData.getCurrentConditions().getIcon())));
             uvIndexText.setValue(mWeatherData.getCurrentConditions().getUltraVioletIndex() + " "
                     + mWeatherData.getCurrentConditions().getUltraVioletDescription());
-            windText.setValue("From " + mWeatherData.getCurrentConditions().getWindDescription() + " at "
+            if (mWeatherData.getCurrentConditions().getWindDescription().toLowerCase().equals("calm"))
+                windText.setValue(mWeatherData.getCurrentConditions().getWindDescription());
+            else
+                windText.setValue("From " + mWeatherData.getCurrentConditions().getWindDescription() + " at "
                     + mWeatherData.getCurrentConditions().getWindSpeed() + " " + mWeatherData.getSpeedUnit());
             humidityText.setValue(mWeatherData.getCurrentConditions().getHumidity() + "%");
             pressureText.setValue(mWeatherData.getCurrentConditions().getBarometricPressure() + " "

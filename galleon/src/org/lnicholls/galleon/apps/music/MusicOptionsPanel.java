@@ -131,7 +131,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
 
     private JTextComponent mTitleField;
 
-        private FileOptionsTable mFileOptionsTable;
+    private FileOptionsTable mFileOptionsTable;
 
     private ArrayList mColumnValues;
 }

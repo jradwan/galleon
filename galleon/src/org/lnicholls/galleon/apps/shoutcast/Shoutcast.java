@@ -200,7 +200,7 @@ public class Shoutcast extends DefaultApplication {
                                 File file = (File) nameFile.getValue();
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath());
-                                ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
+                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
                                 PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
@@ -254,7 +254,7 @@ public class Shoutcast extends DefaultApplication {
                                 File file = (File) nameFile.getValue();
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath(), true);
-                                ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
+                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
 

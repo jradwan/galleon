@@ -207,7 +207,8 @@
             excludes="**/apps/**">
             <fileset dir="./doc" includes="server.html" />
             <fileset dir="./doc" includes="togo.html" />            
-            <fileset dir="./doc" includes="newplugin.html" />            
+            <fileset dir="./doc" includes="newapp.html" />            
+            <fileset dir="./doc" includes="musicplayer.html" />                        
             <fileset dir="./media/images" includes="galleon.png" />                        
             <fileset dir="./media/images" includes="guiicon.png" />                                    
             <fileset dir="./media/images" includes="guiicon.gif" />                                                
@@ -226,7 +227,7 @@
         </jar>
 
         <echo>Creating apps</echo>
-        <copy file="./media/images/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
+        <copy file="./media/images/togo/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.togo.ToGo"/>
@@ -589,14 +590,14 @@
         <copy file="./media/images/photos/camera.png" tofile="${build}/skins/photos/camera.png" />                
         <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
         
-        <copy file="./media/images/cinemabackground.jpg" tofile="${build}/skins/togo/background.jpg" />
-        <copy file="./media/images/icon.png" tofile="${build}/skins/togo/icon.png" />                
-        <copy file="./media/images/yellowball.png" tofile="${build}/skins/togo/yellowball.png" />                
-        <copy file="./media/images/yellowball!.png" tofile="${build}/skins/togo/yellowball!.png" />                        
-        <copy file="./media/images/greenball.png" tofile="${build}/skins/togo/greenball.png" />                                        
-        <copy file="./media/images/redball.png" tofile="${build}/skins/togo/redball.png" />                                                
-        <copy file="./media/images/blueball.png" tofile="${build}/skins/togo/blueball.png" />                                                        
-        <copy file="./media/images/empty.png" tofile="${build}/skins/togo/empty.png" />                                                                
+        <copy file="./media/images/togo/background.jpg" tofile="${build}/skins/togo/background.jpg" />
+        <copy file="./media/images/togo/icon.png" tofile="${build}/skins/togo/icon.png" />                
+        <copy file="./media/images/togo/yellowball.png" tofile="${build}/skins/togo/yellowball.png" />                
+        <copy file="./media/images/togo/yellowball!.png" tofile="${build}/skins/togo/yellowball!.png" />                        
+        <copy file="./media/images/togo/greenball.png" tofile="${build}/skins/togo/greenball.png" />                                        
+        <copy file="./media/images/togo/redball.png" tofile="${build}/skins/togo/redball.png" />                                                
+        <copy file="./media/images/togo/blueball.png" tofile="${build}/skins/togo/blueball.png" />                                                        
+        <copy file="./media/images/togo/empty.png" tofile="${build}/skins/togo/empty.png" />                                                                
         
         <copy file="./media/images/weather/background.jpg" tofile="${build}/skins/weather/background.jpg" />
         <copy todir="${build}/skins/weather/">
@@ -641,6 +642,8 @@
         <delete dir="${build}/skins/shoutcast" />        
         <delete dir="${build}/skins/togo" />                
         <delete dir="${build}/skins/weather" />                
+        <delete dir="${build}/skins/rss" />                        
+        <delete dir="${build}/skins/musicOrganizer" />                                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
     </target>

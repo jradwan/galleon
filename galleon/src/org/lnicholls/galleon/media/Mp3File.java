@@ -725,7 +725,7 @@ public final class Mp3File {
         audio.setType(DEFAULT_TYPE);
         audio.setDateModified(new Date());
         audio.setDateAdded(new Date());
-        audio.setDatePlayed(new Date());
+        //audio.setDatePlayed(new Date());
         audio.setPath(DEFAULT_PATH);
         audio.setPlayCount(DEFAULT_PLAY_COUNT);
         audio.setRating(DEFAULT_RATING);

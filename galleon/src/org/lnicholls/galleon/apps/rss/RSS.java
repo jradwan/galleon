@@ -16,6 +16,7 @@ package org.lnicholls.galleon.apps.rss;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Color;
 import java.awt.Image;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,12 +25,17 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
+import java.io.*;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ReloadCallback;
+import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
@@ -37,6 +43,7 @@ import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.ScrollText;
 
+import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
@@ -200,20 +207,22 @@ public class RSS extends DefaultApplication {
             mScrollText = new ScrollText(normal, SAFE_TITLE_H, TOP + 30, BODY_WIDTH - 10, height - 2 * SAFE_TITLE_V - 175,
                     cleanHTML(item.getDescription()));
 
-            mList = new DefaultOptionList(this.normal, SAFE_TITLE_H, (height - SAFE_TITLE_V) - 40,
+            /*mList = new DefaultOptionList(this.normal, SAFE_TITLE_H, (height - SAFE_TITLE_V) - 40,
                     (width - (SAFE_TITLE_H * 2)) / 2, 90, 35);
             mList.add("Back to menu");
-
             setFocusDefault(mList);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to menu"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
         }
         
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             case KEY_UP:
@@ -234,17 +243,16 @@ public class RSS extends DefaultApplication {
 
         public RSSFactory(AppContext appContext) {
             super(appContext);
-
-            new Thread() {
-                public void run() {
+            
+            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+                public void reload() {
                     try {
                         updateChannels();
-                        sleep(1000 * 60 * 60);
                     } catch (Exception ex) {
                         log.error("Could not download stations", ex);
                     }
                 }
-            }.start();
+            }), 5);            
         }
 
         public void setAppContext(AppContext appContext) {
@@ -265,23 +273,70 @@ public class RSS extends DefaultApplication {
                 }
 
                 try {
-                    ChannelBuilderIF builder = new ChannelBuilder();
-                    ChannelIF channel = FeedParser.parse(builder, new URL(nameValue.getValue()));
-
-                    if (channel.getItems().size()>0)
+                    String last = Tools.loadPersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date");
+                    String difference = Tools.loadPersistentValue(this.getClass().getName() + "." + nameValue.getValue() +"." + "ttl");
+                    String content = null;
+                    
+                    int time = 60;
+                    if (difference!=null)
                     {
-                        stories.clear();
+                        try
+                        {
+                            time = Integer.parseInt(difference);
+                        }
+                        catch (Exception ex){}
+                    }
+                    
+                    if (last !=null)
+                    {
+                        Date lastTime = new Date(last);
+                        Date current = new Date();
+                        if ((current.getTime()-lastTime.getTime())/(1000*60) > time)
+                        {
+                            content = Tools.getPage(new URL(nameValue.getValue()));
+                            
+                            Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date", new Date().toString());
+                            Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content);
+                        }
+                        else
+                        {
+                            content = Tools.loadPersistentValue(this.getClass().getName() + "." + nameValue.getValue() +"." + "content");
+                        }
+                    }
+                    else
+                    {
+                        content = Tools.getPage(new URL(nameValue.getValue()));
                         
-                        int count = 0;
-                        Iterator chs = channel.getItems().iterator();
-                        while (chs.hasNext()) {
-                            ItemIF item = (ItemIF) chs.next();
-                            stories.add(item);
-                        }
+                        Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date", new Date().toString());
+                        Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content);
+                    }
+                    
+                    if (content!=null)
+                    {
+                        ChannelBuilderIF builder = new ChannelBuilder();
+                        ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((content.getBytes())));
     
-                        if (channel.getImage() != null && Tools.retrieveCachedImage(nameValue.getValue())==null) {
-                            Tools.cacheImage(channel.getImage().getLocation(), nameValue.getValue());
+                        if (channel.getItems().size()>0)
+                        {
+                            stories.clear();
+                            
+                            int count = 0;
+                            Iterator chs = channel.getItems().iterator();
+                            while (chs.hasNext()) {
+                                ItemIF item = (ItemIF) chs.next();
+                                stories.add(item);
+                            }
+        
+                            if (channel.getImage() != null && Tools.retrieveCachedImage(nameValue.getValue())==null) {
+                                Tools.cacheImage(channel.getImage().getLocation(), nameValue.getValue());
+                            }
                         }
+                        
+                        int ttl = channel.getTtl();
+                        if (ttl==0 | ttl == -1)
+                            ttl = 60;
+                        
+                        Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "ttl", String.valueOf(ttl));
                     }
                 } catch (Exception ex) {
                     Tools.logException(RSS.class, ex, "Could not reload " + nameValue.getValue());

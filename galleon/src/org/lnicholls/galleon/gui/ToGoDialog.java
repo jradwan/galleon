@@ -126,7 +126,7 @@ public class ToGoDialog extends JDialog implements ActionListener {
             mHelpDialog.dispose();
         }
 
-        mHelpDialog = new HelpDialog(this, url);
+        mHelpDialog = new HelpDialog(ToGoDialog.this, url);
         mHelpDialog.setVisible(true);
     }
 

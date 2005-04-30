@@ -480,13 +480,13 @@ public class Server {
         if (time <= 0)
             time = getReload();
         try {
-            mShortTermTimer.schedule(task, time * 1000 * 60, time * 1000 * 60);
+            mShortTermTimer.schedule(task, 1000 * 30, time * 1000 * 60);
         } catch (IllegalStateException ex) {
             Tools.logException(Server.class, ex);
             // Try again...
             reset();
             try {
-                mShortTermTimer.schedule(task, 1000 * 30, time * 1000 * 60);
+                mShortTermTimer.schedule(task, 1000 * 60, time * 1000 * 60);
             } catch (IllegalStateException ex2) {
                 Tools.logException(Server.class, ex2);
             }

@@ -62,7 +62,7 @@ public class MusicPlayer extends DefaultPlayer {
         statusBar.setResource(Color.GREEN);
         statusBar.setSize(1, statusBar.height);
         
-        mShape = new BView(this, 0, height - 30, 500, 30);
+        mShape = new BView(this, 0, height - 50, 500, 50);
         mShape.setResource(mOverlay);
         
         mButton = new BView(this, 0, height - 30, 30, 30);

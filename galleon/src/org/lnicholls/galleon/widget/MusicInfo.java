@@ -50,8 +50,9 @@ public class MusicInfo extends BView {
 
         mTitleText = new BText(this, 0, start, this.width, 70);
         mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
-        mTitleText.setFont("default-30-bold.font");
-        mTitleText.setColor(Color.CYAN);
+        mTitleText.setFont("system-24-bold.font"); //30
+        //mTitleText.setColor(Color.CYAN);
+        mTitleText.setColor(new Color(254,178,0));
         mTitleText.setShadow(true);
 
         start += 70;
@@ -61,10 +62,10 @@ public class MusicInfo extends BView {
         mSongText.setFont("default-18-bold.font");
         mSongText.setShadow(true);
 
-        mDurationText = new BText(this, 0, start, this.width, 20);
-        mDurationText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
-        mDurationText.setFont("default-18-bold.font");
-        mDurationText.setShadow(true);
+        mTrackText = new BText(this, 0, start, this.width, 20);
+        mTrackText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
+        mTrackText.setFont("default-18-bold.font");
+        mTrackText.setShadow(true);
 
         start += 20;
 
@@ -89,23 +90,35 @@ public class MusicInfo extends BView {
         mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mGenreText.setFont("default-18-bold.font");
         mGenreText.setShadow(true);
+        
+        start += 20;
+        
+        mDurationText = new BText(this, 0, start, this.width, 20);
+        mDurationText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+        mDurationText.setFont("default-18-bold.font");
+        mDurationText.setShadow(true);
 
         mStars = new BView[5];
         for (int i = 0; i < 5; i++) {
-            mStars[i] = new BView(this, 0 + (i * 40), 150, 34, 34, true);
+            mStars[i] = new BView(this, 0 + (i * 40), 160, 34, 34, true);
             mStars[i].setResource(((DefaultApplication) getApp()).getStarIcon(), RSRC_IMAGE_BESTFIT);
             mStars[i].setTransparency(0.6f);
         }
     }
-
+    
     public void setAudio(final Audio audio) {
+        setAudio(audio, audio.getTitle());
+    }
+
+    public void setAudio(final Audio audio, String title) {
         if (audio != null) {
             setPainting(false);
             try {
-                mTitleText.setValue(audio.getTitle());
+                mTitleText.setValue(title);
                 if (audio.getPath().startsWith("http"))
                 {
                     mSongText.setValue("Stream: " + Tools.trim(audio.getTitle(), 80));
+                    mTrackText.setVisible(false);
                     mDurationText.setVisible(false);
                     mAlbumText.setVisible(false);
                     mYearText.setVisible(false);
@@ -115,6 +128,7 @@ public class MusicInfo extends BView {
                 else
                 {
                     mSongText.setValue("Song: " + Tools.trim(audio.getTitle(), 40));
+                    mTrackText.setValue("Track: " + audio.getTrack());
                     mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
                     mAlbumText.setValue("Album: " + Tools.trim(audio.getAlbum(), 40));
                     mYearText.setValue("Year: " + String.valueOf(audio.getDate()));
@@ -250,6 +264,8 @@ public class MusicInfo extends BView {
     private BText mTitleText;
 
     private BText mSongText;
+    
+    private BText mTrackText;
 
     private BText mArtistText;
 

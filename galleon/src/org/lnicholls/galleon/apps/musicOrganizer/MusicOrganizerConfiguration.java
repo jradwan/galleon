@@ -24,7 +24,7 @@ import org.lnicholls.galleon.app.AppConfiguration;
 
 public class MusicOrganizerConfiguration implements AppConfiguration {
 
-    private static final ArrayList mDefaultCategories = new ArrayList(17);
+    private static final ArrayList mDefaultCategories = new ArrayList(20);
 
     /*
      * Rough guide on the category syntax: Each category expression describes the format of the menu hierarchy. The ID3
@@ -37,7 +37,12 @@ public class MusicOrganizerConfiguration implements AppConfiguration {
      */
 
     static {
-        //add option for ratings.....
+        mDefaultCategories.add("Rating\\Rating{Rating}\\Song [Artist]");
+        //mDefaultCategories.add("Rating, Genre\\Rating{Rating}\\Genre\\Song [Artist]");
+        //mDefaultCategories.add("Rating, Year\\Rating{Rating}\\Year\\Song [Artist]");
+        //mDefaultCategories.add("Rating, Decade\\Rating{Rating}\\Year{Decade}\\Song [Artist]");
+        mDefaultCategories.add("Play Count\\PlayCount{PlayCount}\\Song [Artist]");
+        mDefaultCategories.add("Recently Played\\DatePlayed{RecentlyPlayed}\\Song [Artist]");
         mDefaultCategories.add("Album\\Album [Artist]\\Track. Song");
         mDefaultCategories.add("Artist\\Artist{A-Z}\\Artist\\Song [Album]");
         mDefaultCategories.add("Artist (Grouped)\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Song [Album]");
@@ -48,7 +53,7 @@ public class MusicOrganizerConfiguration implements AppConfiguration {
         mDefaultCategories.add("Bitrate\\Bitrate{0-9}\\Song [Artist]");
         mDefaultCategories.add("Decade\\Year{Decade}\\Song [Artist]");
         mDefaultCategories.add("Decade, Artist\\Year{Decade}\\Artist\\Song [Album]");
-        mDefaultCategories.add("Decade, Artist (Grouped)\\Year{Decade}\\Artist{ABC-XYZ}\\Artist{A-Z}\\Song [Album]");
+        mDefaultCategories.add("Decade, Artist (Grouped)\\Year{Decade}\\Artist{ABC-XYZ}\\Artist{A-Z}\\Song [Artist]");
         mDefaultCategories.add("Decade, Genre\\Year{Decade}\\Genre\\Song [Artist]");
         mDefaultCategories.add("Duration\\Duration{Duration}\\Song [Artist]");
         mDefaultCategories.add("Genre\\Genre\\Song [Artist]");
@@ -56,7 +61,7 @@ public class MusicOrganizerConfiguration implements AppConfiguration {
         mDefaultCategories.add("Genre, Artist\\Genre\\Artist{A-Z}\\Artist\\Song [Album]");
         mDefaultCategories.add("Genre, Artist (Grouped)\\Genre\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Song [Album]");
         mDefaultCategories.add("Genre, Artist, Album\\Genre\\Artist\\Album\\Track. Song");
-        mDefaultCategories.add("Genre, Artist (Grouped), Album\\Genre\\Artist{ABC-XYZ}\\Artist{A-Z}\\Album\\Track. Song");
+        mDefaultCategories.add("Genre, Artist (Grouped), Album\\Genre\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Album\\Track. Song");
         mDefaultCategories.add("Genre, Decade\\Genre\\Year{Decade}\\Song [Artist]");
         mDefaultCategories.add("Song\\Song{A-Z}\\Song [Artist]");
         mDefaultCategories.add("Song (Grouped)\\Song{ABC-XYZ}\\Song{A-Z}\\Song [Artist]");

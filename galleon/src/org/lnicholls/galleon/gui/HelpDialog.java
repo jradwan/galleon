@@ -56,12 +56,12 @@ public class HelpDialog extends JDialog {
         try {
             documentationField.setPage(url);
         } catch (Exception ex) {
-            Tools.logException(MainFrame.class, ex, "Invalid help url: " + url.toExternalForm());
+            Tools.logException(HelpDialog.class, ex, "Invalid help url: " + url.toExternalForm());
         }
 
         JScrollPane paneScrollPane = new JScrollPane(documentationField);
-        paneScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        paneScrollPane.setPreferredSize(new Dimension(500, 250));
+        //paneScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        paneScrollPane.setPreferredSize(new Dimension(500, 350));
         paneScrollPane.setMinimumSize(new Dimension(10, 10));
 
         getContentPane().setLayout(new BorderLayout());

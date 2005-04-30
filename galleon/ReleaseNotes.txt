@@ -113,6 +113,7 @@ Known issues:
 19. How to handle Channel Up/Channel Dn overlap between browsing and slideshow music control?
 20. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
 21. Port 7288 required for multicast DNS.
+22. Cannot select songs to play for slideshow using the music organizer.
 
 
 How to get started:

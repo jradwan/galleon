@@ -72,7 +72,7 @@ public class Lyrics {
 
     public static String getLyrics1(String song, String artist) {
         try {
-            //http://lyrictracker.com/soap.php?cln=lyrictracker&clv=3.1.1&id=NjA1MzU=&act=detail
+            // http://lyrictracker.com/soap.php?cln=lyrictracker&clv=3.1.1&id=NjA1MzU=&act=detail
             Version version = Constants.CURRENT_VERSION;
             URL url = new URL("http://lyrictracker.com/soap.php?cln=galleon&clv=" + version.getMajor() + "."
                     + version.getRelease() + "." + version.getMaintenance() + "&ti=" + URLEncoder.encode(song) + "&ar="
@@ -126,6 +126,7 @@ public class Lyrics {
 
     public static String getLyrics2(String song, String artist) {
         try {
+            // http://lyrc.com.ar/xsearch.php?songname=October&artist=U2&act=1
             URL url = new URL("http://lyrc.com.ar/xsearch.php?songname=" + URLEncoder.encode(song) + "&artist="
                     + URLEncoder.encode(artist) + "&act=1");
             String page = Tools.getPage(url);

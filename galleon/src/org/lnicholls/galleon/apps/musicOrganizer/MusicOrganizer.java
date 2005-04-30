@@ -20,9 +20,13 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -40,16 +44,15 @@ import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
-import org.lnicholls.galleon.database.Video;
-import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.MediaRefreshThread;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.FileFilters;
-import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ReloadCallback;
+import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
@@ -66,10 +69,12 @@ import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.ClassicSkin;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
+import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.util.ArgumentList;
 
@@ -123,12 +128,30 @@ public class MusicOrganizer extends DefaultApplication {
             MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) ((MusicOrganizerFactory) context.factory)
                     .getAppContext().getConfiguration();
 
+            mCountText = new BText(normal, BORDER_LEFT, TOP - 20, BODY_WIDTH, 20);
+            mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
+            mCountText.setFont("default-18.font");
+            mCountText.setColor(Color.GREEN);
+            mCountText.setShadow(true);
+
             for (Iterator i = musicConfiguration.getGroups().iterator(); i.hasNext(); /* Nothing */) {
                 String group = (String) i.next();
                 FormatString formatString = new FormatString(group);
 
                 mMenuList.add(new FolderItem(formatString.getPart(1), formatString));
             }
+        }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            int count = 0;
+            try {
+                count = AudioManager.countMP3s();
+            } catch (Exception ex) {
+                Tools.logException(MusicOrganizer.class, ex);
+            }
+            mCountText.setValue("Total MP3s: " + String.valueOf(count));
+            
+            return super.handleEnter(arg, isReturn);
         }
 
         public boolean handleAction(BView view, Object action) {
@@ -168,6 +191,7 @@ public class MusicOrganizer extends DefaultApplication {
             name.setValue(Tools.trim(nameFile.getName(), 40));
         }
 
+        BText mCountText;
     }
 
     public class PathScreen extends DefaultMenuScreen {
@@ -183,6 +207,13 @@ public class MusicOrganizer extends DefaultApplication {
 
             below.setResource(mMenuBackground);
 
+            BText levelText = new BText(this, SAFE_TITLE_H + 30, TOP - 20, this.width, 20);
+            levelText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            levelText.setFont("default-18.font");
+            levelText.setColor(Color.WHITE);
+            levelText.setShadow(true);
+            levelText.setValue(formatString.getPart(1));
+
             List list = getItems(this, formatString, level);
 
             mTracker = new Tracker(list, 0);
@@ -195,6 +226,17 @@ public class MusicOrganizer extends DefaultApplication {
                 Item nameFile = (Item) iterator.next();
                 mMenuList.add(nameFile);
             }
+        }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            try
+            {
+                Item item = (Item)mMenuList.get(mTracker.getPos());
+                if (!item.isFolder())
+                    mFocus = mTracker.getPos();
+            }
+            catch (Exception ex){}
+            return super.handleEnter(arg, isReturn);
         }
 
         private void getConditions(List conditions) {
@@ -250,7 +292,7 @@ public class MusicOrganizer extends DefaultApplication {
                         public void run() {
                             try {
                                 mTracker.setPos(mMenuList.getFocus());
-                                
+
                                 String restrictions = "(1=1)";
                                 List conditions = new ArrayList();
                                 QueryPart queryPart = (QueryPart) (mMenuList.get(mMenuList.getFocus()));
@@ -265,14 +307,14 @@ public class MusicOrganizer extends DefaultApplication {
                                         restrictions = restrictions + " AND " + nameValue.getValue();
                                     }
                                 }
-                                
+
                                 List files = new ArrayList();
                                 try {
                                     Transaction tx = null;
                                     Session session = HibernateUtil.openSession();
                                     try {
-                                        String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
-                                                + "AND substr(audio.path,1,4)<>'http'";
+                                        String queryString = "from org.lnicholls.galleon.database.Audio audio where "
+                                                + restrictions + " AND substr(audio.path,1,4)<>'http'";
                                         log.debug(queryString);
                                         Query query = session.createQuery(queryString).setCacheable(true);
                                         Audio audio = null;
@@ -295,8 +337,8 @@ public class MusicOrganizer extends DefaultApplication {
                                     }
                                 } catch (Exception ex) {
                                     Tools.logException(MusicOrganizer.class, ex);
-                                }                                    
-                                
+                                }
+
                                 Tracker tracker = new Tracker(files, 0);
                                 getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), tracker), TRANSITION_LEFT);
                                 getBApp().flush();
@@ -347,6 +389,26 @@ public class MusicOrganizer extends DefaultApplication {
                     postEvent(new BEvent.Action(this, "pop"));
                     return true;
                 }
+            case KEY_ENTER:
+                String restrictions = "(1=1)";
+                List conditions = new ArrayList();
+                getConditions(conditions);
+                Iterator conditionsIterator = conditions.iterator();
+                while (conditionsIterator.hasNext()) {
+                    QueryPart queryPart = (QueryPart) conditionsIterator.next();
+                    for (int q = 0; q < queryPart.getFields().size(); q++) {
+                        NameValue nameValue = (NameValue) queryPart.getFields().get(q);
+                        boolean needQuote = isString(nameValue.getName());
+                        restrictions = restrictions + " AND " + nameValue.getValue();
+                    }
+                }
+
+                String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
+                        + " AND substr(audio.path,1,4)<>'http'";
+
+                setCurrentTrackerContext(queryString);
+
+                return false;
             }
             return super.handleKeyPress(code, rawcode);
         }
@@ -509,6 +571,24 @@ public class MusicOrganizer extends DefaultApplication {
 
             mTracker = tracker;
 
+            boolean sameTrack = false;
+            DefaultApplication defaultApplication = (DefaultApplication) getApp();
+            Audio currentAudio = defaultApplication.getCurrentAudio();
+            Tracker currentTracker = defaultApplication.getTracker();
+            if (currentTracker != null && currentAudio != null) {
+                Item newItem = (Item) tracker.getList().get(tracker.getPos());
+                if (currentAudio.getPath().equals(newItem.getValue().toString())) {
+                    mTracker = currentTracker;
+                    sameTrack = true;
+                } else {
+                    mTracker = tracker;
+                    app.setTracker(mTracker);
+                }
+            } else {
+                mTracker = tracker;
+                app.setTracker(mTracker);
+            }
+
             setTitle(" ");
 
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
@@ -517,8 +597,8 @@ public class MusicOrganizer extends DefaultApplication {
             else
                 setFooter("Press INFO for lyrics");
 
-            app.setTracker(mTracker);
-            getPlayer().startTrack();
+            if (!sameTrack || getPlayer().getState() == Player.STOP)
+                getPlayer().startTrack();
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -656,18 +736,26 @@ public class MusicOrganizer extends DefaultApplication {
                     "");
             scrollText.setVisible(false);
 
-            setFocusDefault(scrollText);
+            //setFocusDefault(scrollText);
 
             //setFooter("lyrc.com.ar");
             setFooter("lyrictracker.com");
 
             mBusy.setVisible(true);
 
+            /*
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to player"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
         }
 
         public void updateLyrics() {
@@ -771,10 +859,6 @@ public class MusicOrganizer extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             case KEY_UP:
@@ -823,11 +907,19 @@ public class MusicOrganizer extends DefaultApplication {
 
             mBusy.setVisible(true);
 
+            /*
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to player"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
         }
 
         public void updateImage() {
@@ -950,10 +1042,6 @@ public class MusicOrganizer extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             case KEY_UP:
@@ -1026,7 +1114,8 @@ public class MusicOrganizer extends DefaultApplication {
         private PlayerScreen mPlayerScreen;
     }
 
-    public static final String[] FIELDS = { "Song", "Artist", "Album", "Year", "Track", "Genre", "Bitrate", "Duration" };
+    public static final String[] FIELDS = { "Song", "Artist", "Album", "Year", "Track", "Genre", "Bitrate", "Duration",
+            "Rating", "PlayCount", "DatePlayed" };
 
     private static String getAudioValue(String value, Audio audio) {
         if (value.equals("title"))
@@ -1045,6 +1134,12 @@ public class MusicOrganizer extends DefaultApplication {
             return Integer.toString(audio.getBitRate());
         else if (value.equals("duration"))
             return new Long(audio.getDuration()).toString();
+        else if (value.equals("rating"))
+            return Integer.toString(audio.getRating());
+        else if (value.equals("playCount"))
+            return Integer.toString(audio.getPlayCount());
+        else if (value.equals("datePlayed"))
+            return audio.getDatePlayed().toString();
         else
             return audio.getTitle();
     }
@@ -1065,6 +1160,12 @@ public class MusicOrganizer extends DefaultApplication {
         else if (value.equals("bitRate"))
             return false;
         else if (value.equals("duration"))
+            return false;
+        else if (value.equals("rating"))
+            return false;
+        else if (value.equals("playCount"))
+            return false;
+        else if (value.equals("datePlayed"))
             return false;
         else
             return true;
@@ -1087,6 +1188,12 @@ public class MusicOrganizer extends DefaultApplication {
             return "bitRate";
         else if (value.equals(FIELDS[7]))
             return "duration";
+        else if (value.equals(FIELDS[8]))
+            return "rating";
+        else if (value.equals(FIELDS[9]))
+            return "playCount";
+        else if (value.equals(FIELDS[10]))
+            return "datePlayed";
         else
             return "title";
     }
@@ -1207,6 +1314,40 @@ public class MusicOrganizer extends DefaultApplication {
         return decade;
     }
 
+    //   Find key for sorting by rating
+    private static String getRatingKey(String value, NameValue nameValue) {
+        String number = getDeciKey(value, nameValue);
+        String result = null;
+        try {
+            int rating = Integer.parseInt(number);
+            if (rating == 1) {
+                String criteria = "(audio." + nameValue.getName() + "=1)";
+                nameValue.setValue(criteria);
+                result = "1";
+            } else if (rating == 2) {
+                String criteria = "(audio." + nameValue.getName() + "=2)";
+                nameValue.setValue(criteria);
+                result = "2";
+            } else if (rating == 3) {
+                String criteria = "(audio." + nameValue.getName() + "=3)";
+                nameValue.setValue(criteria);
+                result = "3";
+            } else if (rating == 4) {
+                String criteria = "(audio." + nameValue.getName() + "=4)";
+                nameValue.setValue(criteria);
+                result = "4";
+            } else if (rating >= 5) {
+                String criteria = "(audio." + nameValue.getName() + "=5)";
+                nameValue.setValue(criteria);
+                result = "5";
+            }
+            return result;
+        } catch (NumberFormatException e) {
+        }
+
+        return result;
+    }
+
     //   Find key for sorting by duration
     private static String getDurationKey(String value, NameValue nameValue) {
         String number = getDeciKey(value, nameValue);
@@ -1225,6 +1366,152 @@ public class MusicOrganizer extends DefaultApplication {
         }
 
         return "-";
+    }
+
+    //   Find key for sorting by play count
+    private static String getPlayCountKey(String value, NameValue nameValue) {
+        String number = getDeciKey(value, nameValue);
+        String count = null;
+        try {
+            int play = Integer.parseInt(number);
+            if (play <= 10) {
+                String criteria = "(audio." + nameValue.getName() + ">=1 AND audio." + nameValue.getName() + "<=10)";
+                nameValue.setValue(criteria);
+                count = "1-10";
+            } else if (play <= 20) {
+                String criteria = "(audio." + nameValue.getName() + ">=11 AND audio." + nameValue.getName() + "<=20)";
+                nameValue.setValue(criteria);
+                count = "11-20";
+            } else if (play <= 30) {
+                String criteria = "(audio." + nameValue.getName() + ">=21 AND audio." + nameValue.getName() + "<=30)";
+                nameValue.setValue(criteria);
+                count = "21-30";
+            } else if (play <= 40) {
+                String criteria = "(audio." + nameValue.getName() + ">=31 AND audio." + nameValue.getName() + "<=40)";
+                nameValue.setValue(criteria);
+                count = "31-40";
+            } else if (play <= 50) {
+                String criteria = "(audio." + nameValue.getName() + ">=41 AND audio." + nameValue.getName() + "<=50)";
+                nameValue.setValue(criteria);
+                count = "41-50";
+            } else if (play <= 60) {
+                String criteria = "(audio." + nameValue.getName() + ">=51 AND audio." + nameValue.getName() + "<=60)";
+                nameValue.setValue(criteria);
+                count = "51-60";
+            } else if (play <= 70) {
+                String criteria = "(audio." + nameValue.getName() + ">=61 AND audio." + nameValue.getName() + "<=70)";
+                nameValue.setValue(criteria);
+                count = "61-70";
+            } else if (play <= 80) {
+                String criteria = "(audio." + nameValue.getName() + ">=71 AND audio." + nameValue.getName() + "<=80)";
+                nameValue.setValue(criteria);
+                count = "71-80";
+            } else if (play <= 90) {
+                String criteria = "(audio." + nameValue.getName() + ">=81 AND audio." + nameValue.getName() + "<=90)";
+                nameValue.setValue(criteria);
+                count = "81-90";
+            } else if (play <= 100) {
+                String criteria = "(audio." + nameValue.getName() + ">=91 AND audio." + nameValue.getName() + "<=100)";
+                nameValue.setValue(criteria);
+                count = "91-100";
+            } else if (play > 100) {
+                String criteria = "(audio." + nameValue.getName() + ">=101)";
+                nameValue.setValue(criteria);
+                count = ">100";
+            }
+            return count;
+        } catch (NumberFormatException e) {
+        }
+
+        return count;
+    }
+    
+    // From: http://www.msevans.com/epilepsy/datebug.html
+    private static class CustomDate {
+        public static final int GREGORIAN = 0;  //15 Oct 1582 and later
+        public static final int JULIAN = 1;     //before that
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        double julianday = 0; //accurate from noon 1 Jan 4713 BC (Julian day zero) to 1 Jan 3268
+        double modifiedjulianday = 0; //Modified Julian day zero is 17 Nov 1858 (Gregorian) at 00:00:00 UTC
+
+        public CustomDate(int yr, int mo, int da, int type){
+          if (year < -4713 || year > 6716){
+            System.out.println("Year out of range");
+            return;
+          }
+          year = yr;
+          month = mo;
+          day = da;
+          long a = ipart((14 - month) / 12);
+          long y = year + 4800 -a;
+          long m = month + 12 * a - 3;
+          if (type == GREGORIAN){
+            julianday = day + ipart((153*m + 2)/5) + y*365 + ipart(y/4) - ipart(y/100) + ipart(y/400) - 32045;
+          }
+          if (type == JULIAN){
+            julianday = day + ipart((153*m + 2)/5) + y*365 + ipart(y/4) - 32083;
+          }
+          modifiedjulianday = julianday - 2400000.5;
+        }
+
+        public CustomDate(int yr, int mo, int da){
+          this(yr,mo,da,GREGORIAN);
+        }
+
+        public double getJulianDay(){ return (int) this.julianday; }
+        public double getModifiedJulianDay(){ return (int) this.modifiedjulianday; }
+
+        private long ipart(double r){ return Math.round(r - 0.5); }
+    }
+
+    //   Find key for sorting by recently played
+    private static String getRecentlyPlayedKey(String value, NameValue nameValue) {
+        String diff = null;
+        nameValue.setValue("(audio." + nameValue.getName() + "=null)");
+        try {
+            Date date = mDatabaseDateFormat.parse(value, new ParsePosition(0));
+            Date current = new Date();
+            if (date==null)
+                date = current;
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(date);
+            CustomDate cd1 = new CustomDate(calendar.get(GregorianCalendar.YEAR), calendar.get(GregorianCalendar.MONTH), calendar.get(GregorianCalendar.DAY_OF_MONTH));
+            calendar.setTime(current);
+            CustomDate cd2 = new CustomDate(calendar.get(GregorianCalendar.YEAR), calendar.get(GregorianCalendar.MONTH), calendar.get(GregorianCalendar.DAY_OF_MONTH));
+            
+            int difference = (int) (cd2.getJulianDay() - cd1.getJulianDay());
+            String compare = "=";
+            if (difference>1)
+                compare = ">=";
+            calendar.setTime(date);
+            String criteria = "(DATE(audio." + nameValue.getName() + ")" + compare + "DATE('" + mDateFormat.format(calendar.getTime()) + "'))";
+            
+            nameValue.setValue(criteria);
+            if (difference == 0)
+                diff = "Today";
+            else if (difference == 1)
+                diff = "Yesterday";
+            else if (difference < 7)
+                diff = "Previous " + difference + " Days";
+            else if (difference <= 7)
+                diff = "Previous Week";
+            else if (difference <= 14)
+                diff = "Previous 2 Weeks";
+            else if (difference <= 21)
+                diff = "Previous 3 Weeks";
+            else if (difference <= 31)
+                diff = "Previous Month";
+            else if (difference <= 62)
+                diff = "Previous 2 Months";
+            else if (difference <= 93)
+                diff = "Previous 3 Months";
+
+            return diff;
+        } catch (NumberFormatException e) {
+        }
+        return diff;
     }
 
     //   Find key for sorting by alphabetical value
@@ -1316,6 +1603,7 @@ public class MusicOrganizer extends DefaultApplication {
 
     public static class FormatString {
         public FormatString(String value) {
+            mValue = value;
             mCount = count(value, "\\");
             String mask = "";
             for (int i = 0; i <= mCount; i++) {
@@ -1337,6 +1625,12 @@ public class MusicOrganizer extends DefaultApplication {
         public String getPart(int i) {
             return mMatcher.group(i);
         }
+
+        private String getValue() {
+            return mValue;
+        }
+
+        private String mValue;
 
         private Matcher mMatcher;
 
@@ -1364,6 +1658,8 @@ public class MusicOrganizer extends DefaultApplication {
     private List getItems(PathScreen pathScreen, FormatString formatString, int level) {
         Pattern formatPattern1 = Pattern.compile("([^\\{\\}]*)\\{([^\\{\\}]*)\\}");
         List results = new ArrayList();
+        boolean sort = true;
+        int sortOrder = 1;
         try {
             Transaction tx = null;
             Session session = HibernateUtil.openSession();
@@ -1424,21 +1720,22 @@ public class MusicOrganizer extends DefaultApplication {
 
                 tx = session.beginTransaction();
 
-                Query query = null;
+                String direction = "asc";
+                if (sorter!=null && sorter.equals("RecentlyPlayed"))
+                    direction = "desc";
+                
+                String queryString = "";
                 if (level == formatString.getCount()) {
                     // Retrieve fields
-                    String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
-                            + "AND substr(audio.path,1,4)<>'http' order by " + order + " asc";
-                    log.debug(queryString);
-                    query = session.createQuery(queryString).setCacheable(true);
+                    queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
+                            + " AND (substr(audio.path,1,4)<>'http') order by " + order + " " + direction;
                 } else {
                     // Retrieve fields
-                    String queryString = "select distinct " + view
-                            + " from org.lnicholls.galleon.database.Audio audio where " + restrictions
-                            + " AND substr(audio.path,1,4)<>'http' order by " + order + " asc";
-                    log.debug(queryString);
-                    query = session.createQuery(queryString).setCacheable(true);
+                    queryString = "select distinct " + view + " from org.lnicholls.galleon.database.Audio audio where "
+                            + restrictions + " AND (substr(audio.path,1,4)<>'http') order by " + order + " " + direction;
                 }
+                log.debug(queryString);
+                Query query = session.createQuery(queryString).setCacheable(true);
 
                 Audio audio = null;
                 ScrollableResults items = query.scroll();
@@ -1453,7 +1750,10 @@ public class MusicOrganizer extends DefaultApplication {
                             }
                         } else {
                             if (columns.size() == 1) {
-                                values[0] = items.get(0).toString();
+                                if (items.get(0) != null)
+                                    values[0] = items.get(0).toString();
+                                else
+                                    values[0] = "";
                             } else {
                                 for (int f = 0; f < columns.size(); f++) {
                                     values[f] = items.get(f).toString();
@@ -1476,7 +1776,7 @@ public class MusicOrganizer extends DefaultApplication {
                                     String field = getAudioField(FIELDS[k]);
                                     boolean needQuote = isString(field);
                                     fields.add(new NameValue(field, "(audio." + field + "=" + (needQuote ? "'" : "")
-                                            + value + (needQuote ? "'" : "") + ")"));
+                                            + escape(value) + (needQuote ? "'" : "") + ")"));
                                     j = j + FIELDS[k].length();
                                     found = true;
                                     break;
@@ -1504,26 +1804,38 @@ public class MusicOrganizer extends DefaultApplication {
                                 formatted = getDecadeKey(formatted, nameValue);
                             else if (sorter.equals("Duration"))
                                 formatted = getDurationKey(formatted, nameValue);
+                            else if (sorter.equals("Rating")) {
+                                formatted = getRatingKey(formatted, nameValue);
+                                sortOrder = -1;
+                            } else if (sorter.equals("PlayCount")) {
+                                formatted = getPlayCountKey(formatted, nameValue);
+                                sortOrder = -1;
+                            } else if (sorter.equals("RecentlyPlayed")) {
+                                formatted = getRecentlyPlayedKey(formatted, nameValue);
+                                sort = false;
+                            }
                         }
 
-                        if (level == formatString.getCount()) {
-                            if (audio.getPath().startsWith("http")) {
-                                // TODO Handle steams; make configurable
-                                results.add(new Item(formatted, audio.getPath()));
-                            } else
-                                results.add(new FileItem(formatted, new File(audio.getPath())));
-                        } else {
-                            boolean duplicate = false;
-                            for (Iterator iterator = results.iterator(); iterator.hasNext();) {
-                                QueryPart queryPart = (QueryPart) iterator.next();
-                                if (queryPart.getName().equals(formatted)) {
-                                    duplicate = true;
-                                    break;
+                        if (formatted != null) {
+                            if (level == formatString.getCount()) {
+                                if (audio.getPath().startsWith("http")) {
+                                    // TODO Handle steams; make configurable
+                                    results.add(new Item(formatted, audio.getPath()));
+                                } else
+                                    results.add(new FileItem(formatted, new File(audio.getPath())));
+                            } else {
+                                boolean duplicate = false;
+                                for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+                                    QueryPart queryPart = (QueryPart) iterator.next();
+                                    if (queryPart.getName().equals(formatted)) {
+                                        duplicate = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (!duplicate) {
-                                QueryPart queryPart = new QueryPart(fields, formatted);
-                                results.add(queryPart);
+                                if (!duplicate) {
+                                    QueryPart queryPart = new QueryPart(fields, formatted);
+                                    results.add(queryPart);
+                                }
                             }
                         }
                     }
@@ -1540,19 +1852,22 @@ public class MusicOrganizer extends DefaultApplication {
         } catch (Exception ex) {
             Tools.logException(MusicOrganizer.class, ex);
         }
-        if (level != formatString.getCount()) {
-            Item[] items = (Item[]) results.toArray(new Item[0]);
-            Arrays.sort(items, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    Item item1 = (Item) o1;
-                    Item item2 = (Item) o2;
-    
-                    return item1.toString().compareTo(item2.toString());
-                }
-            });
-            results.clear();
-            for (int i=0;i<items.length;i++)
-                results.add(items[i]);
+        if (sort) {
+            final int sortDirection = sortOrder;
+            if (level != formatString.getCount()) {
+                Item[] items = (Item[]) results.toArray(new Item[0]);
+                Arrays.sort(items, new Comparator() {
+                    public int compare(Object o1, Object o2) {
+                        Item item1 = (Item) o1;
+                        Item item2 = (Item) o2;
+
+                        return sortDirection * item1.toString().compareTo(item2.toString());
+                    }
+                });
+                results.clear();
+                for (int i = 0; i < items.length; i++)
+                    results.add(items[i]);
+            }
         }
         return results;
     }
@@ -1561,6 +1876,11 @@ public class MusicOrganizer extends DefaultApplication {
 
         public MusicOrganizerFactory(AppContext appContext) {
             super(appContext);
+
+            mDateFormat = new SimpleDateFormat();
+            mDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss"); //2005-04-25 22:19:20
+            mDatabaseDateFormat = new SimpleDateFormat();
+            mDatabaseDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss.SSS"); //2005-04-23 13:38:15.078
         }
 
         protected void init(ArgumentList args) {
@@ -1577,18 +1897,17 @@ public class MusicOrganizer extends DefaultApplication {
                 skin = musicPlayerConfiguration.getSkin();
             mClassicSkin = new ClassicSkin(skin);
 
-            new Thread() {
-                public void run() {
+            Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
+                public void reload() {
                     try {
                         if (mMediaRefreshThread == null || !mMediaRefreshThread.isAlive()) {
                             updatePaths();
                         }
-                        sleep(1000 * 60 * 60 * 6);
                     } catch (Exception ex) {
                         log.error("Could not download stations", ex);
                     }
                 }
-            }.start();
+            }), 60 * 6);
         }
 
         public void setAppContext(AppContext appContext) {
@@ -1620,7 +1939,15 @@ public class MusicOrganizer extends DefaultApplication {
 
     }
 
+    private String escape(String value) {
+        return value.replaceAll("'", "''");
+    }
+
     private static ClassicSkin mClassicSkin;
 
     private static MediaRefreshThread mMediaRefreshThread;
+
+    private static SimpleDateFormat mDateFormat;
+
+    private static SimpleDateFormat mDatabaseDateFormat;
 }

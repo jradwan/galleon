@@ -52,6 +52,7 @@ import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.ClassicSkin;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
+import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
@@ -106,7 +107,7 @@ public class Music extends DefaultApplication {
                 File file = new File(nameValue.getValue());
                 FileItem nameFile = new FileItem(nameValue.getName(), file);
                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-                setCurrentDirectory(file.getCanonicalPath());
+                setCurrentTrackerContext(file.getCanonicalPath());
                 Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
                 PathScreen pathScreen = new PathScreen(this, tracker, true);
                 push(pathScreen, TRANSITION_LEFT);
@@ -142,7 +143,7 @@ public class Music extends DefaultApplication {
                             FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
                             File file = (File) nameFile.getValue();
                             FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-                            ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
+                            ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                             Tracker tracker = new Tracker(fileSystemContainer
                                     .getItems(FileFilters.audioDirectoryFilter), 0);
                             PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
@@ -195,6 +196,11 @@ public class Music extends DefaultApplication {
                 mMenuList.add(nameFile);
             }
         }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            mFocus = mTracker.getPos();
+            return super.handleEnter(arg, isReturn);
+        }
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
@@ -208,7 +214,7 @@ public class Music extends DefaultApplication {
                                 File file = (File) nameFile.getValue();
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath());
-                                ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
+                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
                                 PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
@@ -260,7 +266,7 @@ public class Music extends DefaultApplication {
                                 File file = (File) nameFile.getValue();
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath(), true);
-                                ((DefaultApplication) getBApp()).setCurrentDirectory(file.getCanonicalPath());
+                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
 
@@ -352,7 +358,8 @@ public class Music extends DefaultApplication {
         private void updateView() {
             Audio audio = currentAudio();
             if (audio != null) {
-                mMusicInfo.setAudio(audio);
+                Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+                mMusicInfo.setAudio(audio, nameFile.getName());
             }
         }
 
@@ -467,7 +474,23 @@ public class Music extends DefaultApplication {
 
             below.setResource(mPlayerBackground);
 
-            mTracker = tracker;
+            boolean sameTrack = false;
+            DefaultApplication defaultApplication = (DefaultApplication) getApp();
+            Audio currentAudio = defaultApplication.getCurrentAudio();
+            Tracker currentTracker = defaultApplication.getTracker();
+            if (currentTracker != null && currentAudio != null) {
+                Item newItem = (Item) tracker.getList().get(tracker.getPos());
+                if (currentAudio.getPath().equals(newItem.getValue().toString())) {
+                    mTracker = currentTracker;
+                    sameTrack = true;
+                } else {
+                    mTracker = tracker;
+                    app.setTracker(mTracker);
+                }
+            } else {
+                mTracker = tracker;
+                app.setTracker(mTracker);
+            }
 
             setTitle(" ");
 
@@ -477,8 +500,8 @@ public class Music extends DefaultApplication {
             else
                 setFooter("Press INFO for lyrics");
 
-            app.setTracker(mTracker);
-            getPlayer().startTrack();
+            if (!sameTrack || getPlayer().getState() == Player.STOP)
+                getPlayer().startTrack();
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -616,18 +639,26 @@ public class Music extends DefaultApplication {
                     "");
             scrollText.setVisible(false);
 
-            setFocusDefault(scrollText);
+            //setFocusDefault(scrollText);
 
             //setFooter("lyrc.com.ar");
             setFooter("lyrictracker.com");
 
             mBusy.setVisible(true);
 
+            /*
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to player"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
         }
 
         public void updateLyrics() {
@@ -731,10 +762,6 @@ public class Music extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             case KEY_UP:
@@ -783,11 +810,19 @@ public class Music extends DefaultApplication {
 
             mBusy.setVisible(true);
 
+            /*
             list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to player"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
         }
 
         public void updateImage() {
@@ -910,10 +945,6 @@ public class Music extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             case KEY_UP:

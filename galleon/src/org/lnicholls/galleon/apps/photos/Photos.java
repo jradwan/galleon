@@ -30,11 +30,19 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.ScrollableResults;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.Transaction;
+
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.database.ImageManager;
+import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.Image;
+import org.lnicholls.galleon.database.ImageManager;
 import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.media.JpgFile;
 import org.lnicholls.galleon.media.MediaManager;
@@ -42,15 +50,14 @@ import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
+import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.Grid;
-import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -68,63 +75,92 @@ public class Photos extends DefaultApplication {
     private final static Runtime runtime = Runtime.getRuntime();
 
     public final static String TITLE = "Photos";
-    
+
     private Resource mMenuBackground;
-    
+
     private Resource mInfoBackground;
-    
+
     private Resource mFolderIcon;
 
     private Resource mLargeFolderIcon;
 
     private Resource mCameraIcon;
-    
+
     protected void init(Context context) {
         super.init(context);
-        
+
         mMenuBackground = getSkinImage("menu", "background");
         mInfoBackground = getSkinImage("info", "background");
         mFolderIcon = getSkinImage("menu", "folder");
         mLargeFolderIcon = getSkinImage("menu", "gridFolder");
         mCameraIcon = getSkinImage("menu", "item");
 
-        String path = Tools.loadPersistentValue(DefaultApplication.TRACKER);
-        if (path != null) {
-            FileSystemContainer fileSystemContainer = new FileSystemContainer(path);
-            Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
-            setTracker(tracker);
+        String trackerContext = Tools.loadPersistentValue(DefaultApplication.TRACKER);
+        if (trackerContext != null) {
+            File file = new File(trackerContext);
+            if (file.exists()) {
+                FileSystemContainer fileSystemContainer = new FileSystemContainer(trackerContext);
+                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+                setTracker(tracker);
+            } else {
+                List files = new ArrayList();
+                try {
+                    Transaction tx = null;
+                    Session session = HibernateUtil.openSession();
+                    try {
+                        Query query = session.createQuery(trackerContext).setCacheable(true);
+                        Audio audio = null;
+                        ScrollableResults items = query.scroll();
+                        if (items.first()) {
+                            items.beforeFirst();
+                            while (items.next()) {
+                                audio = (Audio) items.get(0);
+                                files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
+                            }
+                        }
+
+                        tx.commit();
+                    } catch (HibernateException he) {
+                        if (tx != null)
+                            tx.rollback();
+                        throw he;
+                    } finally {
+                        HibernateUtil.closeSession();
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(Photos.class, ex);
+                }
+
+                Tracker tracker = new Tracker(files, 0);
+                setTracker(tracker);
+            }
         }
-        
+
         PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
-        .getAppContext().getConfiguration();
-        
-        if (imagesConfiguration.getPaths().size()==1)
-        {
-            try
-            {
+                .getAppContext().getConfiguration();
+
+        if (imagesConfiguration.getPaths().size() == 1) {
+            try {
                 NameValue nameValue = (NameValue) imagesConfiguration.getPaths().get(0);
                 File file = new File(nameValue.getValue());
                 FileItem nameFile = new FileItem(nameValue.getName(), file);
-                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-                        .getCanonicalPath());
-                setCurrentDirectory(file.getCanonicalPath());
-                Tracker tracker = new Tracker(fileSystemContainer
-                        .getItems(FileFilters.imageDirectoryFilter), 0);
+                FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
+                setCurrentTrackerContext(file.getCanonicalPath());
+                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.imageDirectoryFilter), 0);
                 PathScreen pathScreen = new PathScreen(this, tracker, true);
                 push(pathScreen, TRANSITION_LEFT);
                 flush();
             } catch (Exception ex) {
                 Tools.logException(Photos.class, ex);
             }
-        }
-        else        
+        } else
             push(new PhotosMenuScreen(this), TRANSITION_NONE);
     }
 
     public class PhotosMenuScreen extends DefaultMenuScreen {
         public PhotosMenuScreen(Photos app) {
             super(app, "Photos");
-            
+
             below.setResource(mMenuBackground);
 
             PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
@@ -144,9 +180,8 @@ public class Photos extends DefaultApplication {
                     public void run() {
                         try {
                             FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            File file = (File)nameFile.getValue();
-                            FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-                                    .getCanonicalPath());
+                            File file = (File) nameFile.getValue();
+                            FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
                             Tracker tracker = new Tracker(fileSystemContainer
                                     .getItems(FileFilters.imageDirectoryFilter), 0);
                             PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
@@ -203,27 +238,23 @@ public class Photos extends DefaultApplication {
                     Thread thread = new Thread() {
                         public void run() {
                             try {
-                                synchronized(this)
-                                {
+                                synchronized (this) {
                                     parent.setResource(Color.GRAY);
                                     parent.setTransparency(0.5f);
                                     parent.flush();
                                 }
 
                                 Image image = null;
-                                synchronized(this)
-                                {
-                                    image = getImage(((File)nameFile.getValue()).getCanonicalPath());
+                                synchronized (this) {
+                                    image = getImage(((File) nameFile.getValue()).getCanonicalPath());
                                 }
 
                                 BufferedImage thumbnail = null;
-                                synchronized(this)
-                                {
+                                synchronized (this) {
                                     thumbnail = JpgFile.getThumbnail(image);
                                 }
                                 if (thumbnail != null) {
-                                    synchronized(this)
-                                    {
+                                    synchronized (this) {
                                         parent.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
                                         parent.setTransparency(0.0f);
                                         parent.flush();
@@ -235,11 +266,9 @@ public class Photos extends DefaultApplication {
                                 mThreads.remove(this);
                             }
                         }
-                        
-                        public void interrupt()
-                        {
-                            synchronized (this)
-                            {
+
+                        public void interrupt() {
+                            synchronized (this) {
                                 super.interrupt();
                             }
                         }
@@ -278,9 +307,7 @@ public class Photos extends DefaultApplication {
                     }
                 }
                 mThreads.clear();
-            }
-            finally
-            {
+            } finally {
                 setPainting(true);
             }
         }
@@ -290,14 +317,14 @@ public class Photos extends DefaultApplication {
 
     public class PathScreen extends DefaultScreen {
         private PGrid grid;
-        
+
         public PathScreen(Photos app, Tracker tracker) {
             this(app, tracker, false);
         }
 
         public PathScreen(Photos app, Tracker tracker, boolean first) {
             super(app);
-            
+
             below.setResource(mMenuBackground);
 
             setTitle("Photos");
@@ -321,14 +348,13 @@ public class Photos extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                if (grid.getFocus()!=-1)
-                {
+                if (grid.getFocus() != -1) {
                     Object object = grid.get(grid.getFocus());
                     getBApp().play("select.snd");
                     getBApp().flush();
-    
+
                     mTop = grid.getTop();
-    
+
                     ArrayList photos = (ArrayList) object;
                     final Item nameFile = (Item) photos.get(grid.getPos() % 3);
                     if (nameFile.isFolder()) {
@@ -336,8 +362,8 @@ public class Photos extends DefaultApplication {
                             public void run() {
                                 try {
                                     mTracker.setPos(grid.getPos());
-    
-                                    File file = (File)nameFile.getValue();
+
+                                    File file = (File) nameFile.getValue();
                                     FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                             .getCanonicalPath());
                                     Tracker tracker = new Tracker(fileSystemContainer
@@ -357,7 +383,7 @@ public class Photos extends DefaultApplication {
                                     PhotosScreen photosScreen = new PhotosScreen((Photos) getBApp());
                                     mTracker.setPos(grid.getPos());
                                     photosScreen.setTracker(mTracker);
-    
+
                                     getBApp().push(photosScreen, TRANSITION_LEFT);
                                     getBApp().flush();
                                 } catch (Exception ex) {
@@ -366,12 +392,10 @@ public class Photos extends DefaultApplication {
                             }
                         }.start();
                     }
-    
+
                     return true;
                 }
-            }
-            else
-            if (action.equals("play")) {
+            } else if (action.equals("play")) {
                 Object object = grid.get(grid.getFocus());
                 getBApp().play("select.snd");
                 getBApp().flush();
@@ -386,7 +410,7 @@ public class Photos extends DefaultApplication {
                             try {
                                 mTracker.setPos(grid.getPos());
 
-                                File file = (File)nameFile.getValue();
+                                File file = (File) nameFile.getValue();
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
@@ -414,7 +438,7 @@ public class Photos extends DefaultApplication {
                 }
 
                 return true;
-            }                
+            }
             return super.handleAction(view, action);
         }
 
@@ -461,24 +485,23 @@ public class Photos extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_LEFT:
-                if (!mFirst)
-                {
+                if (!mFirst) {
                     postEvent(new BEvent.Action(this, "pop"));
                     return true;
                 }
                 break;
             case KEY_PLAY:
                 postEvent(new BEvent.Action(this, "play"));
-                return true;                    
+                return true;
             }
-            
+
             return super.handleKeyPress(code, rawcode);
         }
 
         private Tracker mTracker;
 
         private int mTop;
-        
+
         private boolean mFirst;
     }
 
@@ -488,7 +511,7 @@ public class Photos extends DefaultApplication {
 
         public PhotosScreen(Photos app) {
             super(app, true);
-            
+
             below.setResource(mInfoBackground);
             below.flush();
 
@@ -503,7 +526,7 @@ public class Photos extends DefaultApplication {
 
             mTitleText = new BText(normal, BORDER_LEFT, start - 30, BODY_WIDTH, 70);
             mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
-            mTitleText.setFont("default-30-bold.font");
+            mTitleText.setFont("system-24-bold.font");
             mTitleText.setColor(Color.CYAN);
             mTitleText.setShadow(true);
 
@@ -573,9 +596,7 @@ public class Photos extends DefaultApplication {
                     try {
                         if (mThumbnailThread != null && mThumbnailThread.isAlive())
                             mThumbnailThread.interrupt();
-                    }
-                    finally
-                    {
+                    } finally {
                         setPainting(true);
                     }
                     mThumbnailThread = new Thread() {
@@ -585,8 +606,7 @@ public class Photos extends DefaultApplication {
                                 if (thumbnail != null) {
                                     synchronized (mThumbnail) {
                                         if (mThumbnail.getID() != -1) {
-                                            synchronized(this)
-                                            {
+                                            synchronized (this) {
                                                 mThumbnail.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
                                                 mThumbnail.setVisible(true);
                                                 mThumbnail.setTransparency(1.0f);
@@ -600,11 +620,9 @@ public class Photos extends DefaultApplication {
                                 Tools.logException(Photos.class, ex, "Could retrieve thumbnail");
                             }
                         }
-                        
-                        public void interrupt()
-                        {
-                            synchronized (this)
-                            {
+
+                        public void interrupt() {
+                            synchronized (this) {
                                 super.interrupt();
                             }
                         }
@@ -632,9 +650,7 @@ public class Photos extends DefaultApplication {
                 if (mThumbnailThread != null && mThumbnailThread.isAlive())
                     mThumbnailThread.interrupt();
                 clearThumbnail();
-            }
-            finally
-            {
+            } finally {
                 setPainting(true);
             }
             return super.handleExit();
@@ -764,7 +780,7 @@ public class Photos extends DefaultApplication {
                 try {
                     FileItem nameFile = (FileItem) mTracker.getList().get(mTracker.getPos());
                     if (nameFile != null) {
-                        return getImage(((File)nameFile.getValue()).getCanonicalPath());
+                        return getImage(((File) nameFile.getValue()).getCanonicalPath());
                     }
                 } catch (Exception ex) {
                     Tools.logException(Photos.class, ex);
@@ -804,7 +820,7 @@ public class Photos extends DefaultApplication {
             setTitle(" ");
 
             PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
-            .getAppContext().getConfiguration();
+                    .getAppContext().getConfiguration();
             if (imagesConfiguration.isUseSafe())
                 mPhoto = new View(below, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT);
             else
@@ -940,7 +956,7 @@ public class Photos extends DefaultApplication {
                 try {
                     FileItem nameFile = (FileItem) mTracker.getList().get(mTracker.getPos());
                     if (nameFile != null) {
-                        return getImage(((File)nameFile.getValue()).getCanonicalPath());
+                        return getImage(((File) nameFile.getValue()).getCanonicalPath());
                     }
                 } catch (Exception ex) {
                     Tools.logException(Photos.class, ex);
@@ -1070,11 +1086,9 @@ public class Photos extends DefaultApplication {
                 }
             }
         }
-        
-        public void interrupt()
-        {
-            synchronized (this)
-            {
+
+        public void interrupt() {
+            synchronized (this) {
                 super.interrupt();
             }
         }

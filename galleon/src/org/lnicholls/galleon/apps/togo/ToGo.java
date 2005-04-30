@@ -17,7 +17,6 @@ package org.lnicholls.galleon.apps.togo;
  */
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -56,10 +55,10 @@ public class ToGo extends DefaultApplication {
     private static Logger log = Logger.getLogger(ToGo.class.getName());
 
     public final static String TITLE = "ToGo";
-    
+
     private Resource mMenuBackground;
-    
-    private Resource mInfoBackground;    
+
+    private Resource mInfoBackground;
 
     private Resource mYellowIcon;
 
@@ -79,7 +78,7 @@ public class ToGo extends DefaultApplication {
 
     protected void init(Context context) {
         super.init(context);
-        
+
         mMenuBackground = getSkinImage("menu", "background");
         mInfoBackground = getSkinImage("info", "background");
         mYellowIcon = getSkinImage("menu", "expiresSoon");
@@ -89,7 +88,7 @@ public class ToGo extends DefaultApplication {
         mRedIcon = getSkinImage("menu", "recording");
         mBlueIcon = getSkinImage("menu", "suggestion");
         mEmptyIcon = getSkinImage("menu", "empty");
-        
+
         mToGoScreen = new ToGoScreen(this);
 
         push(new ToGoMenuScreen(this), TRANSITION_NONE);
@@ -98,7 +97,7 @@ public class ToGo extends DefaultApplication {
     public class ToGoMenuScreen extends DefaultMenuScreen {
         public ToGoMenuScreen(ToGo app) {
             super(app, "Now Playing List");
-            
+
             below.setResource(mMenuBackground);
 
             mDateFormat = new SimpleDateFormat();
@@ -174,7 +173,7 @@ public class ToGo extends DefaultApplication {
                     TiVo tivo = (TiVo) iterator.next();
                     totalCapacity = totalCapacity + tivo.getCapacity();
                 }
-    
+
                 long available = (totalCapacity * 1024) - (totalSize / (1024 * 1024));
                 if (available < 0)
                     available = 0;
@@ -190,6 +189,11 @@ public class ToGo extends DefaultApplication {
                 sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
                 availableText.setValue("Available: " + numberFormat.format(available) + " MB");
             }
+        }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+            mFocus = mMenuList.getFocus();
+            return super.handleEnter(arg, isReturn);
         }
 
         public boolean handleAction(BView view, Object action) {
@@ -256,7 +260,7 @@ public class ToGo extends DefaultApplication {
 
         public ToGoScreen(ToGo app) {
             super(app, "Program", true);
-            
+
             below.setResource(mInfoBackground);
 
             mDateFormat = new SimpleDateFormat();
@@ -269,11 +273,12 @@ public class ToGo extends DefaultApplication {
             int start = TOP;
 
             int location = 40;
-            icon = new BView(normal, BORDER_LEFT, start + 3, 30, 30);
+            icon = new BView(normal, BORDER_LEFT, start + 8, 30, 30);
 
             titleText = new BText(normal, BORDER_LEFT + location, start, BODY_WIDTH - 40, 40);
             titleText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            titleText.setFont("default-36.font");
+            //titleText.setFont("default-36.font");
+            titleText.setFont("system-30.font");
             titleText.setShadow(true);
 
             start += 45;
@@ -331,7 +336,8 @@ public class ToGo extends DefaultApplication {
             start += 35;
 
             statusBarBg = new BView(normal, width - SAFE_TITLE_H - BODY_WIDTH / 3, start, BODY_WIDTH / 3, 30);
-            statusBarBg.setResource(Color.WHITE);
+            //statusBarBg.setResource(Color.WHITE);
+            statusBarBg.setResource(Color.BLACK);
             statusBarBg.setTransparency(.5f);
             statusBarBg.setVisible(false);
             statusBar = new BView(normal, width - SAFE_TITLE_H - BODY_WIDTH / 3 + 2, start + 2, BODY_WIDTH / 3 - 4,
@@ -377,7 +383,7 @@ public class ToGo extends DefaultApplication {
                     location = 0;
                 titleText.setLocation(BORDER_LEFT + location, TOP);
 
-                titleText.setValue(video.getTitle() == null ? "" : Tools.trim(video.getTitle(), 30));
+                titleText.setValue(video.getTitle() == null ? "" : Tools.trim(video.getTitle(), 28));
 
                 mCalendar.setTime(video.getOriginalAirDate() == null ? new Date() : video.getOriginalAirDate());
                 mCalendar.set(GregorianCalendar.MINUTE, (mCalendar.get(GregorianCalendar.MINUTE) * 60
@@ -442,9 +448,13 @@ public class ToGo extends DefaultApplication {
                                 statusBar.setSize((int) (barFraction * (statusBarBg.width - 4)), statusBar.height);
                         }
                     } else {
-                        statusText.setValue(video.getStatusString() + ": " + "0 KB/Sec");
+                        String progress = "";
+                        for (int i = 0; i < mCounter; i++)
+                            progress = progress + ".";
+                        statusText.setValue("Connecting" + progress);
                         //speedText.setValue("0 KB/Sec");
                         statusBar.setVisible(false);
+                        mCounter++;
                     }
                 } else {
                     statusBarBg.setVisible(false);
@@ -500,8 +510,7 @@ public class ToGo extends DefaultApplication {
                 }
 
                 public void interrupt() {
-                    synchronized (this)
-                    {
+                    synchronized (this) {
                         super.interrupt();
                     }
                 }
@@ -592,6 +601,8 @@ public class ToGo extends DefaultApplication {
                     log.error("Video update failed", ex);
                 }
 
+                mCounter = 0;
+
                 updateText();
 
                 return true;
@@ -644,6 +655,8 @@ public class ToGo extends DefaultApplication {
 
         //private BText speedText;
         private Thread mUpdateThread;
+
+        private int mCounter;
     }
 
     public static class ToGoFactory extends AppFactory {

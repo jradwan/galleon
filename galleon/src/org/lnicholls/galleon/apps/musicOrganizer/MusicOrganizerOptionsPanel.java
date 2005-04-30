@@ -140,6 +140,10 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         populateCombo(mCategoryCombo7);
         mCategoryCombo8 = new JComboBox();
         populateCombo(mCategoryCombo8);
+        mCategoryCombo9 = new JComboBox();
+        populateCombo(mCategoryCombo9);
+        mCategoryCombo10 = new JComboBox();
+        populateCombo(mCategoryCombo10);
         Iterator iterator = musicConfiguration.getGroups().iterator();
         if (iterator.hasNext())
             defaultCombo(mCategoryCombo1, (String) iterator.next());
@@ -157,6 +161,10 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
             defaultCombo(mCategoryCombo7, (String) iterator.next());
         if (iterator.hasNext())
             defaultCombo(mCategoryCombo8, (String) iterator.next());
+        if (iterator.hasNext())
+            defaultCombo(mCategoryCombo9, (String) iterator.next());        
+        if (iterator.hasNext())
+            defaultCombo(mCategoryCombo10, (String) iterator.next());
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, 3dlu, left:pref:grow", "pref, " + //general
                 "9dlu, " + "pref, " + // title
@@ -165,7 +173,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
                 "3dlu, " + "pref," + // table
                 "9dlu, " + "pref, " + // categories
                 "9dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref,"
-                + "3dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref");
+                + "3dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref," + "3dlu, " + "pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
         //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -218,6 +226,10 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         builder.add(mCategoryCombo7, cc.xyw(3, 25, 1));
         builder.addLabel("Category 8", cc.xy(1, 27));
         builder.add(mCategoryCombo8, cc.xyw(3, 27, 1));
+        builder.addLabel("Category 9", cc.xy(1, 29));
+        builder.add(mCategoryCombo9, cc.xyw(3, 29, 1));
+        builder.addLabel("Category 10", cc.xy(1, 31));
+        builder.add(mCategoryCombo10, cc.xyw(3, 31, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -271,6 +283,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
     public void save() {
         log.debug("save()");
         MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) mAppConfiguration;
+        boolean first = musicConfiguration.getPaths().size()==0;
         musicConfiguration.setName(mTitleField.getText());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
@@ -298,10 +311,15 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
             categories.add(((NameValue) mCategoryCombo7.getSelectedItem()).getValue());
         if (((NameValue) mCategoryCombo8.getSelectedItem()).getValue().length() > 0)
             categories.add(((NameValue) mCategoryCombo8.getSelectedItem()).getValue());
+        if (((NameValue) mCategoryCombo9.getSelectedItem()).getValue().length() > 0)
+            categories.add(((NameValue) mCategoryCombo9.getSelectedItem()).getValue());
+        if (((NameValue) mCategoryCombo10.getSelectedItem()).getValue().length() > 0)
+            categories.add(((NameValue) mCategoryCombo10.getSelectedItem()).getValue());
 
         musicConfiguration.setGroups(categories);
         
-        JOptionPane.showMessageDialog(this,
+        if (first)
+            JOptionPane.showMessageDialog(this,
                 "Depending on the size of your MP3 collection, it will take some time for the organizer to categorize your collection.\nYou will be able to use the organizer immediately and the categorized files will grow over time.",
                 "Info", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -325,7 +343,11 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
     private JComboBox mCategoryCombo7;
 
     private JComboBox mCategoryCombo8;
-
+    
+    private JComboBox mCategoryCombo9;
+    
+    private JComboBox mCategoryCombo10;
+    
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;

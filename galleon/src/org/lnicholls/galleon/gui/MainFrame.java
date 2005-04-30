@@ -920,7 +920,7 @@ public class MainFrame extends JFrame {
             } else if ("help".equals(e.getActionCommand())) {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 try {
-                    URL url = getClass().getClassLoader().getResource("server.html");
+                    URL url = getClass().getClassLoader().getResource("musicplayer.html");
                     displayHelp(url);
                 } catch (Exception ex) {
                     Tools.logException(MainFrame.class, ex, "Could not find server help ");
@@ -951,7 +951,7 @@ public class MainFrame extends JFrame {
             mHelpDialog.dispose();
         }
 
-        mHelpDialog = new HelpDialog(this, url);
+        mHelpDialog = new HelpDialog(MainFrame.this, url);
         mHelpDialog.setVisible(true);
     }
 

@@ -16,19 +16,18 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
-import javax.imageio.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
@@ -64,35 +63,38 @@ public class DefaultApplication extends BApplication {
 
         mPlayer = new Player(this);
     }
-    
-    public Resource getStarIcon()
-    {
+
+    public Resource getStarIcon() {
         return mStarIcon;
     }
-    
-    public Resource getBusyIcon()
-    {
+
+    public Resource getBusyIcon() {
         return mBusyIcon;
     }
 
     protected Resource getSkinImage(String screen, String key) {
         ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, key);
-        if (baos != null)
-        {
-            /*
-            if (image.getWidth() > 640 || image.getHeight() > 480)
-                image = ImageManipulator.getScaledImage(image, 640, 480);
-                */
-            try
-            {
-                return createImage(baos.toByteArray());
+        if (mLastObject != null && mLastResource != null) {
+            if (mLastObject == baos) {
+                return mLastResource;
             }
-            catch (Exception ex)
-            {
+        }
+        mLastObject = baos;
+
+        if (baos != null) {
+            /*
+             * if (image.getWidth() > 640 || image.getHeight() > 480) image = ImageManipulator.getScaledImage(image,
+             * 640, 480);
+             */
+            try {
+                mLastResource = createImage(baos.toByteArray());
+                return mLastResource;
+            } catch (Exception ex) {
                 Tools.logException(DefaultApplication.class, ex);
             }
         }
-        return createImage(Tools.getDefaultImage());
+        mLastResource = createImage(Tools.getDefaultImage());
+        return mLastResource;
     }
 
     protected void dispatchEvent(HmeEvent event) {
@@ -116,9 +118,9 @@ public class DefaultApplication extends BApplication {
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
         case KEY_ENTER:
-            if (mCurrentDir != null) {
+            if (mCurrentTrackerContext != null) {
                 play("thumbsup.snd");
-                Tools.savePersistentValue(TRACKER, mCurrentDir);
+                Tools.savePersistentValue(TRACKER, mCurrentTrackerContext);
             }
             return true;
         case KEY_LEFT:
@@ -150,7 +152,7 @@ public class DefaultApplication extends BApplication {
             break;
         case KEY_CLEAR:
             setActive(false);
-            break;            
+            break;
         }
         return super.handleKeyPress(code, rawcode);
     }
@@ -216,7 +218,7 @@ public class DefaultApplication extends BApplication {
             }
             mPlayerState = PLAY;
             mStreamResource = mDefaultApplication.createStream(url, "audio/mp3", true);
-            log.debug("mStreamResource="+mStreamResource.getID());
+            log.debug("mStreamResource=" + mStreamResource.getID());
             mStreamResource.addHandler(this);
         }
 
@@ -244,7 +246,7 @@ public class DefaultApplication extends BApplication {
                         audio = getAudio(file.getCanonicalPath());
                     } else
                         audio = getAudio((String) nameFile.getValue());
-                    
+
                     if (audio != null) {
                         setTitle("");
                         stopTrack();
@@ -259,6 +261,16 @@ public class DefaultApplication extends BApplication {
                         } catch (UnsupportedEncodingException ex) {
                             Tools.logException(DefaultApplication.class, ex, url);
                         }
+                        try {
+                            audio.setPlayCount(audio.getPlayCount() + 1);
+                            audio.setDatePlayed(new Date());
+                            AudioManager.updateAudio(audio);
+                        } catch (Exception ex) {
+                            Tools.logException(DefaultApplication.class, ex);
+                        }
+                        
+                        mCurrentAudio = audio;
+
                         playTrack(url);
                     }
                 } catch (Exception ex) {
@@ -323,16 +335,15 @@ public class DefaultApplication extends BApplication {
                         }
                     }
                 }
-                if (mDefaultApplication.getCurrentScreen().focus!=null)    
-                    mDefaultApplication.getCurrentScreen().focus.handleEvent(
-                        new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, ResourceInfo
-                                .statusToString(info.status)));
+                if (mDefaultApplication.getCurrentScreen().focus != null)
+                    mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(mDefaultApplication
+                            .getCurrentScreen().focus, ResourceInfo.statusToString(info.status)));
                 return;
             case StreamResource.EVT_RSRC_STATUS:
                 if (info.status == RSRC_STATUS_PLAYING) {
-                    if (mDefaultApplication.getCurrentScreen().focus!=null)
-                        mDefaultApplication.getCurrentScreen().focus.handleEvent(
-                            new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, "ready"));
+                    if (mDefaultApplication.getCurrentScreen().focus != null)
+                        mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(mDefaultApplication
+                                .getCurrentScreen().focus, "ready"));
                 } else if (info.status >= RSRC_STATUS_CLOSED) {
                     //System.out.println("postEvent:RSRC_STATUS_CLOSED");
                     if (mPlayerState != STOP) {
@@ -343,9 +354,9 @@ public class DefaultApplication extends BApplication {
                         getNextPos();
                         startTrack();
 
-                        if (mDefaultApplication.getCurrentScreen().focus!=null)
-                            mDefaultApplication.getCurrentScreen().focus.handleEvent(
-                                new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, "stopped"));
+                        if (mDefaultApplication.getCurrentScreen().focus != null)
+                            mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(
+                                    mDefaultApplication.getCurrentScreen().focus, "stopped"));
                     }
                 }
                 return;
@@ -354,9 +365,9 @@ public class DefaultApplication extends BApplication {
 
         public void setTitle(String value) {
             mTitle = value;
-            if (mDefaultApplication.getCurrentScreen().focus!=null)
-                mDefaultApplication.getCurrentScreen().focus.handleEvent(
-                    new BEvent.Action(mDefaultApplication.getCurrentScreen().focus, "update"));
+            if (mDefaultApplication.getCurrentScreen().focus != null)
+                mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(mDefaultApplication
+                        .getCurrentScreen().focus, "update"));
         }
 
         public void getNextPos() {
@@ -421,6 +432,10 @@ public class DefaultApplication extends BApplication {
         public String getTitle() {
             return mTitle;
         }
+        
+        public Audio getCurrentAudio() {
+            return mCurrentAudio;
+        }
 
         private DefaultApplication mDefaultApplication;
 
@@ -437,6 +452,8 @@ public class DefaultApplication extends BApplication {
         private int mBitrate;
 
         private String mTitle = "";
+        
+        private Audio mCurrentAudio;
     }
 
     private static Audio getAudio(String path) {
@@ -488,7 +505,7 @@ public class DefaultApplication extends BApplication {
             Item nameFile = (Item) list.get(0);
             if (nameFile.isFile()) {
                 File file = (File) nameFile.getValue();
-                Tools.savePersistentValue(DefaultApplication.TRACKER, file.getParent());
+                //Tools.savePersistentValue(DefaultApplication.TRACKER, file.getParent());
             }
         }
     }
@@ -496,9 +513,13 @@ public class DefaultApplication extends BApplication {
     public Tracker getTracker() {
         return mPlayer.getTracker();
     }
+    
+    public Audio getCurrentAudio() {
+        return mPlayer.getCurrentAudio();
+    }
 
-    public void setCurrentDirectory(String dir) {
-        mCurrentDir = dir;
+    public void setCurrentTrackerContext(String value) {
+        mCurrentTrackerContext = value;
     }
 
     public boolean handleApplicationError(int errorCode, String errorText) {
@@ -517,5 +538,9 @@ public class DefaultApplication extends BApplication {
 
     private ArrayList mCallbacks;
 
-    private String mCurrentDir;
+    private String mCurrentTrackerContext;
+
+    private ByteArrayOutputStream mLastObject;
+
+    private Resource mLastResource;
 }

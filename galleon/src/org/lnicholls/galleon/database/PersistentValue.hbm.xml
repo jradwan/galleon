@@ -29,8 +29,8 @@ See the file "COPYING" for more details.
       <generator class="native"/>
     </id>
 
-    <property name="name" type="string" not-null="true"/>
-    <property name="value" type="string" not-null="true"/>    
+    <property name="name" type="string" not-null="true" length="256"/>        
+    <property name="value" type="string" not-null="true" length="32672"/>        
     
   </class>
 

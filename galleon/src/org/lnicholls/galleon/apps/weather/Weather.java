@@ -44,7 +44,7 @@ import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
+import com.tivo.hme.bananas.*;
 import com.tivo.hme.http.server.HttpRequest;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
@@ -316,10 +316,19 @@ public class Weather extends DefaultApplication {
 
             setFooter("weather.com");
 
+            /*
             list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
+            */
+            
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to menu"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);            
 
             updateText();
         }
@@ -356,10 +365,6 @@ public class Weather extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             }
@@ -447,10 +452,18 @@ public class Weather extends DefaultApplication {
 
             setFooter("weather.com");
 
+            /*
             list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to menu"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
 
             updateText();
         }
@@ -517,10 +530,6 @@ public class Weather extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             }
@@ -559,10 +568,18 @@ public class Weather extends DefaultApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
+            /*
             list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to menu"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
 
             updateImage();
         }
@@ -599,10 +616,6 @@ public class Weather extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             }
@@ -633,10 +646,18 @@ public class Weather extends DefaultApplication {
             image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
                     - (SAFE_TITLE_V * 2));
 
+            /*
             list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to menu"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);
 
             updateImage();
         }
@@ -670,10 +691,6 @@ public class Weather extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             }
@@ -729,10 +746,18 @@ public class Weather extends DefaultApplication {
 
             setFooter("weather.gov");
 
+            /*
             list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
                     .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
+            */
+            
+            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
+                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            button.setResource(createText("default-24.font", Color.white, "Return to menu"));
+            button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+            setFocus(button);            
 
             updateText();
         }
@@ -763,10 +788,6 @@ public class Weather extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
-            case KEY_RIGHT:
-                postEvent(new BEvent.Action(this, "pop"));
-                return true;
-            case KEY_LEFT: // TODO Why never gets this code?
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
             case KEY_UP:

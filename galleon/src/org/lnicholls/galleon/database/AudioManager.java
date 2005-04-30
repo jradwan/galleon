@@ -238,10 +238,10 @@ public class AudioManager {
             List list = new ArrayList();
             if (origen!=null)
             {
-                list = session.createQuery("select distinct upper(audio.genre) from org.lnicholls.galleon.database.Audio audio where audio.origen=? order by audio.genre asc").setString(0, origen).list();
+                list = session.createQuery("select distinct audio.genre from org.lnicholls.galleon.database.Audio audio where audio.origen=? order by audio.genre asc").setString(0, origen).list();
             }
             else
-                list = session.createQuery("select distinct upper(audio.genre) from org.lnicholls.galleon.database.Audio audio where (1=1) order by audio.genre asc").setCacheable(true).list();
+                list = session.createQuery("select distinct audio.genre from org.lnicholls.galleon.database.Audio audio where (1=1) order by audio.genre asc").setCacheable(true).list();
 
             tx.commit();
 
@@ -263,10 +263,10 @@ public class AudioManager {
 
             List list = new ArrayList();
             if (origen!=null)
-                list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and upper(audio.genre)=?")
+                list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.genre=?")
                 .setString(0, origen).setString(1, genre).list();
             else
-                list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where upper(audio.genre)= ?")
+                list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.genre= ?")
                 .setString(0, genre).list();
 
             tx.commit();
@@ -287,7 +287,7 @@ public class AudioManager {
         try {
             tx = session.beginTransaction();
 
-            List list = session.createQuery("from org.lnicholls.galleon.database.Audio as Audio where Audio.title=?")
+            List list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.title=?")
                 .setString(0, title).list();
 
             tx.commit();
@@ -301,4 +301,24 @@ public class AudioManager {
             HibernateUtil.closeSession();
         }
     }    
+    
+    public static int countMP3s() throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = session.createQuery("select count(audio) from org.lnicholls.galleon.database.Audio as audio where substr(audio.path,1,4)<>'http'").list();
+
+            tx.commit();
+
+            return ((Integer)list.iterator().next()).intValue();
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }
 }

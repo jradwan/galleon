@@ -192,13 +192,46 @@ public class WeatherData implements Serializable {
     public void getAllWeather() {
         try {
             SAXReader saxReader = new SAXReader();
-            //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
-            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
-                    + PARTNER_ID + "&key=" + LICENSE_KEY);
-            String page = Tools.getPage(url);
-            log.debug("AllWeather: " + page);
-            parseWeather(page);
-            Tools.savePersistentValue(this.getClass().getName() + "." + "id", mId);
+            String last = Tools.loadPersistentValue(this.getClass().getName() + "." + "date");
+            String page = null;
+            
+            if (last !=null)
+            {
+                Date lastTime = new Date(last);
+                Date current = new Date();
+                if ((current.getTime()-lastTime.getTime())/(1000*60) >= 720)
+                {
+                    // http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
+                    URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
+                            + PARTNER_ID + "&key=" + LICENSE_KEY);
+                    page = Tools.getPage(url);
+                    
+                    Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
+                    Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                }
+                else
+                {
+                    page = Tools.loadPersistentValue(this.getClass().getName() + "." + "content");
+                }
+            }
+            else
+            {
+                // http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
+                URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
+                        + PARTNER_ID + "&key=" + LICENSE_KEY);
+                page = Tools.getPage(url);
+                
+                Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
+                Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
+            }
+                
+            
+            if (page!=null)
+            {
+                log.debug("AllWeather: " + page);
+                parseWeather(page);
+                Tools.savePersistentValue(this.getClass().getName() + "." + "id", mId);
+            }
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }

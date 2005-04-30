@@ -52,26 +52,21 @@ public class DownloadThread extends Thread implements Constants {
                         log.debug("Picked: " + mSelectedVideo);
 
                     mDownloading = true;
-
                     synchronized (this) {
                         mSelectedVideo.setStatus(Video.STATUS_DOWNLOADING);
                         mSelectedVideo.setDownloadSize(0);
                         mSelectedVideo.setDownloadTime(0);
                         VideoManager.updateVideo(mSelectedVideo);
                     }
-                    
                     synchronized (this) {
                         notifyAll();
                     }
-                    
                     mCancelThread = new CancelThread(mSelectedVideo);
                     mCancelThread.start();
                     boolean success = mToGo.Download(mSelectedVideo, mCancelThread);
-
                     if (mCancelThread.isAlive()) {
                         mCancelThread.interrupt();
                     }
-
                     if (success) {
                         if (!mCancelThread.cancel()) {
                             synchronized (this) {

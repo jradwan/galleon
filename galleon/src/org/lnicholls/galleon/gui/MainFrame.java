@@ -699,9 +699,9 @@ public class MainFrame extends JFrame {
                 } catch (Exception ex) {
                     Tools.logException(MainFrame.class, ex, "Could not configure server");
                 }
-                JOptionPane.showMessageDialog(this,
-                        "You need to restart Galleon for any changes in the server properties to take effect.",
-                        "Warning", JOptionPane.WARNING_MESSAGE);
+                //JOptionPane.showMessageDialog(this,
+                //        "You need to restart Galleon for any changes in the server properties to take effect.",
+                //        "Warning", JOptionPane.WARNING_MESSAGE);
 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             } else if ("help".equals(e.getActionCommand())) {

@@ -39,9 +39,25 @@ public class TiVoX509TrustManager implements X509TrustManager {
     
     private static String TIVO_ISSUER = "TiVo";
 
-    public TiVoX509TrustManager() throws NoSuchAlgorithmException, KeyStoreException {
+    public TiVoX509TrustManager() throws Exception {
         super();
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
+        TrustManagerFactory trustManagerFactory = null;
+        try
+        {
+            trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                trustManagerFactory = TrustManagerFactory.getInstance("IbmX509");
+            }
+            catch (Exception ex2)
+            {
+                throw ex2;
+            }
+        }
+        
         trustManagerFactory.init((KeyStore) null);
         TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
         if (trustManagers.length == 0) {

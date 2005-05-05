@@ -71,7 +71,7 @@ public class ScrollText extends BView {
      *            the text to be displayed
      */
     public ScrollText(BView parent, int x, int y, int width, int height, String text) {
-        this(parent, x, y, width, height, text, DEFAULT_FONT.deriveFont(Font.PLAIN, 18), true, true); // TODO Configure
+        this(parent, x, y, width, height, text, DEFAULT_FONT==null?null:DEFAULT_FONT.deriveFont(Font.PLAIN, 18), true, true); // TODO Configure
         // font
     }
 
@@ -337,8 +337,16 @@ public class ScrollText extends BView {
     private void calculateText() {
         clear();
 
-        FontMetrics fontMetrics = Tools.getFontMetrics(mFont);
-        mRowHeight = fontMetrics.getHeight();
+        FontMetrics fontMetrics = null;
+        if (mFont!=null)
+        {
+            fontMetrics = Tools.getFontMetrics(mFont);
+            mRowHeight = fontMetrics.getHeight();
+        }
+        else
+        {
+            mRowHeight = 20;
+        }
         mVisibleRows = height / mRowHeight;
 
         String[] lines = Tools.layout(width, fontMetrics, mText);

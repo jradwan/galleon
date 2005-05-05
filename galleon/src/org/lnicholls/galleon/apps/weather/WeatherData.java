@@ -206,8 +206,15 @@ public class WeatherData implements Serializable {
                             + PARTNER_ID + "&key=" + LICENSE_KEY);
                     page = Tools.getPage(url);
                     
-                    Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
-                    Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                    try
+                    {
+                        Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                        Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
+                    }
+                    catch (Exception ex)
+                    {
+                        log.error("Could not cache weather data");
+                    }
                 }
                 else
                 {
@@ -221,8 +228,15 @@ public class WeatherData implements Serializable {
                         + PARTNER_ID + "&key=" + LICENSE_KEY);
                 page = Tools.getPage(url);
                 
-                Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
-                Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                try
+                {
+                    Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                    Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
+                }
+                catch (Exception ex)
+                {
+                    log.error("Could not cache weather data");
+                }
             }
                 
             

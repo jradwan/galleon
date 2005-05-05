@@ -189,6 +189,8 @@ public class ToGo extends DefaultApplication {
                 sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
                 availableText.setValue("Available: " + numberFormat.format(available) + " MB");
             }
+            
+            //setFooter("Press 0 for Sort by Date, 1 Group All, 2 Group Suggestions");  // 0 for Sort by Title, 1 List All, 2 List Suggestions
         }
         
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {

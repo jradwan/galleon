@@ -3,6 +3,12 @@ Galleon
 
 Delete the previous beta before installing this beta.
 
+Version 0.0.0 beta 9:
+---------------------
+Fixed safe viewing area option.
+Installation wizard.
+
+
 Version 0.0.0 beta 8:
 ---------------------
 Added option to control safe viewing area for slideshows.

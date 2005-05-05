@@ -31,6 +31,7 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
@@ -334,23 +335,30 @@ public class Weather extends DefaultApplication {
         }
 
         private void updateText() {
-            temperatureText.setValue(mWeatherData.getCurrentConditions().getTemperature());
-            conditionsText.setValue(mWeatherData.getCurrentConditions().getConditions());
-            icon.setResource(getSkinImage(null, pad(mWeatherData.getCurrentConditions().getIcon())));
-            uvIndexText.setValue(mWeatherData.getCurrentConditions().getUltraVioletIndex() + " "
-                    + mWeatherData.getCurrentConditions().getUltraVioletDescription());
-            if (mWeatherData.getCurrentConditions().getWindDescription().toLowerCase().equals("calm"))
-                windText.setValue(mWeatherData.getCurrentConditions().getWindDescription());
-            else
-                windText.setValue("From " + mWeatherData.getCurrentConditions().getWindDescription() + " at "
-                    + mWeatherData.getCurrentConditions().getWindSpeed() + " " + mWeatherData.getSpeedUnit());
-            humidityText.setValue(mWeatherData.getCurrentConditions().getHumidity() + "%");
-            pressureText.setValue(mWeatherData.getCurrentConditions().getBarometricPressure() + " "
-                    + mWeatherData.getPressureUnit() + ".");
-            dewPointText.setValue(mWeatherData.getCurrentConditions().getDewPoint() + "\u00BA"
-                    + mWeatherData.getTemperatureUnit());
-            visibilityText.setValue(mWeatherData.getCurrentConditions().getVisibility() + " "
-                    + mWeatherData.getDistanceUnit() + ".");
+            try
+            {
+                temperatureText.setValue(mWeatherData.getCurrentConditions().getTemperature());
+                conditionsText.setValue(mWeatherData.getCurrentConditions().getConditions());
+                icon.setResource(getSkinImage(null, pad(mWeatherData.getCurrentConditions().getIcon())));
+                uvIndexText.setValue(mWeatherData.getCurrentConditions().getUltraVioletIndex() + " "
+                        + mWeatherData.getCurrentConditions().getUltraVioletDescription());
+                if (mWeatherData.getCurrentConditions().getWindDescription().toLowerCase().equals("calm"))
+                    windText.setValue(mWeatherData.getCurrentConditions().getWindDescription());
+                else
+                    windText.setValue("From " + mWeatherData.getCurrentConditions().getWindDescription() + " at "
+                        + mWeatherData.getCurrentConditions().getWindSpeed() + " " + mWeatherData.getSpeedUnit());
+                humidityText.setValue(mWeatherData.getCurrentConditions().getHumidity() + "%");
+                pressureText.setValue(mWeatherData.getCurrentConditions().getBarometricPressure() + " "
+                        + mWeatherData.getPressureUnit() + ".");
+                dewPointText.setValue(mWeatherData.getCurrentConditions().getDewPoint() + "\u00BA"
+                        + mWeatherData.getTemperatureUnit());
+                visibilityText.setValue(mWeatherData.getCurrentConditions().getVisibility() + " "
+                        + mWeatherData.getDistanceUnit() + ".");
+            }
+            catch (Exception ex)
+            {
+                Tools.logException(Weather.class, ex);
+            }
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -787,6 +795,7 @@ public class Weather extends DefaultApplication {
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
+            case KEY_LEFT:
             case KEY_SELECT:
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;

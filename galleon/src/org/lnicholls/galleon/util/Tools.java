@@ -380,6 +380,8 @@ public class Tools {
     }
 
     public static Toolkit getDefaultToolkit() {
+        return Toolkit.getDefaultToolkit();
+        /*
         try
         {
             String headless = System.getProperty("java.awt.headless");
@@ -407,6 +409,7 @@ public class Tools {
             }
         }
         return null;
+        */
     }
 
     public static Image getResourceAsImage(Class theClass, String resource) {
@@ -525,10 +528,14 @@ public class Tools {
             for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
                 String word = text.substring(start, end);
                 String trimmed = word.replaceAll(" ", "");
+                int metricsWidth = (line + word).length() * 20;
+                if (metrics!=null)
+                    metricsWidth = metrics.stringWidth(line + word);
+                
                 if (trimmed.equals("\n") || trimmed.equals("\r") || trimmed.equals("\r\n")) {
                     lines.add(line.trim());
                     line = "";
-                } else if (metrics.stringWidth(line + word) > width) {
+                } else if (metricsWidth > width) {
                     lines.add(line.trim());
                     line = word;
                 } else
@@ -742,7 +749,7 @@ public class Tools {
 
                     return image;
                 }
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 Tools.logException(Tools.class, ex, url.toExternalForm());
             }
         }
@@ -791,6 +798,8 @@ public class Tools {
     }
 
     public static BufferedImage createBufferedImage(int width, int height, int imageType) {
+        return new BufferedImage(width, height, imageType);
+        /*
         if (java.awt.GraphicsEnvironment.isHeadless())
             return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
         else
@@ -799,6 +808,7 @@ public class Tools {
         } catch (Throwable ex) {
             return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
         }
+        */
     }
     
     public static BufferedImage getDefaultImage() {
@@ -813,7 +823,8 @@ public class Tools {
       }
       catch (Throwable th)
       {
-          return new com.eteks.awt.PJAImage (producer);
+          //return new com.eteks.awt.PJAImage (producer);
+          return null;
       }
     }
 }

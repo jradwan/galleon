@@ -1889,14 +1889,6 @@ public class MusicOrganizer extends DefaultApplication {
                     .getConfiguration();
 
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-            String skin = null;
-            if (musicPlayerConfiguration == null || musicPlayerConfiguration.getSkin() == null) {
-                List skins = Server.getServer().getWinampSkins();
-                skin = ((File) skins.get(0)).getAbsolutePath();
-            } else
-                skin = musicPlayerConfiguration.getSkin();
-            mClassicSkin = new ClassicSkin(skin);
-
             Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
@@ -1942,8 +1934,6 @@ public class MusicOrganizer extends DefaultApplication {
     private String escape(String value) {
         return value.replaceAll("'", "''");
     }
-
-    private static ClassicSkin mClassicSkin;
 
     private static MediaRefreshThread mMediaRefreshThread;
 

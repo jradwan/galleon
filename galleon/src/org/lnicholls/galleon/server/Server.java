@@ -17,7 +17,6 @@ package org.lnicholls.galleon.server;
  */
 
 import java.awt.Font;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.InetAddress;
@@ -35,8 +34,6 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.sf.hibernate.HibernateException;
-
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
@@ -48,12 +45,14 @@ import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
+import org.lnicholls.galleon.skin.Skin;
 import org.lnicholls.galleon.togo.DownloadThread;
 import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.skin.Skin;
+
+import org.tanukisoftware.wrapper.WrapperManager;
 
 /*
  * Main class. Called by service wrapper to initialise and start Galleon.
@@ -65,7 +64,7 @@ public class Server {
 
         try {
             System.out.println("Galleon is starting...");
-            
+
             ArrayList errors = new ArrayList();
             setup(errors);
 
@@ -78,9 +77,6 @@ public class Server {
 
             Thread.currentThread().setContextClassLoader(mAppClassLoader);
 
-            mRegistry = LocateRegistry.createRegistry(1099);
-            mRegistry.bind("serverControl", new ServerControlImpl());
-
             mServerConfiguration = new ServerConfiguration();
 
             // Log the system properties
@@ -90,6 +86,8 @@ public class Server {
             // Redirect standard out; some third-party libraries use this for error logging
             // TODO
             //Tools.redirectStandardStreams();
+
+            preLoadFonts();
 
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
@@ -121,7 +119,7 @@ public class Server {
                 errors.add("Invalid system propery: conf=" + System.getProperty("conf"));
 
             if (System.getProperty("cache") == null)
-                System.setProperty("cache", file.getAbsolutePath() + "/../conf");
+                System.setProperty("cache", file.getAbsolutePath() + "/../data");
 
             check = new File(System.getProperty("cache"));
             if (!check.exists() || !check.isDirectory())
@@ -140,20 +138,20 @@ public class Server {
             check = new File(System.getProperty("apps"));
             if (!check.exists() || !check.isDirectory())
                 errors.add("Invalid system propery: apps=" + System.getProperty("apps"));
-            
+
             if (System.getProperty("hme") == null)
                 System.setProperty("hme", file.getAbsolutePath() + "/../hme");
 
             check = new File(System.getProperty("hme"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: hme=" + System.getProperty("hme"));            
-            
+                errors.add("Invalid system propery: hme=" + System.getProperty("hme"));
+
             if (System.getProperty("skins") == null)
                 System.setProperty("skins", file.getAbsolutePath() + "/../skins");
 
             check = new File(System.getProperty("skins"));
             if (!check.exists() || !check.isDirectory())
-                errors.add("Invalid system propery: skins=" + System.getProperty("skins"));            
+                errors.add("Invalid system propery: skins=" + System.getProperty("skins"));
 
             if (System.getProperty("logs") == null)
                 System.setProperty("logs", file.getAbsolutePath() + "/../logs");
@@ -217,15 +215,13 @@ public class Server {
             // Read the conf/configure.xml file
             mConfigurator = new Configurator();
             mConfigurator.load(mAppManager);
-            
-            mTiVoListener = new TiVoListener();            
+
+            mTiVoListener = new TiVoListener();
 
             mAppManager.loadApps();
 
             // Create a port listener
             //findAvailablePort();
-
-            preLoadFonts();
 
             //mAppManager.startPlugins();
 
@@ -245,6 +241,9 @@ public class Server {
                 mDownloadThread = null;
             }
             
+            mRegistry = LocateRegistry.createRegistry(1099);
+            mRegistry.bind("serverControl", new ServerControlImpl());
+
             System.out.println("Galleon is ready.");
 
         } catch (Exception ex) {
@@ -262,6 +261,8 @@ public class Server {
             /*
              * if (mPluginManager != null) { mPluginManager.destroyAllPlugins(); mPluginManager = null; }
              */
+            
+            mRegistry.unbind("serverControl");
 
             if (mToGoThread != null) {
                 mToGoThread.interrupt();
@@ -409,28 +410,24 @@ public class Server {
     }
 
     public Skin getSkin() {
-        if (mSkin == null || !mSkin.getPath().equals(mServerConfiguration.getSkin()))
-        {
+        if (mSkin == null || !mSkin.getPath().equals(mServerConfiguration.getSkin())) {
             String skin = null;
-            if (mServerConfiguration.getSkin().length()==0)
-            {
-                try
-                {
-                    File file = (File)getSkins().get(0);
+            if (mServerConfiguration.getSkin().length() == 0) {
+                try {
+                    File file = (File) getSkins().get(0);
                     skin = file.getCanonicalPath();
+                } catch (Exception ex) {
                 }
-                catch (Exception ex) {}
-            }
-            else
+            } else
                 skin = mServerConfiguration.getSkin();
-            if (skin!=null)
+            if (skin != null)
                 mSkin = new Skin(skin);
             else
                 log.error("No skin configured.");
         }
         return mSkin;
     }
-    
+
     public String getVersion() {
         return mServerConfiguration.getVersion();
     }
@@ -556,6 +553,12 @@ public class Server {
     }
 
     public void updateServerConfiguration(ServerConfiguration serverConfiguration) {
+        boolean needRestart = false;
+        if ((mServerConfiguration.getIPAddress()==null && serverConfiguration.getIPAddress()!=null) || 
+                (mServerConfiguration.getIPAddress()!=null && serverConfiguration.getIPAddress()==null) ||
+                !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress()) ||
+                mServerConfiguration.getPort() != serverConfiguration.getPort())
+            needRestart = true;
         mServerConfiguration = serverConfiguration;
         /*
          * try { PropertyUtils.copyProperties(mServerConfiguration, serverConfiguration); } catch (Exception ex) {
@@ -563,6 +566,16 @@ public class Server {
          */
         save();
         //mToGoThread.interrupt();
+        if (!mStartMain && needRestart)
+        {
+            log.info("Restarting for server configuration change");
+            new Thread(){
+                public void run()
+                {
+                    WrapperManager.restart();        
+                }
+            }.start();
+        }
     }
 
     public List getAppDescriptors() {
@@ -597,7 +610,7 @@ public class Server {
     public void updateVideo(Video video) {
         try {
             VideoManager.updateVideo(video);
-        } catch (HibernateException ex) {
+        } catch (Exception ex) {
             log.error("Video update failed", ex);
         }
         mDownloadThread.updateVideo(video);
@@ -606,7 +619,7 @@ public class Server {
     public void removeVideo(Video video) {
         try {
             VideoManager.deleteVideo(video);
-        } catch (HibernateException ex) {
+        } catch (Exception ex) {
             log.error("Video delete failed", ex);
         }
     }
@@ -638,7 +651,7 @@ public class Server {
 
         return new ArrayList();
     }
-    
+
     public List getSkins() {
         File skinsDirectory = new File(System.getProperty("skins"));
         if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden()) {
@@ -671,7 +684,7 @@ public class Server {
                 // should never happen
             }
         }
-        
+
         directory = new File(System.getProperty("hme"));
         // TODO Handle reloading; what if list changes?
         files = directory.listFiles(new FileFilter() {
@@ -687,17 +700,17 @@ public class Server {
             } catch (Exception ex) {
                 // should never happen
             }
-        }        
+        }
 
         mAppClassLoader = new URLClassLoader((URL[]) urls.toArray(new URL[0]));
     }
-    
-    public MusicPlayerConfiguration getMusicPlayerConfiguration()
-    {
+
+    public MusicPlayerConfiguration getMusicPlayerConfiguration() {
         return mServerConfiguration.getMusicPlayerConfiguration();
     }
 
     public static void main(String args[]) {
+        mStartMain = true;
         Server server = getServer();
     }
 
@@ -726,6 +739,8 @@ public class Server {
     private static TiVoListener mTiVoListener;
 
     private static URLClassLoader mAppClassLoader;
-    
+
     private static Skin mSkin;
+    
+    private static boolean mStartMain;
 }

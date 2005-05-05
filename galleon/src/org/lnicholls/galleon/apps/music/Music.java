@@ -1028,15 +1028,6 @@ public class Music extends DefaultApplication {
             MusicConfiguration musicConfiguration = (MusicConfiguration) getAppContext().getConfiguration();
 
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-            String skin = null;
-            if (musicPlayerConfiguration == null || musicPlayerConfiguration.getSkin() == null) {
-                List skins = Server.getServer().getWinampSkins();
-                skin = ((File) skins.get(0)).getAbsolutePath();
-            } else
-                skin = musicPlayerConfiguration.getSkin();
-            mClassicSkin = new ClassicSkin(skin);
         }
     }
-
-    private static ClassicSkin mClassicSkin;
 }

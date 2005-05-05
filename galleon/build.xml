@@ -73,6 +73,8 @@
         <echo message="log path    : ${logs}" />
         <echo message="apps path    : ${apps}" />        
         <echo message="data path    : ${data}" />                
+        <echo message="hme path    : ${hme}" />                  
+        <echo message="skins path    : ${skins}" />                                
 
         <filter token="lib" value="${lib}" />
         <filter token="win32comment" value="${win32comment}" />
@@ -88,6 +90,8 @@
         <filter token="bin" value="${bin}" />
         <filter token="data" value="${data}" />        
         <filter token="apps" value="${apps}" />        
+        <filter token="hme" value="${hme}" />                
+        <filter token="skins" value="${skins}" />                
 
         <property name="filtering" value="no" />
 
@@ -401,172 +405,6 @@
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
         
-<!--
-        <echo>Creating plugins</echo>
-        <jar jarfile="${build}/plugins/test.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/test/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/test" excludes="*.java" />
-            <fileset dir="./media/images" includes="testicon.gif" />            
-        </jar>
-        <copy file="${build}/plugins/test.jar" tofile="./plugins/test.jar" />        
-
-        <jar jarfile="${build}/plugins/movies.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/movies/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/movies" excludes="*.java" />
-            <fileset dir="./media/images" includes="moviesicon.gif" />                        
-            <fileset dir="./media/images" includes="cinemabackground.jpg" />                        
-        </jar>
-        <copy file="${build}/plugins/movies.jar" tofile="./plugins/movies.jar" />
-
-        <jar jarfile="${build}/plugins/weather.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/weather/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/weather" excludes="*.java" />
-            <fileset dir="./media/images" includes="weathericon.gif" />                        
-            <fileset dir="./media/images" includes="weatherbackground.jpg" />                        
-            <fileset dir="./media/images" includes="cloudy.png" />
-            <fileset dir="./media/images" includes="fair.png" />
-            <fileset dir="./media/images" includes="flurries.png" />
-            <fileset dir="./media/images" includes="fog.png" />
-            <fileset dir="./media/images" includes="lshowers.png" />
-            <fileset dir="./media/images" includes="mcloudy.png" />
-            <fileset dir="./media/images" includes="pcloudy.png" />
-            <fileset dir="./media/images" includes="rainsnow.png" />
-            <fileset dir="./media/images" includes="showers.png" />
-            <fileset dir="./media/images" includes="snowshow.png" />
-            <fileset dir="./media/images" includes="sunny.png" />
-            <fileset dir="./media/images" includes="thunshowers.png" />
-            <fileset dir="./media/images" includes="unknown.png" />
-            <fileset dir="./conf" includes="weathertypes.dat" />            
-        </jar>
-        <copy file="${build}/plugins/weather.jar" tofile="./plugins/weather.jar" />
-
-        <jar jarfile="${build}/plugins/music.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/music/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/music" excludes="*.java" />
-            <fileset dir="./media/images" includes="musicicon.gif" />                        
-        </jar>
-        <copy file="${build}/plugins/music.jar" tofile="./plugins/music.jar" />
-
-        <jar jarfile="${build}/plugins/images.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/images/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/images" excludes="*.java" />
-            <fileset dir="./media/images" includes="imagesicon.gif" />            
-        </jar>
-        <copy file="${build}/plugins/images.jar" tofile="./plugins/images.jar" />
-
-        <jar jarfile="${build}/plugins/desktop.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/desktop/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/desktop" excludes="*.java" />
-            <fileset dir="./media/images" includes="desktopicon.gif" />                                    
-        </jar>
-        <copy file="${build}/plugins/desktop.jar" tofile="./plugins/desktop.jar" />
-
-
-        <jar jarfile="${build}/plugins/gallery.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/gallery/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/gallery" excludes="*.java" />
-            <fileset dir="./media/images" includes="galleryicon.gif" />
-        </jar>
-
-
-        <jar jarfile="${build}/plugins/organizer.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/organizer/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/organizer" excludes="*.java" />
-            <fileset dir="./media/images" includes="organizericon.gif" />            
-        </jar>
-        <copy file="${build}/plugins/organizer.jar" tofile="./plugins/organizer.jar" />
-
-        <jar jarfile="${build}/plugins/games.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/games/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/games" excludes="*.java" />
-            <fileset dir="./media/images" includes="gamesicon.gif" />                        
-            <fileset dir="./media/images" includes="cross.gif" />                                    
-            <fileset dir="./media/images" includes="not.gif" />
-            <fileset dir="./media/images" includes="next.gif" />
-        </jar>
-        <copy file="${build}/plugins/games.jar" tofile="./plugins/games.jar" />
-
-        <jar jarfile="${build}/plugins/internet.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/internet/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/internet" excludes="*.java" />
-            <fileset dir="./media/images" includes="interneticon.gif" />
-        </jar>
-        <copy file="${build}/plugins/internet.jar" tofile="./plugins/internet.jar" />
-
-        <jar jarfile="${build}/plugins/playlists.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/playlists/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/playlists" excludes="*.java" />
-            <fileset dir="./media/images" includes="playlistsicon.gif" />            
-        </jar>
-        <copy file="${build}/plugins/playlists.jar" tofile="./plugins/playlists.jar" />
-
-        <jar jarfile="${build}/plugins/shoutcast.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/shoutcast/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/shoutcast" excludes="*.java" />
-            <fileset dir="./media/images" includes="shoutcasticon.gif" />                        
-        </jar>
-        <copy file="${build}/plugins/shoutcast.jar" tofile="./plugins/shoutcast.jar" />
-
-        <jar jarfile="${build}/plugins/rss.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/rss/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/rss" excludes="*.java" />
-            <fileset dir="./media/images" includes="rssbackground.jpg" />
-            <fileset dir="./media/images" includes="rssicon.gif" />                                    
-        </jar>
-        <copy file="${build}/plugins/rss.jar" tofile="./plugins/rss.jar" />
-
-        <jar jarfile="${build}/plugins/web.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/web/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/web" excludes="*.java" />
-            <fileset dir="./media/images" includes="webicon.gif" />                                                
-        </jar>
-        <copy file="${build}/plugins/web.jar" tofile="./plugins/web.jar" />
-
-        <jar jarfile="${build}/plugins/iTunes.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/iTunes/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/iTunes" excludes="*.java" />
-            <fileset dir="./media/images" includes="itunesicon.gif" />                                                            
-        </jar>
-        <copy file="${build}/plugins/iTunes.jar" tofile="./plugins/iTunes.jar" />
-
-        <jar jarfile="${build}/plugins/email.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/email/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/email" excludes="*.java" />
-            <fileset dir="./media/images" includes="emailbackground.jpg" />
-            <fileset dir="./media/images" includes="emailicon.gif" />                                                                        
-        </jar>
-        <copy file="${build}/plugins/email.jar" tofile="./plugins/email.jar" />
-
-        <jar jarfile="${build}/plugins/nntp.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/nntp/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/nntp" excludes="*.java" />
-            <fileset dir="./media/images" includes="nntpicon.gif" />                                                                                    
-        </jar>
-        <copy file="${build}/plugins/nntp.jar" tofile="./plugins/nntp.jar" />
-
-        <jar jarfile="${build}/plugins/jukebox.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/jukebox/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/jukebox" excludes="*.java" />
-            <fileset dir="./media/images" includes="jukeboxicon.gif" />                                                                                                
-        </jar>
-        <copy file="${build}/plugins/jukebox.jar" tofile="./plugins/jukebox.jar" />
-
-        <jar jarfile="${build}/plugins/imageOrganizer.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/imageOrganizer/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/imageOrganizer" excludes="*.java" />
-            <fileset dir="./media/images" includes="imageorganizericon.gif" />                                                                                                            
-        </jar>
-        <copy file="${build}/plugins/imageOrganizer.jar" tofile="./plugins/imageOrganizer.jar" />
-
-        <jar jarfile="${build}/plugins/stocks.jar" compress="yes">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/plugins/stocks/**" />
-            <fileset dir="./src/org/lnicholls/galleon/plugins/stocks" excludes="*.java" />
-            <fileset dir="./media/images" includes="stocksicon.gif" />                                                                                                            
-            <fileset dir="./media/images" includes="stocksbackground.jpg" />            
-        </jar>
-        <copy file="${build}/plugins/stocks.jar" tofile="./plugins/stocks.jar" />
-        
--->                
 
         <delete dir="${build}/org" />
 
@@ -739,9 +577,9 @@
 
     <target name="package-bin-win32">
         <echo>Copying executables</echo>
-        <!--copy file="./bin/win32/Wrapper.exe" tofile="${build}/bin/Wrapper.exe" />
+        <copy file="./bin/win32/Wrapper.exe" tofile="${build}/bin/Wrapper.exe" />
         <copy file="./bin/win32/install.cmd" tofile="${build}/bin/install.cmd" />
-        <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" /-->
+        <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" />
         <copy file="./bin/win32/run.cmd" tofile="${build}/bin/run.cmd" />
         <copy file="./bin/win32/gui.cmd" tofile="${build}/bin/gui.cmd" />        
     </target>
@@ -902,5 +740,6 @@
 
     </target>
 </project>
+
 
 

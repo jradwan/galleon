@@ -289,14 +289,26 @@ public class RSS extends DefaultApplication {
                     
                     if (last !=null)
                     {
-                        Date lastTime = new Date(last);
+                        Date lastTime = new Date();
+                        try
+                        {
+                            lastTime = new Date(last);
+                        }
+                        catch (Exception ex) {}
                         Date current = new Date();
                         if ((current.getTime()-lastTime.getTime())/(1000*60) > time)
                         {
                             content = Tools.getPage(new URL(nameValue.getValue()));
                             
-                            Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date", new Date().toString());
-                            Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content);
+                            try
+                            {
+                                Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content);
+                                Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date", new Date().toString());
+                            }
+                            catch (Exception ex)
+                            {
+                                log.error("Could not cache feed " + nameValue.getValue());
+                            }
                         }
                         else
                         {
@@ -307,8 +319,15 @@ public class RSS extends DefaultApplication {
                     {
                         content = Tools.getPage(new URL(nameValue.getValue()));
                         
-                        Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date", new Date().toString());
-                        Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content);
+                        try
+                        {
+                            Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content);
+                            Tools.savePersistentValue(this.getClass().getName() + "." + nameValue.getValue() + "." + "date", new Date().toString());
+                        }
+                        catch (Exception ex)
+                        {
+                            log.error("Could not cache feed " + nameValue.getValue());
+                        }
                     }
                     
                     if (content!=null)

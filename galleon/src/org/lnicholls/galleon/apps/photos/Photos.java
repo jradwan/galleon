@@ -822,7 +822,7 @@ public class Photos extends DefaultApplication {
             PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                     .getAppContext().getConfiguration();
             if (imagesConfiguration.isUseSafe())
-                mPhoto = new View(below, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT);
+                mPhoto = new View(below, SAFE_ACTION_H, SAFE_ACTION_V, width - 2*SAFE_ACTION_H, height - 2*SAFE_ACTION_V);
             else
                 mPhoto = new View(below, 0, 0, width, height);
         }

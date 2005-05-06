@@ -6,8 +6,8 @@ Delete the previous beta before installing this beta.
 Version 0.0.0 beta 9:
 ---------------------
 Fixed safe viewing area option.
-Installation wizard.
-
+Installation wizard for windows.
+Mac installation packages.
 
 Version 0.0.0 beta 8:
 ---------------------
@@ -102,7 +102,7 @@ Known issues:
 1. The server needs to be running for the configuration GUI to work.
 2. Most JavaHMO plugins have not been ported to Galleon yet.
 3. HME apps are deployed in the Galleon apps directory. 
-4. Galleon requires JDK 1.5
+4. Galleon requires JDK 1.4
 5. Sections of code have been commented out until all of the JavaHMO code is ported.
 6. Weather errors arent handled properly.
 7. Weather web links need parameters.

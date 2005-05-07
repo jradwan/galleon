@@ -50,9 +50,7 @@ import org.lnicholls.galleon.togo.DownloadThread;
 import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.JavaHMO;
 import org.lnicholls.galleon.widget.ScrollText;
-
 import org.tanukisoftware.wrapper.WrapperManager;
 
 /*
@@ -241,17 +239,16 @@ public class Server {
                 mToGoThread = null;
                 mDownloadThread = null;
             }
-            
-            try
-            {
+
+            try {
                 // Is there already a RMI server?
                 mRegistry = LocateRegistry.getRegistry();
+            } catch (Exception ex) {
             }
-            catch (Exception ex) {}
-            
+
             if (mRegistry == null)
                 mRegistry = LocateRegistry.createRegistry(1099);
-            
+
             mRegistry.bind("serverControl", new ServerControlImpl());
 
             System.out.println("Galleon is ready.");
@@ -271,7 +268,7 @@ public class Server {
             /*
              * if (mPluginManager != null) { mPluginManager.destroyAllPlugins(); mPluginManager = null; }
              */
-            
+
             mRegistry.unbind("serverControl");
 
             if (mToGoThread != null) {
@@ -564,10 +561,10 @@ public class Server {
 
     public void updateServerConfiguration(ServerConfiguration serverConfiguration) {
         boolean needRestart = false;
-        if ((mServerConfiguration.getIPAddress()==null && serverConfiguration.getIPAddress()!=null) || 
-                (mServerConfiguration.getIPAddress()!=null && serverConfiguration.getIPAddress()==null) ||
-                !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress()) ||
-                mServerConfiguration.getPort() != serverConfiguration.getPort())
+        if ((mServerConfiguration.getIPAddress() == null && serverConfiguration.getIPAddress() != null)
+                || (mServerConfiguration.getIPAddress() != null && serverConfiguration.getIPAddress() == null)
+                || !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress())
+                || mServerConfiguration.getPort() != serverConfiguration.getPort())
             needRestart = true;
         mServerConfiguration = serverConfiguration;
         /*
@@ -576,13 +573,11 @@ public class Server {
          */
         save();
         //mToGoThread.interrupt();
-        if (!mStartMain && needRestart)
-        {
+        if (!mStartMain && needRestart) {
             log.info("Restarting for server configuration change");
-            new Thread(){
-                public void run()
-                {
-                    WrapperManager.restart();        
+            new Thread() {
+                public void run() {
+                    WrapperManager.restart();
                 }
             }.start();
         }
@@ -751,6 +746,6 @@ public class Server {
     private static URLClassLoader mAppClassLoader;
 
     private static Skin mSkin;
-    
+
     private static boolean mStartMain;
 }

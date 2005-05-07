@@ -50,6 +50,7 @@ import org.lnicholls.galleon.togo.DownloadThread;
 import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.JavaHMO;
 import org.lnicholls.galleon.widget.ScrollText;
 
 import org.tanukisoftware.wrapper.WrapperManager;
@@ -241,7 +242,16 @@ public class Server {
                 mDownloadThread = null;
             }
             
-            mRegistry = LocateRegistry.createRegistry(1099);
+            try
+            {
+                // Is there already a RMI server?
+                mRegistry = LocateRegistry.getRegistry();
+            }
+            catch (Exception ex) {}
+            
+            if (mRegistry == null)
+                mRegistry = LocateRegistry.createRegistry(1099);
+            
             mRegistry.bind("serverControl", new ServerControlImpl());
 
             System.out.println("Galleon is ready.");

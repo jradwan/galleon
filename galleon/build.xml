@@ -599,7 +599,7 @@
 
     <target name="package-bin-osx">
         <echo>Copying executables</echo>
-        <copy file="./bin/osx/galleonctl" tofile="${build}/bin/galleonctl" />
+        <copy file="./bin/osx/galleon" tofile="${build}/bin/galleon" />
         <copy file="./bin/osx/realpath" tofile="${build}/bin/realpath" />
         <copy file="./bin/osx/wrapper" tofile="${build}/bin/wrapper" />
         <echo>Fixing permissions</echo>

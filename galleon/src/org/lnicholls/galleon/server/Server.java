@@ -242,12 +242,11 @@ public class Server {
 
             try {
                 // Is there already a RMI server?
-                mRegistry = LocateRegistry.getRegistry();
+                mRegistry = LocateRegistry.getRegistry(1099);
+                String[] names = mRegistry.list();
             } catch (Exception ex) {
-            }
-
-            if (mRegistry == null)
                 mRegistry = LocateRegistry.createRegistry(1099);
+            }
 
             mRegistry.bind("serverControl", new ServerControlImpl());
 

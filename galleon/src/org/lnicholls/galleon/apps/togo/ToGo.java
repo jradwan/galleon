@@ -362,8 +362,8 @@ public class ToGo extends DefaultApplication {
         }
 
         private void updateText() {
-            setPainting(false);
             try {
+                setPainting(false);
                 int location = 40;
                 Video video = getVideo();
                 if (icon.resource != null)
@@ -480,8 +480,8 @@ public class ToGo extends DefaultApplication {
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mUpdateThread != null && mUpdateThread.isAlive())
                     mUpdateThread.interrupt();
             } finally {
@@ -522,8 +522,8 @@ public class ToGo extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mUpdateThread != null && mUpdateThread.isAlive())
                     mUpdateThread.interrupt();
             } finally {

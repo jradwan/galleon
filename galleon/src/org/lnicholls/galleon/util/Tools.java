@@ -70,6 +70,7 @@ import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Thumbnail;
 import org.lnicholls.galleon.database.ThumbnailManager;
 import org.lnicholls.galleon.server.Constants;
+import org.lnicholls.galleon.media.ImageManipulator;
 
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
@@ -299,6 +300,9 @@ public class Tools {
         StringBuffer buffer = new StringBuffer(value.length());
         synchronized (buffer) {
             for (int i = 0; i < value.length(); i++) {
+                if (value.charAt(i)=='’')
+                    buffer.append("'");
+                else
                 if (!Character.isISOControl(value.charAt(i)))
                     buffer.append(value.charAt(i));
             }
@@ -641,48 +645,52 @@ public class Tools {
 
     public static void cacheImage(URL url, int width, int height, String key) {
         if (url != null) {
-            BufferedImage image = getImage(url, width, height);
+            Image image = getImage(url, width, height);
             if (key == null)
                 key = url.toExternalForm();
             cacheImage(image, width, height, key);
         }
     }
 
-    public static void cacheImage(BufferedImage image, int width, int height, String key) {
+    public static void cacheImage(Image image, int width, int height, String key) {
         if (image != null) {
             try {
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
-                encoder.encode(image);
-                byteArrayOutputStream.close();
-
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
-                        .toByteArray());
-
-                BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-
-                Thumbnail thumbnail = null;
-                try {
-                    List list = ThumbnailManager.findByKey(key);
-                    if (list != null && list.size() > 0)
-                        thumbnail = (Thumbnail) list.get(0);
-                } catch (HibernateException ex) {
-                    log.error("Thumbnail create failed", ex);
-                }
-
-                try {
-                    if (thumbnail == null) {
-                        thumbnail = new Thumbnail("Cached", "jpg", key);
-                        thumbnail.setImage(blob);
-                        thumbnail.setDateModified(new Date());
-                        ThumbnailManager.createThumbnail(thumbnail);
-                    } else {
-                        thumbnail.setImage(blob);
-                        thumbnail.setDateModified(new Date());
-                        ThumbnailManager.updateThumbnail(thumbnail);
+                // TODO What if not bufferedimage??
+                if (image instanceof BufferedImage)
+                {
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                    encoder.encode((BufferedImage)image);
+                    byteArrayOutputStream.close();
+    
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
+                            .toByteArray());
+    
+                    BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+    
+                    Thumbnail thumbnail = null;
+                    try {
+                        List list = ThumbnailManager.findByKey(key);
+                        if (list != null && list.size() > 0)
+                            thumbnail = (Thumbnail) list.get(0);
+                    } catch (HibernateException ex) {
+                        log.error("Thumbnail create failed", ex);
                     }
-                } catch (HibernateException ex) {
-                    log.error("Thumbnail create failed", ex);
+    
+                    try {
+                        if (thumbnail == null) {
+                            thumbnail = new Thumbnail("Cached", "jpg", key);
+                            thumbnail.setImage(blob);
+                            thumbnail.setDateModified(new Date());
+                            ThumbnailManager.createThumbnail(thumbnail);
+                        } else {
+                            thumbnail.setImage(blob);
+                            thumbnail.setDateModified(new Date());
+                            ThumbnailManager.updateThumbnail(thumbnail);
+                        }
+                    } catch (HibernateException ex) {
+                        log.error("Thumbnail create failed", ex);
+                    }
                 }
                 image.flush();
                 image = null;
@@ -707,7 +715,7 @@ public class Tools {
         return null;
     }
 
-    public static BufferedImage getImage(URL url, int width, int height) {
+    public static Image getImage(URL url, int width, int height) {
         if (url != null) {
             try {
                 Image internetImage = null;
@@ -737,13 +745,28 @@ public class Tools {
                     if (height == -1)
                         height = internetImage.getHeight(null);
 
-                    BufferedImage image = createBufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                    Graphics2D graphics2D = image.createGraphics();
-                    graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    graphics2D.drawImage(internetImage, 0, 0, width, height, null);
-                    graphics2D.dispose();
-                    graphics2D = null;
+                    Image image = null;
+                    if (internetImage instanceof BufferedImage)
+                    {
+                        image = ImageManipulator.getScaledImage((BufferedImage)internetImage, width, height);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            image = createBufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                            Graphics2D graphics2D = ((BufferedImage)image).createGraphics();
+                            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                            graphics2D.drawImage(internetImage, 0, 0, width, height, null);
+                            graphics2D.dispose();
+                            graphics2D = null;
+                        }
+                        catch (Throwable ex)
+                        {
+                            image = internetImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                        }
+                    }
                     internetImage.flush();
                     internetImage = null;
 
@@ -759,12 +782,63 @@ public class Tools {
     public static void savePersistentValue(String name, String value) {
         try {
             PersistentValue persistentValue = PersistentValueManager.findByName(name);
-            if (persistentValue == null) {
+            if (persistentValue != null) {
+                PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
+                if (persistentValueCount!=null)
+                {
+                    try
+                    {
+                        PersistentValueManager.deletePersistentValue(persistentValue);
+                        
+                        int counter = Integer.parseInt(persistentValueCount.getValue());
+                        for (int i=2;i<=counter;i++)
+                        {
+                            persistentValue = PersistentValueManager.findByName(name+"."+i);
+                            if (persistentValue!=null)
+                                PersistentValueManager.deletePersistentValue(persistentValue);
+                        }
+                        
+                        PersistentValueManager.deletePersistentValue(persistentValueCount);
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.logException(Tools.class, ex, name);        
+                    }
+                }
+                else
+                {
+                    PersistentValueManager.deletePersistentValue(persistentValue);    
+                }
+            }
+            
+            if (value.length()<=32672)
+            {
                 persistentValue = new PersistentValue(name, value);
                 PersistentValueManager.createPersistentValue(persistentValue);
-            } else {
-                persistentValue.setValue(value);
-                PersistentValueManager.updatePersistentValue(persistentValue);
+            }
+            else
+            {
+                int counter = 0;
+                int start = 0;
+                int end = start+32672;
+                String sub = value.substring(start,end);
+                while (sub.length()>0)
+                {
+                    String postfix = "";
+                    if (++counter>1)
+                        postfix = "."+counter;
+                    
+                    persistentValue = new PersistentValue(name+postfix, sub);
+                    PersistentValueManager.createPersistentValue(persistentValue);
+                
+                    start = end;
+                    end = start+32672;
+                    if (end>value.length())
+                        end = value.length();
+                    sub = value.substring(start, end);
+                }
+                persistentValue = new PersistentValue(name+".count", String.valueOf(counter));
+                PersistentValueManager.createPersistentValue(persistentValue);
             }
         } catch (HibernateException ex) {
             log.error("PersistentValue create failed", ex);
@@ -773,7 +847,33 @@ public class Tools {
 
     public static String loadPersistentValue(String name) {
         try {
-            return PersistentValueManager.findValueByName(name);
+            PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
+            if (persistentValueCount!=null)
+            {
+                try
+                {
+                    StringBuffer buffer = new StringBuffer();
+                    PersistentValue persistentValue = PersistentValueManager.findByName(name);
+                    if (persistentValue!=null)
+                    {
+                        buffer.append(persistentValue.getValue());
+                        int counter = Integer.parseInt(persistentValueCount.getValue());
+                        for (int i=2;i<=counter;i++)
+                        {
+                            persistentValue = PersistentValueManager.findByName(name+"."+i);
+                            if (persistentValue!=null)
+                                buffer.append(persistentValue.getValue());
+                        }
+                    }
+                    return buffer.toString();
+                }
+                catch (Exception ex)
+                {
+                    Tools.logException(Tools.class, ex, name);        
+                }
+            }
+            else
+                return PersistentValueManager.findValueByName(name);
         } catch (HibernateException ex) {
             log.error("PersistentValue retrieve failed", ex);
         } catch (Exception ex) {
@@ -793,7 +893,7 @@ public class Tools {
 
     public static String trim(String value, int max) {
         if (value != null && value.length() > max)
-            return value.substring(0, max - 3) + "...";
+            return clean(value).substring(0, max - 3) + "...";
         return value;
     }
 

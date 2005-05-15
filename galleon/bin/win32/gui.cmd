@@ -7,6 +7,7 @@ set oldclasspath=%classpath%
 set classpath=..\build
 set classpath=%classpath%;..\conf
 set classpath=%classpath%;..\lib\galleon.jar
+set classpath=%classpath%;..\lib\widgets.jar
 set classpath=%classpath%;..\lib\commons.jar
 set classpath=%classpath%;..\lib\derby.jar
 set classpath=%classpath%;..\lib\dom4j.jar

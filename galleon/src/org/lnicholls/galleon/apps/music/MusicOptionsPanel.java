@@ -16,51 +16,26 @@ package org.lnicholls.galleon.apps.music;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.*;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
-import javax.swing.event.*;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.gui.FileOptionsTable;
-import org.lnicholls.galleon.gui.Galleon;
 import org.lnicholls.galleon.util.NameValue;
-import org.lnicholls.galleon.util.Tools;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import edu.stanford.ejalbert.BrowserLauncher;
-
 public class MusicOptionsPanel extends AppConfigurationPanel {
     private static Logger log = Logger.getLogger(MusicOptionsPanel.class.getName());
-
-    class SkinWrapper extends NameValue {
-        public SkinWrapper(String name, String value) {
-            super(name, value);
-        }
-
-        public String toString() {
-            return getName();
-        }
-    }
 
     public MusicOptionsPanel(AppConfiguration appConfiguration) {
         super(appConfiguration);
@@ -68,14 +43,11 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
 
         MusicConfiguration musicConfiguration = (MusicConfiguration) appConfiguration;
 
-        List skins = Galleon.getWinampSkins();
-
         mTitleField = new JTextField(musicConfiguration.getName());
 
-        FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                "pref, " + // general
+        FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, pref, " + // title
-                "9dlu, pref, " +  // directories
+                "9dlu, pref, " + // directories
                 "9dlu, pref");
 
         PanelBuilder builder = new PanelBuilder(layout);

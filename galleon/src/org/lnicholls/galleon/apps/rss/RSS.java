@@ -107,7 +107,7 @@ public class RSS extends DefaultApplication {
             for (int i = 0; i < feedArray.length; i++) {
                 NameValue nameValue = (NameValue) feedArray[i];
                 List stories = (List) ((RSSFactory) context.factory).mChannels.get(nameValue.getValue());
-                if (stories != null && stories.size() > 0)
+                if (stories != null)
                     mMenuList.add(nameValue);
             }
         }

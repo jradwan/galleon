@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
@@ -172,13 +173,17 @@ public class DefaultApplication extends BApplication {
         }
 
         public int getNextPos() {
-            if (++mPos > (mList.size() - 1))
+            if (mRandom) {
+                mPos = getRandomPos();
+            } else if (++mPos > (mList.size() - 1))
                 mPos = 0;
             return mPos;
         }
 
         public int getPrevPos() {
-            if (--mPos < 0)
+            if (mRandom) {
+                mPos = getRandomPos();
+            } else if (--mPos < 0)
                 mPos = mList.size() - 1;
             return mPos;
         }
@@ -191,9 +196,36 @@ public class DefaultApplication extends BApplication {
             return mList;
         }
 
+        public boolean isRandom() {
+            return mRandom;
+        }
+
+        public void setRandom(boolean value) {
+            mRandom = value;
+            mRandomizer = new Random();
+
+            mPos = getRandomPos();
+        }
+
+        private int getRandomPos() {
+            if (mList.size()>1)
+            {
+                int pos = mRandomizer.nextInt(mList.size());
+                while (pos==mPos)
+                    pos = mRandomizer.nextInt(mList.size());
+                return pos;
+            }
+            else
+                return mRandomizer.nextInt(mList.size());
+        }
+
         private List mList = new ArrayList();
 
         private int mPos = -1;
+
+        private boolean mRandom;
+
+        private Random mRandomizer = new Random();
     }
 
     public static class Player implements IHmeEventHandler, IHmeProtocol {
@@ -268,7 +300,7 @@ public class DefaultApplication extends BApplication {
                         } catch (Exception ex) {
                             Tools.logException(DefaultApplication.class, ex);
                         }
-                        
+
                         mCurrentAudio = audio;
 
                         playTrack(url);
@@ -300,7 +332,8 @@ public class DefaultApplication extends BApplication {
                     mPlayerState = STOP;
 
                     mStreamResource.removeHandler(this);
-                    mStreamResource.remove();
+                    mStreamResource.setSpeed(0.0f);
+                    //mStreamResource.remove();
                     //mStreamResource.close();
                     mStreamResource = null;
                     mDefaultApplication.flush();
@@ -371,7 +404,6 @@ public class DefaultApplication extends BApplication {
         }
 
         public void getNextPos() {
-            //System.out.println("getNextPos:");
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
@@ -432,7 +464,7 @@ public class DefaultApplication extends BApplication {
         public String getTitle() {
             return mTitle;
         }
-        
+
         public Audio getCurrentAudio() {
             return mCurrentAudio;
         }
@@ -452,7 +484,7 @@ public class DefaultApplication extends BApplication {
         private int mBitrate;
 
         private String mTitle = "";
-        
+
         private Audio mCurrentAudio;
     }
 
@@ -513,7 +545,7 @@ public class DefaultApplication extends BApplication {
     public Tracker getTracker() {
         return mPlayer.getTracker();
     }
-    
+
     public Audio getCurrentAudio() {
         return mPlayer.getCurrentAudio();
     }

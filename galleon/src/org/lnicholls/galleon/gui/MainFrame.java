@@ -568,6 +568,8 @@ public class MainFrame extends JFrame {
             mGenerateThumbnails.setSelected(serverConfiguration.getGenerateThumbnails());
             mShuffleItems = new JCheckBox("Shuffle Items");
             mShuffleItems.setSelected(serverConfiguration.getShuffleItems());
+            mDebug = new JCheckBox("Debug logging");
+            mDebug .setSelected(serverConfiguration.isDebug());
             mPort = new JFormattedTextField();
             try {
                 MaskFormatter formatter = new MaskFormatter("####");
@@ -605,6 +607,7 @@ public class MainFrame extends JFrame {
                     "3dlu, " + "pref, " + //reload
                     "3dlu, " + "pref, " + //reload
                     "3dlu, " + "pref, " + //generatethumbnails, streamingproxy
+                    "3dlu, " + "pref, " + //debug
                     "3dlu, " + "pref, " + //recordings path
                     "3dlu, " + "pref, " + //media access key
                     "9dlu, " + "pref, " + //network
@@ -628,24 +631,25 @@ public class MainFrame extends JFrame {
             builder.add(mSkinCombo, cc.xyw(3, 9, 2));
             // TODO Only show for Windows
             builder.add(mGenerateThumbnails, cc.xy(3, 11));
+            builder.add(mDebug, cc.xy(3, 13));
             JButton button = new JButton("...");
             button.setActionCommand("pick");
             button.addActionListener(this);
-            builder.addLabel("Recordings Path", cc.xy(1, 13));
-            builder.add(mRecordingsPath, cc.xyw(3, 13, 2));
-            builder.add(button, cc.xyw(6, 13, 1));
-            builder.addLabel("Media Access Key", cc.xy(1, 15));
-            builder.add(mMediaAccessKey, cc.xyw(3, 15, 2));
+            builder.addLabel("Recordings Path", cc.xy(1, 15));
+            builder.add(mRecordingsPath, cc.xyw(3, 15, 2));
+            builder.add(button, cc.xyw(6, 15, 1));
+            builder.addLabel("Media Access Key", cc.xy(1, 17));
+            builder.add(mMediaAccessKey, cc.xyw(3, 17, 2));
 
-            builder.addSeparator("Network", cc.xyw(1, 17, 6));
-            builder.addLabel("Port", cc.xy(1, 19));
-            builder.add(mPort, cc.xy(3, 19));
-            builder.addLabel("IP Address", cc.xy(1, 21));
-            builder.add(mIPAddress, cc.xy(3, 21));
+            builder.addSeparator("Network", cc.xyw(1, 19, 6));
+            builder.addLabel("Port", cc.xy(1, 21));
+            builder.add(mPort, cc.xy(3, 21));
+            builder.addLabel("IP Address", cc.xy(1, 23));
+            builder.add(mIPAddress, cc.xy(3, 23));
             button = new JButton("<< Test...");
             button.setActionCommand("network");
             button.addActionListener(this);
-            builder.add(button, cc.xyw(5, 21, 2));
+            builder.add(button, cc.xyw(5, 23, 2));
 
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -694,6 +698,7 @@ public class MainFrame extends JFrame {
                     mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
                     mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
                     mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText()));
+                    mServerConfiguration.setDebug(mDebug.isSelected());
 
                     Galleon.updateServerConfiguration(mServerConfiguration);
                 } catch (Exception ex) {
@@ -759,6 +764,8 @@ public class MainFrame extends JFrame {
         private JCheckBox mGenerateThumbnails;
 
         private JCheckBox mShuffleItems;
+        
+        private JCheckBox mDebug;
 
         private JFormattedTextField mPort;
 
@@ -841,8 +848,12 @@ public class MainFrame extends JFrame {
                 }
             });
             
+            mRandomPlayFoldersField = new JCheckBox("Random play folders          ");
+            mRandomPlayFoldersField.setToolTipText("Check to specify that music in folders should be played randomly");
+            mRandomPlayFoldersField.setSelected(musicPlayerConfiguration.isRandomPlayFolders());
+            
             FormLayout layout = new FormLayout("right:pref, 3dlu, 100dlu:g, right:pref:grow",
-                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
 
             PanelBuilder builder = new PanelBuilder(layout);
             //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -867,10 +878,11 @@ public class MainFrame extends JFrame {
             });
             builder.add(label, cc.xy(1, 7));
             builder.add(mSkinsField, cc.xyw(3, 7, 1));
-            builder.addSeparator("Album Art", cc.xyw(1, 9, 4));
-            builder.add(mUseAmazonField, cc.xyw(1, 11, 3));
-            builder.add(mUseFileField, cc.xyw(1, 13, 3));
-            builder.add(mShowImagesField, cc.xyw(1, 15, 3));
+            builder.add(mRandomPlayFoldersField, cc.xyw(1, 9, 3));
+            builder.addSeparator("Album Art", cc.xyw(1, 11, 4));
+            builder.add(mUseAmazonField, cc.xyw(1, 13, 3));
+            builder.add(mUseFileField, cc.xyw(1, 15, 3));
+            builder.add(mShowImagesField, cc.xyw(1, 17, 3));
             
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -911,6 +923,7 @@ public class MainFrame extends JFrame {
                     musicPlayerConfiguration.setUseAmazon(mUseAmazonField.isSelected());
                     musicPlayerConfiguration.setUseFile(mUseFileField.isSelected());
                     musicPlayerConfiguration.setShowImages(mShowImagesField.isSelected());                    
+                    musicPlayerConfiguration.setRandomPlayFolders(mRandomPlayFoldersField.isSelected());
 
                     Galleon.updateServerConfiguration(mServerConfiguration);
                 } catch (Exception ex) {
@@ -941,6 +954,8 @@ public class MainFrame extends JFrame {
         private JCheckBox mUseAmazonField;
         
         private JCheckBox mShowImagesField;
+        
+        private JCheckBox mRandomPlayFoldersField;
 
         private ServerConfiguration mServerConfiguration;
     }    

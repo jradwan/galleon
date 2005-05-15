@@ -18,12 +18,13 @@
 !define PRODUCT_VERSION "0.0.1"
 !define PRODUCT_PUBLISHER "Galleon"
 !define PRODUCT_WEB_SITE "http://galleon.sourceforge.net"
-!define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar org.lnicholls.galleon.gui.Galleon'
+!define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar; org.lnicholls.galleon.gui.Galleon'
 !define PRODUCT_BUILD_DIR "d:\galleon\build"
 
 !define JRE_VERSION "1.5.0"
 !define JRE_URL "d:\download\jre-1_5_0_03-windows-i586-p.exe"
 !define JRE_PATH $R0
+the JMF need to be installed toooooo
 !define TEMP $R1
 !define TEMP2 $R2
 !define TEMP3 $R3
@@ -205,6 +206,7 @@ CopyFiles:
   File /oname=dom4j.jar ${PRODUCT_BUILD_DIR}\lib\dom4j.jar
   File /oname=forms.jar ${PRODUCT_BUILD_DIR}\lib\forms.jar
   File /oname=galleon.jar ${PRODUCT_BUILD_DIR}\lib\galleon.jar
+  File /oname=widgets.jar ${PRODUCT_BUILD_DIR}\lib\widgets.jar
   File /oname=hibernate.jar ${PRODUCT_BUILD_DIR}\lib\hibernate.jar
   File /oname=hme.jar ${PRODUCT_BUILD_DIR}\lib\hme.jar
   File /oname=informa.jar ${PRODUCT_BUILD_DIR}\lib\informa.jar
@@ -259,7 +261,7 @@ ClassPath:
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Readme.lnk" "$INSTDIR\Readme.txt"
   SetOutPath "$INSTDIR\lib"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar; org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
 
 InstallService:
   DetailPrint "Installing ${PRODUCT_NAME} service"

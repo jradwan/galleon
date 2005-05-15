@@ -96,6 +96,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_NET_MASK = "netmask";
 
     private static String ATTRIBUTE_SHUFFLE_ITEMS = "shuffleItems";
+    
+    private static String ATTRIBUTE_DEBUG = "debug";
 
     private static String ATTRIBUTE_GENERATE_THUMBNAILS = "generateThumbnails";
 
@@ -108,6 +110,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_SKIN = "skin";
     
     public Configurator() {
+        // Port configuration settings from JavaHMO
+        JavaHMO javahmo = new JavaHMO();
     }
     
     public void load(AppManager appManager) {
@@ -294,6 +298,15 @@ public class Configurator implements Constants {
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue().length());
                                 serverConfiguration.setSkin(attribute.getNodeValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_DEBUG);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue());
+                                serverConfiguration.setDebug(Boolean.valueOf(attribute.getNodeValue())
+                                        .booleanValue());
                             }
                         }
                     } else if (node.getNodeName().equals(TAG_APP)) {
@@ -555,6 +568,8 @@ public class Configurator implements Constants {
                         serverConfiguration.getMediaAccessKey()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_SKIN).append("=\"").append(
                         serverConfiguration.getSkin()).append("\"");                
+                buffer.append(" ").append(ATTRIBUTE_DEBUG).append("=\"").append(
+                        serverConfiguration.isDebug()).append("\"");                
                 buffer.append("/>\n");
 
                 // Apps

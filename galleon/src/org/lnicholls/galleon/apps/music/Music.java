@@ -17,7 +17,7 @@ package org.lnicholls.galleon.apps.music;
  */
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
@@ -269,7 +269,9 @@ public class Music extends DefaultApplication {
                                 ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.audioDirectoryFilter), 0);
-
+                                
+                                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+                                tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
                                 getBApp().push(new PlayerScreen((Music) getBApp(), tracker), TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
@@ -511,8 +513,8 @@ public class Music extends DefaultApplication {
                     mBusy.flush();
 
                     synchronized (this) {
-                        setPainting(false);
                         try {
+                            setPainting(false);
                             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                     .getMusicPlayerConfiguration();
                             if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
@@ -547,8 +549,8 @@ public class Music extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 player.stopPlayer();
 
                 if (mScreenSaver != null && mScreenSaver.isAlive()) {
@@ -567,8 +569,11 @@ public class Music extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (transparency != 0.0f)
-                setTransparency(0.0f);
+            if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
+            {
+                if (transparency != 0.0f)
+                    setTransparency(0.0f);
+            }
             switch (code) {
             case KEY_INFO:
                 getBApp().play("select.snd");
@@ -662,8 +667,8 @@ public class Music extends DefaultApplication {
         }
 
         public void updateLyrics() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mLyricsThread != null && mLyricsThread.isAlive())
                     mLyricsThread.interrupt();
             } finally {
@@ -684,8 +689,8 @@ public class Music extends DefaultApplication {
                 Tools.logException(Music.class, ex);
             }
             if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
-                setPainting(false);
                 try {
+                    setPainting(false);
                     mBusy.setVisible(false);
                     getBApp().flush();
                     scrollText.setVisible(true);
@@ -714,8 +719,8 @@ public class Music extends DefaultApplication {
                                 }
                             }
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                    setPainting(false);
                                     mBusy.setVisible(false);
                                     getBApp().flush();
                                     scrollText.setVisible(true);
@@ -747,8 +752,8 @@ public class Music extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mLyricsThread != null && mLyricsThread.isAlive()) {
                     mLyricsThread.interrupt();
                     mLyricsThread = null;
@@ -868,7 +873,7 @@ public class Music extends DefaultApplication {
                         }
 
                         NameValue nameValue = (NameValue) mResults.get(mPos);
-                        BufferedImage image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
+                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
 
                         if (image != null) {
                             synchronized (this) {
@@ -1004,6 +1009,7 @@ public class Music extends DefaultApplication {
                     return;
                 } catch (Exception ex2) {
                     Tools.logException(Music.class, ex2);
+                    break;
                 }
             }
         }

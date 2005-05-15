@@ -45,10 +45,21 @@ public class OptionsTableModel extends AbstractTableModel {
     public String getColumnName(int col) {
         return (String) mColumnNames.get(col);
     }
-
+    
+    
     public Object getValueAt(int row, int col) {
-        ArrayList values = (ArrayList) mColumnValues.get(row);
-        return values.get(col);
+        return getValueAt(row, col, true);
+    }
+
+    public Object getValueAt(int row, int col, boolean hideSensitive) {
+        String name = getColumnName(col);
+        if (hideSensitive && (name.toLowerCase().equals("username") || name.toLowerCase().equals("password")))
+            return "******";
+        else
+        {
+            ArrayList values = (ArrayList) mColumnValues.get(row);
+            return values.get(col);
+        }
     }
 
     public Class getColumnClass(int c) {

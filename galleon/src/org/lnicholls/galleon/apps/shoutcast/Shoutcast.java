@@ -17,7 +17,7 @@ package org.lnicholls.galleon.apps.shoutcast;
  */
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -484,8 +484,8 @@ public class Shoutcast extends DefaultApplication {
                     mBusy.flush();
 
                     synchronized (this) {
-                        setPainting(false);
                         try {
+                            setPainting(false);
                             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                     .getMusicPlayerConfiguration();
                             if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
@@ -520,8 +520,8 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 player.stopPlayer();
 
                 if (mScreenSaver != null && mScreenSaver.isAlive()) {
@@ -540,8 +540,11 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (transparency != 0.0f)
-                setTransparency(0.0f);
+            if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
+            {
+                if (transparency != 0.0f)
+                    setTransparency(0.0f);
+            }
             switch (code) {
             case KEY_INFO:
                 getBApp().play("select.snd");
@@ -627,8 +630,8 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public void updateLyrics() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mLyricsThread != null && mLyricsThread.isAlive())
                     mLyricsThread.interrupt();
             } finally {
@@ -649,8 +652,8 @@ public class Shoutcast extends DefaultApplication {
                 Tools.logException(Shoutcast.class, ex);
             }
             if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
-                setPainting(false);
                 try {
+                    setPainting(false);
                     mBusy.setVisible(false);
                     getBApp().flush();
                     scrollText.setVisible(true);
@@ -679,8 +682,8 @@ public class Shoutcast extends DefaultApplication {
                                 }
                             }
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                    setPainting(false);
                                     mBusy.setVisible(false);
                                     getBApp().flush();
                                     scrollText.setVisible(true);
@@ -712,8 +715,8 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mLyricsThread != null && mLyricsThread.isAlive()) {
                     mLyricsThread.interrupt();
                     mLyricsThread = null;
@@ -817,8 +820,8 @@ public class Shoutcast extends DefaultApplication {
                         }
                         if (mResults.size() == 0) {
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                    setPainting(false);
                                     mBusy.setVisible(false);
                                     getBApp().flush();
                                 } finally {
@@ -829,12 +832,12 @@ public class Shoutcast extends DefaultApplication {
                         }
 
                         NameValue nameValue = (NameValue) mResults.get(mPos);
-                        BufferedImage image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
+                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
 
                         if (image != null) {
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                    setPainting(false);
                                     if (mImageView.resource != null)
                                         mImageView.resource.remove();
                                     mUrlText.setValue(nameValue.getName());
@@ -857,8 +860,8 @@ public class Shoutcast extends DefaultApplication {
                         mResults.remove(mPos);
                     } finally {
                         synchronized (this) {
-                            setPainting(false);
                             try {
+                                setPainting(false);
                                 if (mResults != null && mResults.size() > 0)
                                     mPosText.setValue(String.valueOf(mPos + 1) + " of "
                                             + String.valueOf(mResults.size()));
@@ -889,8 +892,8 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mImageThread != null && mImageThread.isAlive()) {
                     mImageThread.interrupt();
                     mImageThread = null;
@@ -969,6 +972,7 @@ public class Shoutcast extends DefaultApplication {
                     return;
                 } catch (Exception ex2) {
                     Tools.logException(Shoutcast.class, ex2);
+                    break;
                 }
             }
         }

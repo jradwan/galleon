@@ -163,6 +163,14 @@ public class ServerConfiguration implements Serializable {
         return mSkin;
     }
     
+    public void setDebug(boolean value) {
+        mDebug = value;
+    }
+
+    public boolean isDebug() {
+        return mDebug;
+    }    
+    
     public void setMusicPlayerConfiguration(MusicPlayerConfiguration value) {
         mMusicPlayerConfiguration = value;
     }
@@ -194,6 +202,8 @@ public class ServerConfiguration implements Serializable {
     private List mRules;
     
     private String mSkin = "";
+    
+    private boolean mDebug;
     
     private MusicPlayerConfiguration mMusicPlayerConfiguration = new MusicPlayerConfiguration();
 }

@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.AsyncAppender;
+import org.apache.log4j.*;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -186,8 +186,23 @@ public class Server {
                 rollingFileAppender.rollOver();
             }
         }
-
+        
         return log;
+    }
+    
+    private void setDebugLogging(boolean debug)
+    {
+        Logger logger = Logger.getLogger("org.lnicholls.galleon.gui");
+        if (debug)
+            logger.setLevel(Level.DEBUG);
+        else
+            logger.setLevel(Level.INFO);
+        
+        logger = Logger.getLogger("org.lnicholls.galleon");
+        if (debug)
+            logger.setLevel(Level.DEBUG);
+        else
+            logger.setLevel(Level.INFO);
     }
 
     // Service wrapper required method
@@ -214,7 +229,9 @@ public class Server {
             // Read the conf/configure.xml file
             mConfigurator = new Configurator();
             mConfigurator.load(mAppManager);
-
+            
+            setDebugLogging(mServerConfiguration.isDebug());
+            
             mTiVoListener = new TiVoListener();
 
             mAppManager.loadApps();
@@ -566,6 +583,7 @@ public class Server {
                 || mServerConfiguration.getPort() != serverConfiguration.getPort())
             needRestart = true;
         mServerConfiguration = serverConfiguration;
+        setDebugLogging(mServerConfiguration.isDebug());
         /*
          * try { PropertyUtils.copyProperties(mServerConfiguration, serverConfiguration); } catch (Exception ex) {
          * log.error("Server configuration update failed", ex); }

@@ -17,33 +17,24 @@ package org.lnicholls.galleon.widget;
  */
 
 import com.tivo.hme.bananas.BApplication;
-import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BSkin;
-import com.tivo.hme.bananas.BSkin.Element;
-import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
-
-import java.util.Hashtable;
 
 public class Skin extends BSkin {
-        
-    public Skin(BApplication app)
-    {
+
+    public Skin(BApplication app) {
         super(app);
     }
 
-    public Element get(String name)
-    {
-        Element element = (Element)map.get(name);
-        if(element == null)
+    public Element get(String name) {
+        Element element = (Element) map.get(name);
+        if (element == null)
             throw new RuntimeException("unknown element: " + name);
-        
-        DefaultApplication defaultApplication = (DefaultApplication)app;
-        DefaultScreen currentScreen = (DefaultScreen)defaultApplication.getCurrentScreen();
-        if (element.name.equals("bar"))
-        {
+
+        DefaultApplication defaultApplication = (DefaultApplication) app;
+        DefaultScreen currentScreen = (DefaultScreen) defaultApplication.getCurrentScreen();
+        if (element.name.equals("bar")) {
             element.rsrc = app.getResource("bar2.png");
-        }
-        else
+        } else
             element = super.get(name);
         return element;
     }

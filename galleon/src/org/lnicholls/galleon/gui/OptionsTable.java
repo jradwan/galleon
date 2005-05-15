@@ -120,14 +120,12 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                         for (int i = 0; i < mFields.size(); i++) {
                             if (mFields.get(i) instanceof JTextField) {
                                 JTextField field = (JTextField) mFields.get(i);
-                                log.debug("adding: " + field.getText());
-                                field.setText((String) mTableModel.getValueAt(selectedRow, i));
+                                field.setText((String) mTableModel.getValueAt(selectedRow, i, false));
                             } else if (mFields.get(i) instanceof JComboBox) {
                                 JComboBox combo = (JComboBox) mFields.get(i);
                                 if (combo.getSelectedItem() instanceof AppConfigurationPanel.ComboWrapper) {
                                     AppConfigurationPanel.ComboWrapper wrapper = (AppConfigurationPanel.ComboWrapper) combo.getSelectedItem();
-                                    log.debug("adding: " + wrapper.getValue()); // should be setting the object...
-                                    String value = (String) mTableModel.getValueAt(selectedRow, i);
+                                    String value = (String) mTableModel.getValueAt(selectedRow, i, false);
                                     for (int j = 0; j < combo.getItemCount(); j++) {
                                         if (((NameValue) combo.getItemAt(j)).getValue().equals(value)) {
                                             combo.setSelectedIndex(i);
@@ -222,13 +220,11 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                 for (int i = 0; i < mFields.size(); i++) {
                     if (mFields.get(i) instanceof JTextField) {
                         JTextField field = (JTextField) mFields.get(i);
-                        log.debug("addinga: " + i + " = " + field.getText());
                         mTableModel.setValueAt(field.getText(), nextRow, i);
                     } else if (mFields.get(i) instanceof JComboBox) {
                         JComboBox combo = (JComboBox) mFields.get(i);
                         if (combo.getSelectedItem() instanceof AppConfigurationPanel.ComboWrapper) {
                             AppConfigurationPanel.ComboWrapper wrapper = (AppConfigurationPanel.ComboWrapper) combo.getSelectedItem();
-                            log.debug("addingb: " +i + " = " + wrapper.getValue()); // should be setting the object...
                             mTableModel.setValueAt(wrapper.getValue(), nextRow, i);
                         }
                     }

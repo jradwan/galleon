@@ -43,7 +43,7 @@ public class RSSConfiguration implements AppConfiguration {
         mFeeds = value;
     }
 
-    public void addFeeds(NameValue value) {
+    public void addFeed(NameValue value) {
         mFeeds.add(value);
     }
 

@@ -18,11 +18,11 @@ package org.lnicholls.galleon.media;
 
 import helliker.id3.MP3File;
 
-import java.awt.image.BufferedImage;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.*;
+import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,12 +32,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.net.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import net.sf.hibernate.HibernateException;
@@ -45,22 +46,12 @@ import net.sf.hibernate.lob.BlobImpl;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.Thumbnail;
 import org.lnicholls.galleon.database.ThumbnailManager;
-import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.util.Amazon;
 import org.lnicholls.galleon.util.Tools;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
-import javazoom.spi.mpeg.sampled.file.tag.*;
-import javazoom.spi.mpeg.sampled.file.*;
-
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
 
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
@@ -267,9 +258,9 @@ public final class Mp3File {
 
     private static final String DEFAULT_GENRE = "Other";
 
-    private static final long DEFAULT_SIZE = -1;
+    private static final long DEFAULT_SIZE = 0;
 
-    private static final long DEFAULT_DURATION = -1;
+    private static final long DEFAULT_DURATION = 0;
 
     private static final int DEFAULT_DATE = 0;
 
@@ -746,14 +737,6 @@ public final class Mp3File {
     public static final void stream(OutputStream outputStream) {
     }
 
-    /*
-     * public String getAlbumCoverPath() { String s = null; String s1 = file.substring(0,
-     * file.lastIndexOf(Common.fileSeparator)); File file1 = new File(s1); String as[] = file1.list(); if(as != null) {
-     * for(int i = 0; i < as.length; i++) { String s2 = as[i].toLowerCase(); if(!s2.endsWith(".jpg")) continue; s = s1 +
-     * Common.fileSeparator + s2; if(s2.indexOf("front") >= 0) break; } } return s; }
-     *  
-     */
-
     protected static void parseID3v2Frames(InputStream frames, Audio audio) {
         byte[] bframes = null;
         int size = -1;
@@ -766,17 +749,6 @@ public final class Mp3File {
         } catch (IOException ex) {
             Tools.logException(Mp3File.class, ex, "Cannot parse ID3v2");
         }
-        /*
-         * try { File file = new File("tags.txt"); FileOutputStream output = new FileOutputStream(file);
-         * DataOutputStream doutput = new DataOutputStream(output);
-         * 
-         * String value = null; for (int i = 0; i < bframes.length - 4; i++) { String code = new String(bframes, i, 4);
-         * i = i + 10; size = (int) (bframes[i - 6] < < 24) + (bframes[i - 5] < < 16) + (bframes[i - 4] < < 8) +
-         * (bframes[i - 3]); if (code.equals(COMMENTS)) value = parseText(bframes, i, size, 5); else value =
-         * parseText(bframes, i, size, 1); if ((value != null) && (value.trim().length() > 0)) { String found =
-         * code+"="+value; doutput.writeChars(found); } else { String found = code+"=?"; doutput.writeChars(found); } i =
-         * i + size - 1; } output.close(); } catch (Exception ex) { ex.printStackTrace(); }
-         */
 
         try {
             String value = null;
@@ -822,51 +794,54 @@ public final class Mp3File {
 
     private static void createCover(InputStream input, Audio audio, String mimeType) {
         try {
-            BufferedImage image = ImageIO.read(input);
+            Image image = ImageIO.read(input);
             createCover(image, audio, mimeType);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, "Cannot create cover");
         }
     }
 
-    private static void createCover(BufferedImage image, Audio audio, String mimeType) {
+    private static void createCover(Image image, Audio audio, String mimeType) {
         if (image != null) {
             try {
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
-                encoder.encode(image);
-                byteArrayOutputStream.close();
+                // TODO What if not bufferedimage??
+                if (image instanceof BufferedImage) {
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+                    encoder.encode((BufferedImage) image);
+                    byteArrayOutputStream.close();
 
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
-                        .toByteArray());
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
+                            .toByteArray());
 
-                BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+                    BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
 
-                Thumbnail thumbnail = null;
-                try {
-                    List list = ThumbnailManager.findByKey(getKey(audio));
-                    if (list != null && list.size() > 0)
-                        thumbnail = (Thumbnail) list.get(0);
-                } catch (HibernateException ex) {
-                    log.error("Cover create failed", ex);
-                }
-
-                try {
-                    if (thumbnail == null) {
-                        thumbnail = new Thumbnail(audio.getTitle(), mimeType, getKey(audio));
-                        thumbnail.setImage(blob);
-                        thumbnail.setDateModified(new Date());
-                        ThumbnailManager.createThumbnail(thumbnail);
-                    } else {
-                        thumbnail.setImage(blob);
-                        thumbnail.setDateModified(new Date());
-                        ThumbnailManager.updateThumbnail(thumbnail);
+                    Thumbnail thumbnail = null;
+                    try {
+                        List list = ThumbnailManager.findByKey(getKey(audio));
+                        if (list != null && list.size() > 0)
+                            thumbnail = (Thumbnail) list.get(0);
+                    } catch (HibernateException ex) {
+                        log.error("Cover create failed", ex);
                     }
-                } catch (HibernateException ex) {
-                    log.error("Cover create failed", ex);
-                }
-                if (thumbnail != null) {
-                    audio.setCover(thumbnail.getId());
+
+                    try {
+                        if (thumbnail == null) {
+                            thumbnail = new Thumbnail(audio.getTitle(), mimeType, getKey(audio));
+                            thumbnail.setImage(blob);
+                            thumbnail.setDateModified(new Date());
+                            ThumbnailManager.createThumbnail(thumbnail);
+                        } else {
+                            thumbnail.setImage(blob);
+                            thumbnail.setDateModified(new Date());
+                            ThumbnailManager.updateThumbnail(thumbnail);
+                        }
+                    } catch (HibernateException ex) {
+                        log.error("Cover create failed", ex);
+                    }
+                    if (thumbnail != null) {
+                        audio.setCover(thumbnail.getId());
+                    }
                 }
 
                 image.flush();
@@ -911,7 +886,7 @@ public final class Mp3File {
 
         if (useAmazon) {
             if (!audio.getAlbum().equals(DEFAULT_ALBUM) && !audio.getArtist().equals(DEFAULT_ARTIST)) {
-                BufferedImage image = Amazon.getAlbumImage(getKey(audio), audio.getArtist(), audio.getAlbum());
+                Image image = Amazon.getAlbumImage(getKey(audio), audio.getArtist(), audio.getAlbum());
                 if (image != null) {
                     try {
                         createCover(image, audio, "image/jpg");
@@ -965,7 +940,7 @@ public final class Mp3File {
     public static InputStream getStream(String uri) throws IOException {
         if (uri.toLowerCase().endsWith(".mp3")) {
             log.debug("getStream: " + uri);
-            
+
             try {
                 String id = Tools.extractName(uri);
                 Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));

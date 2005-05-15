@@ -18,13 +18,12 @@ package org.lnicholls.galleon.widget;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Toolkit;
-import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.text.BreakIterator;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.apache.log4j.Logger;
-import org.lnicholls.galleon.util.Tools;
 
 import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
@@ -39,15 +38,17 @@ import com.tivo.hme.sdk.Resource;
 
 public class ScrollText extends BView {
 
-    private static final Logger log = Logger.getLogger(ScrollText.class.getName());
-    
     private static Font DEFAULT_FONT = null;
+
+    private static BufferedImage buffer = null;
     static {
         try {
             DEFAULT_FONT = Font.createFont(Font.TRUETYPE_FONT, ScrollText.class.getClassLoader().getResourceAsStream(
                     ScrollText.class.getPackage().getName().replace('.', '/') + "/" + "FreeSans.ttf"));
+
+            buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         } catch (Throwable ex) {
-            Tools.logException(ScrollText.class, ex);
+            ex.printStackTrace();
         }
     }
 
@@ -71,7 +72,8 @@ public class ScrollText extends BView {
      *            the text to be displayed
      */
     public ScrollText(BView parent, int x, int y, int width, int height, String text) {
-        this(parent, x, y, width, height, text, DEFAULT_FONT==null?null:DEFAULT_FONT.deriveFont(Font.PLAIN, 18), true, true); // TODO Configure
+        this(parent, x, y, width, height, text, DEFAULT_FONT == null ? null : DEFAULT_FONT.deriveFont(Font.PLAIN, 18),
+                true, true); // TODO Configure
         // font
     }
 
@@ -160,7 +162,7 @@ public class ScrollText extends BView {
             h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
         }
-        
+
         setText(text);
     }
 
@@ -170,8 +172,8 @@ public class ScrollText extends BView {
         mAnimate = false;
         int size = mTextLines.size();
 
-        screen.setPainting(false);
         try {
+            screen.setPainting(false);
             mTop = Math.max(Math.min(mTop, size - mVisibleRows), 0);
 
             int popMin = Math.max(mTop - mVisibleRows, 0);
@@ -338,26 +340,57 @@ public class ScrollText extends BView {
         clear();
 
         FontMetrics fontMetrics = null;
-        if (mFont!=null)
-        {
-            fontMetrics = Tools.getFontMetrics(mFont);
-            mRowHeight = fontMetrics.getHeight();
-        }
-        else
-        {
-            mRowHeight = 20;
+        if (mFont != null) {
+            Graphics2D graphics2D = (Graphics2D) buffer.getGraphics();
+            try {
+                fontMetrics = graphics2D.getFontMetrics(mFont);
+                mRowHeight = fontMetrics.getHeight();
+            } finally {
+                graphics2D.dispose();
+            }
+
         }
         mVisibleRows = height / mRowHeight;
 
-        String[] lines = Tools.layout(width, fontMetrics, mText);
+        String[] lines = layout(width, fontMetrics, mText);
         for (int i = 0; i < lines.length; i++) {
             int size = mTextLines.size();
             mTextLines.add(size, lines[i]);
             mTextLineViews.add(size, null);
         }
-
         mTop = 0;
         refresh();
+    }
+
+    public static String[] layout(int width, FontMetrics metrics, String text) {
+        ArrayList lines = new ArrayList();
+
+        if (text != null) {
+            String line = "";
+            BreakIterator boundary = BreakIterator.getWordInstance();
+            boundary.setText(text);
+            int start = boundary.first();
+            for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
+                String word = text.substring(start, end);
+                String trimmed = word.replaceAll(" ", "");
+                int metricsWidth = (line + word).length() * 12;  // default
+                if (metrics != null)
+                    metricsWidth = metrics.stringWidth(line + word);
+
+                if (trimmed.equals("\n") || trimmed.equals("\r") || trimmed.equals("\r\n")) {
+                    lines.add(line.trim());
+                    line = "";
+                } else if (metricsWidth > width) {
+                    lines.add(line.trim());
+                    line = word;
+                } else
+                    line = line + word;
+            }
+            if (line.trim().length() > 0)
+                lines.add(line.trim());
+        }
+
+        return (String[]) lines.toArray(new String[0]);
     }
 
     private String mText;
@@ -368,7 +401,7 @@ public class ScrollText extends BView {
 
     private LinkedList mTextLineViews;
 
-    private int mRowHeight;
+    private int mRowHeight = 21;
 
     private int mVisibleRows;
 

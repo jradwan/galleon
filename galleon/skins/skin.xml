@@ -180,5 +180,39 @@
     <image source="rss/item.png" id="item"/>
     <image source="rss/background.jpg" id="background"/>    
   </app>    
+  
+  
+  <app id="org.lnicholls.galleon.apps.desktop.Desktop">  
+    <image source="desktop/icon.png" id="icon"/>  
+  </app>      
+  
+  
+  <app id="org.lnicholls.galleon.apps.camera.Camera">  
+    <image source="camera/icon.png" id="icon"/>  
+    <image source="camera/background.jpg" id="background"/>        
+  </app>        
+  
+  
+  <app id="org.lnicholls.galleon.apps.email.Email">  
+    <image source="email/icon.png" id="icon"/>  
+    <image source="email/background.jpg" id="background"/>        
+    <image source="email/icon.png" id="item"/>    
+    <image source="email/folder.png" id="folder"/>    
+  </app>          
+  
+  
+  <app id="org.lnicholls.galleon.apps.internet.Internet">  
+    <image source="internet/icon.png" id="icon"/>  
+    <image source="internet/background.jpg" id="background"/>        
+    <image source="internet/icon.png" id="item"/>    
+    <image source="internet/icon.png" id="folder"/>    
+  </app>            
+  
+  
+  <app id="org.lnicholls.galleon.apps.playlists.Playlists">  
+    <image source="playlists/icon.png" id="icon"/>  
+    <image source="playlists/background.jpg" id="background"/>        
+    <image source="playlists/playlist.png" id="item"/>    
+  </app>              
 
 </skin>

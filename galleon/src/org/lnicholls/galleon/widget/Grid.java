@@ -18,7 +18,6 @@ package org.lnicholls.galleon.widget;
 
 import java.util.List;
 
-import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BRect;
 import com.tivo.hme.bananas.BView;
@@ -28,8 +27,8 @@ import com.tivo.hme.sdk.View;
  * Based on TiVo HME Bananas BList by Adam Doppelt
  */
 
-public class Grid extends BList {
-   
+public abstract class Grid extends BList {
+
     /**
      * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
@@ -94,69 +93,55 @@ public class Grid extends BList {
         }
     }
 
-    public void createCell(BView parent, int row, int column, boolean selected) {
-        parent.setResource(getResource("icon.png"), RSRC_IMAGE_BESTFIT);
-    }
+    public abstract void createCell(BView parent, int row, int column, boolean selected);
 
     public boolean handleKeyPress(int code, long rawcode) {
         try {
-            if (size()>0)
-            {
+            if (size() > 0) {
                 List cells = (List) get(focused);
                 int newColumn = mColumn;
-    
+
                 switch (code) {
                 case KEY_RIGHT:
-                    newColumn = Math.max(Math.min(mColumn+1, cells.size() - 1), 0);
-                    if (mColumn == newColumn)
-                    {
+                    newColumn = Math.max(Math.min(mColumn + 1, cells.size() - 1), 0);
+                    if (mColumn == newColumn) {
                         getBApp().play("bonk.snd");
                         getBApp().flush();
                         return false;
-                    }
-                    else
-                    {
+                    } else {
                         mColumn = newColumn;
                         getBApp().play("updown.snd");
                         getBApp().flush();
                         return true;
                     }
                 case KEY_LEFT:
-                    newColumn = Math.max(Math.min(mColumn-1, cells.size() - 1), 0);
-                    if (mColumn == newColumn)
-                    {
+                    newColumn = Math.max(Math.min(mColumn - 1, cells.size() - 1), 0);
+                    if (mColumn == newColumn) {
                         return false;
-                    }
-                    else
-                    {
+                    } else {
                         mColumn = newColumn;
                         getBApp().play("updown.snd");
                         getBApp().flush();
                         return true;
                     }
                 case KEY_ADVANCE:
-                    if (getFocus()==(size()-1))
-                    {
+                    if (getFocus() == (size() - 1)) {
                         getBApp().play("pageup.snd");
                         getBApp().flush();
-                        setFocus(0,false);
-                    }
-                    else
-                    {
+                        setFocus(0, false);
+                    } else {
                         getBApp().play("pagedown.snd");
                         getBApp().flush();
-                        setFocus(size()-1,false);
+                        setFocus(size() - 1, false);
                     }
                     return true;
                 default:
                     return super.handleKeyPress(code, rawcode);
                 }
-            }
-            else
+            } else
                 return super.handleKeyPress(code, rawcode);
         } finally {
-            if (size()>0)
-            {
+            if (size() > 0) {
                 List cells = (List) get(focused);
                 mColumn = Math.max(Math.min(mColumn, cells.size() - 1), 0);
             }

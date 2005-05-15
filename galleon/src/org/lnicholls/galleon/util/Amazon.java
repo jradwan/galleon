@@ -16,7 +16,7 @@ package org.lnicholls.galleon.util;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,7 +41,7 @@ public class Amazon {
 
     private final static String SUBSCRIPTION_ID = "1S15VY5XR4PV42R2YRG2";
 
-    public static BufferedImage getAlbumImage(String key, String artist, String title) {
+    public static Image getAlbumImage(String key, String artist, String title) {
         // http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&SubscriptionId=1S15VY5XR4PV42R2YRG2&Operation=ItemSearch&SearchIndex=Music&ResponseGroup=Images&Artist="
         // + artist + "&Title=" + title
 
@@ -56,7 +56,7 @@ public class Amazon {
         return null;
     }
 
-    public static BufferedImage getMusicImage(String key, String keywords) {
+    public static Image getMusicImage(String key, String keywords) {
         try {
             URL url = new URL("http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&SubscriptionId="
                     + SUBSCRIPTION_ID + "&Operation=ItemSearch&SearchIndex=Music&ResponseGroup=Images&Keywords="
@@ -68,8 +68,8 @@ public class Amazon {
         return null;
     }
 
-    public static synchronized BufferedImage getImage(String key, URL url) {
-        BufferedImage image = null;
+    public static synchronized Image getImage(String key, URL url) {
+        Image image = null;
 
         if (System.currentTimeMillis() - mTime < 1000) {
             // Not allowed to call AWS more than once a second

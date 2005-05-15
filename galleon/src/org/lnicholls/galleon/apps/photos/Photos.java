@@ -297,8 +297,8 @@ public class Photos extends DefaultApplication {
         }
 
         public void shutdown() {
-            setPainting(false);
             try {
+                setPainting(false);
                 Iterator iterator = mThreads.iterator();
                 while (iterator.hasNext()) {
                     Thread thread = (Thread) iterator.next();
@@ -445,8 +445,8 @@ public class Photos extends DefaultApplication {
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 
             if (grid.size() == 0) {
-                setPainting(false);
                 try {
+                    setPainting(false);
                     //mBusy.setVisible(true);
 
                     ArrayList photos = new ArrayList();
@@ -574,8 +574,8 @@ public class Photos extends DefaultApplication {
         private void updateView() {
             final Image image = currentImage();
             if (image != null) {
-                setPainting(false);
                 try {
+                    setPainting(false);
 
                     clearThumbnail();
 
@@ -592,13 +592,8 @@ public class Photos extends DefaultApplication {
 
                     final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) context.factory)
                             .getAppContext().getConfiguration();
-                    setPainting(false);
-                    try {
-                        if (mThumbnailThread != null && mThumbnailThread.isAlive())
-                            mThumbnailThread.interrupt();
-                    } finally {
-                        setPainting(true);
-                    }
+                    if (mThumbnailThread != null && mThumbnailThread.isAlive())
+                        mThumbnailThread.interrupt();
                     mThumbnailThread = new Thread() {
                         public void run() {
                             try {
@@ -645,8 +640,8 @@ public class Photos extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 if (mThumbnailThread != null && mThumbnailThread.isAlive())
                     mThumbnailThread.interrupt();
                 clearThumbnail();
@@ -830,8 +825,8 @@ public class Photos extends DefaultApplication {
         private void updateView() {
             final Image image = currentImage();
             if (image != null) {
-                setPainting(false);
                 try {
+                    setPainting(false);
 
                     clearImage();
 
@@ -891,8 +886,8 @@ public class Photos extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+                setPainting(false);
                 clearImage();
                 if (mSlideshow != null && mSlideshow.isAlive()) {
                     mSlideshow.interrupt();

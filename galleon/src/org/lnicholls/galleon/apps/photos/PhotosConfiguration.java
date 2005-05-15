@@ -97,7 +97,7 @@ public class PhotosConfiguration implements AppConfiguration {
 
     private String mName;
     
-    private String mEffect;
+    private String mEffect = "Random";
     
     private int mDisplayTime = 5;  // seconds
     

@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.Mp3File;
@@ -46,7 +45,7 @@ public class MusicInfo extends BView {
 
         int start = 0;
 
-        mCover = new BView(this, this.width - 210, 135, 200, 200, false);
+        mCover = new BView(this, this.width - 210, 130, 200, 200, false);
 
         mTitleText = new BText(this, 0, start, this.width, 70);
         mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
@@ -100,9 +99,10 @@ public class MusicInfo extends BView {
 
         mStars = new BView[5];
         for (int i = 0; i < 5; i++) {
-            mStars[i] = new BView(this, 0 + (i * 40), 160, 34, 34, true);
+            mStars[i] = new BView(this, -34, 160, 34, 34, true);
             mStars[i].setResource(((DefaultApplication) getApp()).getStarIcon(), RSRC_IMAGE_BESTFIT);
             mStars[i].setTransparency(0.6f);
+            mStars[i].setLocation(0 + (i * 40), 160, mAnim);
         }
     }
     
@@ -112,22 +112,35 @@ public class MusicInfo extends BView {
 
     public void setAudio(final Audio audio, String title) {
         if (audio != null) {
-            setPainting(false);
             try {
-                mTitleText.setValue(title);
+                setPainting(false);
+                mTitleText.setValue(Tools.trim(title,100));
+                String song = audio.getTitle();
+                if (song.equals(Mp3File.DEFAULT_ARTIST))
+                    song = title;
                 if (audio.getPath().startsWith("http"))
                 {
-                    mSongText.setValue("Stream: " + Tools.trim(audio.getTitle(), 80));
+                    mSongText.setValue("Stream: " + Tools.trim(song, 80));
                     mTrackText.setVisible(false);
                     mDurationText.setVisible(false);
                     mAlbumText.setVisible(false);
                     mYearText.setVisible(false);
                     mArtistText.setVisible(false);
                     mGenreText.setVisible(false);
+                    
+                    if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST))
+                    {
+                        try {
+                            audio.setTitle(title);
+                            AudioManager.updateAudio(audio);
+                        } catch (Exception ex) {
+                            Tools.logException(MusicInfo.class, ex);
+                        }
+                    }
                 }
                 else
                 {
-                    mSongText.setValue("Song: " + Tools.trim(audio.getTitle(), 40));
+                    mSongText.setValue("Song: " + Tools.trim(song, 40));
                     mTrackText.setValue("Track: " + audio.getTrack());
                     mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
                     mAlbumText.setValue("Album: " + Tools.trim(audio.getAlbum(), 40));
@@ -190,8 +203,8 @@ public class MusicInfo extends BView {
     }
 
     public void setTitle(String value) {
-        setPainting(false);
         try {
+            setPainting(false);
             mTitleText.setValue(value);
         } finally {
             setPainting(true);
@@ -225,7 +238,7 @@ public class MusicInfo extends BView {
                     mAudio.setRating(Math.max(mAudio.getRating() - 1, 0));
                     AudioManager.updateAudio(mAudio);
                 } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
+                    Tools.logException(MusicInfo.class, ex);
                 }
                 setRating(mAudio);
             } else {
@@ -241,7 +254,7 @@ public class MusicInfo extends BView {
                     mAudio.setRating(Math.min(mAudio.getRating() + 1, 5));
                     AudioManager.updateAudio(mAudio);
                 } catch (Exception ex) {
-                    Tools.logException(Music.class, ex);
+                    Tools.logException(MusicInfo.class, ex);
                 }
                 setRating(mAudio);
             } else {
@@ -252,7 +265,7 @@ public class MusicInfo extends BView {
         }
         return super.handleKeyPress(code, rawcode);
     }
-
+    
     private Audio mAudio;
 
     private SimpleDateFormat mTimeFormat;

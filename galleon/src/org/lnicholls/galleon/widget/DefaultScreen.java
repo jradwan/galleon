@@ -20,7 +20,6 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
-import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BScreen;
@@ -36,7 +35,7 @@ public class DefaultScreen extends BScreen {
     protected final int BORDER_LEFT = SAFE_TITLE_H;
 
     protected final int BODY_WIDTH = width - BORDER_LEFT - (SAFE_TITLE_H);
-    
+
     protected final int BODY_HEIGHT = height - 2 * SAFE_TITLE_V;
 
     static final class HintsView extends BView {
@@ -88,7 +87,7 @@ public class DefaultScreen extends BScreen {
         if (hints)
             mHints = new HintsView(above, SAFE_TITLE_H, SAFE_TITLE_V, width - 2 * SAFE_TITLE_H, height - 2
                     * SAFE_TITLE_V, true);
-        
+
         mBusy = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
         mBusy.setResource(app.mBusyIcon);
         mBusy.setVisible(false);
@@ -143,8 +142,7 @@ public class DefaultScreen extends BScreen {
     }
 
     public void setBackground(String value) {
-        if (value != null)
-        {
+        if (value != null) {
             //below.setResource(value);
         }
     }
@@ -165,6 +163,6 @@ public class DefaultScreen extends BScreen {
     private BText mFooter;
 
     private HintsView mHints;
-    
+
     protected BView mBusy;
 }

@@ -19,22 +19,15 @@ package org.lnicholls.galleon.media;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 import javazoom.spi.mpeg.sampled.file.tag.IcyInputStream;
 import javazoom.spi.mpeg.sampled.file.tag.MP3Tag;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseEvent;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseListener;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.params.*;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.apps.weather.StateData;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.util.Tools;
@@ -76,52 +69,18 @@ public final class Mp3Url {
                     public synchronized java.lang.Object call() throws java.lang.Exception {
                         //URL url = new URL("http://64.236.34.4:80/stream/1065");
                         URL url = new URL(mPath);
-                        URLConnection conn = url.openConnection();
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestProperty("Icy-Metadata", "1");
-                        conn.setRequestProperty("http.useragent", "WinampMPEG/5.0");
+                        conn.setRequestProperty("User-Agent", "WinampMPEG/5.0");
+                        conn.setRequestProperty("Accept", "audio/mpeg");
+                        conn.setInstanceFollowRedirects(true);
+
                         IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
                                 .getContentLength()));
                         final IcyListener icyListener = new IcyListener(mApplication);
                         input.addTagParseListener(icyListener);
-                        
+
                         return input;
-                        
-                        /*
-                        try
-                        {
-                            System.out.println(mPath);
-                            HttpClient httpclient = new HttpClient();
-                            httpclient.setStrictMode(false);
-                            httpclient.setConnectionTimeout(1000);
-                            HttpConnectionManager httpConnectionManager = httpclient.getHttpConnectionManager();
-                            HttpConnectionManagerParams httpConnectionManagerParams = httpConnectionManager.getParams();
-                            httpConnectionManagerParams.setConnectionTimeout(1000);
-                            httpclient.getParams().setParameter("http.socket.timeout", new Integer(1000));
-                            httpclient.getParams().setParameter("http.useragent", "WinampMPEG/5.0");
-                            httpclient.getParams().setParameter("Icy-Metadata", "1");
-    
-                            GetMethod get = new GetMethod(mPath);
-                            //NameValuePair state = new NameValuePair("state", StateData.getFipFromSymbol(mState));
-                            //NameValuePair place = new NameValuePair("place", mCity + "," + mState + "," + mZip);
-                            //get.setQueryString(new NameValuePair[] { state, place });
-                            get.setFollowRedirects(true);
-    
-                            System.out.println("before result:");
-                            int iGetResultCode = httpclient.executeMethod(get);
-                            System.out.println(iGetResultCode);
-                            
-                            IcyInputStream input = new IcyInputStream(new URLStream(get.getResponseBodyAsStream(), 0));
-                            final IcyListener icyListener = new IcyListener(mApplication);
-                            input.addTagParseListener(icyListener);
-                            
-                            return input;
-                        }
-                        catch (Exception ex)
-                        {
-                            Tools.logException(Mp3Url.class, ex, mPath);
-                            throw ex;
-                        }
-                        */
                     }
                 }
 

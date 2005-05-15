@@ -80,6 +80,14 @@ public class MusicPlayerConfiguration implements Serializable {
         if (mPlayer != null && !mPlayer.equals(value))
             mModified = true;
         mPlayer = value;
+    }
+    
+    public void setRandomPlayFolders(boolean value) {
+        mRandomPlayFolders = value;
+    }
+
+    public boolean isRandomPlayFolders() {
+        return mRandomPlayFolders;
     }    
 
     public String toString() {
@@ -95,6 +103,8 @@ public class MusicPlayerConfiguration implements Serializable {
     private boolean mShowImages = false;
     
     private String mPlayer = WINAMP;
+    
+    private boolean mRandomPlayFolders;
 
     private boolean mModified;
 }

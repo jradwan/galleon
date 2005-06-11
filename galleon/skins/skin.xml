@@ -45,14 +45,6 @@
     </screen>      
     
     <!-- id = Galleon identifier for screen -->
-    <screen id="player">        
-      <image source="music/background.jpg" id="background"/>        
-      <image source="music/stop.png" id="stop"/>  
-    	<image source="music/play.png" id="play"/>
-    	<image source="music/pause.png" id="pause"/>	      
-    	<image source="music/overlay.png" id="overlay"/>	      
-    </screen>              
-    <!-- id = Galleon identifier for screen -->
     <!-- background = name of image for background -->    
     <screen id="lyrics" background="background">            
       <image source="music/background.jpg" id="background"/>        
@@ -140,7 +132,7 @@
     <image source="weather/45.png" id="45"/>  
     <image source="weather/46.png" id="46"/>  
     <image source="weather/47.png" id="47"/>  
-    <image source="weather/NA.png" id="48"/>      
+    <image source="weather/NA.png" id="na"/>      
   </app>      
   
 
@@ -195,6 +187,7 @@
   
   <app id="org.lnicholls.galleon.apps.email.Email">  
     <image source="email/icon.png" id="icon"/>  
+    <image source="email/alerticon.png" id="alert"/>          
     <image source="email/background.jpg" id="background"/>        
     <image source="email/icon.png" id="item"/>    
     <image source="email/folder.png" id="folder"/>    
@@ -214,5 +207,28 @@
     <image source="playlists/background.jpg" id="background"/>        
     <image source="playlists/playlist.png" id="item"/>    
   </app>              
+  
+  
+  <app id="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobbler">  
+    <image source="audioScrobbler/icon.png" id="icon"/>  
+    <image source="audioScrobbler/background.jpg" id="background"/>        
+    <image source="audioScrobbler/item.png" id="item"/>    
+  </app>                
+  
+  
+  <app id="org.lnicholls.galleon.apps.podcasting.Podcasting">  
+    <image source="podcasting/icon.png" id="icon"/>  
+  	<image source="podcasting/item.png" id="item"/>
+  	<image source="podcasting/folder.png" id="folder"/>	
+    <image source="podcasting/background.jpg" id="background"/>
+  </app>                  
+  
+
+  <app id="org.lnicholls.galleon.apps.iTunes.iTunes">  
+    <image source="iTunes/icon.png" id="icon"/>  
+  	<image source="iTunes/item.png" id="item"/>
+  	<image source="iTunes/folder.png" id="folder"/>	
+    <image source="iTunes/background.jpg" id="background"/>
+  </app>                  
 
 </skin>

@@ -34,9 +34,9 @@ public class DefaultScreen extends BScreen {
 
     protected final int BORDER_LEFT = SAFE_TITLE_H;
 
-    protected final int BODY_WIDTH = width - BORDER_LEFT - (SAFE_TITLE_H);
+    protected final int BODY_WIDTH = getWidth() - BORDER_LEFT - (SAFE_TITLE_H);
 
-    protected final int BODY_HEIGHT = height - 2 * SAFE_TITLE_V;
+    protected final int BODY_HEIGHT = getHeight() - 2 * SAFE_TITLE_V;
 
     static final class HintsView extends BView {
         public HintsView(BView parent, int x, int y, int width, int height, boolean visible) {
@@ -85,7 +85,7 @@ public class DefaultScreen extends BScreen {
             setBackground(background);
 
         if (hints)
-            mHints = new HintsView(above, SAFE_TITLE_H, SAFE_TITLE_V, width - 2 * SAFE_TITLE_H, height - 2
+            mHints = new HintsView(getAbove(), SAFE_TITLE_H, SAFE_TITLE_V, getWidth() - 2 * SAFE_TITLE_H, getHeight() - 2
                     * SAFE_TITLE_V, true);
 
         mBusy = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
@@ -116,7 +116,7 @@ public class DefaultScreen extends BScreen {
     public void setTitle(String value) {
         if (value != null && value.length() > 0) {
             if (mTitle == null) {
-                mTitle = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V, (width - (SAFE_TITLE_H * 2)), 110);
+                mTitle = new BText(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)), 110);
                 mTitle.setValue(" ");
                 mTitle.setColor(Color.yellow);
                 mTitle.setShadow(Color.black, 3);
@@ -132,7 +132,7 @@ public class DefaultScreen extends BScreen {
     public void setFooter(String value) {
         if (value != null && value.length() > 0) {
             if (mFooter == null) {
-                mFooter = new BText(normal, SAFE_TITLE_H, height - SAFE_TITLE_V - 18, (width - (SAFE_TITLE_H * 2)), 20);
+                mFooter = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 18, (getWidth() - (SAFE_TITLE_H * 2)), 20);
                 mFooter.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
                 mFooter.setFont("default-18.font");
             }

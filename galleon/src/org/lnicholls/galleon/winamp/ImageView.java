@@ -26,7 +26,7 @@ public class ImageView extends View {
         super(parent, x, y, images[0].getWidth(null), images[0].getHeight(null));
         mViews = new View[images.length];
         for (int i = 0; i < images.length; i++) {
-            mViews[i] = new View(this, 0, 0, width, height);
+            mViews[i] = new View(this, 0, 0, getWidth(), getHeight());
             mViews[i].setVisible(false);
             //mViews[i].setResource(createImage(Util.cropImage(images[i], 0, 0, width, height)));
             mViews[i].setResource(createImage(images[i]));

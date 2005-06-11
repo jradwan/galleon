@@ -53,7 +53,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
         if (!mSrc.equals(src)) 
         {
             mSrc = src; 
-            Konfabulator.mWindow.getApp().root.setPainting(false);
+            Konfabulator.mWindow.getApp().getRoot().setPainting(false);
             try
             {
                 //logMemory();
@@ -106,7 +106,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
             }            
             finally
             {
-                Konfabulator.mWindow.getApp().root.setPainting(true);
+                Konfabulator.mWindow.getApp().getRoot().setPainting(true);
             }
         }            
      }
@@ -121,7 +121,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
             {
                 //System.out.println("jsSet_hOffset:"+value+","+mVOffset+","+mView.width+","+mView.height+" ("+mSrc+")");
                 Resource anim = mView.getResource("*100");
-                mView.setBounds(value,mVOffset,mView.width,mView.height);//,anim);
+                mView.setBounds(value,mVOffset,mView.getWidth(),mView.getHeight());//,anim);
             }
         }            
     }            
@@ -134,7 +134,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
             if (mView!=null)
             {
                 //System.out.println("jsSet_vOffset:"+mHOffset+","+value+","+mView.width+","+mView.height+" ("+mSrc+")");
-                mView.setBounds(mHOffset,value,mView.width,mView.height);
+                mView.setBounds(mHOffset,value,mView.getWidth(),mView.getHeight());
             }        
         }            
     }

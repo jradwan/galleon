@@ -26,7 +26,7 @@ public class DefaultMenuScreen extends DefaultScreen {
         super(app);
         setTitle(title);
 
-        mMenuList = new MenuList(this, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 290, width
+        mMenuList = new MenuList(this, SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 290, getWidth()
                 - ((SAFE_TITLE_H * 2) + 32), 280, 35);
         BHighlights h = mMenuList.getHighlights();
         h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
@@ -51,7 +51,7 @@ public class DefaultMenuScreen extends DefaultScreen {
         if (mMenuList.getFocus()!=-1)
         {
             BView row = mMenuList.getRow(mMenuList.getFocus());
-            BView icon = (BView) row.children[0];
+            BView icon = (BView) row.getChild(0);
             icon.setResource(((DefaultApplication) getApp()).mBusyIcon);
             icon.flush();
     
@@ -66,7 +66,7 @@ public class DefaultMenuScreen extends DefaultScreen {
 
     public class MenuList extends DefaultList {
         public MenuList(DefaultMenuScreen defaultMenuScreen, int x, int y, int width, int height, int rowHeight) {
-            super(defaultMenuScreen.normal, x, y, width, height, rowHeight);
+            super(defaultMenuScreen.getNormal(), x, y, width, height, rowHeight);
             setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
             mDefaultMenuScreen = defaultMenuScreen;
         }
@@ -93,10 +93,6 @@ public class DefaultMenuScreen extends DefaultScreen {
                 return true;
             }
             return super.handleKeyPress(code, rawcode);
-        }
-
-        public int getTop() {
-            return top;
         }
 
         DefaultMenuScreen mDefaultMenuScreen;

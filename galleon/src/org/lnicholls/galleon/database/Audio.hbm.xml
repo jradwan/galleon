@@ -107,6 +107,10 @@ See the file "COPYING" for more details.
     <property name="cover" type="int"/>            
     
     <property name="origen" type="string" length="30"/>        
+    
+    <property name="externalId" type="string">            
+          <column name="externalId" index="AUDIO_EXTERNALID"/>
+    </property>    
 
   </class>
   

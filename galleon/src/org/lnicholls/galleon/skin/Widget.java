@@ -60,7 +60,7 @@ public class Widget {
             //System.out.println("height="+height);
             
             //System.out.println("Creating windowView: "+(parent.width-width)/2+","+(parent.height-height)/2+","+width+","+height);
-            View windowView = new View(parent,(parent.width-width)/2,(parent.height-height)/2,width,height);
+            View windowView = new View(parent,(parent.getWidth()-width)/2,(parent.getHeight()-height)/2,width,height);
             Konfabulator.mWindow = windowView;
             
             mScope = context.initStandardObjects();

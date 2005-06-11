@@ -35,11 +35,11 @@ public class PositionControl extends View {
     }
 
     private int mapPosition(int pos) {
-        int current = (int) Math.round((width - mBar.width) * pos / 100);
+        int current = (int) Math.round((getWidth() - mBar.getWidth()) * pos / 100);
         if (current < 0)
             current = 0;
-        else if (current > (width - mBar.width))
-            current = (width - mBar.width);
+        else if (current > (getWidth() - mBar.getWidth()))
+            current = (getWidth() - mBar.getWidth());
         return current;
     }
 

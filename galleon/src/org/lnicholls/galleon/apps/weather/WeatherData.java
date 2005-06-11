@@ -41,6 +41,8 @@ import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.database.PersistentValue;
 
 // TODO Handle changes in configuration
 // TODO Handle errors
@@ -72,13 +74,14 @@ public class WeatherData implements Serializable {
         mLinks = new ArrayList();
         mAlerts = new ArrayList();
 
-        String cachedId = Tools.loadPersistentValue(this.getClass().getName() + "." + "id");
-        if (cachedId != null) {
-            String cachedCity = Tools.loadPersistentValue(this.getClass().getName() + "." + "city");
-            String cachedState = Tools.loadPersistentValue(this.getClass().getName() + "." + "state");
-            String cachedZip = Tools.loadPersistentValue(this.getClass().getName() + "." + "zip");
-            String cachedFip = Tools.loadPersistentValue(this.getClass().getName() + "." + "fip");
-            String cachedLocalRadar = Tools.loadPersistentValue(this.getClass().getName() + "." + "localradar");
+        PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "id");
+        if (persistentValue != null) {
+            String cachedId = persistentValue.getValue(); 
+            String cachedCity = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "city").getValue();
+            String cachedState = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "state").getValue();
+            String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip").getValue();
+            String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip").getValue();
+            String cachedLocalRadar = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "localradar").getValue();
             if ((cachedCity != null && cachedCity.equals(city)) && (cachedState != null && cachedState.equals(state))
                     && (cachedZip != null && cachedZip.equals(city))) {
                 mId = cachedId;
@@ -87,9 +90,9 @@ public class WeatherData implements Serializable {
             }
         }
         
-        Tools.savePersistentValue(this.getClass().getName() + "." + "city", mCity);
-        Tools.savePersistentValue(this.getClass().getName() + "." + "state", mState);
-        Tools.savePersistentValue(this.getClass().getName() + "." + "zip", mZip);
+        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "city", mCity);
+        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "state", mState);
+        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "zip", mZip);
 
         new Thread() {
             public void run() {
@@ -192,11 +195,12 @@ public class WeatherData implements Serializable {
     public void getAllWeather() {
         try {
             SAXReader saxReader = new SAXReader();
-            String last = Tools.loadPersistentValue(this.getClass().getName() + "." + "date");
+            PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "date");
             String page = null;
             
-            if (last !=null)
+            if (persistentValue !=null)
             {
+                String last = persistentValue.getValue();
                 Date lastTime = new Date(last);
                 Date current = new Date();
                 if ((current.getTime()-lastTime.getTime())/(1000*60) >= 720)
@@ -208,8 +212,8 @@ public class WeatherData implements Serializable {
                     
                     try
                     {
-                        Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
-                        Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
                     }
                     catch (Exception ex)
                     {
@@ -218,7 +222,9 @@ public class WeatherData implements Serializable {
                 }
                 else
                 {
-                    page = Tools.loadPersistentValue(this.getClass().getName() + "." + "content");
+                    persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "content");
+                    if (persistentValue!=null)
+                        page = persistentValue.getValue();
                 }
             }
             else
@@ -230,8 +236,8 @@ public class WeatherData implements Serializable {
                 
                 try
                 {
-                    Tools.savePersistentValue(this.getClass().getName() + "." + "content", page);
-                    Tools.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
+                    PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "content", page);
+                    PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
                 }
                 catch (Exception ex)
                 {
@@ -244,7 +250,7 @@ public class WeatherData implements Serializable {
             {
                 log.debug("AllWeather: " + page);
                 parseWeather(page);
-                Tools.savePersistentValue(this.getClass().getName() + "." + "id", mId);
+                PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "id", mId);
             }
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
@@ -275,7 +281,7 @@ public class WeatherData implements Serializable {
             String page = Tools.getPage(url);
             log.debug("ForecastWeather: " + page);
             parseWeather(page);
-            Tools.savePersistentValue(this.getClass().getName() + "." + "id", mId);
+            PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "id", mId);
         } catch (MalformedURLException ex) {
             log.error("Could not determine weather conditions", ex);
         }
@@ -471,7 +477,7 @@ public class WeatherData implements Serializable {
                     Matcher m = p.matcher(strGetResponseBody);
                     if (m.find()) {
                         mLocalRadar = m.group(1);
-                        Tools.savePersistentValue(this.getClass().getName() + "." + "localradar", mLocalRadar);
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar", mLocalRadar);
                         return;
                     }
                 }
@@ -517,7 +523,7 @@ public class WeatherData implements Serializable {
                         if (log.isDebugEnabled())
                             log.debug("FIP: " + m.group(1) + "(" + m.group(2) + ")");
                         mFip = m.group(1);
-                        Tools.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
                         return;
                     }
                 }
@@ -544,7 +550,7 @@ public class WeatherData implements Serializable {
                         if (log.isDebugEnabled())
                             log.debug("FIP: " + m.group(1) + "(" + m.group(2) + ")");
                         mFip = m.group(1);
-                        Tools.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
                         return;
                     } else {
                         mFip = StateData.getFipFromSymbol(mState);

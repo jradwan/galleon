@@ -26,14 +26,12 @@ public class Skin extends BSkin {
     }
 
     public Element get(String name) {
-        Element element = (Element) map.get(name);
+        Element element = (Element) super.get(name);
         if (element == null)
             throw new RuntimeException("unknown element: " + name);
 
-        DefaultApplication defaultApplication = (DefaultApplication) app;
-        DefaultScreen currentScreen = (DefaultScreen) defaultApplication.getCurrentScreen();
-        if (element.name.equals("bar")) {
-            element.rsrc = app.getResource("bar2.png");
+        if (element.getName().equals("bar")) {
+            element = super.get("bar2.png");
         } else
             element = super.get(name);
         return element;

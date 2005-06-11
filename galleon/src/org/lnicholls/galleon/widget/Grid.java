@@ -88,8 +88,8 @@ public abstract class Grid extends BList {
      */
     protected void createRow(BView parent, int index) {
         for (int i = 0; i < 3; i++) {
-            BView view = new BView(parent, i * parent.width / 3 + 3, 0, parent.width / 3 - 6, rowHeight - 6);
-            createCell(view, index, i, index == focused);
+            BView view = new BView(parent, i * parent.getWidth() / 3 + 3, 0, parent.getWidth() / 3 - 6, getRowHeight() - 6);
+            createCell(view, index, i, index == getFocus());
         }
     }
 
@@ -98,7 +98,7 @@ public abstract class Grid extends BList {
     public boolean handleKeyPress(int code, long rawcode) {
         try {
             if (size() > 0) {
-                List cells = (List) get(focused);
+                List cells = (List) get(getFocus());
                 int newColumn = mColumn;
 
                 switch (code) {
@@ -142,7 +142,7 @@ public abstract class Grid extends BList {
                 return super.handleKeyPress(code, rawcode);
         } finally {
             if (size() > 0) {
-                List cells = (List) get(focused);
+                List cells = (List) get(getFocus());
                 mColumn = Math.max(Math.min(mColumn, cells.size() - 1), 0);
             }
             updateMarker();
@@ -150,7 +150,7 @@ public abstract class Grid extends BList {
     }
 
     private void updateMarker() {
-        BRect markerBounds = new BRect(mColumn * (width / 3), focused * rowHeight, width / 3, rowHeight);
+        BRect markerBounds = new BRect(mColumn * (getWidth() / 3), getFocus() * getRowHeight(), getWidth() / 3, getRowHeight());
         mMarker.setBounds(markerBounds.x, markerBounds.y, markerBounds.width, markerBounds.height);
     }
 
@@ -165,16 +165,12 @@ public abstract class Grid extends BList {
         return super.handleKeyRepeat(code, rawcode);
     }
 
-    public int getTop() {
-        return top;
-    }
-
     public int getPos() {
-        return focused * 3 + mColumn;
+        return getFocus() * 3 + mColumn;
     }
 
     public void setPos(int value) {
-        focused = value / 3;
+        setFocus(value / 3, false);
         mColumn = value % 3;
         updateMarker();
         refresh();

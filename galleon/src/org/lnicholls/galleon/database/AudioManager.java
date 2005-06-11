@@ -321,4 +321,45 @@ public class AudioManager {
             HibernateUtil.closeSession();
         }
     }
+    
+    public static int countMP3sByOrigen(String origen) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = session.createQuery("select count(audio) from org.lnicholls.galleon.database.Audio as audio where audio.origen=?").setString(0, origen).list();
+
+            tx.commit();
+
+            return ((Integer)list.iterator().next()).intValue();
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }
+    
+    public static List findByExternalId(String id) throws HibernateException {
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            List list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.externalId=?")
+                .setString(0, id).list();
+
+            tx.commit();
+
+            return list;
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+    }
 }

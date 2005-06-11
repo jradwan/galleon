@@ -63,18 +63,18 @@ public class ScrollTextControl extends View {
     }
 
     public int getScrollPosition() {
-        return mScrollingText.x;
+        return mScrollingText.getX();
     }
 
     public boolean handleEvent(HmeEvent event) {
-        switch (event.opcode) {
+        switch (event.getOpCode()) {
         case EVT_KEY: {
             HmeEvent.Key e = (HmeEvent.Key) event;
-            switch (e.code) {
+            switch (e.getCode()) {
             case KEY_TIVO:
-                int code = (int) e.rawcode;
+                int code = (int) e.getRawCode();
                 if ((code + 1) >= mCounter)
-                    setText(getText(), width);
+                    setText(getText(), getWidth());
                 return true;
             }
             break;

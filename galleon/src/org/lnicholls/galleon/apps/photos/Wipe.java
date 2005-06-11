@@ -18,6 +18,7 @@ package org.lnicholls.galleon.apps.photos;
 
 import java.awt.Image;
 
+
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 
@@ -61,11 +62,11 @@ public class Wipe extends Effect {
     public void apply(View view, Image image) {
         Resource anim = view.getResource("*" + getDelay());
 
-        view.getApp().root.setPainting(false);
-        View view2 = new View(view.parent, view.x, view.y, view.width, view.height);
-        view2.setResource(view.resource);
+        view.getApp().getRoot().setPainting(false);
+        View view2 = new View(view.getParent(), view.getX(), view.getY(), view.getWidth(), view.getHeight());
+        view2.setResource(view.getResource());
         view.setResource(view.createImage(image));
-        view.getApp().root.setPainting(true);
+        view.getApp().getRoot().setPainting(true);
         image.flush(); 
         image = null;
 
@@ -77,7 +78,7 @@ public class Wipe extends Effect {
             int[] direction = getDirection(view);
             view2.setLocation(direction[0], direction[1], anim);
         } else
-            view2.setLocation(Math.round(mX*view.parent.width), Math.round(mY*view.parent.height), anim);
+            view2.setLocation(Math.round(mX*view.getParent().getWidth()), Math.round(mY*view.getParent().getHeight()), anim);
         if (mOutTransparent)
             view2.setTransparency(1, anim);
 
@@ -88,40 +89,40 @@ public class Wipe extends Effect {
         int[] values = new int[2];
         switch (mDirection) {
         case LEFT:
-            values[0] = -view.parent.width;
-            values[1] = view.y;
+            values[0] = -view.getParent().getWidth();
+            values[1] = view.getY();
             break;
         case RIGHT:
-            values[0] = view.parent.width;
-            values[1] = view.y;;
+            values[0] = view.getParent().getWidth();
+            values[1] = view.getY();
             break;
         case TOP:
-            values[0] = view.x;
-            values[1] = -view.parent.height;
+            values[0] = view.getX();
+            values[1] = -view.getParent().getHeight();
             break;
         case BOTTOM:
-            values[0] = view.x;
-            values[1] = view.parent.height;
+            values[0] = view.getX();
+            values[1] = view.getParent().getHeight();
             break;
         case NW:
-            values[0] = -view.parent.width;
-            values[1] = -view.parent.height;
+            values[0] = -view.getParent().getWidth();
+            values[1] = -view.getParent().getHeight();
             break;
         case NE:
-            values[0] = view.parent.width;
-            values[1] = -view.parent.height;
+            values[0] = view.getParent().getWidth();
+            values[1] = -view.getParent().getHeight();
             break;
         case SE:
-            values[0] = view.parent.width;
-            values[1] = view.parent.height;
+            values[0] = view.getParent().getWidth();
+            values[1] = view.getParent().getHeight();
             break;
         case SW:
-            values[0] = -view.parent.width;
-            values[1] = view.parent.height;
+            values[0] = -view.getParent().getWidth();
+            values[1] = view.getParent().getHeight();
             break;
         default:
-            values[0] = view.parent.width;
-            values[1] = view.y;
+            values[0] = view.getParent().getWidth();
+            values[1] = view.getY();
             break;
         }
         return values;

@@ -72,7 +72,7 @@ public class Internet extends DefaultApplication {
         mLargeFolderIcon = getSkinImage("menu", "gridFolder");
         mItemIcon = getSkinImage("menu", "item");
 
-        InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) context.factory)
+        InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getContext().getFactory())
                 .getAppContext().getConfiguration();
 
         Tracker tracker = new Tracker(internetConfiguration.getUrls(), 0);
@@ -172,22 +172,22 @@ public class Internet extends DefaultApplication {
         public PathScreen(Internet app, Tracker tracker) {
             super(app);
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
             setTitle("Internet");
 
             mTracker = tracker;
 
-            int w = width - 2 * SAFE_TITLE_H;
-            int h = height - 2 * SAFE_TITLE_V - 60;
-            grid = new PGrid(this.normal, SAFE_TITLE_H, SAFE_TITLE_V + 60, w, h, h / 3);
+            int w = getWidth() - 2 * SAFE_TITLE_H;
+            int h = getHeight() - 2 * SAFE_TITLE_V - 60;
+            grid = new PGrid(this.getNormal(), SAFE_TITLE_H, SAFE_TITLE_V + 60, w, h, h / 3);
             BHighlights highlights = grid.getHighlights();
             highlights.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             highlights.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
 
             setFocusDefault(grid);
 
-            mBusy = new BView(normal, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
+            mBusy = new BView(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
             mBusy.setResource(mBusyIcon);
             mBusy.setVisible(false);
         }
@@ -309,7 +309,7 @@ public class Internet extends DefaultApplication {
         public ImageScreen(Internet app) {
             super(app, true);
             
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
             
             mImage = new BView(this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT-20, true);
             
@@ -367,6 +367,7 @@ public class Internet extends DefaultApplication {
                 }
             };
             mImageThread.start();
+            mPlaying = true;
             setFooter("Press PAUSE to stop reloading");
         }
         
@@ -375,6 +376,7 @@ public class Internet extends DefaultApplication {
             if (mImageThread != null && mImageThread.isAlive())
                 mImageThread.interrupt();
             mImageThread = null;
+            mPlaying = false;
             setFooter("Press PLAY to reload");
         }
 
@@ -382,7 +384,10 @@ public class Internet extends DefaultApplication {
             switch (code) {
             case KEY_SLOW:
             case KEY_PAUSE:
-                stopReload();        
+                if (mPlaying)
+                    stopReload();
+                else
+                    startReload();
                 break;
             case KEY_PLAY:
                 startReload();
@@ -452,6 +457,8 @@ public class Internet extends DefaultApplication {
         private Tracker mTracker;
 
         private Thread mImageThread;
+        
+        private boolean mPlaying;
     }
 
     private static Image getImage(String address, boolean reload) {
@@ -495,20 +502,25 @@ public class Internet extends DefaultApplication {
         }
 
         private void updateImages() {
-            InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext().getConfiguration();
+            final InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext().getConfiguration();
 
-            Iterator iterator = internetConfiguration.getUrls().iterator();
-            while (iterator.hasNext()) {
-                NameValue nameValue = (NameValue) iterator.next();
+            new Thread(){
+                public void run()
+                {
+                    Iterator iterator = internetConfiguration.getUrls().iterator();
+                    while (iterator.hasNext()) {
+                        NameValue nameValue = (NameValue) iterator.next();
 
-                try {
-                    URL url = new URL(nameValue.getValue());
-                    Tools.cacheImage(url, nameValue.getValue());
-                } catch (Exception ex) {
-                    Tools.logException(Internet.class, ex);
+                        try {
+                            URL url = new URL(nameValue.getValue());
+                            Tools.cacheImage(url, nameValue.getValue());
+                        } catch (Exception ex) {
+                            Tools.logException(Internet.class, ex);
+                        }
+
+                    }                    
                 }
-
-            }
+            }.start();
         }
     }
 }

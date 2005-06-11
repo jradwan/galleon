@@ -40,10 +40,10 @@ public class Konfabulator extends Application
      * Create the app.
      */
     public void init(Context context)
-    {        mWidgetLoader = ((KonfabulatorFactory)context.factory).getWidgetLoader();
-        //root.setResource("myloop.mpg");                mContent = new View(root, SAFE_ACTION_H / 2, SAFE_ACTION_V / 2,
-                           root.width - SAFE_ACTION_H,
-                           root.height - SAFE_ACTION_V);                mWidget = new Widget(mWidgetLoader);        mWindow = mWidget.getWindow(mContent);                           
+    {        mWidgetLoader = ((KonfabulatorFactory)getContext().getFactory()).getWidgetLoader();
+        //root.setResource("myloop.mpg");                mContent = new View(getRoot(), SAFE_ACTION_H / 2, SAFE_ACTION_V / 2,
+                getRoot().getWidth() - SAFE_ACTION_H,
+                getRoot().getHeight() - SAFE_ACTION_V);                mWidget = new Widget(mWidgetLoader);        mWindow = mWidget.getWindow(mContent);                           
     }        public void close()    {
         if (mWidget!=null)
             mWidget.close();    }
@@ -52,7 +52,7 @@ public class Konfabulator extends Application
      */
     public boolean handleEvent(HmeEvent event)
     {
-	switch (event.opcode) {
+	switch (event.getOpCode()) {
           case EVT_KEY: {
               //if (title.handleEvent(event))              break;            }
           //
@@ -64,8 +64,8 @@ public class Konfabulator extends Application
           //
           
 	  case StreamResource.EVT_RSRC_INFO: {
-	      HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo)event;	      if (info.status == RSRC_STATUS_PLAYING) {
-	        String pos = (String)info.map.get("pos");	        if (pos!=null)
+	      HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo)event;	      if (info.getStatus() == RSRC_STATUS_PLAYING) {
+	        String pos = (String)info.getMap().get("pos");	        if (pos!=null)
 	        {	            try
                     {	                StringTokenizer tokenizer = new StringTokenizer(pos,"/");
 	                if (tokenizer.countTokens()==2)
@@ -74,7 +74,7 @@ public class Konfabulator extends Application
 	                    //positionControl.setPosition(value);	                    //updateTime(Integer.parseInt(current)/1000);
                         }                    }
 	            catch (Exception ex) {}                        
-	        }	        String bitrate = (String)info.map.get("bitrate");
+	        }	        String bitrate = (String)info.getMap().get("bitrate");
 	        if (bitrate!=null)	        {
 	            try
 	            {	                int value = (int) Math.round(Float.parseFloat(bitrate)/1024);
@@ -84,7 +84,7 @@ public class Konfabulator extends Application
 	            catch (Exception ex) {}
 	        }    	      }          
 	      return true;          }	  case StreamResource.EVT_RSRC_STATUS: {
-	      HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo)event;	      if (info.status >= RSRC_STATUS_CLOSED) {
+	      HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo)event;	      if (info.getStatus()>= RSRC_STATUS_CLOSED) {
                   // the track finished - what next?
                   
 	      }
@@ -99,11 +99,11 @@ public class Konfabulator extends Application
      */
     protected void dispatchEvent(HmeEvent event)
     {
-        //System.out.println(event);        switch (event.opcode) {
+        //System.out.println(event);        switch (event.getOpCode()) {
           case EVT_KEY:
               HmeEvent.Key e = (HmeEvent.Key)event;
-              if (e.action==KEY_PRESS)              {
-                switch (e.code){
+              if (e.getAction()==KEY_PRESS)              {
+                switch (e.getCode()){
                   case KEY_PAUSE:                        mWidget.pause();
                     break;                  case KEY_PLAY:                        mWidget.play();
                     break;                                    case KEY_LEFT:                        mWidget.left(5);
@@ -114,7 +114,7 @@ public class Konfabulator extends Application
                     break;                                      case KEY_SELECT:                        mWidget.start();
                     break;                                                                 
                 }               }
-              else                           if (e.action==KEY_RELEASE)              {                switch (e.code){                  case KEY_PAUSE:
+              else                           if (e.getAction()==KEY_RELEASE)              {                switch (e.getCode()){                  case KEY_PAUSE:
                     break;                  case KEY_PLAY:
                     break;                                  
                   case KEY_CHANNELUP:
@@ -123,7 +123,7 @@ public class Konfabulator extends Application
                   case KEY_SLOW:
                     break;                                        
                   case KEY_ENTER:                        setActive(false);
-                    break;                                                             }               }                            else                           if (e.action==KEY_REPEAT)              {                switch (e.code){                  case KEY_LEFT:                        mWidget.left(10);
+                    break;                                                             }               }                            else                           if (e.getAction()==KEY_REPEAT)              {                switch (e.getCode()){                  case KEY_LEFT:                        mWidget.left(10);
                     break;
                   case KEY_RIGHT:                        mWidget.right(10);
                     break;                                                                            }               }                 

@@ -32,6 +32,12 @@ See the file "COPYING" for more details.
     <property name="name" type="string" not-null="true" length="256"/>        
     <property name="value" type="string" not-null="true" length="32672"/>        
     
+    <property name="dateModified" type="timestamp">
+      <meta attribute="field-description">When the value was added</meta>
+    </property>            
+    
+    <property name="timeToLive" type="int"/>
+    
   </class>
 
 </hibernate-mapping>

@@ -41,6 +41,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -384,8 +385,7 @@ public class Tools {
     }
 
     public static Toolkit getDefaultToolkit() {
-        return Toolkit.getDefaultToolkit();
-        /*
+        //return Toolkit.getDefaultToolkit();
         try
         {
             String headless = System.getProperty("java.awt.headless");
@@ -413,7 +413,6 @@ public class Tools {
             }
         }
         return null;
-        */
     }
 
     public static Image getResourceAsImage(Class theClass, String resource) {
@@ -517,6 +516,7 @@ public class Tools {
             input.close();
         } catch (Exception ex) {
             Tools.logException(Tools.class, ex, url.getPath());
+            return null;
         }
         return buffer.toString();
     }
@@ -717,6 +717,7 @@ public class Tools {
 
     public static Image getImage(URL url, int width, int height) {
         if (url != null) {
+            //System.out.println(url);
             try {
                 Image internetImage = null;
                 if (log.isDebugEnabled())
@@ -737,18 +738,25 @@ public class Tools {
                 TimedCallable timedCallable = new TimedCallable(new TimedThread(url), 2000 * 60);
                 internetImage = (Image) timedCallable.call();
 
+                //System.out.println("internetImage="+internetImage);
                 if (internetImage == null) {
                     log.error("Invalid internet image: " + url.getPath());
                 } else {
+                    //System.out.println("width="+width);
+                    //System.out.println("height="+height);
                     if (width == -1)
                         width = internetImage.getWidth(null);
                     if (height == -1)
                         height = internetImage.getHeight(null);
+                    
+                    //System.out.println("width="+width);
+                    //System.out.println("height="+height);
 
                     Image image = null;
                     if (internetImage instanceof BufferedImage)
                     {
                         image = ImageManipulator.getScaledImage((BufferedImage)internetImage, width, height);
+                        //System.out.println("image1="+image);
                     }
                     else
                     {
@@ -761,10 +769,13 @@ public class Tools {
                             graphics2D.drawImage(internetImage, 0, 0, width, height, null);
                             graphics2D.dispose();
                             graphics2D = null;
+                            //System.out.println("image2="+image);
                         }
                         catch (Throwable ex)
                         {
+                            //ex.printStackTrace();
                             image = internetImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                            //System.out.println("image3="+image);
                         }
                     }
                     internetImage.flush();
@@ -773,111 +784,9 @@ public class Tools {
                     return image;
                 }
             } catch (Throwable ex) {
+                //ex.printStackTrace();
                 Tools.logException(Tools.class, ex, url.toExternalForm());
             }
-        }
-        return null;
-    }
-
-    public static void savePersistentValue(String name, String value) {
-        try {
-            PersistentValue persistentValue = PersistentValueManager.findByName(name);
-            if (persistentValue != null) {
-                PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
-                if (persistentValueCount!=null)
-                {
-                    try
-                    {
-                        PersistentValueManager.deletePersistentValue(persistentValue);
-                        
-                        int counter = Integer.parseInt(persistentValueCount.getValue());
-                        for (int i=2;i<=counter;i++)
-                        {
-                            persistentValue = PersistentValueManager.findByName(name+"."+i);
-                            if (persistentValue!=null)
-                                PersistentValueManager.deletePersistentValue(persistentValue);
-                        }
-                        
-                        PersistentValueManager.deletePersistentValue(persistentValueCount);
-                    }
-                    catch (Exception ex)
-                    {
-                        Tools.logException(Tools.class, ex, name);        
-                    }
-                }
-                else
-                {
-                    PersistentValueManager.deletePersistentValue(persistentValue);    
-                }
-            }
-            
-            if (value.length()<=32672)
-            {
-                persistentValue = new PersistentValue(name, value);
-                PersistentValueManager.createPersistentValue(persistentValue);
-            }
-            else
-            {
-                int counter = 0;
-                int start = 0;
-                int end = start+32672;
-                String sub = value.substring(start,end);
-                while (sub.length()>0)
-                {
-                    String postfix = "";
-                    if (++counter>1)
-                        postfix = "."+counter;
-                    
-                    persistentValue = new PersistentValue(name+postfix, sub);
-                    PersistentValueManager.createPersistentValue(persistentValue);
-                
-                    start = end;
-                    end = start+32672;
-                    if (end>value.length())
-                        end = value.length();
-                    sub = value.substring(start, end);
-                }
-                persistentValue = new PersistentValue(name+".count", String.valueOf(counter));
-                PersistentValueManager.createPersistentValue(persistentValue);
-            }
-        } catch (HibernateException ex) {
-            log.error("PersistentValue create failed", ex);
-        }
-    }
-
-    public static String loadPersistentValue(String name) {
-        try {
-            PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
-            if (persistentValueCount!=null)
-            {
-                try
-                {
-                    StringBuffer buffer = new StringBuffer();
-                    PersistentValue persistentValue = PersistentValueManager.findByName(name);
-                    if (persistentValue!=null)
-                    {
-                        buffer.append(persistentValue.getValue());
-                        int counter = Integer.parseInt(persistentValueCount.getValue());
-                        for (int i=2;i<=counter;i++)
-                        {
-                            persistentValue = PersistentValueManager.findByName(name+"."+i);
-                            if (persistentValue!=null)
-                                buffer.append(persistentValue.getValue());
-                        }
-                    }
-                    return buffer.toString();
-                }
-                catch (Exception ex)
-                {
-                    Tools.logException(Tools.class, ex, name);        
-                }
-            }
-            else
-                return PersistentValueManager.findValueByName(name);
-        } catch (HibernateException ex) {
-            log.error("PersistentValue retrieve failed", ex);
-        } catch (Exception ex) {
-            Tools.logException(Tools.class, ex, name);
         }
         return null;
     }
@@ -898,8 +807,7 @@ public class Tools {
     }
 
     public static BufferedImage createBufferedImage(int width, int height, int imageType) {
-        return new BufferedImage(width, height, imageType);
-        /*
+        //return new BufferedImage(width, height, imageType);
         if (java.awt.GraphicsEnvironment.isHeadless())
             return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
         else
@@ -908,7 +816,6 @@ public class Tools {
         } catch (Throwable ex) {
             return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
         }
-        */
     }
     
     public static BufferedImage getDefaultImage() {
@@ -926,5 +833,19 @@ public class Tools {
           //return new com.eteks.awt.PJAImage (producer);
           return null;
       }
+    }
+    
+    public static String md5(String value)
+    {
+        try
+        {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.update(value.getBytes());
+
+            return bytesToString(messageDigest.digest());
+        } catch (Exception ex) {
+            Tools.logException(Tools.class, ex, value);
+        }
+        return value;
     }
 }

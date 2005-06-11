@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.util.Tools;
 
 import net.sf.hibernate.*;
 import net.sf.hibernate.Query;
@@ -235,5 +237,131 @@ public class PersistentValueManager {
         } finally {
             HibernateUtil.closeSession();
         }
-    }    
+    }
+    
+    public static void savePersistentValue(String name, String value) {
+        savePersistentValue(name, value, new Date(), 0);    
+    }
+    
+    public static void savePersistentValue(String name, String value, int ttl) {
+        savePersistentValue(name, value, new Date(), ttl);    
+    }
+    
+    public static void savePersistentValue(String name, String value, Date date, int ttl) {
+        try {
+            PersistentValue existingPersistentValue = PersistentValueManager.findByName(name);
+            if (existingPersistentValue != null) {
+                PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
+                if (persistentValueCount!=null)
+                {
+                    try
+                    {
+                        PersistentValueManager.deletePersistentValue(existingPersistentValue);
+                        
+                        int counter = Integer.parseInt(persistentValueCount.getValue());
+                        for (int i=2;i<=counter;i++)
+                        {
+                            existingPersistentValue = PersistentValueManager.findByName(name+"."+i);
+                            if (existingPersistentValue!=null)
+                                PersistentValueManager.deletePersistentValue(existingPersistentValue);
+                        }
+                        
+                        PersistentValueManager.deletePersistentValue(persistentValueCount);
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.logException(Tools.class, ex, name);        
+                    }
+                }
+                else
+                {
+                    PersistentValueManager.deletePersistentValue(existingPersistentValue);    
+                }
+            }
+            
+            if (value.length()<=32672)
+            {
+                PersistentValue persistentValue = new PersistentValue(name, value, date, new Integer(ttl));
+                PersistentValueManager.createPersistentValue(persistentValue);
+            }
+            else
+            {
+                int counter = 0;
+                int start = 0;
+                int end = start+32672;
+                String sub = value.substring(start,end);
+                while (sub.length()>0)
+                {
+                    String postfix = "";
+                    if (++counter>1)
+                        postfix = "."+counter;
+                    
+                    existingPersistentValue = new PersistentValue(name+postfix, sub, date, new Integer(ttl));
+                    PersistentValueManager.createPersistentValue(existingPersistentValue);
+                
+                    start = end;
+                    end = start+32672;
+                    if (end>value.length())
+                        end = value.length();
+                    sub = value.substring(start, end);
+                }
+                PersistentValue persistentValue = new PersistentValue(name+".count", String.valueOf(counter), date, new Integer(ttl));
+                PersistentValueManager.createPersistentValue(persistentValue);
+            }
+        } catch (HibernateException ex) {
+            log.error("PersistentValue save failed", ex);
+        }
+    }
+
+    public static PersistentValue loadPersistentValue(String name) {
+        try {
+            PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
+            if (persistentValueCount!=null)
+            {
+                try
+                {
+                    StringBuffer buffer = new StringBuffer();
+                    PersistentValue persistentValue = PersistentValueManager.findByName(name);
+                    Date when = new Date();
+                    Integer ttl = new Integer(0);
+                    if (persistentValue!=null)
+                    {
+                        buffer.append(persistentValue.getValue());
+                        int counter = Integer.parseInt(persistentValueCount.getValue());
+                        for (int i=2;i<=counter;i++)
+                        {
+                            persistentValue = PersistentValueManager.findByName(name+"."+i);
+                            if (persistentValue!=null)
+                                buffer.append(persistentValue.getValue());
+                        }
+                        when = persistentValue.getDateModified();
+                        ttl = persistentValue.getTimeToLive();
+                    }
+                    return new PersistentValue(name+".count", buffer.toString(), when, ttl);
+                }
+                catch (Exception ex)
+                {
+                    Tools.logException(Tools.class, ex, name);        
+                }
+            }
+            else
+                return PersistentValueManager.findByName(name);
+        } catch (HibernateException ex) {
+            log.error("PersistentValue load failed", ex);
+        } catch (Exception ex) {
+            Tools.logException(PersistentValueManager.class, ex, name);
+        }
+        return null;
+    }
+    
+    public static boolean isAged(PersistentValue persistentValue)
+    {
+        if (persistentValue!=null && persistentValue.getDateModified()!=null && persistentValue.getTimeToLive()!=null)
+        {
+            Date ttl = new Date(persistentValue.getDateModified().getTime()+persistentValue.getTimeToLive().intValue()*1000);
+            return new Date().after(ttl);
+        }
+        
+        return true;
+    }
 }

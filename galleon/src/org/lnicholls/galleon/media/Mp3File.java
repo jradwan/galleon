@@ -334,7 +334,6 @@ public final class Mp3File {
             thirdPass(file, audio);
         } catch (Exception ex) {
             Tools.logException(Mp3File.class, ex, filename);
-            ex.printStackTrace();
         }
 
         if (audio.getTitle().equals(DEFAULT_TITLE)) {

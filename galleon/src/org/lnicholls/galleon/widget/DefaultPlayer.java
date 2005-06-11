@@ -1,9 +1,5 @@
 package org.lnicholls.galleon.widget;
 
-import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
-
-import com.tivo.hme.bananas.BView;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -20,14 +16,47 @@ import com.tivo.hme.bananas.BView;
  * See the file "COPYING" for more details.
  */
 
-public abstract class DefaultPlayer extends BView {
-    
+import org.lnicholls.galleon.widget.DefaultApplication.ApplicationEvent;
+import org.lnicholls.galleon.widget.DefaultApplication.ApplicationEventListener;
+
+import com.tivo.hme.bananas.BView;
+
+public abstract class DefaultPlayer extends BView implements ApplicationEventListener {
+
     public DefaultPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible) {
         super(parent, x, y, width, height, visible);
     }
+    
+    public boolean handleFocus(boolean isGained, BView gained, BView lost)
+    {
+        /*
+        System.out.println("handleFocus: isGained="+isGained);
+        if (isGained)
+            DefaultApplication.addApplicationEventListener(this);
+        else
+            DefaultApplication.removeApplicationEventListener(this);
+            */
+        
+        return super.handleFocus(isGained, gained, lost);
+    }
 
     public abstract void updatePlayer();
-    
+
     public abstract void stopPlayer();
+
+    public void handleApplicationEvent(ApplicationEvent appEvent) {
+        //System.out.println("handleApplicationEvent");
+    }
     
+    public boolean handleAction(BView view, java.lang.Object action)
+    {
+        //System.out.println("handleAction: "+action);
+        return super.handleAction(view, action);
+    }
+    
+    public boolean handleEvent(com.tivo.hme.sdk.HmeEvent event)
+    {
+        //System.out.println("handleEvent: "+event);
+        return super.handleEvent(event);
+    }
 }

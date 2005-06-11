@@ -104,7 +104,7 @@ public class MusicPlayerConfiguration implements Serializable {
     
     private String mPlayer = WINAMP;
     
-    private boolean mRandomPlayFolders;
+    private boolean mRandomPlayFolders = true;
 
     private boolean mModified;
 }

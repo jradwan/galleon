@@ -114,11 +114,11 @@ public class Desktop extends DefaultApplication {
                         image.flush();
                         image = null;
 
-                        normal.setResource(createImage(scaled));
+                        getNormal().setResource(createImage(scaled));
                         scaled.flush();
                         scaled = null;
                     } else {
-                        normal.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                        getNormal().setResource(createImage(image), RSRC_IMAGE_BESTFIT);
                         image.flush();
                         image = null;
                     }
@@ -126,7 +126,7 @@ public class Desktop extends DefaultApplication {
             } finally {
                 setPainting(true);
             }
-            normal.flush();
+            getNormal().flush();
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {

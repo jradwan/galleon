@@ -57,7 +57,7 @@ public class Camera extends DefaultApplication {
         mMenuBackground = getSkinImage("menu", "background");
         mItemIcon = getSkinImage(null, "icon");
 
-        CameraConfiguration cameraConfiguration = (CameraConfiguration) ((CameraFactory) context.factory)
+        CameraConfiguration cameraConfiguration = (CameraConfiguration) ((CameraFactory) getContext().getFactory())
                 .getAppContext().getConfiguration();
 
         if (cameraConfiguration.getCameras().size() == 1) {
@@ -72,9 +72,9 @@ public class Camera extends DefaultApplication {
         public CameraMenuScreen(Camera app) {
             super(app, "Camera");
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
-            CameraConfiguration cameraConfiguration = (CameraConfiguration) ((CameraFactory) context.factory)
+            CameraConfiguration cameraConfiguration = (CameraConfiguration) ((CameraFactory) getContext().getFactory())
                     .getAppContext().getConfiguration();
 
             for (Iterator i = cameraConfiguration.getCameras().iterator(); i.hasNext(); /* Nothing */) {
@@ -109,7 +109,7 @@ public class Camera extends DefaultApplication {
             NameValue camera = (NameValue) mMenuList.get(index);
             icon.setResource(mItemIcon);
 
-            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(camera.getName(), 40));
@@ -155,11 +155,11 @@ public class Camera extends DefaultApplication {
                         image.flush();
                         image = null;
 
-                        normal.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
+                        getNormal().setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
                         scaled.flush();
                         scaled = null;
                     } else {
-                        normal.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                        getNormal().setResource(createImage(image), RSRC_IMAGE_BESTFIT);
                         image.flush();
                         image = null;
                     }
@@ -167,7 +167,7 @@ public class Camera extends DefaultApplication {
             } finally {
                 setPainting(true);
             }
-            normal.flush();
+            getNormal().flush();
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -195,13 +195,13 @@ public class Camera extends DefaultApplication {
                                 synchronized (this) {
                                     update();
                                 }
-                                sleep(500);
+                                sleep(1000);
                             }
                         }
                         else
                         {
                             setTitle("Error");
-                            below.setResource(mMenuBackground);
+                            getBelow().setResource(mMenuBackground);
                         }
                     } catch (Exception ex) {
                         Tools.logException(Camera.class, ex, "Could not retrieve camera");
@@ -230,7 +230,7 @@ public class Camera extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            CameraConfiguration cameraConfiguration = (CameraConfiguration) ((CameraFactory) context.factory)
+            CameraConfiguration cameraConfiguration = (CameraConfiguration) ((CameraFactory) getContext().getFactory())
                     .getAppContext().getConfiguration();
             switch (code) {
             case KEY_LEFT:
@@ -259,6 +259,4 @@ public class Camera extends DefaultApplication {
             CameraConfiguration cameraConfiguration = (CameraConfiguration) getAppContext().getConfiguration();
         }
     }
-
-    //private static CameraDevice mCamera;
 }

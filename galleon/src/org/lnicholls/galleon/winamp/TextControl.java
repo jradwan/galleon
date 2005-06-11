@@ -40,7 +40,7 @@ public class TextControl extends View {
             clearResource();
             mText = text.toUpperCase();
             Image banner = Util.createBanner(mCharacters, mFonts, mFontWidth, mFontHeight, 0, mText.toUpperCase());
-            setResource(createImage(Util.cropImage(banner, 0, 0, width, height)));
+            setResource(createImage(Util.cropImage(banner, 0, 0, getWidth(), getHeight())));
         }
     }
 

@@ -271,6 +271,7 @@
         <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
         
         <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
+        <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/alerticon.png" />                
         <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/Dekadens.ttf" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
@@ -464,6 +465,7 @@
         <copy file="${build}/apps/camera.jar" tofile="./apps/camera.jar" />                                                
         
         <copy file="./media/images/email/icon.png" tofile="${build}/org/lnicholls/galleon/apps/email/icon.png" />        
+        <copy file="./media/images/email/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/email/alerticon.png" />        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.email.Email"/>
@@ -532,6 +534,79 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/playlists" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/playlists.jar" tofile="./apps/playlists.jar" />                                                        
+        
+<!--        
+        <copy file="./media/images/audioScrobbler/icon.png" tofile="${build}/org/lnicholls/galleon/apps/audioScrobbler/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobbler"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Audio Scrobbler"/>
+            <attribute name="ReleaseDate" value="05/16/05"/>          
+            <attribute name="Description" value="Audio Scrobbler"/>
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobblerOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/audioScrobbler.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/audioScrobbler/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/audioScrobbler" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/audioScrobbler.jar" tofile="./apps/audioScrobbler.jar" />                                                                
+-->        
+<!--        
+
+        <copy file="./media/images/podcasting/icon.png" tofile="${build}/org/lnicholls/galleon/apps/podcasting/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.podcasting.Podcasting"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Podcasting"/>
+            <attribute name="ReleaseDate" value="05/20/05"/>          
+            <attribute name="Description" value="Podcasting"/>
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.podcasting.PodcastingOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/podcasting.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/podcasting/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/podcasting" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/podcasting.jar" tofile="./apps/podcasting.jar" />
+-->        
+        
+        <copy file="./media/images/iTunes/icon.png" tofile="${build}/org/lnicholls/galleon/apps/iTunes/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.iTunes.iTunes"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="iTunes"/>
+            <attribute name="ReleaseDate" value="06/04/05"/>          
+            <attribute name="Description" value="iTunes"/>
+            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.iTunes.iTunesOptionsPanel"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/iTunes.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/iTunes/**" />
+            <fileset dir="./src/org/lnicholls/galleon/apps/iTunes" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/iTunes.jar" tofile="./apps/iTunes.jar" />        
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
@@ -603,6 +678,23 @@
         <copy file="./media/images/playlists/icon.png" tofile="${build}/skins/playlists/icon.png" />                
         <copy file="./media/images/playlists/background.jpg" tofile="${build}/skins/playlists/background.jpg" />                                        
         <copy file="./media/images/playlists/playlist.png" tofile="${build}/skins/playlists/playlist.png" />                                
+        
+<!--
+        <copy file="./media/images/audioScrobbler/icon.png" tofile="${build}/skins/audioScrobbler/icon.png" />                
+        <copy file="./media/images/audioScrobbler/background.jpg" tofile="${build}/skins/audioScrobbler/background.jpg" />                                        
+        <copy file="./media/images/audioScrobbler/item.png" tofile="${build}/skins/audioScrobbler/item.png" />
+-->
+<!--        
+        <copy file="./media/images/podcasting/icon.png" tofile="${build}/skins/podcasting/icon.png" />        
+        <copy file="./media/images/podcasting/folder.png" tofile="${build}/skins/podcasting/folder.png" />                
+        <copy file="./media/images/podcasting/item.png" tofile="${build}/skins/podcasting/item.png" />                
+        <copy file="./media/images/podcasting/background.jpg" tofile="${build}/skins/podcasting/background.jpg" />        
+-->        
+        
+        <copy file="./media/images/iTunes/icon.png" tofile="${build}/skins/iTunes/icon.png" />        
+        <copy file="./media/images/iTunes/folder.png" tofile="${build}/skins/iTunes/folder.png" />                
+        <copy file="./media/images/iTunes/item.png" tofile="${build}/skins/iTunes/item.png" />                
+        <copy file="./media/images/iTunes/background.jpg" tofile="${build}/skins/iTunes/background.jpg" />                
 
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -622,6 +714,13 @@
         <delete dir="${build}/skins/email" />                                                        
         <delete dir="${build}/skins/playlists" />                                                                
         <delete dir="${build}/skins/internet" />                                                                        
+<!--
+        <delete dir="${build}/skins/audioScrobbler" />
+-->        
+<!--
+        <delete dir="${build}/skins/podcasting" />
+-->        
+        <delete dir="${build}/skins/iTunes" />
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
     </target>
@@ -880,6 +979,3 @@
 
     </target>
 </project>
-
-
-

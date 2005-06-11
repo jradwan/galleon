@@ -281,7 +281,7 @@ public class ScrollText extends BView {
     private BView getRow(int index) {
         BView view = (BView) mTextLineViews.get(index);
         if (view == null) {
-            view = new BView(this, 0, index * mRowHeight, width, mRowHeight);
+            view = new BView(this, 0, index * mRowHeight, getWidth(), mRowHeight);
             createText(view, index);
             mTextLineViews.set(index, view);
         } else {
@@ -291,7 +291,7 @@ public class ScrollText extends BView {
     }
 
     private void createText(BView parent, int index) {
-        BText text = new BText(parent, 0, 0, parent.width, parent.height);
+        BText text = new BText(parent, 0, 0, parent.getWidth(), parent.getHeight());
         text.setFlags(RSRC_HALIGN_LEFT);
         text.setFont("default-" + mRowHeight + ".font");
         text.setShadow(true);
@@ -350,9 +350,9 @@ public class ScrollText extends BView {
             }
 
         }
-        mVisibleRows = height / mRowHeight;
+        mVisibleRows = getHeight() / mRowHeight;
 
-        String[] lines = layout(width, fontMetrics, mText);
+        String[] lines = layout(getWidth(), fontMetrics, mText);
         for (int i = 0; i < lines.length; i++) {
             int size = mTextLines.size();
             mTextLines.add(size, lines[i]);

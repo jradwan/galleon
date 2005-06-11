@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.music.Music;
+import org.lnicholls.galleon.apps.music.Music.MusicScreen;
 import org.lnicholls.galleon.apps.music.Music.PathScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -81,8 +82,6 @@ public class Playlists extends DefaultApplication {
 
     private Resource mItemIcon;
 
-    private MusicScreen mMusicScreen;
-
     protected void init(Context context) {
         super.init(context);
 
@@ -93,9 +92,7 @@ public class Playlists extends DefaultApplication {
         mImagesBackground = getSkinImage("images", "background");
         mItemIcon = getSkinImage("menu", "item");
 
-        mMusicScreen = new MusicScreen(this);
-
-        PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) ((PlaylistsFactory) context.factory).getAppContext()
+        PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) ((PlaylistsFactory) getContext().getFactory()).getAppContext()
                 .getConfiguration();
         
         ArrayList list = new ArrayList();
@@ -117,7 +114,7 @@ public class Playlists extends DefaultApplication {
         public PathScreen(Playlists app, Tracker tracker, boolean first) {
             super(app, "Playlists");
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
             mTracker = tracker;
             mFirst = first;
@@ -154,9 +151,10 @@ public class Playlists extends DefaultApplication {
                         public void run() {
                             try {
                                 mTracker.setPos(mMenuList.getFocus());
-                                mMusicScreen.setTracker(mTracker);
+                                MusicScreen musicScreen = new MusicScreen((Playlists) getBApp());
+                                musicScreen.setTracker(mTracker);
 
-                                getBApp().push(mMusicScreen, TRANSITION_LEFT);
+                                getBApp().push(musicScreen, TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
                                 Tools.logException(Music.class, ex);
@@ -188,7 +186,7 @@ public class Playlists extends DefaultApplication {
             Item nameFile = (Item) mMenuList.get(index);
             icon.setResource(mItemIcon);
 
-            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(nameFile.getName(), 40));
@@ -217,13 +215,13 @@ public class Playlists extends DefaultApplication {
         public MusicScreen(Playlists app) {
             super(app, "Song", true);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
-            mMusicInfo = new MusicInfo(this.normal, BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
+            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
                     - (TOP - 30 - SAFE_TITLE_V), true);
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Play");
             list.add("Don't do anything");
 
@@ -231,7 +229,7 @@ public class Playlists extends DefaultApplication {
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
             updateView();
 
             return super.handleEnter(arg, isReturn);
@@ -354,7 +352,7 @@ public class Playlists extends DefaultApplication {
         public PlayerScreen(Playlists app, Tracker tracker) {
             super(app, true);
 
-            below.setResource(mPlayerBackground);
+            getBelow().setResource(mPlayerBackground);
 
             boolean sameTrack = false;
             DefaultApplication defaultApplication = (DefaultApplication) getApp();
@@ -376,11 +374,7 @@ public class Playlists extends DefaultApplication {
 
             setTitle(" ");
 
-            MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-            if (musicPlayerConfiguration.isShowImages())
-                setFooter("Press INFO for lyrics, 0 for images");
-            else
-                setFooter("Press INFO for lyrics");
+            setFooter("Press INFO for lyrics");
 
             if (!sameTrack || getPlayer().getState() == Player.STOP)
                 getPlayer().startTrack();
@@ -401,8 +395,8 @@ public class Playlists extends DefaultApplication {
                                 player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
                                         BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker);
                             else
-                                player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.width,
-                                        PlayerScreen.this.height, false, (DefaultApplication) getApp(), mTracker);
+                                player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
+                                        PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
                             player.updatePlayer();
                             player.setVisible(true);
                         } finally {
@@ -451,7 +445,7 @@ public class Playlists extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
             {
-                if (transparency != 0.0f)
+                if (getTransparency() != 0.0f)
                     setTransparency(0.0f);
             }
             switch (code) {
@@ -462,19 +456,6 @@ public class Playlists extends DefaultApplication {
                 getBApp().push(lyricsScreen, TRANSITION_LEFT);
                 getBApp().flush();
                 return true;
-            case KEY_NUM0:
-                PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) ((PlaylistsFactory) context.factory)
-                        .getAppContext().getConfiguration();
-                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-                if (musicPlayerConfiguration.isShowImages()) {
-                    getBApp().play("select.snd");
-                    getBApp().flush();
-                    ImagesScreen imagesScreen = new ImagesScreen((Playlists) getBApp(), mTracker);
-                    getBApp().push(imagesScreen, TRANSITION_LEFT);
-                    getBApp().flush();
-                    return true;
-                } else
-                    return false;
             }
             return super.handleKeyPress(code, rawcode);
         }
@@ -514,11 +495,11 @@ public class Playlists extends DefaultApplication {
         public LyricsScreen(Playlists app, Tracker tracker) {
             super(app, "Lyrics", false);
 
-            below.setResource(mLyricsBackground);
+            getBelow().setResource(mLyricsBackground);
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(normal, SAFE_TITLE_H, TOP, BODY_WIDTH - 10, height - SAFE_TITLE_V - TOP - 70,
+            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V - TOP - 70,
                     "");
             scrollText.setVisible(false);
 
@@ -530,15 +511,15 @@ public class Playlists extends DefaultApplication {
             mBusy.setVisible(true);
 
             /*
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
             */
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
@@ -670,20 +651,20 @@ public class Playlists extends DefaultApplication {
         public ImagesScreen(Playlists app, Tracker tracker) {
             super(app, "Images", true);
 
-            below.setResource(mImagesBackground);
+            getBelow().setResource(mImagesBackground);
 
             mTracker = tracker;
 
-            mImageView = new BView(this.normal, BORDER_LEFT, TOP, BODY_WIDTH, height - SAFE_TITLE_V - TOP - 75);
+            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP - 75);
             mImageView.setVisible(false);
 
-            mPosText = new BText(normal, BORDER_LEFT, height - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
+            mPosText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
             mPosText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mPosText.setFont("default-18-bold.font");
             mPosText.setColor(Color.CYAN);
             mPosText.setShadow(true);
 
-            mUrlText = new BText(normal, SAFE_TITLE_H, height - SAFE_TITLE_V - 78, BODY_WIDTH, 15);
+            mUrlText = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 78, BODY_WIDTH, 15);
             mUrlText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
             mUrlText.setFont("default-12-bold.font");
             mUrlText.setColor(Color.WHITE);
@@ -694,15 +675,15 @@ public class Playlists extends DefaultApplication {
             mBusy.setVisible(true);
 
             /*
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
             */
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
@@ -757,8 +738,8 @@ public class Playlists extends DefaultApplication {
                             synchronized (this) {
                                 setPainting(false);
                                 try {
-                                    if (mImageView.resource != null)
-                                        mImageView.resource.remove();
+                                    if (mImageView.getResource() != null)
+                                        mImageView.getResource().remove();
                                     mUrlText.setValue(nameValue.getName());
                                     mImageView.setVisible(true);
                                     mImageView.setTransparency(1f);

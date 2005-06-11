@@ -245,7 +245,7 @@ public class WinampPlayer extends DefaultPlayer {
     }
 
     public boolean handleKeyPress(int code, long rawcode) {
-        if (transparency != 0.0f)
+        if (getTransparency() != 0.0f)
             setTransparency(0.0f);
         switch (code) {
         case KEY_PAUSE:
@@ -382,7 +382,7 @@ public class WinampPlayer extends DefaultPlayer {
     }
 
     public boolean handleEvent(HmeEvent event) {
-        switch (event.opcode) {
+        switch (event.getOpCode()) {
         case EVT_KEY: {
             if (title != null && title.handleEvent(event))
                 return true;

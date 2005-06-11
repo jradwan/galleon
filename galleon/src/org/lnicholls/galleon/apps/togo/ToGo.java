@@ -74,8 +74,6 @@ public class ToGo extends DefaultApplication {
 
     private Resource mEmptyIcon;
 
-    private ToGoScreen mToGoScreen;
-
     protected void init(Context context) {
         super.init(context);
 
@@ -89,8 +87,6 @@ public class ToGo extends DefaultApplication {
         mBlueIcon = getSkinImage("menu", "suggestion");
         mEmptyIcon = getSkinImage("menu", "empty");
 
-        mToGoScreen = new ToGoScreen(this);
-
         push(new ToGoMenuScreen(this), TRANSITION_NONE);
     }
 
@@ -98,7 +94,7 @@ public class ToGo extends DefaultApplication {
         public ToGoMenuScreen(ToGo app) {
             super(app, "Now Playing List");
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
             mDateFormat = new SimpleDateFormat();
             mDateFormat.applyPattern("EEE M/dd");
@@ -107,15 +103,15 @@ public class ToGo extends DefaultApplication {
             int start = TOP - 30;
             int offset = 30;
 
-            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) context.factory).getAppContext()
+            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getContext().getFactory()).getAppContext()
                     .getConfiguration();
-            BText countText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
+            BText countText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             countText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             countText.setFont("default-18.font");
             countText.setColor(Color.GREEN);
             countText.setShadow(true);
 
-            BText lengthText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
+            BText lengthText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             lengthText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             lengthText.setFont("default-18.font");
             lengthText.setColor(Color.GREEN);
@@ -123,13 +119,13 @@ public class ToGo extends DefaultApplication {
 
             start += 20;
 
-            BText sizeText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
+            BText sizeText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             sizeText.setFont("default-18.font");
             sizeText.setColor(Color.GREEN);
             sizeText.setShadow(true);
 
-            BText availableText = new BText(normal, BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
+            BText availableText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             availableText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             availableText.setFont("default-18.font");
             availableText.setColor(Color.GREEN);
@@ -201,8 +197,9 @@ public class ToGo extends DefaultApplication {
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
                 load();
-                mToGoScreen.setList(mMenuList);
-                getBApp().push(mToGoScreen, TRANSITION_LEFT);
+                ToGoScreen togoScreen = new ToGoScreen((ToGo) getBApp());
+                togoScreen.setList(mMenuList);
+                getBApp().push(togoScreen, TRANSITION_LEFT);
                 return true;
             }
             return super.handleAction(view, action);
@@ -224,7 +221,7 @@ public class ToGo extends DefaultApplication {
                     icon.setResource(mEmptyIcon);
             }
 
-            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             if (video.getStatus() == Video.STATUS_DOWNLOADING)
                 name.setFont("default-24-italic.font");
@@ -238,7 +235,7 @@ public class ToGo extends DefaultApplication {
                     + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
             mCalendar.set(GregorianCalendar.SECOND, 0);
 
-            BText date = new BText(parent, parent.width - 100 - parent.height, 4, 100, parent.height - 4);
+            BText date = new BText(parent, parent.getWidth() - 100 - parent.getHeight(), 4, 100, parent.getHeight() - 4);
             date.setShadow(true);
             date.setFlags(RSRC_HALIGN_RIGHT);
             date.setValue(mDateFormat.format(mCalendar.getTime()));
@@ -263,7 +260,7 @@ public class ToGo extends DefaultApplication {
         public ToGoScreen(ToGo app) {
             super(app, "Program", true);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
             mDateFormat = new SimpleDateFormat();
             mDateFormat.applyPattern("EEE M/d hh:mm a");
@@ -275,9 +272,9 @@ public class ToGo extends DefaultApplication {
             int start = TOP;
 
             int location = 40;
-            icon = new BView(normal, BORDER_LEFT, start + 8, 30, 30);
+            icon = new BView(getNormal(), BORDER_LEFT, start + 8, 30, 30);
 
-            titleText = new BText(normal, BORDER_LEFT + location, start, BODY_WIDTH - 40, 40);
+            titleText = new BText(getNormal(), BORDER_LEFT + location, start, BODY_WIDTH - 40, 40);
             titleText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             //titleText.setFont("default-36.font");
             titleText.setFont("system-30.font");
@@ -285,50 +282,50 @@ public class ToGo extends DefaultApplication {
 
             start += 45;
 
-            descriptionText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 90);
+            descriptionText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 90);
             descriptionText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
             descriptionText.setFont("default-18-bold.font");
             descriptionText.setShadow(true);
 
             start += 85;
 
-            dateText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            dateText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             dateText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             dateText.setFont("default-18.font");
             dateText.setShadow(true);
 
-            durationText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            durationText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             durationText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             durationText.setFont("default-18.font");
             durationText.setShadow(true);
 
             start += 20;
 
-            ratingText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            ratingText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             ratingText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             ratingText.setFont("default-18.font");
             ratingText.setShadow(true);
 
-            videoText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            videoText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             videoText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             videoText.setFont("default-18.font");
             videoText.setShadow(true);
 
             start += 20;
 
-            genreText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            genreText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             genreText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             genreText.setFont("default-18.font");
             genreText.setShadow(true);
 
-            sizeText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            sizeText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             sizeText.setFont("default-18.font");
             sizeText.setShadow(true);
 
             start += 30;
 
-            statusText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            statusText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             statusText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             statusText.setFont("default-24-bolditalic.font");
             //statusText.setColor(new Color(150, 100, 100));
@@ -337,24 +334,24 @@ public class ToGo extends DefaultApplication {
 
             start += 35;
 
-            statusBarBg = new BView(normal, width - SAFE_TITLE_H - BODY_WIDTH / 3, start, BODY_WIDTH / 3, 30);
+            statusBarBg = new BView(getNormal(), getWidth() - SAFE_TITLE_H - BODY_WIDTH / 3, start, BODY_WIDTH / 3, 30);
             //statusBarBg.setResource(Color.WHITE);
             statusBarBg.setResource(Color.BLACK);
             statusBarBg.setTransparency(.5f);
             statusBarBg.setVisible(false);
-            statusBar = new BView(normal, width - SAFE_TITLE_H - BODY_WIDTH / 3 + 2, start + 2, BODY_WIDTH / 3 - 4,
+            statusBar = new BView(getNormal(), getWidth() - SAFE_TITLE_H - BODY_WIDTH / 3 + 2, start + 2, BODY_WIDTH / 3 - 4,
                     30 - 4);
             statusBar.setResource(Color.GREEN);
             statusBar.setVisible(false);
             /*
-             * speedText = new BText(normal, width - SAFE_TITLE_H - text_width/3, start , text_width/3, 30);
+             * speedText = new BText(getNormal(), getWidth() - SAFE_TITLE_H - text_getWidth()/3, start , text_width/3, 30);
              * speedText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | IHmeProtocol.RSRC_VALIGN_CENTER);
              * speedText.setFont("default-18-bold.font"); speedText.setColor(Color.BLACK);
              * speedText.setShadow(Color.DARK_GRAY,1); speedText.setValue(" "); speedText.setVisible(false);
              */
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H, (height - SAFE_TITLE_V) - 80,
-                    (width - (SAFE_TITLE_H * 2)) / 2, 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 80,
+                    (getWidth() - (SAFE_TITLE_H * 2)) / 2, 90, 35);
             list.add("Save to computer");
             list.add("Don't do anything");
 
@@ -366,7 +363,7 @@ public class ToGo extends DefaultApplication {
                 setPainting(false);
                 int location = 40;
                 Video video = getVideo();
-                if (icon.resource != null)
+                if (icon.getResource() != null)
                     icon.setResource(mEmptyIcon);
                 if (video.getIcon() != null) {
                     if (video.getIcon().equals("in-progress-recording"))
@@ -441,13 +438,13 @@ public class ToGo extends DefaultApplication {
                         statusText.setValue(video.getStatusString() + ": " + rate + " KB/Sec");
                         //speedText.setValue(rate+" KB/Sec");
                         if (video.getStatus() == Video.STATUS_DOWNLOADED) {
-                            statusBar.setSize(statusBarBg.width - 4, statusBar.height);
+                            statusBar.setSize(statusBarBg.getWidth() - 4, statusBar.getHeight());
                         } else {
                             float barFraction = video.getDownloadSize() / (float) video.getSize();
-                            if ((statusBarBg.width - 4) * barFraction < 1)
-                                statusBar.setSize(1, statusBar.height);
+                            if ((statusBarBg.getWidth() - 4) * barFraction < 1)
+                                statusBar.setSize(1, statusBar.getHeight());
                             else
-                                statusBar.setSize((int) (barFraction * (statusBarBg.width - 4)), statusBar.height);
+                                statusBar.setSize((int) (barFraction * (statusBarBg.getWidth() - 4)), statusBar.getHeight());
                         }
                     } else {
                         String progress = "";
@@ -475,7 +472,7 @@ public class ToGo extends DefaultApplication {
                 setPainting(true);
             }
 
-            if (ToGoScreen.this.getApp().context != null)
+            if (ToGoScreen.this.getApp().getContext() != null)
                 flush();
         }
 

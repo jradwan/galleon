@@ -341,8 +341,6 @@ public class Configurator implements Constants {
                                 Iterator appDescriptorIterator = appManager.getAppDescriptors().iterator();
                                 while (appDescriptorIterator.hasNext()) {
                                     AppDescriptor appDescriptor = (AppDescriptor) appDescriptorIterator.next();
-                                    if (log.isDebugEnabled())
-                                        log.debug("Compare " + appDescriptor.getClassName() + " with " + className);
                                     if (appDescriptor.getClassName().equals(className)) {
                                         AppContext appContext = new AppContext(appDescriptor);
                                         if (appContext.getConfiguration() != null) {
@@ -357,7 +355,6 @@ public class Configurator implements Constants {
                                                 serializer.asDOMSerializer();
                                                 serializer.serialize((Element) node);
 
-                                                log.debug("node=" + bos.toString());
                                                 StringReader xmlReader = new StringReader(bos.toString());
                                                 bos.close();
 
@@ -395,7 +392,6 @@ public class Configurator implements Constants {
                             serializer.asDOMSerializer();
                             serializer.serialize((Element) node);
 
-                            log.debug("node=" + bos.toString());
                             StringReader xmlReader = new StringReader(bos.toString());
                             bos.close();
 
@@ -422,7 +418,6 @@ public class Configurator implements Constants {
                             serializer.asDOMSerializer();
                             serializer.serialize((Element) node);
 
-                            log.debug("node=" + bos.toString());
                             StringReader xmlReader = new StringReader(bos.toString());
                             bos.close();
 
@@ -449,7 +444,6 @@ public class Configurator implements Constants {
                             serializer.asDOMSerializer();
                             serializer.serialize((Element) node);
 
-                            log.debug("node=" + bos.toString());
                             StringReader xmlReader = new StringReader(bos.toString());
                             bos.close();
 

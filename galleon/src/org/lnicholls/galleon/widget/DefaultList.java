@@ -91,16 +91,16 @@ public class DefaultList extends BList {
     }    
 
     public void clearViews() {
-        for (int i = 0; i < rows.size(); i++) {
-            BView view = (BView) rows.get(i);
+        for (int i = 0; i < getRows().size(); i++) {
+            BView view = (BView) getRows().get(i);
             if (view != null)
                 view.remove();
-            rows.setElementAt(null, i);
+            getRows().setElementAt(null, i);
         }
     }
 
     public void init() {
         refresh();
-        setFocus(focused,false);
+        setFocus(getFocus(),false);
     }
 }

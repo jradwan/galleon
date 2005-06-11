@@ -49,15 +49,15 @@ public abstract class Effect implements Callback {
 
     public synchronized boolean handleEvent(HmeEvent event) {
         if (mCurrentView != null) {
-            switch (event.opcode) {
+            switch (event.getOpCode()) {
             case Application.EVT_KEY: {
                 HmeEvent.Key e = (HmeEvent.Key) event;
-                switch (e.code) {
+                switch (e.getCode()) {
                 case Application.KEY_TIVO:
-                    int code = (int) e.rawcode;
+                    int code = (int) e.getRawCode();
                     if ((code) == mCurrentView.getID()) {
-                        if (mCurrentView.resource != null)
-                            mCurrentView.resource.remove();
+                        if (mCurrentView.getResource() != null)
+                            mCurrentView.getResource().remove();
                         Application app = mCurrentView.getApp();
                         mCurrentView.remove();
                         mCurrentView = null;

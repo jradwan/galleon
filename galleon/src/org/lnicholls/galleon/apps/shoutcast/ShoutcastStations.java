@@ -35,6 +35,8 @@ import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.database.PersistentValue;
 
 public class ShoutcastStations {
     private static Logger log = Logger.getLogger(ShoutcastStations.class.getName());
@@ -59,9 +61,10 @@ public class ShoutcastStations {
 
     public void getPlaylists() {
         List list = mConfiguration.getGenres();
-        String lastGenre = Tools.loadPersistentValue(this.getClass().getName() + "." + "genre");
+        PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + "genre");
         int start = 0;
-        if (lastGenre != null) {
+        if (persistentValue != null) {
+            String lastGenre = persistentValue.getValue(); 
             try {
                 start = Integer.parseInt(lastGenre);
             } catch (Exception ex) {
@@ -151,10 +154,11 @@ public class ShoutcastStations {
                             }
                             found = genreCounter-- == 0;
                         }
-                        Tools.savePersistentValue(this.getClass().getName() + "." + "genre", String.valueOf(next));
+                        PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + "genre", String.valueOf(next));
                     }
                 } catch (Exception ex) {
                     log.error("Could not download stations", ex);
+                    return;
                 } finally {
                     get.releaseConnection();
                 }

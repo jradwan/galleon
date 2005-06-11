@@ -28,7 +28,7 @@ public class DefaultOptionList extends BList {
     }
 
     protected void createRow(BView parent, int index) {
-        BText text = new BText(parent, 10, 4, parent.width - 40, parent.height - 4);
+        BText text = new BText(parent, 10, 4, parent.getWidth() - 40, parent.getHeight() - 4);
         text.setShadow(true);
         text.setFlags(RSRC_HALIGN_LEFT);
         text.setValue(get(index).toString());
@@ -38,7 +38,7 @@ public class DefaultOptionList extends BList {
         switch (code) {
         case KEY_CHANNELUP:
         case KEY_CHANNELDOWN:
-            return parent.handleKeyPress(code, rawcode);
+            return getParent().handleKeyPress(code, rawcode);
         }
         return super.handleKeyPress(code, rawcode);
     }

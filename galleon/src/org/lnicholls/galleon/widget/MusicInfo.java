@@ -17,8 +17,11 @@ package org.lnicholls.galleon.widget;
  */
 
 import java.awt.Color;
+import java.awt.Image;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
@@ -26,7 +29,9 @@ import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.Yahoo;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BText;
@@ -38,61 +43,67 @@ public class MusicInfo extends BView {
     private static Logger log = Logger.getLogger(MusicInfo.class.getName());
 
     public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible) {
+        this(parent, x, y, width, height, visible, false);
+    }
+
+    public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible, boolean webImages) {
         super(parent, x, y, width, height, visible);
-        
+
+        mWebImages = webImages;
+
         mTimeFormat = new SimpleDateFormat();
         mTimeFormat.applyPattern("mm:ss");
 
         int start = 0;
 
-        mCover = new BView(this, this.width - 210, 130, 200, 200, false);
+        mCover = new BView(this, this.getWidth() - 210, 130, 200, 200, false);
 
-        mTitleText = new BText(this, 0, start, this.width, 70);
+        mTitleText = new BText(this, 0, start, this.getWidth(), 70);
         mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
         mTitleText.setFont("system-24-bold.font"); //30
         //mTitleText.setColor(Color.CYAN);
-        mTitleText.setColor(new Color(254,178,0));
+        mTitleText.setColor(new Color(254, 178, 0));
         mTitleText.setShadow(true);
 
         start += 70;
 
-        mSongText = new BText(this, 0, start, this.width, 20);
+        mSongText = new BText(this, 0, start, this.getWidth(), 20);
         mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mSongText.setFont("default-18-bold.font");
         mSongText.setShadow(true);
 
-        mTrackText = new BText(this, 0, start, this.width, 20);
+        mTrackText = new BText(this, 0, start, this.getWidth(), 20);
         mTrackText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mTrackText.setFont("default-18-bold.font");
         mTrackText.setShadow(true);
 
         start += 20;
 
-        mAlbumText = new BText(this, 0, start, this.width, 20);
+        mAlbumText = new BText(this, 0, start, this.getWidth(), 20);
         mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mAlbumText.setFont("default-18-bold.font");
         mAlbumText.setShadow(true);
 
-        mYearText = new BText(this, 0, start, this.width, 20);
+        mYearText = new BText(this, 0, start, this.getWidth(), 20);
         mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mYearText.setFont("default-18-bold.font");
         mYearText.setShadow(true);
 
         start += 20;
 
-        mArtistText = new BText(this, 0, start, this.width, 20);
+        mArtistText = new BText(this, 0, start, this.getWidth(), 20);
         mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mArtistText.setFont("default-18-bold.font");
         mArtistText.setShadow(true);
 
-        mGenreText = new BText(this, 0, start, this.width, 20);
+        mGenreText = new BText(this, 0, start, this.getWidth(), 20);
         mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mGenreText.setFont("default-18-bold.font");
         mGenreText.setShadow(true);
-        
+
         start += 20;
-        
-        mDurationText = new BText(this, 0, start, this.width, 20);
+
+        mDurationText = new BText(this, 0, start, this.getWidth(), 20);
         mDurationText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mDurationText.setFont("default-18-bold.font");
         mDurationText.setShadow(true);
@@ -106,6 +117,11 @@ public class MusicInfo extends BView {
         }
     }
     
+    public Audio getAudio()
+    {
+        return mAudio;
+    }
+
     public void setAudio(final Audio audio) {
         setAudio(audio, audio.getTitle());
     }
@@ -114,12 +130,11 @@ public class MusicInfo extends BView {
         if (audio != null) {
             try {
                 setPainting(false);
-                mTitleText.setValue(Tools.trim(title,100));
+                mTitleText.setValue(Tools.trim(title, 100));
                 String song = audio.getTitle();
                 if (song.equals(Mp3File.DEFAULT_ARTIST))
                     song = title;
-                if (audio.getPath().startsWith("http"))
-                {
+                if (audio.getPath().startsWith("http")) {
                     mSongText.setValue("Stream: " + Tools.trim(song, 80));
                     mTrackText.setVisible(false);
                     mDurationText.setVisible(false);
@@ -127,9 +142,8 @@ public class MusicInfo extends BView {
                     mYearText.setVisible(false);
                     mArtistText.setVisible(false);
                     mGenreText.setVisible(false);
-                    
-                    if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST))
-                    {
+
+                    if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST)) {
                         try {
                             audio.setTitle(title);
                             AudioManager.updateAudio(audio);
@@ -137,9 +151,7 @@ public class MusicInfo extends BView {
                             Tools.logException(MusicInfo.class, ex);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     mSongText.setValue("Song: " + Tools.trim(song, 40));
                     mTrackText.setValue("Track: " + audio.getTrack());
                     mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
@@ -155,22 +167,33 @@ public class MusicInfo extends BView {
                 }
 
                 setRating(audio);
-
-                if (mAudio == null || !audio.getId().equals(mAudio.getId()))
-                {
-                    clearCover();
                 
-                    if (mCoverThread != null && mCoverThread.isAlive())
+                if (mAudio!=null)
+                {
+                    if (!audio.getArtist().equals(mAudio.getArtist())) {
+                        if (mResults != null) {
+                            mResults.clear();
+                            mResults = null;
+                        }
+                    }
+                }
+
+                if (mAudio == null || !audio.getId().equals(mAudio.getId())) {
+                    clearCover();
+
+                    if (mCoverThread != null && mCoverThread.isAlive()) {
                         mCoverThread.interrupt();
-    
+                        mCoverThread = null;
+                    }
+
                     if (!audio.getPath().startsWith("http")) {
                         mCoverThread = new Thread() {
                             public void run() {
                                 try {
                                     MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                             .getMusicPlayerConfiguration();
-                                    java.awt.Image image = Mp3File.getCover(audio, musicPlayerConfiguration.isUseAmazon(),
-                                            musicPlayerConfiguration.isUseFile());
+                                    java.awt.Image image = Mp3File.getCover(audio, musicPlayerConfiguration
+                                            .isUseAmazon(), musicPlayerConfiguration.isUseFile());
                                     if (image != null) {
                                         synchronized (this) {
                                             mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
@@ -181,10 +204,96 @@ public class MusicInfo extends BView {
                                         }
                                     }
                                 } catch (Exception ex) {
-                                    Tools.logException(MusicInfo.class, ex, "Could retrieve cover");
+                                    Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
+                                }
+
+                                try {
+                                    while (mWebImages) {
+                                        if (mCover.getResource()!=null)
+                                            sleep(10000);
+
+                                        synchronized (this) {
+                                            //mBusy.setVisible(true);
+                                            getBApp().flush();
+                                        }
+
+                                        if (mResults == null || mResults.size() == 0) {
+                                            if (mResults != null) {
+                                                mResults.clear();
+                                                mResults = null;
+                                            }
+
+                                            mResults = Yahoo.getImages("\"" + audio.getArtist() + "\" music");
+                                            mPos = 0;
+                                        }
+                                        if (mResults.size() == 0) {
+                                            synchronized (this) {
+                                                setPainting(false);
+                                                try {
+                                                    //mBusy.setVisible(false);
+                                                    getBApp().flush();
+                                                } finally {
+                                                    setPainting(true);
+                                                }
+                                            }
+                                            return;
+                                        }
+
+                                        NameValue nameValue = (NameValue) mResults.get(mPos);
+                                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
+
+                                        if (image != null) {
+                                            synchronized (this) {
+                                                setPainting(false);
+                                                try {
+                                                    if (mCover.getResource() != null)
+                                                        mCover.getResource().remove();
+                                                    //mUrlText.setValue(nameValue.getName());
+                                                    int x = mCover.getX();
+                                                    int y = mCover.getY();
+                                                    mCover.setLocation(mCover.getX()+mCover.getWidth(),mCover.getY());
+                                                    mCover.setVisible(true);
+                                                    mCover.setTransparency(1f);
+                                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                                                    Resource resource = getResource("*1000");
+                                                    mCover.setTransparency(0f, resource);
+                                                    mCover.setLocation(x, y, resource);
+                                                    image.flush();
+                                                    image = null;
+                                                } finally {
+                                                    setPainting(true);
+                                                }
+                                            }
+                                        } else {
+                                            mResults.remove(mPos);
+                                        }
+
+                                        mPos = (mPos + 1) % mResults.size();
+                                    }
+                                } catch (Exception ex) {
+                                    Tools.logException(MusicInfo.class, ex, "Could not retrieve image");
+                                    try {
+                                        mResults.remove(mPos);
+                                    } catch (Throwable ex2) {
+                                    }
+                                } finally {
+                                    synchronized (this) {
+                                        setPainting(false);
+                                        try {
+                                            /*
+                                             * if (mResults != null && mResults.size() > 0)
+                                             * mPosText.setValue(String.valueOf(mPos + 1) + " of " +
+                                             * String.valueOf(mResults.size())); else mPosText.setValue("No images
+                                             * found"); mBusy.setVisible(false);
+                                             */
+                                        } finally {
+                                            setPainting(true);
+                                        }
+                                        getBApp().flush();
+                                    }
                                 }
                             }
-    
+
                             public void interrupt() {
                                 synchronized (this) {
                                     super.interrupt();
@@ -211,10 +320,34 @@ public class MusicInfo extends BView {
         }
     }
 
+    public void clearResource() {
+        clearCover();
+
+        if (mResults != null) {
+            mResults.clear();
+            mResults = null;
+        }
+
+        super.clearResource();
+    }
+
     private void clearCover() {
-        mCover.setVisible(false);
-        if (mCover.resource != null)
-            mCover.resource.remove();
+        setPainting(false);
+        try {
+            if (mCoverThread != null && mCoverThread.isAlive()) {
+                mCoverThread.interrupt();
+                mCoverThread = null;
+                /*
+                 * if (mResults != null) { mResults.clear(); mResults = null; }
+                 */
+
+                mCover.setVisible(false);
+                if (mCover.getResource() != null)
+                    mCover.getResource().remove();
+            }
+        } finally {
+            setPainting(true);
+        }
     }
 
     private void setRating(Audio audio) {
@@ -265,7 +398,7 @@ public class MusicInfo extends BView {
         }
         return super.handleKeyPress(code, rawcode);
     }
-    
+
     private Audio mAudio;
 
     private SimpleDateFormat mTimeFormat;
@@ -277,7 +410,7 @@ public class MusicInfo extends BView {
     private BText mTitleText;
 
     private BText mSongText;
-    
+
     private BText mTrackText;
 
     private BText mArtistText;
@@ -295,4 +428,10 @@ public class MusicInfo extends BView {
     private BView[] mStars;
 
     private Thread mCoverThread;
+
+    private List mResults;
+
+    private int mPos;
+
+    private boolean mWebImages;
 }

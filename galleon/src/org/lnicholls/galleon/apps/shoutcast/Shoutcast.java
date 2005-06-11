@@ -29,6 +29,8 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.music.Music;
+import org.lnicholls.galleon.apps.podcasting.Podcasting;
+import org.lnicholls.galleon.apps.podcasting.Podcasting.PodcastItemScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -82,8 +84,6 @@ public class Shoutcast extends DefaultApplication {
 
     private Resource mPlaylistIcon;
 
-    private MusicScreen mMusicScreen;
-
     protected void init(Context context) {
         super.init(context);
 
@@ -96,9 +96,7 @@ public class Shoutcast extends DefaultApplication {
         mCDIcon = getSkinImage("menu", "item");
         mPlaylistIcon = getSkinImage("menu", "playlist");
 
-        mMusicScreen = new MusicScreen(this);
-
-        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
+        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext().getFactory())
                 .getAppContext().getConfiguration();
 
         push(new MusicMenuScreen(this), TRANSITION_NONE);
@@ -108,9 +106,9 @@ public class Shoutcast extends DefaultApplication {
         public MusicMenuScreen(Shoutcast app) {
             super(app, "Music");
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
-            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
+            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext().getFactory())
                     .getAppContext().getConfiguration();
 
             try {
@@ -159,7 +157,7 @@ public class Shoutcast extends DefaultApplication {
             NameValue nameValue = (NameValue) mMenuList.get(index);
             icon.setResource(mFolderIcon);
 
-            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(StringUtils.capitalize(nameValue.getName().toLowerCase()), 40));
@@ -176,7 +174,7 @@ public class Shoutcast extends DefaultApplication {
         public PathScreen(Shoutcast app, Tracker tracker, boolean first) {
             super(app, "Music");
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
             mTracker = tracker;
             mFirst = first;
@@ -228,7 +226,8 @@ public class Shoutcast extends DefaultApplication {
                             public void run() {
                                 try {
                                     mTracker.setPos(mMenuList.getFocus());
-                                    mMusicScreen.setTracker(mTracker);
+                                    //MusicScreen musicScreen = new MusicScreen((Shoutcast) getBApp());
+                                    //musicScreen.setTracker(mTracker);
 
                                     //getBApp().push(mMusicScreen, TRANSITION_LEFT);
                                     //getBApp().flush();
@@ -296,7 +295,7 @@ public class Shoutcast extends DefaultApplication {
                     icon.setResource(mCDIcon);
             }
 
-            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(nameFile.getName(), 40));
@@ -325,13 +324,13 @@ public class Shoutcast extends DefaultApplication {
         public MusicScreen(Shoutcast app) {
             super(app, "Song", true);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
-            mMusicInfo = new MusicInfo(this.normal, BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
+            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
                     - (TOP - 30 - SAFE_TITLE_V), true);
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 80, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Play");
             list.add("Don't do anything");
 
@@ -339,7 +338,7 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
             updateView();
 
             return super.handleEnter(arg, isReturn);
@@ -461,19 +460,13 @@ public class Shoutcast extends DefaultApplication {
         public PlayerScreen(Shoutcast app, Tracker tracker) {
             super(app, true);
 
-            below.setResource(mPlayerBackground);
+            getBelow().setResource(mPlayerBackground);
 
             mTracker = tracker;
 
             setTitle(" ");
 
-            MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-            if (musicPlayerConfiguration.isShowImages())
-                setFooter("Press INFO for lyrics, 0 for images");
-            else
-                setFooter("Press INFO for lyrics");
-
-            app.setTracker(mTracker);
+                app.setTracker(mTracker);
             getPlayer().startTrack();
         }
 
@@ -492,8 +485,8 @@ public class Shoutcast extends DefaultApplication {
                                 player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
                                         BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker);
                             else
-                                player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.width,
-                                        PlayerScreen.this.height, false, (DefaultApplication) getApp(), mTracker);
+                                player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
+                                        PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
                             player.updatePlayer();
                             player.setVisible(true);
                         } finally {
@@ -542,30 +535,8 @@ public class Shoutcast extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
             {
-                if (transparency != 0.0f)
+                if (getTransparency() != 0.0f)
                     setTransparency(0.0f);
-            }
-            switch (code) {
-            case KEY_INFO:
-                getBApp().play("select.snd");
-                getBApp().flush();
-                LyricsScreen lyricsScreen = new LyricsScreen((Shoutcast) getBApp(), mTracker);
-                getBApp().push(lyricsScreen, TRANSITION_LEFT);
-                getBApp().flush();
-                return true;
-            case KEY_NUM0:
-                ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) context.factory)
-                        .getAppContext().getConfiguration();
-                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-                if (musicPlayerConfiguration.isShowImages()) {
-                    getBApp().play("select.snd");
-                    getBApp().flush();
-                    ImagesScreen imagesScreen = new ImagesScreen((Shoutcast) getBApp(), mTracker);
-                    getBApp().push(imagesScreen, TRANSITION_LEFT);
-                    getBApp().flush();
-                    return true;
-                } else
-                    return false;
             }
             return super.handleKeyPress(code, rawcode);
         }
@@ -607,11 +578,11 @@ public class Shoutcast extends DefaultApplication {
         public LyricsScreen(Shoutcast app, Tracker tracker) {
             super(app, "Lyrics", false);
 
-            below.setResource(mLyricsBackground);
+            getBelow().setResource(mLyricsBackground);
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(normal, SAFE_TITLE_H, TOP, BODY_WIDTH - 10, height - SAFE_TITLE_V - TOP - 70,
+            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V - TOP - 70,
                     "");
             scrollText.setVisible(false);
 
@@ -622,8 +593,8 @@ public class Shoutcast extends DefaultApplication {
 
             mBusy.setVisible(true);
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
@@ -759,20 +730,20 @@ public class Shoutcast extends DefaultApplication {
         public ImagesScreen(Shoutcast app, Tracker tracker) {
             super(app, "Images", true);
 
-            below.setResource(mImagesBackground);
+            getBelow().setResource(mImagesBackground);
 
             mTracker = tracker;
 
-            mImageView = new BView(this.normal, BORDER_LEFT, TOP, BODY_WIDTH, height - SAFE_TITLE_V - TOP - 75);
+            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP - 75);
             mImageView.setVisible(false);
 
-            mPosText = new BText(normal, BORDER_LEFT, height - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
+            mPosText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
             mPosText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             mPosText.setFont("default-18-bold.font");
             mPosText.setColor(Color.CYAN);
             mPosText.setShadow(true);
 
-            mUrlText = new BText(normal, SAFE_TITLE_H, height - SAFE_TITLE_V - 78, BODY_WIDTH, 15);
+            mUrlText = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 78, BODY_WIDTH, 15);
             mUrlText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
             mUrlText.setFont("default-12-bold.font");
             mUrlText.setColor(Color.WHITE);
@@ -782,8 +753,8 @@ public class Shoutcast extends DefaultApplication {
 
             mBusy.setVisible(true);
 
-            list = new DefaultOptionList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 60, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
@@ -838,8 +809,8 @@ public class Shoutcast extends DefaultApplication {
                             synchronized (this) {
                                 try {
                                     setPainting(false);
-                                    if (mImageView.resource != null)
-                                        mImageView.resource.remove();
+                                    if (mImageView.getResource() != null)
+                                        mImageView.getResource().remove();
                                     mUrlText.setValue(nameValue.getName());
                                     mImageView.setVisible(true);
                                     mImageView.setTransparency(1f);

@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -33,6 +34,8 @@ import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
+import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.database.PersistentValue;
 
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BEvent;
@@ -99,7 +102,7 @@ public class DefaultApplication extends BApplication {
     }
 
     protected void dispatchEvent(HmeEvent event) {
-        switch (event.opcode) {
+        switch (event.getOpCode()) {
         case EVT_KEY:
             HmeEvent.Key e = (HmeEvent.Key) event;
             if (handleCallback(e))
@@ -121,7 +124,7 @@ public class DefaultApplication extends BApplication {
         case KEY_ENTER:
             if (mCurrentTrackerContext != null) {
                 play("thumbsup.snd");
-                Tools.savePersistentValue(TRACKER, mCurrentTrackerContext);
+                PersistentValueManager.savePersistentValue(TRACKER, mCurrentTrackerContext);
             }
             return true;
         case KEY_LEFT:
@@ -130,7 +133,8 @@ public class DefaultApplication extends BApplication {
             setActive(false); // TODO Make default just pop
             return true;
         case KEY_PAUSE:
-            soundPlayed = true;
+            //setSoundPlayed(true);
+            play(null);
             mPlayer.pauseTrack();
             return true;
         case KEY_PLAY:
@@ -282,7 +286,7 @@ public class DefaultApplication extends BApplication {
                     if (audio != null) {
                         setTitle("");
                         stopTrack();
-                        String url = mDefaultApplication.getContext().base.toString();
+                        String url = mDefaultApplication.getContext().getBase().toString();
                         try {
                             if (nameFile.isFile())
                                 url += URLEncoder.encode(mDefaultApplication.hashCode() + "/" + audio.getId() + ".mp3",
@@ -302,7 +306,6 @@ public class DefaultApplication extends BApplication {
                         }
 
                         mCurrentAudio = audio;
-
                         playTrack(url);
                     }
                 } catch (Exception ex) {
@@ -343,13 +346,13 @@ public class DefaultApplication extends BApplication {
         }
 
         public void postEvent(HmeEvent event) {
-            //System.out.println("postEvent:");
+            //System.out.println("postEvent:"+event);
             // TODO Implement listeners
             HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo) event;
-            switch (event.opcode) {
+            switch (event.getOpCode()) {
             case StreamResource.EVT_RSRC_INFO:
-                if (info.status == RSRC_STATUS_PLAYING) {
-                    String pos = (String) info.map.get("pos");
+                if (info.getStatus() == RSRC_STATUS_PLAYING) {
+                    String pos = (String) info.getMap().get("pos");
                     if (pos != null) {
                         try {
                             StringTokenizer tokenizer = new StringTokenizer(pos, "/");
@@ -360,7 +363,7 @@ public class DefaultApplication extends BApplication {
                         } catch (Exception ex) {
                         }
                     }
-                    String bitrate = (String) info.map.get("bitrate");
+                    String bitrate = (String) info.getMap().get("bitrate");
                     if (bitrate != null) {
                         try {
                             mBitrate = (int) Math.round(Float.parseFloat(bitrate) / 1024);
@@ -368,16 +371,17 @@ public class DefaultApplication extends BApplication {
                         }
                     }
                 }
-                if (mDefaultApplication.getCurrentScreen().focus != null)
-                    mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(mDefaultApplication
-                            .getCurrentScreen().focus, ResourceInfo.statusToString(info.status)));
-                return;
+                if (mDefaultApplication.getCurrentScreen().getFocus() != null)
+                    mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(mDefaultApplication
+                            .getCurrentScreen().getFocus(), ResourceInfo.statusToString(info.getStatus())));
+                fireEvent(new ApplicationEvent(info, ResourceInfo.statusToString(info.getStatus()), getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));                
+                break;
             case StreamResource.EVT_RSRC_STATUS:
-                if (info.status == RSRC_STATUS_PLAYING) {
-                    if (mDefaultApplication.getCurrentScreen().focus != null)
-                        mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(mDefaultApplication
-                                .getCurrentScreen().focus, "ready"));
-                } else if (info.status >= RSRC_STATUS_CLOSED) {
+                if (info.getStatus() == RSRC_STATUS_PLAYING) {
+                    if (mDefaultApplication.getCurrentScreen().getFocus() != null)
+                        mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(mDefaultApplication
+                                .getCurrentScreen().getFocus(), "ready"));
+                } else if (info.getStatus() >= RSRC_STATUS_CLOSED) {
                     //System.out.println("postEvent:RSRC_STATUS_CLOSED");
                     if (mPlayerState != STOP) {
                         stopTrack();
@@ -387,20 +391,22 @@ public class DefaultApplication extends BApplication {
                         getNextPos();
                         startTrack();
 
-                        if (mDefaultApplication.getCurrentScreen().focus != null)
-                            mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(
-                                    mDefaultApplication.getCurrentScreen().focus, "stopped"));
+                        if (mDefaultApplication.getCurrentScreen().getFocus() != null)
+                            mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(
+                                    mDefaultApplication.getCurrentScreen().getFocus(), "stopped"));
+                        
+                        fireEvent(new ApplicationEvent(info, "stopped", getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));                        
                     }
                 }
-                return;
+                break;
             }
         }
 
         public void setTitle(String value) {
             mTitle = value;
-            if (mDefaultApplication.getCurrentScreen().focus != null)
-                mDefaultApplication.getCurrentScreen().focus.handleEvent(new BEvent.Action(mDefaultApplication
-                        .getCurrentScreen().focus, "update"));
+            if (mDefaultApplication.getCurrentScreen().getFocus() != null)
+                mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(mDefaultApplication
+                        .getCurrentScreen().getFocus(), "update"));
         }
 
         public void getNextPos() {
@@ -564,6 +570,84 @@ public class DefaultApplication extends BApplication {
      * try { while (true) { int count = in.read(buf, 0, buf.length); if (count < 0) { break; } context.out.write(buf, 0,
      * count); } } finally { try { in.close(); } catch (IOException e) { } } }
      */
+    
+    
+    public static class ApplicationEvent
+    {
+        public ApplicationEvent(HmeEvent.ResourceInfo event, String status, Audio audio, int currentPosition, int total, int bitrate)
+        {
+            mEvent = event;
+            mStatus = status;
+            mAudio = audio;
+            mCurrentPosition = currentPosition;
+            mTotal = total;
+            mBitrate = bitrate;
+        }
+        
+        public HmeEvent.ResourceInfo getEvent()
+        {
+            return mEvent;
+        }
+        
+        public String getStatus()
+        {
+            return mStatus;
+        }        
+        
+        public Audio getAudio()
+        {
+            return mAudio;
+        }
+        
+        public int getCurrentPosition() {
+            return mCurrentPosition;
+        }
+
+        public int getTotal() {
+            return mTotal;
+        }
+
+        public int getBitrate() {
+            return mBitrate;
+        }
+        
+        private HmeEvent.ResourceInfo mEvent;
+        
+        private String mStatus;
+        
+        private Audio mAudio;
+        
+        private int mCurrentPosition;
+
+        private int mTotal;
+
+        private int mBitrate;
+    }
+    
+    public static interface ApplicationEventListener
+    {
+        public void handleApplicationEvent(ApplicationEvent appEvent);
+    }
+    
+    public static void addApplicationEventListener(ApplicationEventListener listener)
+    {
+        mApplicationEventListeners.add(listener);
+    }
+
+    public static void removeApplicationEventListener(ApplicationEventListener listener)
+    {
+        mApplicationEventListeners.remove(listener);
+    }
+
+    protected static void fireEvent(ApplicationEvent appEvent)
+    {
+        Vector listeners = (Vector)mApplicationEventListeners.clone();
+
+         for (int i = 0; i < listeners.size(); i++)
+         {
+             ((ApplicationEventListener)listeners.get(i)).handleApplicationEvent(appEvent);
+         }
+    }    
 
     // TODO Need to handle multiple apps
     private Player mPlayer;
@@ -575,4 +659,6 @@ public class DefaultApplication extends BApplication {
     private ByteArrayOutputStream mLastObject;
 
     private Resource mLastResource;
+    
+    private static Vector mApplicationEventListeners = new Vector();
 }

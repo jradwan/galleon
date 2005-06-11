@@ -16,15 +16,25 @@ package org.lnicholls.galleon.media;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.CropImageFilter;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageProducer;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import org.apache.log4j.Logger;
+
 public class ImageManipulator {
+    
+    private static Logger log = Logger.getLogger(ImageManipulator.class.getName());
 
     private static HashMap mRenderingHintsMap;
 
@@ -60,4 +70,110 @@ public class ImageManipulator {
 
         return scaledImage;
     }
+    
+    public static BufferedImage rotate(BufferedImage photo, int width, int height, int degrees) {
+        if (log.isDebugEnabled())
+            log.debug("rotate is "+degrees);
+        int imageWidth = photo.getWidth();
+        int imageHeight = photo.getHeight();
+        //Math.toDegrees(parameters.getRotate()) % 360;
+        // Only rotate if neccessary
+        if (degrees != 0) {
+            // Handle the two special cases where the image is turned on its side
+            double rotate = Math.toRadians(degrees);
+            if (degrees == 90.0 || degrees == 270.0) {
+                if (log.isDebugEnabled())
+                    log.debug("Angle is 90 or 270");
+                // Calculate the longest side of the image
+                if (imageWidth > imageHeight) {
+                    if (log.isDebugEnabled())
+                        log.debug("Width>Height");
+                    
+                    //AffineTransform tx = AffineTransform.getScaleInstance(1.0D, -1D);
+                    //AffineTransformOp op = new AffineTransformOp(tx, mRenderingHints);
+                    //photo = op.filter(photo, null);
+                    
+                    // Create an image big enough so that if the original image is rotated it will fit inside
+                    BufferedImage rotatedImage = new BufferedImage(imageWidth, imageWidth, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D graphics2D = rotatedImage.createGraphics();
+                    graphics2D.setRenderingHints(mRenderingHintsMap);
+                    // Place the original image inside the new image horizontally centered
+                    graphics2D.drawImage(photo, 0, imageWidth / 2 - imageHeight / 2, imageWidth, imageHeight, null);
+                    // Rotate around the center of the image
+                    AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(rotate,
+                            (float) imageWidth / 2.0, (float) imageWidth / 2.0), mRenderingHints);
+                    BufferedImage oldImage = photo;
+                    rotatedImage = op.filter(rotatedImage, null);
+                    oldImage.flush();
+                    oldImage = null;
+                    graphics2D.dispose();
+                    graphics2D = null;
+                    
+                    // Trim off the unneccessary edges
+                    CropImageFilter cropFilter = new CropImageFilter(imageWidth / 2 - imageHeight / 2, 0,
+                            imageHeight, imageWidth);
+                    ImageProducer imageProducer = rotatedImage.getSource();
+                    Image filteredImage = Toolkit.getDefaultToolkit().createImage(
+                            new FilteredImageSource(imageProducer, cropFilter));
+                    rotatedImage.flush();
+                    rotatedImage = null;
+
+                    photo = new BufferedImage(filteredImage.getWidth(null), filteredImage.getHeight(null),
+                            BufferedImage.TYPE_INT_RGB);
+                    graphics2D = photo.createGraphics();
+                    graphics2D.setRenderingHints(mRenderingHintsMap);
+                    graphics2D.drawImage(filteredImage, 0, 0, filteredImage.getWidth(null), filteredImage
+                            .getHeight(null), null);
+                    filteredImage.flush();
+                    filteredImage = null;
+                } else {
+                    if (log.isDebugEnabled())
+                        log.debug("Height>Width");
+                    // Create an image big enough so that if the original image is rotated it will fit inside
+                    BufferedImage rotatedImage = new BufferedImage(imageHeight, imageHeight, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D graphics2D = rotatedImage.createGraphics();
+                    graphics2D.setRenderingHints(mRenderingHintsMap);
+                    // Place the original image inside the new image vertically centered
+                    graphics2D.drawImage(photo, imageHeight / 2 - imageWidth / 2, 0, imageHeight, imageHeight, null);
+                    // Rotate around the center of the image
+                    AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(rotate,
+                            (float) imageHeight / 2.0, (float) imageHeight / 2.0), null);
+                    BufferedImage oldImage = photo;
+                    BufferedImage rotated = op.filter(rotatedImage, null);
+                    oldImage.flush();
+                    oldImage = null;
+                    graphics2D.dispose();
+                    graphics2D = null;
+                    rotatedImage.flush();
+                    rotatedImage = null;
+
+                    //Trim off the unneccessary edges
+                    CropImageFilter cropFilter = new CropImageFilter(0, rotated.getHeight() / 2 - imageWidth / 2,
+                            imageHeight, imageWidth);
+                    ImageProducer imageProducer = rotated.getSource();
+                    Image filteredImage = Toolkit.getDefaultToolkit().createImage(
+                            new FilteredImageSource(imageProducer, cropFilter));
+                    rotated.flush();
+                    rotated = null;
+
+                    photo = new BufferedImage(filteredImage.getWidth(null), filteredImage.getHeight(null),
+                            BufferedImage.TYPE_INT_RGB);
+                    graphics2D = photo.createGraphics();
+                    graphics2D.setRenderingHints(mRenderingHintsMap);
+                    graphics2D.drawImage(filteredImage, 0, 0, filteredImage.getWidth(null), filteredImage
+                            .getHeight(null), null);
+                    filteredImage.flush();
+                    filteredImage = null;
+                }
+            } else {
+                AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(rotate,
+                        (float) imageWidth / 2.0, (float) imageHeight / 2.0), mRenderingHints);
+                BufferedImage oldImage = photo;
+                photo = op.filter(photo, null);
+                oldImage.flush();
+                oldImage = null;
+            }
+        }
+        return photo;
+    }    
 }

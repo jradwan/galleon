@@ -70,7 +70,7 @@ public final class JpgFile {
                 if (result != null && (result.indexOf("0000:00:00") < 0)) {
                     image.setDateCreated(dateformat.parse(result));
                 }
-
+                
                 result = (String) properties.get("DateTime");
                 if (result != null && (result.indexOf("0000:00:00") < 0)) {
                     image.setDateModified(dateformat.parse(result));
@@ -81,6 +81,8 @@ public final class JpgFile {
                     image.setDateCaptured(dateformat.parse(result));
                 }
             }
+            
+            // TODO Get rotation
 
             if (image.getTitle().equals(DEFAULT_TITLE)) {
                 String value = Tools.extractName(file.getName());

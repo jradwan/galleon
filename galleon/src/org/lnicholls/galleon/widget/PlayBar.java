@@ -43,14 +43,14 @@ public class PlayBar extends BView {
     private static final int SHUTTLE_HEIGHT = PREFERRED_H;
 
     public PlayBar(BView parent) {
-        super(parent, 0, parent.height - PREFERRED_H, parent.width, PREFERRED_H);
+        super(parent, 0, parent.getHeight() - PREFERRED_H, parent.getWidth(), PREFERRED_H);
 
-        mProgress = new BView(this, TIMEWIDTH, PLAYBAR_Y_OFFSET + 8, this.width - 2 * TIMEWIDTH, PLAYBAR_H - 16);
+        mProgress = new BView(this, TIMEWIDTH, PLAYBAR_Y_OFFSET + 8, this.getWidth() - 2 * TIMEWIDTH, PLAYBAR_H - 16);
         mProgress.setVisible(false);
         mProgress.setResource(Color.GREEN);
         setProgress(0);
 
-        mBar = new BView(this, 0, PLAYBAR_Y_OFFSET, this.width, PLAYBAR_H, false);
+        mBar = new BView(this, 0, PLAYBAR_Y_OFFSET, this.getWidth(), PLAYBAR_H, false);
         mBar.setResource(createImage("org/lnicholls/galleon/widget/playbar.png"));
 
         mStart = new BText(mBar, 0, 0, TIMEWIDTH, 25);
@@ -58,12 +58,12 @@ public class PlayBar extends BView {
         mStart.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
         mStart.setValue(formatTime(0));
 
-        mEnd = new BText(mBar, this.width - TIMEWIDTH, 0, TIMEWIDTH, 25);
+        mEnd = new BText(mBar, this.getWidth() - TIMEWIDTH, 0, TIMEWIDTH, 25);
         mEnd.setFont("default-15.font");
         mEnd.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
         mEnd.setValue(formatTime(0));
 
-        int diff = (width - 2 * TIMEWIDTH) / 4;
+        int diff = (getWidth() - 2 * TIMEWIDTH) / 4;
         int[] tickX = { diff, 2 * diff, 3 * diff };
         for (int i = 0; i < 3; ++i) {
             BView playbarTick = new BView(this, TIMEWIDTH + tickX[i], PLAYBAR_Y_OFFSET + 8, 2, 3);
@@ -108,7 +108,7 @@ public class PlayBar extends BView {
             return;
 
         int centerOffset = 0;
-        int maxWidth = this.width - 2 * TIMEWIDTH;
+        int maxWidth = this.getWidth() - 2 * TIMEWIDTH;
 
         mPosition = Math.min(Math.max(seconds, 0), mDuration);
 
@@ -117,9 +117,9 @@ public class PlayBar extends BView {
             mProgress.setVisible(true);
         }
         mShuttleTime.setValue(formatTime(mPosition));
-        mShuttle.setLocation(TIMEWIDTH - (SHUTTLE_WIDTH / 2) + centerOffset, mShuttle.y);
+        mShuttle.setLocation(TIMEWIDTH - (SHUTTLE_WIDTH / 2) + centerOffset, mShuttle.getY());
         
-        mProgress.setSize(centerOffset, mProgress.height);
+        mProgress.setSize(centerOffset, mProgress.getHeight());
     }
 
     public void setProgress(int seconds) {
@@ -127,7 +127,7 @@ public class PlayBar extends BView {
             return;
 
         int newWidth = 0;
-        int maxWidth = this.width - 2 * TIMEWIDTH;
+        int maxWidth = this.getWidth() - 2 * TIMEWIDTH;
 
         mProgressed = Math.min(Math.max(seconds, 0), mDuration);
 
@@ -135,7 +135,7 @@ public class PlayBar extends BView {
             newWidth = (int) ((((float) mProgressed) / ((float) mDuration)) * maxWidth);
             mProgress.setVisible(true);
         }
-        mProgress.setSize(newWidth, mProgress.height);
+        mProgress.setSize(newWidth, mProgress.getHeight());
     }
 
     public void setDuration(int duration) {

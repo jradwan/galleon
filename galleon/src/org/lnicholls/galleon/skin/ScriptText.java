@@ -54,7 +54,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
         if (!mData.equals(value))
         {
             mData = value; 
-            Konfabulator.mWindow.getApp().root.setPainting(false);
+            Konfabulator.mWindow.getApp().getRoot().setPainting(false);
             try
             {
                 // Get the font
@@ -109,7 +109,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
             }            
             finally
             {
-                Konfabulator.mWindow.getApp().root.setPainting(true);
+                Konfabulator.mWindow.getApp().getRoot().setPainting(true);
             }
         }            
      }     
@@ -137,7 +137,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
                         y = y - lineHeight/2;
                     }            
             
-                    mView.setBounds(x,mView.y,mView.width,mView.height);
+                    mView.setBounds(x,mView.getY(),mView.getWidth(),mView.getHeight());
                 }
             }                
         }            
@@ -159,7 +159,7 @@ import com.tivo.hme.http.share.*;import org.mozilla.javascript.*;public clas
                         x = x - dataWidth/2;
                         y = y - lineHeight/2;
                     }                        
-                    mView.setBounds(mView.x,y,mView.width,mView.height);
+                    mView.setBounds(mView.getX(),y,mView.getWidth(),mView.getHeight());
                 }        
             }                
         }

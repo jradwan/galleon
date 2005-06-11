@@ -177,7 +177,7 @@ public class ClassicSkin {
     public View getMain(View root) {
         int imageWidth = mMain.getWidth(null);
         int imageHeigth = mMain.getHeight(null);
-        View main = new View(root, (root.width - imageWidth) / 2, (root.height - imageHeigth) / 2, imageWidth,
+        View main = new View(root, (root.getWidth() - imageWidth) / 2, (root.getHeight() - imageHeigth) / 2, imageWidth,
                 imageHeigth);
         main.setResource(main.createImage(mMain));
         return main;

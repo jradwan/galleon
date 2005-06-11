@@ -18,13 +18,15 @@ package org.lnicholls.galleon.apps.photos;
 
 import java.awt.Image;
 
+
+
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 
 public class CrossFade extends Effect {
     public void apply(View view, Image image) {
-        View view2 = new View(view.parent, view.x, view.y, view.width, view.height);
-        view2.setResource(view.resource);
+        View view2 = new View(view.getParent(), view.getX(), view.getY(), view.getWidth(), view.getHeight());
+        view2.setResource(view.getResource());
         view.setResource(view.createImage(image));
         image.flush(); 
         image = null;

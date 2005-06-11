@@ -109,14 +109,14 @@ public class MediaRefreshThread extends Thread {
                                     session.delete(audio);
                                     Thread.sleep(10); // give the CPU some breathing time
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    Tools.logException(MediaRefreshThread.class, ex, "Could not remove: " + file.getAbsolutePath());
                                 }
                             }
                         }
                     }
                 });
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Tools.logException(MediaRefreshThread.class, ex);
             }
         }
 

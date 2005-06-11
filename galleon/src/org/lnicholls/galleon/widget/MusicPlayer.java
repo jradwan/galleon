@@ -24,6 +24,8 @@ import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.Mp3File;
+import org.lnicholls.galleon.server.MusicPlayerConfiguration;
+import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication.Player;
@@ -43,7 +45,9 @@ public class MusicPlayer extends DefaultPlayer {
         mTracker = tracker;
         mApplication = application;
 
-        mMusicInfo = new MusicInfo(this, 0, 0, width, height, true);
+        MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+
+        mMusicInfo = new MusicInfo(this, 0, 0, width, height, true, musicPlayerConfiguration.isShowImages());
 
         mPlayBar = new PlayBar(this);
     }
@@ -109,7 +113,6 @@ public class MusicPlayer extends DefaultPlayer {
             if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST)) {
                 audio.setTitle(nameFile.getName());
             }
-
             mMusicInfo.setAudio(audio);
         } catch (Exception ex) {
         }
@@ -240,8 +243,19 @@ public class MusicPlayer extends DefaultPlayer {
                 } else
                     audio = getAudio((String) nameFile.getValue());
                 if (mPlaying && audio != null) {
-                    mMusicInfo.setAudio(audio);
-                    mPlayBar.setDuration((int) audio.getDuration() / 1000);
+                    boolean update = false;
+                    if (mMusicInfo.getAudio()!=null)
+                    {
+                        if (!mMusicInfo.getAudio().getId().equals(audio.getId()))
+                        {
+                            update = true;
+                        }
+                    }
+                    if (update)
+                    {
+                        mMusicInfo.setAudio(audio);
+                        mPlayBar.setDuration((int) audio.getDuration() / 1000);
+                    }
                 }
             } catch (Exception ex) {
                 Tools.logException(MusicPlayer.class, ex);
@@ -280,6 +294,12 @@ public class MusicPlayer extends DefaultPlayer {
         }
 
         return super.handleAction(view, action);
+    }
+
+    public void remove() {
+        mMusicInfo.clearResource();
+
+        super.remove();
     }
 
     private DefaultApplication mApplication;

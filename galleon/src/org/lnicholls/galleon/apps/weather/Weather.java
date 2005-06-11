@@ -164,9 +164,9 @@ public class Weather extends DefaultApplication {
         public WeatherMenuScreen(Weather app) {
             super(app, "Weather");
 
-            below.setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground);
 
-            WeatherData weatherData = ((WeatherFactory) context.factory).getWeatherData();
+            WeatherData weatherData = ((WeatherFactory) getContext().getFactory()).getWeatherData();
 
             mMenuList.add(new CurrentConditionsScreen(app, weatherData));
             mMenuList.add(new ForecastScreen(app, weatherData));
@@ -193,7 +193,7 @@ public class Weather extends DefaultApplication {
             else
                 icon.setResource(mIcon);
 
-            BText name = new BText(parent, 50, 4, parent.width - 40, parent.height - 4);
+            BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(mMenuList.get(index).toString());
@@ -205,14 +205,14 @@ public class Weather extends DefaultApplication {
 
         private final int border_left = SAFE_TITLE_H + 256;
 
-        private final int text_width = width - border_left - (SAFE_TITLE_H);
+        private final int text_width = getWidth() - border_left - (SAFE_TITLE_H);
 
         private WeatherList list;
 
         public CurrentConditionsScreen(Weather app, WeatherData data) {
             super(app);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -220,17 +220,17 @@ public class Weather extends DefaultApplication {
 
             int start = top;
 
-            icon = new BView(normal, SAFE_TITLE_H, SAFE_TITLE_V + 30, 256, 256);
+            icon = new BView(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V + 30, 256, 256);
             icon.setResource(mNA);
 
             Resource font = createFont("Dekadens.ttf", Font.BOLD, 60);
-            temperatureText = new BText(normal, border_left, SAFE_TITLE_V + 70, text_width - 70, 70);
+            temperatureText = new BText(getNormal(), border_left, SAFE_TITLE_V + 70, text_width - 70, 70);
             temperatureText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
             temperatureText.setFont(font);
             temperatureText.setColor(new Color(127, 235, 192));
             temperatureText.setShadow(Color.black, 3);
 
-            conditionsText = new BText(normal, SAFE_TITLE_H, SAFE_TITLE_V + 280, 256, 80);
+            conditionsText = new BText(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V + 280, 256, 80);
             conditionsText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
             conditionsText.setFont("default-24-bold.font");
             conditionsText.setColor(new Color(127, 235, 192));
@@ -239,78 +239,78 @@ public class Weather extends DefaultApplication {
 
             start += 70;
 
-            BText labelText = new BText(normal, border_left, start, text_width, 30);
+            BText labelText = new BText(getNormal(), border_left, start, text_width, 30);
             labelText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             labelText.setFont("default-18-bold.font");
             labelText.setShadow(true);
             labelText.setValue("UV Index:");
 
-            uvIndexText = new BText(normal, border_left, start, text_width, 30);
+            uvIndexText = new BText(getNormal(), border_left, start, text_width, 30);
             uvIndexText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             uvIndexText.setFont("default-18-bold.font");
             uvIndexText.setShadow(true);
 
             start += 25;
 
-            labelText = new BText(normal, border_left, start, text_width, 30);
+            labelText = new BText(getNormal(), border_left, start, text_width, 30);
             labelText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             labelText.setFont("default-18-bold.font");
             labelText.setShadow(true);
             labelText.setValue("Wind:");
 
-            windText = new BText(normal, border_left, start, text_width, 30);
+            windText = new BText(getNormal(), border_left, start, text_width, 30);
             windText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             windText.setFont("default-18-bold.font");
             windText.setShadow(true);
 
             start += 25;
 
-            labelText = new BText(normal, border_left, start, text_width, 30);
+            labelText = new BText(getNormal(), border_left, start, text_width, 30);
             labelText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             labelText.setFont("default-18-bold.font");
             labelText.setShadow(true);
             labelText.setValue("Humidity:");
 
-            humidityText = new BText(normal, border_left, start, text_width, 30);
+            humidityText = new BText(getNormal(), border_left, start, text_width, 30);
             humidityText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             humidityText.setFont("default-18-bold.font");
             humidityText.setShadow(true);
 
             start += 25;
 
-            labelText = new BText(normal, border_left, start, text_width, 30);
+            labelText = new BText(getNormal(), border_left, start, text_width, 30);
             labelText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             labelText.setFont("default-18-bold.font");
             labelText.setShadow(true);
             labelText.setValue("Pressure:");
 
-            pressureText = new BText(normal, border_left, start, text_width, 30);
+            pressureText = new BText(getNormal(), border_left, start, text_width, 30);
             pressureText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             pressureText.setFont("default-18-bold.font");
             pressureText.setShadow(true);
 
             start += 25;
 
-            labelText = new BText(normal, border_left, start, text_width, 30);
+            labelText = new BText(getNormal(), border_left, start, text_width, 30);
             labelText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             labelText.setFont("default-18-bold.font");
             labelText.setShadow(true);
             labelText.setValue("Dew Point:");
 
-            dewPointText = new BText(normal, border_left, start, text_width, 30);
+            dewPointText = new BText(getNormal(), border_left, start, text_width, 30);
             dewPointText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             dewPointText.setFont("default-18-bold.font");
             dewPointText.setShadow(true);
 
             start += 25;
 
-            labelText = new BText(normal, border_left, start, text_width, 30);
+            labelText = new BText(getNormal(), border_left, start, text_width, 30);
             labelText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             labelText.setFont("default-18-bold.font");
             labelText.setShadow(true);
             labelText.setValue("Visibility:");
 
-            visibilityText = new BText(normal, border_left, start, text_width, 30);
+            visibilityText = new BText(getNormal(), border_left, start, text_width, 30);
             visibilityText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
             visibilityText.setFont("default-18-bold.font");
             visibilityText.setShadow(true);
@@ -318,15 +318,15 @@ public class Weather extends DefaultApplication {
             setFooter("weather.com");
 
             /*
-            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new WeatherList(this.getNormal(), SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
             */
             
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);            
@@ -410,7 +410,7 @@ public class Weather extends DefaultApplication {
         public ForecastScreen(Weather app, WeatherData data) {
             super(app);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -419,67 +419,65 @@ public class Weather extends DefaultApplication {
             int gap = 6;
 
             int dayWidth = (BODY_WIDTH - 4 * gap) / 5;
-
+            
             for (int i = 0; i < 5; i++) {
                 int start = TOP;
 
                 int x = (dayWidth + gap / 2) * i;
 
-                dayText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 20);
+                dayText[i] = new BText(getNormal(), BORDER_LEFT + x, start, dayWidth, 20);
                 dayText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
                 dayText[i].setFont("default-18-bold.font");
                 dayText[i].setShadow(true);
 
                 start = start + 20;
 
-                icon[i] = new BView(normal, BORDER_LEFT + x, start, dayWidth, dayWidth);
+                icon[i] = new BView(getNormal(), BORDER_LEFT + x, start, dayWidth, dayWidth);
                 icon[i].setResource(mNA);
 
                 start = start + dayWidth;
 
-                hiText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 30);
+                hiText[i] = new BText(getNormal(), BORDER_LEFT + x, start, dayWidth, 30);
                 hiText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
                 hiText[i].setFont("default-24-bold.font");
                 hiText[i].setShadow(true);
 
                 start = start + 30;
 
-                loText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 20);
+                loText[i] = new BText(getNormal(), BORDER_LEFT + x, start, dayWidth, 20);
                 loText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP);
                 loText[i].setFont("default-18-bold.font");
                 loText[i].setShadow(true);
 
                 start = start + 20;
 
-                descriptionText[i] = new BText(normal, BORDER_LEFT + x, start, dayWidth, 60);
+                descriptionText[i] = new BText(getNormal(), BORDER_LEFT + x, start, dayWidth, 60);
                 descriptionText[i].setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
                 descriptionText[i].setFont("default-18-bold.font");
                 descriptionText[i].setColor(new Color(127, 235, 192));
                 descriptionText[i].setShadow(true);
             }
-
             setFooter("weather.com");
 
             /*
-            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new WeatherList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
             */
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
-
             updateText();
         }
 
         private void updateText() {
 
             WeatherData.Forecasts forecasts = mWeatherData.getForecasts();
-
+            
             int counter = 0;
             Iterator iterator = forecasts.getForecast();
             while (iterator.hasNext()) {
@@ -489,15 +487,15 @@ public class Weather extends DefaultApplication {
                     WeatherData.Part dayPart = forecast.getDayForecast();
                     WeatherData.Part nightPart = forecast.getNightForecast();
                     ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(Weather.this.getClass().getName(), null, pad(dayPart.getIcon()));
+                    
                     java.awt.Image image = ImageIO.read(new ByteArrayInputStream(baos.toByteArray())).getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
                     //BufferedImage image = (BufferedImage) getSkinImage(null, pad(dayPart.getIcon())).getScaledInstance(
                     //        BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
                     //java.awt.Image image = Tools.getResourceAsImage(getClass(), pad(dayPart.getIcon()) + ".png")
                     //        .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
-                    image = (BufferedImage) Tools.getImage(image);
+                    //image = (BufferedImage) Tools.getImage(image); ???
                     //icon[counter].setResource(getSkinImage(null, pad(dayPart.getIcon())), RSRC_IMAGE_BESTFIT);
                     icon[counter].setResource(createImage(image));
-                    
                     dayText[counter].setValue(forecast.getDescription());
                     String value = forecast.getHigh();
                     if (value.equals("N/A"))
@@ -567,24 +565,24 @@ public class Weather extends DefaultApplication {
         public LocalRadarScreen(Weather app, WeatherData data) {
             super(app);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
             mWeatherData = data;
 
             setTitle(" ");
 
-            image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
+            image = new BView(getBelow(), SAFE_TITLE_H, SAFE_TITLE_V, getWidth() - (SAFE_TITLE_H * 2), getHeight()
                     - (SAFE_TITLE_V * 2));
 
             /*
-            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new WeatherList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
             */
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
@@ -599,7 +597,7 @@ public class Weather extends DefaultApplication {
                 if (mWeatherData.getLocalRadar() != null) {
                     java.awt.Image cached = Tools.retrieveCachedImage(new URL(mWeatherData.getLocalRadar()));
                     if (cached != null) {
-                        //cached = cached.getScaledInstance(image.width, image.height, java.awt.Image.SCALE_SMOOTH);
+                        //cached = cached.getScaledInstance(image.getWidth(), image.getHeight(), java.awt.Image.SCALE_SMOOTH);
                         //cached = Tools.getImage(cached);
                         image.setResource(cached);
                         return;
@@ -645,24 +643,24 @@ public class Weather extends DefaultApplication {
         public NationalRadarScreen(Weather app, WeatherData data) {
             super(app);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
             mWeatherData = data;
 
             setTitle(" ");
 
-            image = new BView(below, SAFE_TITLE_H, SAFE_TITLE_V, width - (SAFE_TITLE_H * 2), height
+            image = new BView(getBelow(), SAFE_TITLE_H, SAFE_TITLE_V, getWidth() - (SAFE_TITLE_H * 2), getHeight()
                     - (SAFE_TITLE_V * 2));
 
             /*
-            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new WeatherList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
             */
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
@@ -720,7 +718,7 @@ public class Weather extends DefaultApplication {
         public AlertsScreen(Weather app, WeatherData data) {
             super(app);
 
-            below.setResource(mInfoBackground);
+            getBelow().setResource(mInfoBackground);
 
             mWeatherData = data;
 
@@ -731,7 +729,7 @@ public class Weather extends DefaultApplication {
 
             int start = TOP - 30;
 
-            eventText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 30);
+            eventText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             eventText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
             eventText.setFont("default-24-bold.font");
             eventText.setColor(new Color(150, 100, 100));
@@ -739,7 +737,7 @@ public class Weather extends DefaultApplication {
 
             start += 30;
 
-            datesText = new BText(normal, BORDER_LEFT, start, BODY_WIDTH, 20);
+            datesText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
             datesText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
             datesText.setFont("default-18-bold.font");
             eventText.setColor(new Color(150, 100, 100));
@@ -747,7 +745,7 @@ public class Weather extends DefaultApplication {
 
             start += 25;
 
-            scrollText = new ScrollText(normal, SAFE_TITLE_H, start, BODY_WIDTH - 10, height - 2 * SAFE_TITLE_V - 193,
+            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, start, BODY_WIDTH - 10, getHeight() - 2 * SAFE_TITLE_V - 193,
                     "");
 
             setFocusDefault(scrollText);
@@ -755,14 +753,14 @@ public class Weather extends DefaultApplication {
             setFooter("weather.gov");
 
             /*
-            list = new WeatherList(this.normal, SAFE_TITLE_H + 10, (height - SAFE_TITLE_V) - 55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new WeatherList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             list.add("Press SELECT to go back");
             setFocusDefault(list);
             */
             
-            BButton button = new BButton(normal, SAFE_TITLE_H + 10, (height-SAFE_TITLE_V)-55, (int) Math
-                    .round((width - (SAFE_TITLE_H * 2)) / 2), 35);
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);            

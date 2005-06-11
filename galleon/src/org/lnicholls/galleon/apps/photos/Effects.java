@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.HashMap;
 
+
 public class Effects {
 
     private static final HashMap effects = new HashMap();

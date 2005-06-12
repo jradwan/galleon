@@ -221,6 +221,7 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                     if (mFields.get(i) instanceof JTextField) {
                         JTextField field = (JTextField) mFields.get(i);
                         mTableModel.setValueAt(field.getText(), nextRow, i);
+                        field.setText("");
                     } else if (mFields.get(i) instanceof JComboBox) {
                         JComboBox combo = (JComboBox) mFields.get(i);
                         if (combo.getSelectedItem() instanceof AppConfigurationPanel.ComboWrapper) {
@@ -244,6 +245,7 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                         if (mFields.get(i) instanceof JTextField) {
                             JTextField field = (JTextField) mFields.get(i);
                             values[i] = field.getText();
+                            //field.setText("");
                         } else if (mFields.get(i) instanceof JComboBox) {
                             JComboBox combo = (JComboBox) mFields.get(i);
                             if (combo.getSelectedItem() instanceof AppConfigurationPanel.ComboWrapper) {
@@ -271,6 +273,10 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                     for (int i = 0; i < selectedRows.length; i++) {
                         mTableModel.removeRow(selectedRows[i]);
                     }
+                }
+                for (int i = 0; i < mFields.size(); i++) {
+                    JTextField field = (JTextField) mFields.get(i);
+                    field.setText("");
                 }
             } catch (Exception ex) {
                 Tools.logException(OptionsTable.class, ex);

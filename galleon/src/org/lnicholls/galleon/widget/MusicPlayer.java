@@ -243,19 +243,8 @@ public class MusicPlayer extends DefaultPlayer {
                 } else
                     audio = getAudio((String) nameFile.getValue());
                 if (mPlaying && audio != null) {
-                    boolean update = false;
-                    if (mMusicInfo.getAudio()!=null)
-                    {
-                        if (!mMusicInfo.getAudio().getId().equals(audio.getId()))
-                        {
-                            update = true;
-                        }
-                    }
-                    if (update)
-                    {
-                        mMusicInfo.setAudio(audio);
-                        mPlayBar.setDuration((int) audio.getDuration() / 1000);
-                    }
+                    mMusicInfo.setAudio(audio);
+                    mPlayBar.setDuration((int) audio.getDuration() / 1000);
                 }
             } catch (Exception ex) {
                 Tools.logException(MusicPlayer.class, ex);

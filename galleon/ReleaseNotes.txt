@@ -1,6 +1,14 @@
 Galleon
 -------
 
+Version 0.0.0 beta 10:
+----------------------
+Fixed email app.
+Reset field values for table operations in configuration GUI.
+Fixed music update title bug.
+Fixed bug that caused beep sounds in GUI.
+
+
 Version 0.0.0 beta 9:
 ---------------------
 Fixed safe viewing area option.

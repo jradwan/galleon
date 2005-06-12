@@ -364,6 +364,7 @@ public class MainFrame extends JFrame {
                 AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
                 mAppsCombo.addItem(new AppDescriptorWrapper(appDescriptor));
             }
+            
 
             getContentPane().setLayout(new BorderLayout());
 

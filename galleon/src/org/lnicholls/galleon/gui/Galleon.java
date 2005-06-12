@@ -33,7 +33,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -474,7 +474,7 @@ public final class Galleon implements Constants {
                     }
                     
                     if (mServerControl!=null || counter++ == 30) {
-                        Toolkit.getDefaultToolkit().beep();
+                        //Toolkit.getDefaultToolkit().beep();
                         mProgressBar.setValue(mProgressBar.getMinimum());
                         mProgressBar.setString("");
                         this.cancel();

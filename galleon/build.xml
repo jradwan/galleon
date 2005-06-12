@@ -796,7 +796,7 @@
 
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/jmf.jar,**/sound.jar,**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />
@@ -946,7 +946,7 @@
         <echo>Copying libraries</echo>
         <mkdir dir="${build}/lib" />
         <copy todir="${build}/lib">
-            <fileset dir="./lib" />
+            <fileset dir="./lib" excludes="**/jmf.jar,**/sound.jar"/>
         </copy>
 
         <echo>Copying Doc files</echo>

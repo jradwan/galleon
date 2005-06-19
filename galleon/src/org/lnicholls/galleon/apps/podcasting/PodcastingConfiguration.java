@@ -24,6 +24,8 @@ import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 
 public class PodcastingConfiguration implements AppConfiguration {
+    
+    public static int ALL = -1;
 
     public String getName() {
         return mName;
@@ -35,7 +37,28 @@ public class PodcastingConfiguration implements AppConfiguration {
         mName = value;
     }
     
+    public int getDownload() {
+        return mDownload;
+    }
+
+    public void setDownload(int value) {
+        if (mDownload != value)
+            mModified = true;
+        mDownload = value;
+    }
+    
     public List getDirectorys() {
+        if (mDirectories==null)
+        {
+            mDirectories = new ArrayList();
+            mDirectories.add(new NameValue("iPodder.org","http://www.ipodder.org/discuss/reader$4.opml"));
+            mDirectories.add(new NameValue("iPodderX Top Picks","http://directory.ipodderx.com/opml/iPodderX_Picks.opml"));
+            mDirectories.add(new NameValue("iPodderX Most Popular","http://directory.ipodderx.com/opml/iPodderX_Popular.opml"));
+            mDirectories.add(new NameValue("Podcast Alley Top 50","http://www.podcastalley.com/PodcastAlleyTop50.opml"));
+            mDirectories.add(new NameValue("Podcast Alley 10 Newest","http://www.podcastalley.com/PodcastAlley10Newest.opml"));
+            mDirectories.add(new NameValue("GigaDial 25 Latest","http://www.gigadial.net/public/opml/dial25.opml"));
+            mDirectories.add(new NameValue("Sports Podcast Network","http://sportspodnet.com/opml/spn.opml"));
+        }        
         return mDirectories;
     }
 
@@ -50,17 +73,6 @@ public class PodcastingConfiguration implements AppConfiguration {
     }
     
     public List getSubscriptions() {
-        if (mSubscriptions==null)
-        {
-            mSubscriptions = new ArrayList();
-            mSubscriptions.add(new NameValue("iPodder.org","http://www.ipodder.org/discuss/reader$4.opml"));
-            mSubscriptions.add(new NameValue("iPodderX Top Picks","http://directory.ipodderx.com/opml/iPodderX_Picks.opml"));
-            mSubscriptions.add(new NameValue("iPodderX Most Popular","http://directory.ipodderx.com/opml/iPodderX_Popular.opml"));
-            mSubscriptions.add(new NameValue("Podcast Alley Top 50","http://www.podcastalley.com/PodcastAlleyTop50.opml"));
-            mSubscriptions.add(new NameValue("Podcast Alley 10 Newest","http://www.podcastalley.com/PodcastAlley10Newest.opml"));
-            mSubscriptions.add(new NameValue("GigaDial 25 Latest","http://www.gigadial.net/public/opml/dial25.opml"));
-            mSubscriptions.add(new NameValue("Sports Podcast Network","http://sportspodnet.com/opml/spn.opml"));
-        }
         return mSubscriptions;
     }
 
@@ -88,9 +100,11 @@ public class PodcastingConfiguration implements AppConfiguration {
 
     private String mName;
     
+    private int mDownload = 1;
+    
     private boolean mModified;
 
-    private List mDirectories = new ArrayList();
+    private List mDirectories;
     
     private List mSubscriptions;
 }

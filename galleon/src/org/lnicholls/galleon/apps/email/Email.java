@@ -86,8 +86,8 @@ public class Email extends DefaultApplication {
         mFolderIcon = getSkinImage("menu", "folder");
         mItemIcon = getSkinImage("menu", "item");
 
-        EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getContext().getFactory()).getAppContext()
-                .getConfiguration();
+        EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getContext().getFactory())
+                .getAppContext().getConfiguration();
 
         if (emailConfiguration.getAccounts().size() == 1) {
             Account account = (Account) emailConfiguration.getAccounts().get(0);
@@ -124,15 +124,17 @@ public class Email extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                Account account = (Account) mMenuList.get(mMenuList.getFocus());
+                if (mMenuList.size() > 0) {
+                    load();
+                    Account account = (Account) mMenuList.get(mMenuList.getFocus());
 
-                List stories = (List) ((EmailFactory) getContext().getFactory()).mAccounts.get(account.getName());
-                EmailAccountMenuScreen emailAccountMenuScreen = new EmailAccountMenuScreen((Email) getBApp(), account,
-                        stories);
-                getBApp().push(emailAccountMenuScreen, TRANSITION_LEFT);
-                getBApp().flush();
-                return true;
+                    List stories = (List) ((EmailFactory) getContext().getFactory()).mAccounts.get(account.getName());
+                    EmailAccountMenuScreen emailAccountMenuScreen = new EmailAccountMenuScreen((Email) getBApp(),
+                            account, stories);
+                    getBApp().push(emailAccountMenuScreen, TRANSITION_LEFT);
+                    getBApp().flush();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -150,14 +152,14 @@ public class Email extends DefaultApplication {
     }
 
     public class EmailAccountMenuScreen extends DefaultMenuScreen {
-        
+
         public EmailAccountMenuScreen(Email app, Account account, List list) {
             this(app, account, list, false);
         }
-        
+
         public EmailAccountMenuScreen(Email app, Account account, List list, boolean first) {
             super(app, null);
-            
+
             mFirst = first;
 
             getBelow().setResource(mMenuBackground);
@@ -167,21 +169,34 @@ public class Email extends DefaultApplication {
 
             setTitle(account.getName());
 
-            for (int i = 0; i < list.size(); i++) {
-                EmailItem item = (EmailItem) list.get(i);
+            // Sort by date
+            EmailItem[] itemArray = (EmailItem[]) list.toArray(new EmailItem[0]);
+            Arrays.sort(itemArray, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    EmailItem emailItem1 = (EmailItem) o1;
+                    EmailItem emailItem2 = (EmailItem) o2;
+
+                    return -emailItem1.getDate().compareTo(emailItem2.getDate());
+                }
+            });
+
+            for (int i = 0; i < itemArray.length; i++) {
+                EmailItem item = (EmailItem) itemArray[i];
                 mMenuList.add(item);
             }
         }
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                EmailItem item = (EmailItem) mMenuList.get(mMenuList.getFocus());
+                if (mMenuList.size() > 0) {
+                    load();
+                    EmailItem item = (EmailItem) mMenuList.get(mMenuList.getFocus());
 
-                EmailScreen rssScreen = new EmailScreen((Email) getBApp(), item);
-                getBApp().push(rssScreen, TRANSITION_LEFT);
-                getBApp().flush();
-                return true;
+                    EmailScreen rssScreen = new EmailScreen((Email) getBApp(), item);
+                    getBApp().push(rssScreen, TRANSITION_LEFT);
+                    getBApp().flush();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -200,8 +215,7 @@ public class Email extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_LEFT:
-                if (!mFirst)
-                {
+                if (!mFirst) {
                     postEvent(new BEvent.Action(this, "pop"));
                     return true;
                 }
@@ -210,7 +224,7 @@ public class Email extends DefaultApplication {
         }
 
         private BView mImage;
-        
+
         private boolean mFirst;
     }
 
@@ -244,8 +258,8 @@ public class Email extends DefaultApplication {
 
             start += 25;
 
-            mScrollText = new ScrollText(getNormal(), SAFE_TITLE_H, start, BODY_WIDTH - 10, getHeight() - 2 * SAFE_TITLE_V - 193,
-                    cleanHTML(item.getBody()));
+            mScrollText = new ScrollText(getNormal(), SAFE_TITLE_H, start, BODY_WIDTH - 10, getHeight() - 2
+                    * SAFE_TITLE_V - 193, cleanHTML(item.getBody()));
 
             /*
              * mList = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 40, (width -
@@ -342,9 +356,8 @@ public class Email extends DefaultApplication {
         private void updateAccounts() {
             final EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
 
-            new Thread(){
-                public void run()
-                {
+            new Thread() {
+                public void run() {
                     Iterator iterator = emailConfiguration.getAccounts().iterator();
                     while (iterator.hasNext()) {
                         Account account = (Account) iterator.next();
@@ -355,7 +368,7 @@ public class Email extends DefaultApplication {
                         }
                         try {
                             Properties props = new Properties();
-        
+
                             if (account.getProtocol().equals("pop3s")) {
                                 props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
                                 props.setProperty("mail.pop3.socketFactory.fallback", "false");
@@ -367,32 +380,32 @@ public class Email extends DefaultApplication {
                                 props.setProperty("mail.imap.port", "993");
                                 props.setProperty("mail.imap.socketFactory.port", "993");
                             }
-        
+
                             Session session = Session.getDefaultInstance(props, null);
                             Store store = session.getStore(account.getProtocol());
-                            store.connect(account.getServer(), Tools.decrypt(account.getUsername()), Tools.decrypt(account
-                                    .getPassword()));
+                            store.connect(account.getServer(), Tools.decrypt(account.getUsername()), Tools
+                                    .decrypt(account.getPassword()));
                             // TODO Make this configurable too?
                             Folder folder = store.getFolder("INBOX");
                             folder.open(Folder.READ_ONLY);
-        
+
                             // Get stats
                             int countEmail = folder.getMessageCount();
                             // TODO Should we look at this first?
                             int newCount = folder.getNewMessageCount();
                             int unreadCount = folder.getUnreadMessageCount();
-        
+
                             mail.clear();
-        
+
                             int count = 0;
                             for (int i = 1; i <= countEmail; i++) {
                                 boolean unread = false;
-        
+
                                 Message message = folder.getMessage(i);
                                 String[] statusHeader = message.getHeader("Status");
-        
+
                                 count = count + 1;
-        
+
                                 if (statusHeader != null && statusHeader.length > 0) {
                                     if (statusHeader[0].equals("")) {
                                         // New message
@@ -410,7 +423,7 @@ public class Email extends DefaultApplication {
                                         unread = true;
                                     }
                                 }
-        
+
                                 if (unread) {
                                     String title = message.getSubject() == null ? "none" : message.getSubject();
                                     String from = "";
@@ -433,13 +446,13 @@ public class Email extends DefaultApplication {
                                             }
                                         }
                                     }
-                                    EmailItem emailItem = new EmailItem(message.getSubject(), from, description, message
-                                            .getSentDate());
+                                    EmailItem emailItem = new EmailItem(message.getSubject(), from, description,
+                                            message.getSentDate());
                                     mail.add(emailItem);
                                 }
                             }
                             folder.close(false);
-        
+
                             store.close();
                         } catch (Exception ex) {
                             Tools.logException(Email.class, ex, "Could not reload email");
@@ -452,7 +465,7 @@ public class Email extends DefaultApplication {
         protected void init(ArgumentList args) {
             super.init(args);
         }
-        
+
         public void handleHTTP(HttpRequest http, String uri) throws IOException {
             if (uri.equals("icon.png")) {
                 EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
@@ -462,13 +475,12 @@ public class Email extends DefaultApplication {
                 while (iterator.hasNext()) {
                     Account account = (Account) iterator.next();
                     List mail = (List) mAccounts.get(account.getName());
-                    if (mail!=null && mail.size()>0)
-                    {
+                    if (mail != null && mail.size() > 0) {
                         hasMail = true;
                         break;
                     }
                 }
-                
+
                 if (hasMail) {
                     super.handleHTTP(http, "alerticon.png");
                     return;

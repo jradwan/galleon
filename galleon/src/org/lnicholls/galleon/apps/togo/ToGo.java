@@ -103,8 +103,8 @@ public class ToGo extends DefaultApplication {
             int start = TOP - 30;
             int offset = 30;
 
-            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getContext().getFactory()).getAppContext()
-                    .getConfiguration();
+            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getContext().getFactory())
+                    .getAppContext().getConfiguration();
             BText countText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
             countText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
             countText.setFont("default-18.font");
@@ -185,10 +185,11 @@ public class ToGo extends DefaultApplication {
                 sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
                 availableText.setValue("Available: " + numberFormat.format(available) + " MB");
             }
-            
-            //setFooter("Press 0 for Sort by Date, 1 Group All, 2 Group Suggestions");  // 0 for Sort by Title, 1 List All, 2 List Suggestions
+
+            //setFooter("Press 0 for Sort by Date, 1 Group All, 2 Group Suggestions"); // 0 for Sort by Title, 1 List
+            // All, 2 List Suggestions
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             mFocus = mMenuList.getFocus();
             return super.handleEnter(arg, isReturn);
@@ -196,11 +197,13 @@ public class ToGo extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                ToGoScreen togoScreen = new ToGoScreen((ToGo) getBApp());
-                togoScreen.setList(mMenuList);
-                getBApp().push(togoScreen, TRANSITION_LEFT);
-                return true;
+                if (mMenuList.size() > 0) {
+                    load();
+                    ToGoScreen togoScreen = new ToGoScreen((ToGo) getBApp());
+                    togoScreen.setList(mMenuList);
+                    getBApp().push(togoScreen, TRANSITION_LEFT);
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -339,13 +342,13 @@ public class ToGo extends DefaultApplication {
             statusBarBg.setResource(Color.BLACK);
             statusBarBg.setTransparency(.5f);
             statusBarBg.setVisible(false);
-            statusBar = new BView(getNormal(), getWidth() - SAFE_TITLE_H - BODY_WIDTH / 3 + 2, start + 2, BODY_WIDTH / 3 - 4,
-                    30 - 4);
+            statusBar = new BView(getNormal(), getWidth() - SAFE_TITLE_H - BODY_WIDTH / 3 + 2, start + 2,
+                    BODY_WIDTH / 3 - 4, 30 - 4);
             statusBar.setResource(Color.GREEN);
             statusBar.setVisible(false);
             /*
-             * speedText = new BText(getNormal(), getWidth() - SAFE_TITLE_H - text_getWidth()/3, start , text_width/3, 30);
-             * speedText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | IHmeProtocol.RSRC_VALIGN_CENTER);
+             * speedText = new BText(getNormal(), getWidth() - SAFE_TITLE_H - text_getWidth()/3, start , text_width/3,
+             * 30); speedText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER | IHmeProtocol.RSRC_VALIGN_CENTER);
              * speedText.setFont("default-18-bold.font"); speedText.setColor(Color.BLACK);
              * speedText.setShadow(Color.DARK_GRAY,1); speedText.setValue(" "); speedText.setVisible(false);
              */
@@ -444,7 +447,8 @@ public class ToGo extends DefaultApplication {
                             if ((statusBarBg.getWidth() - 4) * barFraction < 1)
                                 statusBar.setSize(1, statusBar.getHeight());
                             else
-                                statusBar.setSize((int) (barFraction * (statusBarBg.getWidth() - 4)), statusBar.getHeight());
+                                statusBar.setSize((int) (barFraction * (statusBarBg.getWidth() - 4)), statusBar
+                                        .getHeight());
                         }
                     } else {
                         String progress = "";

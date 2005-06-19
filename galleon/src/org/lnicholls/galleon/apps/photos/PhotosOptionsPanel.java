@@ -19,9 +19,7 @@ package org.lnicholls.galleon.apps.photos;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -67,10 +65,9 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
         mEffectsField.addItem(new ImagesWrapper(Effects.RANDOM, Effects.RANDOM));
         mEffectsField.addItem(new ImagesWrapper(Effects.SEQUENTIAL, Effects.SEQUENTIAL));
         String names[] = new String[0];
-        names = (String[])Effects.getEffectNames().toArray(names);
+        names = (String[]) Effects.getEffectNames().toArray(names);
         Arrays.sort(names);
-        for (int i=0;i<names.length;i++)
-        {
+        for (int i = 0; i < names.length; i++) {
             String name = names[i];
             mEffectsField.addItem(new ImagesWrapper(name, name));
         }
@@ -122,8 +119,7 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
         mTransitionTimeField.addItem(new ImagesWrapper("20 seconds", "20"));
         defaultCombo(mTransitionTimeField, String.valueOf(imagesConfiguration.getTransitionTime()));
 
-        FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                "pref, 9dlu, " + // general
+        FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, 9dlu, " + // general
                 "pref, 9dlu, " + // title
                 "pref, 9dlu, " + // options
                 "pref, 9dlu, " + // safe
@@ -201,7 +197,7 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
     }
 
     private JTextComponent mTitleField;
-    
+
     private JCheckBox mUseSafeField;
 
     private JComboBox mEffectsField;

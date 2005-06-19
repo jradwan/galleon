@@ -179,12 +179,6 @@
   </app>      
   
   
-  <app id="org.lnicholls.galleon.apps.camera.Camera">  
-    <image source="camera/icon.png" id="icon"/>  
-    <image source="camera/background.jpg" id="background"/>        
-  </app>        
-  
-  
   <app id="org.lnicholls.galleon.apps.email.Email">  
     <image source="email/icon.png" id="icon"/>  
     <image source="email/alerticon.png" id="alert"/>          

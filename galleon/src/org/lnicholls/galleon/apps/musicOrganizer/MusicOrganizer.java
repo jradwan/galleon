@@ -41,8 +41,6 @@ import net.sf.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
-import org.lnicholls.galleon.apps.music.Music.MusicScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
@@ -68,7 +66,6 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.winamp.ClassicSkin;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -123,8 +120,8 @@ public class MusicOrganizer extends DefaultApplication {
 
             getBelow().setResource(mMenuBackground);
 
-            MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) ((MusicOrganizerFactory) getContext().getFactory())
-                    .getAppContext().getConfiguration();
+            MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) ((MusicOrganizerFactory) getContext()
+                    .getFactory()).getAppContext().getConfiguration();
 
             mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 20, BODY_WIDTH, 20);
             mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
@@ -139,7 +136,7 @@ public class MusicOrganizer extends DefaultApplication {
                 mMenuList.add(new FolderItem(formatString.getPart(1), formatString));
             }
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             int count = 0;
             try {
@@ -148,8 +145,12 @@ public class MusicOrganizer extends DefaultApplication {
                 Tools.logException(MusicOrganizer.class, ex);
             }
             mCountText.setValue("Total MP3s: " + String.valueOf(count));
-            
+
             return super.handleEnter(arg, isReturn);
+        }
+
+        public boolean handleExit() {
+            return super.handleExit();
         }
 
         public boolean handleAction(BView view, Object action) {
@@ -201,16 +202,9 @@ public class MusicOrganizer extends DefaultApplication {
         public PathScreen(MusicOrganizer app, PathScreen pathScreen, boolean first, FormatString formatString, int level) {
             super(app, "Music");
 
-            mParent = pathScreen;
-
             getBelow().setResource(mMenuBackground);
 
-            BText levelText = new BText(this, SAFE_TITLE_H + 30, TOP - 20, this.getWidth(), 20);
-            levelText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
-            levelText.setFont("default-18.font");
-            levelText.setColor(Color.WHITE);
-            levelText.setShadow(true);
-            levelText.setValue(formatString.getPart(1));
+            mParent = pathScreen;
 
             List list = getItems(this, formatString, level);
 
@@ -219,22 +213,32 @@ public class MusicOrganizer extends DefaultApplication {
             mFormatString = formatString;
             mLevel = level;
 
+            mLevelText = new BText(this, SAFE_TITLE_H + 30, TOP - 20, this.getWidth(), 20);
+            mLevelText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
+            mLevelText.setFont("default-18.font");
+            mLevelText.setColor(Color.WHITE);
+            mLevelText.setShadow(true);
+            mLevelText.setValue(mFormatString.getPart(1));
+
             Iterator iterator = mTracker.getList().iterator();
             while (iterator.hasNext()) {
                 Item nameFile = (Item) iterator.next();
                 mMenuList.add(nameFile);
             }
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            try
-            {
-                Item item = (Item)mMenuList.get(mTracker.getPos());
+            try {
+                Item item = (Item) mMenuList.get(mTracker.getPos());
                 if (!item.isFolder())
                     mFocus = mTracker.getPos();
+            } catch (Exception ex) {
             }
-            catch (Exception ex){}
             return super.handleEnter(arg, isReturn);
+        }
+
+        public boolean handleExit() {
+            return super.handleExit();
         }
 
         private void getConditions(List conditions) {
@@ -250,116 +254,126 @@ public class MusicOrganizer extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
-                if (nameFile.isFolder()) {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                PathScreen pathScreen = new PathScreen((MusicOrganizer) getBApp(), PathScreen.this,
-                                        mFormatString, mLevel + 1);
-                                getBApp().push(pathScreen, TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(MusicOrganizer.class, ex);
-                            }
-                        }
-                    }.start();
-                } else {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                mTracker.setPos(mMenuList.getFocus());
-                                MusicScreen musicScreen = new MusicScreen((MusicOrganizer) getBApp());
-                                musicScreen.setTracker(mTracker);
-
-                                getBApp().push(musicScreen, TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(MusicOrganizer.class, ex);
-                            }
-                        }
-                    }.start();
-                }
-
-                return true;
-            } else if (action.equals("play")) {
-                load();
-                final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
-                if (nameFile.isFolder()) {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                mTracker.setPos(mMenuList.getFocus());
-
-                                String restrictions = "(1=1)";
-                                List conditions = new ArrayList();
-                                QueryPart queryPart = (QueryPart) (mMenuList.get(mMenuList.getFocus()));
-                                conditions.add(queryPart);
-                                getConditions(conditions);
-                                Iterator conditionsIterator = conditions.iterator();
-                                while (conditionsIterator.hasNext()) {
-                                    queryPart = (QueryPart) conditionsIterator.next();
-                                    for (int q = 0; q < queryPart.getFields().size(); q++) {
-                                        NameValue nameValue = (NameValue) queryPart.getFields().get(q);
-                                        boolean needQuote = isString(nameValue.getName());
-                                        restrictions = restrictions + " AND " + nameValue.getValue();
-                                    }
-                                }
-
-                                List files = new ArrayList();
+                if (mMenuList.size() > 0) {
+                    load();
+                    final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+                    if (nameFile.isFolder()) {
+                        new Thread() {
+                            public void run() {
                                 try {
-                                    Transaction tx = null;
-                                    Session session = HibernateUtil.openSession();
-                                    try {
-                                        String queryString = "from org.lnicholls.galleon.database.Audio audio where "
-                                                + restrictions + " AND substr(audio.path,1,4)<>'http'";
-                                        log.debug(queryString);
-                                        Query query = session.createQuery(queryString).setCacheable(true);
-                                        Audio audio = null;
-                                        ScrollableResults items = query.scroll();
-                                        if (items.first()) {
-                                            items.beforeFirst();
-                                            while (items.next()) {
-                                                audio = (Audio) items.get(0);
-                                                files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
-                                            }
-                                        }
-
-                                        tx.commit();
-                                    } catch (HibernateException he) {
-                                        if (tx != null)
-                                            tx.rollback();
-                                        throw he;
-                                    } finally {
-                                        HibernateUtil.closeSession();
-                                    }
+                                    PathScreen pathScreen = new PathScreen((MusicOrganizer) getBApp(), PathScreen.this,
+                                            mFormatString, mLevel + 1);
+                                    getBApp().push(pathScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
                                 } catch (Exception ex) {
                                     Tools.logException(MusicOrganizer.class, ex);
                                 }
+                            }
+                        }.start();
+                    } else {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    mTracker.setPos(mMenuList.getFocus());
+                                    MusicScreen musicScreen = new MusicScreen((MusicOrganizer) getBApp());
+                                    musicScreen.setTracker(mTracker);
 
-                                Tracker tracker = new Tracker(files, 0);
-                                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-                                tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
-                                getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), tracker), TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(MusicOrganizer.class, ex);
+                                    getBApp().push(musicScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(MusicOrganizer.class, ex);
+                                }
                             }
-                        }
-                    }.start();
-                } else {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                mTracker.setPos(mMenuList.getFocus());
-                                getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), mTracker), TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(MusicOrganizer.class, ex);
+                        }.start();
+                    }
+
+                    return true;
+                }
+            } else if (action.equals("play")) {
+                if (mMenuList.size() > 0) {
+                    load();
+                    final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+                    if (nameFile.isFolder()) {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    mTracker.setPos(mMenuList.getFocus());
+
+                                    String restrictions = "(1=1)";
+                                    List conditions = new ArrayList();
+                                    QueryPart queryPart = (QueryPart) (mMenuList.get(mMenuList.getFocus()));
+                                    conditions.add(queryPart);
+                                    getConditions(conditions);
+                                    Iterator conditionsIterator = conditions.iterator();
+                                    while (conditionsIterator.hasNext()) {
+                                        queryPart = (QueryPart) conditionsIterator.next();
+                                        for (int q = 0; q < queryPart.getFields().size(); q++) {
+                                            NameValue nameValue = (NameValue) queryPart.getFields().get(q);
+                                            boolean needQuote = isString(nameValue.getName());
+                                            restrictions = restrictions + " AND " + nameValue.getValue();
+                                        }
+                                    }
+
+                                    List files = new ArrayList();
+                                    try {
+                                        Transaction tx = null;
+                                        Session session = HibernateUtil.openSession();
+                                        try {
+                                            tx = session.beginTransaction();
+                                            String queryString = "from org.lnicholls.galleon.database.Audio audio where "
+                                                    + restrictions + " AND substr(audio.path,1,4)<>'http'";
+                                            log.debug(queryString);
+                                            Query query = session.createQuery(queryString).setCacheable(true);
+                                            Audio audio = null;
+                                            ScrollableResults items = query.scroll();
+                                            if (items.first()) {
+                                                items.beforeFirst();
+                                                while (items.next()) {
+                                                    audio = (Audio) items.get(0);
+                                                    files
+                                                            .add(new FileItem(audio.getTitle(), new File(audio
+                                                                    .getPath())));
+                                                }
+                                            }
+
+                                            tx.commit();
+                                        } catch (HibernateException he) {
+                                            if (tx != null)
+                                                tx.rollback();
+                                            throw he;
+                                        } finally {
+                                            HibernateUtil.closeSession();
+                                        }
+                                    } catch (Exception ex) {
+                                        Tools.logException(MusicOrganizer.class, ex);
+                                    }
+
+                                    Tracker tracker = new Tracker(files, 0);
+                                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                                            .getMusicPlayerConfiguration();
+                                    tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+                                    getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), tracker),
+                                            TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(MusicOrganizer.class, ex);
+                                }
                             }
-                        }
-                    }.start();
+                        }.start();
+                    } else {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    mTracker.setPos(mMenuList.getFocus());
+                                    getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), mTracker),
+                                            TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(MusicOrganizer.class, ex);
+                                }
+                            }
+                        }.start();
+                    }
                 }
             }
             return super.handleAction(view, action);
@@ -414,6 +428,8 @@ public class MusicOrganizer extends DefaultApplication {
             return super.handleKeyPress(code, rawcode);
         }
 
+        private BText mLevelText;
+
         private PathScreen mParent;
 
         private Tracker mTracker;
@@ -437,8 +453,8 @@ public class MusicOrganizer extends DefaultApplication {
             mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
                     - (TOP - 30 - SAFE_TITLE_V), true);
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
+                    (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Play");
             list.add("Don't do anything");
 
@@ -446,10 +462,13 @@ public class MusicOrganizer extends DefaultApplication {
         }
 
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            getBelow().setResource(mInfoBackground);
             updateView();
 
             return super.handleEnter(arg, isReturn);
+        }
+
+        public boolean handleExit() {
+            return super.handleExit();
         }
 
         private void updateView() {
@@ -457,11 +476,6 @@ public class MusicOrganizer extends DefaultApplication {
             if (audio != null) {
                 mMusicInfo.setAudio(audio);
             }
-        }
-
-        public boolean handleExit() {
-            mMusicInfo.clearResource();
-            return super.handleExit();
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
@@ -651,6 +665,7 @@ public class MusicOrganizer extends DefaultApplication {
                 }
                 if (player != null) {
                     player.setVisible(false);
+                    player.clearResource();
                     player.remove();
                     player = null;
                 }
@@ -661,8 +676,7 @@ public class MusicOrganizer extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
-            {
+            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
                 if (getTransparency() != 0.0f)
                     setTransparency(0.0f);
             }
@@ -719,8 +733,8 @@ public class MusicOrganizer extends DefaultApplication {
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V - TOP - 70,
-                    "");
+            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
+                    - TOP - 70, "");
             scrollText.setVisible(false);
 
             //setFocusDefault(scrollText);
@@ -731,14 +745,12 @@ public class MusicOrganizer extends DefaultApplication {
             mBusy.setVisible(true);
 
             /*
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-            list.add("Back to player");
-            setFocusDefault(list);
-            */
-            
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+             * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+             * (int) Math .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35); //list.setBarAndArrows(BAR_HANG,
+             * BAR_DEFAULT, H_LEFT, null); list.add("Back to player"); setFocusDefault(list);
+             */
+
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
@@ -875,7 +887,8 @@ public class MusicOrganizer extends DefaultApplication {
 
             mTracker = tracker;
 
-            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP - 75);
+            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP
+                    - 75);
             mImageView.setVisible(false);
 
             mPosText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
@@ -895,14 +908,12 @@ public class MusicOrganizer extends DefaultApplication {
             mBusy.setVisible(true);
 
             /*
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-            list.add("Back to player");
-            setFocusDefault(list);
-            */
-            
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+             * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+             * (int) Math .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35); //list.setBarAndArrows(BAR_HANG,
+             * BAR_DEFAULT, H_LEFT, null); list.add("Back to player"); setFocusDefault(list);
+             */
+
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
@@ -1413,45 +1424,58 @@ public class MusicOrganizer extends DefaultApplication {
 
         return count;
     }
-    
+
     // From: http://www.msevans.com/epilepsy/datebug.html
     private static class CustomDate {
-        public static final int GREGORIAN = 0;  //15 Oct 1582 and later
-        public static final int JULIAN = 1;     //before that
+        public static final int GREGORIAN = 0; //15 Oct 1582 and later
+
+        public static final int JULIAN = 1; //before that
+
         int year = 0;
+
         int month = 0;
+
         int day = 0;
+
         double julianday = 0; //accurate from noon 1 Jan 4713 BC (Julian day zero) to 1 Jan 3268
+
         double modifiedjulianday = 0; //Modified Julian day zero is 17 Nov 1858 (Gregorian) at 00:00:00 UTC
 
-        public CustomDate(int yr, int mo, int da, int type){
-          if (year < -4713 || year > 6716){
-            System.out.println("Year out of range");
-            return;
-          }
-          year = yr;
-          month = mo;
-          day = da;
-          long a = ipart((14 - month) / 12);
-          long y = year + 4800 -a;
-          long m = month + 12 * a - 3;
-          if (type == GREGORIAN){
-            julianday = day + ipart((153*m + 2)/5) + y*365 + ipart(y/4) - ipart(y/100) + ipart(y/400) - 32045;
-          }
-          if (type == JULIAN){
-            julianday = day + ipart((153*m + 2)/5) + y*365 + ipart(y/4) - 32083;
-          }
-          modifiedjulianday = julianday - 2400000.5;
+        public CustomDate(int yr, int mo, int da, int type) {
+            if (year < -4713 || year > 6716) {
+                return;
+            }
+            year = yr;
+            month = mo;
+            day = da;
+            long a = ipart((14 - month) / 12);
+            long y = year + 4800 - a;
+            long m = month + 12 * a - 3;
+            if (type == GREGORIAN) {
+                julianday = day + ipart((153 * m + 2) / 5) + y * 365 + ipart(y / 4) - ipart(y / 100) + ipart(y / 400)
+                        - 32045;
+            }
+            if (type == JULIAN) {
+                julianday = day + ipart((153 * m + 2) / 5) + y * 365 + ipart(y / 4) - 32083;
+            }
+            modifiedjulianday = julianday - 2400000.5;
         }
 
-        public CustomDate(int yr, int mo, int da){
-          this(yr,mo,da,GREGORIAN);
+        public CustomDate(int yr, int mo, int da) {
+            this(yr, mo, da, GREGORIAN);
         }
 
-        public double getJulianDay(){ return (int) this.julianday; }
-        public double getModifiedJulianDay(){ return (int) this.modifiedjulianday; }
+        public double getJulianDay() {
+            return (int) this.julianday;
+        }
 
-        private long ipart(double r){ return Math.round(r - 0.5); }
+        public double getModifiedJulianDay() {
+            return (int) this.modifiedjulianday;
+        }
+
+        private long ipart(double r) {
+            return Math.round(r - 0.5);
+        }
     }
 
     //   Find key for sorting by recently played
@@ -1461,21 +1485,24 @@ public class MusicOrganizer extends DefaultApplication {
         try {
             Date date = mDatabaseDateFormat.parse(value, new ParsePosition(0));
             Date current = new Date();
-            if (date==null)
+            if (date == null)
                 date = current;
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.setTime(date);
-            CustomDate cd1 = new CustomDate(calendar.get(GregorianCalendar.YEAR), calendar.get(GregorianCalendar.MONTH), calendar.get(GregorianCalendar.DAY_OF_MONTH));
+            CustomDate cd1 = new CustomDate(calendar.get(GregorianCalendar.YEAR),
+                    calendar.get(GregorianCalendar.MONTH), calendar.get(GregorianCalendar.DAY_OF_MONTH));
             calendar.setTime(current);
-            CustomDate cd2 = new CustomDate(calendar.get(GregorianCalendar.YEAR), calendar.get(GregorianCalendar.MONTH), calendar.get(GregorianCalendar.DAY_OF_MONTH));
-            
+            CustomDate cd2 = new CustomDate(calendar.get(GregorianCalendar.YEAR),
+                    calendar.get(GregorianCalendar.MONTH), calendar.get(GregorianCalendar.DAY_OF_MONTH));
+
             int difference = (int) (cd2.getJulianDay() - cd1.getJulianDay());
             String compare = "=";
-            if (difference>1)
+            if (difference > 1)
                 compare = ">=";
             calendar.setTime(date);
-            String criteria = "(DATE(audio." + nameValue.getName() + ")" + compare + "DATE('" + mDateFormat.format(calendar.getTime()) + "'))";
-            
+            String criteria = "(DATE(audio." + nameValue.getName() + ")" + compare + "DATE('"
+                    + mDateFormat.format(calendar.getTime()) + "'))";
+
             nameValue.setValue(criteria);
             if (difference == 0)
                 diff = "Today";
@@ -1709,9 +1736,9 @@ public class MusicOrganizer extends DefaultApplication {
                 tx = session.beginTransaction();
 
                 String direction = "asc";
-                if (sorter!=null && sorter.equals("RecentlyPlayed"))
+                if (sorter != null && sorter.equals("RecentlyPlayed"))
                     direction = "desc";
-                
+
                 String queryString = "";
                 if (level == formatString.getCount()) {
                     // Retrieve fields
@@ -1720,7 +1747,8 @@ public class MusicOrganizer extends DefaultApplication {
                 } else {
                     // Retrieve fields
                     queryString = "select distinct " + view + " from org.lnicholls.galleon.database.Audio audio where "
-                            + restrictions + " AND (substr(audio.path,1,4)<>'http') order by " + order + " " + direction;
+                            + restrictions + " AND (substr(audio.path,1,4)<>'http') order by " + order + " "
+                            + direction;
                 }
                 log.debug(queryString);
                 Query query = session.createQuery(queryString).setCacheable(true);

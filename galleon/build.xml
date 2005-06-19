@@ -143,6 +143,7 @@
 
         <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off" source="1.4" target="1.4">
             <include name="**/*.java" />
+            <exclude name="**/apps/camera,**/util/CameraDevice.java" />
             <classpath>
                 <path refid="class.path" />
             </classpath>
@@ -262,6 +263,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.togo.ToGoOptionsPanel"/>            
+            <attribute name="Categories" value="Video"/>            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/togo.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -287,6 +289,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
+            <attribute name="Categories" value="Weather"/>                        
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/weather.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -316,6 +319,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.music.MusicOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>                                    
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/music.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -340,6 +344,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
+            <attribute name="Categories" value="Photos"/>                                                
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/photos.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -363,6 +368,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>                                                            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/shoutcast.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -387,6 +393,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>                                                                        
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/musicOrganizer.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -410,6 +417,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.rss.RSSOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>                                                                        
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/rss.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -433,6 +441,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.desktop.DesktopOptionsPanel"/>            
+            <attribute name="Categories" value="PC, Photos"/>                                                                        
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/desktop.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -440,29 +449,6 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/desktop" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/desktop.jar" tofile="./apps/desktop.jar" />                                        
-        
-        <copy file="./media/images/camera/icon.png" tofile="${build}/org/lnicholls/galleon/apps/camera/icon.png" />        
-        <manifest file="${build}/MANIFEST.MF">
-          <attribute name="Built-By" value="${user.name}"/>
-          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.camera.Camera"/>
-          <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Camera"/>
-            <attribute name="ReleaseDate" value="05/07/05"/>          
-            <attribute name="Description" value="Camera"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.camera.CameraOptionsPanel"/>            
-          </section>
-        </manifest>        
-        <jar jarfile="${build}/apps/camera.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/camera/**" />
-            <fileset dir="./src/org/lnicholls/galleon/apps/camera" excludes="*.java" />
-        </jar>
-        <copy file="${build}/apps/camera.jar" tofile="./apps/camera.jar" />                                                
         
         <copy file="./media/images/email/icon.png" tofile="${build}/org/lnicholls/galleon/apps/email/icon.png" />        
         <copy file="./media/images/email/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/email/alerticon.png" />        
@@ -480,6 +466,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.email.EmailOptionsPanel"/>            
+            <attribute name="Categories" value="Internet"/>                                                                                                            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/email.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -503,6 +490,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internet.InternetOptionsPanel"/>            
+            <attribute name="Categories" value="Internet"/>                                                                                                            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/internet.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -527,6 +515,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.playlists.PlaylistsOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/playlists.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -551,6 +540,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobblerOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/audioScrobbler.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -559,8 +549,6 @@
         </jar>
         <copy file="${build}/apps/audioScrobbler.jar" tofile="./apps/audioScrobbler.jar" />                                                                
 -->        
-<!--        
-
         <copy file="./media/images/podcasting/icon.png" tofile="${build}/org/lnicholls/galleon/apps/podcasting/icon.png" />        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
@@ -576,6 +564,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.podcasting.PodcastingOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/podcasting.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -583,7 +572,6 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/podcasting" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/podcasting.jar" tofile="./apps/podcasting.jar" />
--->        
         
         <copy file="./media/images/iTunes/icon.png" tofile="${build}/org/lnicholls/galleon/apps/iTunes/icon.png" />        
         <manifest file="${build}/MANIFEST.MF">
@@ -600,6 +588,7 @@
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
             <attribute name="Version" value="1.0"/>
             <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.iTunes.iTunesOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>            
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/iTunes.jar" compress="yes" manifest="${build}/MANIFEST.MF">
@@ -628,7 +617,6 @@
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
-        <copy file="./media/images/photos/camera.png" tofile="${build}/skins/photos/camera.png" />                
         <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
         
         <copy file="./media/images/togo/background.jpg" tofile="${build}/skins/togo/background.jpg" />
@@ -665,9 +653,6 @@
         
         <copy file="./media/images/desktop/icon.png" tofile="${build}/skins/desktop/icon.png" />        
         
-        <copy file="./media/images/camera/icon.png" tofile="${build}/skins/camera/icon.png" />                
-        <copy file="./media/images/camera/background.jpg" tofile="${build}/skins/camera/background.jpg" />                
-        
         <copy file="./media/images/email/icon.png" tofile="${build}/skins/email/icon.png" />                
         <copy file="./media/images/email/background.jpg" tofile="${build}/skins/email/background.jpg" />                        
         <copy file="./media/images/email/folder.png" tofile="${build}/skins/email/folder.png" />
@@ -684,12 +669,10 @@
         <copy file="./media/images/audioScrobbler/background.jpg" tofile="${build}/skins/audioScrobbler/background.jpg" />                                        
         <copy file="./media/images/audioScrobbler/item.png" tofile="${build}/skins/audioScrobbler/item.png" />
 -->
-<!--        
         <copy file="./media/images/podcasting/icon.png" tofile="${build}/skins/podcasting/icon.png" />        
         <copy file="./media/images/podcasting/folder.png" tofile="${build}/skins/podcasting/folder.png" />                
         <copy file="./media/images/podcasting/item.png" tofile="${build}/skins/podcasting/item.png" />                
         <copy file="./media/images/podcasting/background.jpg" tofile="${build}/skins/podcasting/background.jpg" />        
--->        
         
         <copy file="./media/images/iTunes/icon.png" tofile="${build}/skins/iTunes/icon.png" />        
         <copy file="./media/images/iTunes/folder.png" tofile="${build}/skins/iTunes/folder.png" />                
@@ -710,16 +693,13 @@
         <delete dir="${build}/skins/rss" />                        
         <delete dir="${build}/skins/musicOrganizer" />                                
         <delete dir="${build}/skins/desktop" />                                        
-        <delete dir="${build}/skins/camera" />                                                
         <delete dir="${build}/skins/email" />                                                        
         <delete dir="${build}/skins/playlists" />                                                                
         <delete dir="${build}/skins/internet" />                                                                        
 <!--
         <delete dir="${build}/skins/audioScrobbler" />
 -->        
-<!--
         <delete dir="${build}/skins/podcasting" />
--->        
         <delete dir="${build}/skins/iTunes" />
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
@@ -796,7 +776,7 @@
 
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" excludes="**/jmf.jar,**/sound.jar,**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />
@@ -946,7 +926,7 @@
         <echo>Copying libraries</echo>
         <mkdir dir="${build}/lib" />
         <copy todir="${build}/lib">
-            <fileset dir="./lib" excludes="**/jmf.jar,**/sound.jar"/>
+            <fileset dir="./lib"/>
         </copy>
 
         <echo>Copying Doc files</echo>

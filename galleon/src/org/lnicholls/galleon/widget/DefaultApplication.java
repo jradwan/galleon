@@ -114,6 +114,7 @@ public class DefaultApplication extends BApplication {
     public boolean handleAction(BView view, Object action) {
         if (action.equals("pop")) {
             pop();
+            remove();
             return true;
         }
         return super.handleAction(view, action);
@@ -413,7 +414,7 @@ public class DefaultApplication extends BApplication {
             if (mTracker != null) {
                 int pos = mTracker.getNextPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
-                while (nameFile.isFolder() || nameFile.isPlaylist()) {
+                while (nameFile==null || nameFile.isFolder() || nameFile.isPlaylist()) {
                     pos = mTracker.getNextPos();
                     nameFile = (Item) mTracker.getList().get(pos);
                 }
@@ -425,7 +426,7 @@ public class DefaultApplication extends BApplication {
             if (mTracker != null) {
                 int pos = mTracker.getPrevPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
-                while (nameFile.isFolder() || nameFile.isPlaylist()) {
+                while (nameFile==null || nameFile.isFolder() || nameFile.isPlaylist()) {
                     pos = mTracker.getPrevPos();
                     nameFile = (Item) mTracker.getList().get(pos);
                 }

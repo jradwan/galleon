@@ -18,16 +18,15 @@ package org.lnicholls.galleon.apps.weather;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Date;
-import java.text.*;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
@@ -37,12 +36,12 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.database.PersistentValueManager;
-import org.lnicholls.galleon.database.PersistentValue;
 
 // TODO Handle changes in configuration
 // TODO Handle errors
@@ -67,21 +66,27 @@ public class WeatherData implements Serializable {
         mZip = zip;
         mWidth = width;
         mHeight = height;
-        
+
         mTimeDateFormat = new SimpleDateFormat();
         mTimeDateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss"); //2005-03-01T00:54:00
 
         mLinks = new ArrayList();
         mAlerts = new ArrayList();
 
-        PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "id");
+        PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "."
+                + "id");
         if (persistentValue != null) {
-            String cachedId = persistentValue.getValue(); 
-            String cachedCity = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "city").getValue();
-            String cachedState = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "state").getValue();
-            String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip").getValue();
-            String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip").getValue();
-            String cachedLocalRadar = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "localradar").getValue();
+            String cachedId = persistentValue.getValue();
+            String cachedCity = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "city")
+                    .getValue();
+            String cachedState = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "state")
+                    .getValue();
+            String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip")
+                    .getValue();
+            String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip")
+                    .getValue();
+            String cachedLocalRadar = PersistentValueManager.loadPersistentValue(
+                    this.getClass().getName() + "." + "localradar").getValue();
             if ((cachedCity != null && cachedCity.equals(city)) && (cachedState != null && cachedState.equals(state))
                     && (cachedZip != null && cachedZip.equals(city))) {
                 mId = cachedId;
@@ -89,7 +94,7 @@ public class WeatherData implements Serializable {
                 mLocalRadar = cachedLocalRadar;
             }
         }
-        
+
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "city", mCity);
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "state", mState);
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "zip", mZip);
@@ -116,29 +121,27 @@ public class WeatherData implements Serializable {
                 }
             }
         }.start();
-        
+
         Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
             public void reload() {
-                
-                if (++mTimeCounter%144==0)  // every 720 mins
+
+                if (++mTimeCounter % 144 == 0) // every 720 mins
                 {
                     getAllWeather();
                     mTimeCounter = 0;
-                }
-                else
-                if (mTimeCounter%24==0)  // every 120 mins
+                } else if (mTimeCounter % 24 == 0) // every 120 mins
                 {
-                    getForecastWeather();    
+                    getForecastWeather();
                 }
-                if (mTimeCounter%6==0)  // every 30 mins
+                if (mTimeCounter % 6 == 0) // every 30 mins
                 {
-                    getCurrentWeather();    
+                    getCurrentWeather();
                 }
-                
-                if (mTimeCounter%3==0)  // every 15 mins
+
+                if (mTimeCounter % 3 == 0) // every 15 mins
                 {
                     determineLocalRadar();
-                    
+
                     try {
                         log.debug("mLocalRadar=" + mLocalRadar);
                         if (mLocalRadar != null)
@@ -153,8 +156,8 @@ public class WeatherData implements Serializable {
                         log.error("Could not download national radar", ex);
                     }
                 }
-                
-                if (mTimeCounter%2==0)  // every 10 mins
+
+                if (mTimeCounter % 2 == 0) // every 10 mins
                 {
                     determineFip();
                     determineAlerts();
@@ -195,59 +198,49 @@ public class WeatherData implements Serializable {
     public void getAllWeather() {
         try {
             SAXReader saxReader = new SAXReader();
-            PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "date");
+            PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName()
+                    + "." + "date");
             String page = null;
-            
-            if (persistentValue !=null)
-            {
+
+            if (persistentValue != null) {
                 String last = persistentValue.getValue();
                 Date lastTime = new Date(last);
                 Date current = new Date();
-                if ((current.getTime()-lastTime.getTime())/(1000*60) >= 720)
-                {
+                if ((current.getTime() - lastTime.getTime()) / (1000 * 60) >= 720) {
                     // http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
-                    URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
-                            + PARTNER_ID + "&key=" + LICENSE_KEY);
+                    URL url = new URL("http://xoap.weather.com/weather/local/" + mId
+                            + "?cc=*&dayf=5&link=xoap&prod=xoap&par=" + PARTNER_ID + "&key=" + LICENSE_KEY);
                     page = Tools.getPage(url);
-                    
-                    try
-                    {
+
+                    try {
                         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "content", page);
-                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
-                    }
-                    catch (Exception ex)
-                    {
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date()
+                                .toString());
+                    } catch (Exception ex) {
                         log.error("Could not cache weather data");
                     }
-                }
-                else
-                {
-                    persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "content");
-                    if (persistentValue!=null)
+                } else {
+                    persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "."
+                            + "content");
+                    if (persistentValue != null)
                         page = persistentValue.getValue();
                 }
-            }
-            else
-            {
+            } else {
                 // http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
-                URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
-                        + PARTNER_ID + "&key=" + LICENSE_KEY);
+                URL url = new URL("http://xoap.weather.com/weather/local/" + mId
+                        + "?cc=*&dayf=5&link=xoap&prod=xoap&par=" + PARTNER_ID + "&key=" + LICENSE_KEY);
                 page = Tools.getPage(url);
-                
-                try
-                {
+
+                try {
                     PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "content", page);
-                    PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date().toString());
-                }
-                catch (Exception ex)
-                {
+                    PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date()
+                            .toString());
+                } catch (Exception ex) {
                     log.error("Could not cache weather data");
                 }
             }
-                
-            
-            if (page!=null)
-            {
+
+            if (page != null) {
                 log.debug("AllWeather: " + page);
                 parseWeather(page);
                 PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "id", mId);
@@ -271,7 +264,7 @@ public class WeatherData implements Serializable {
         }
         //parseWeather("");
     }
-    
+
     public void getForecastWeather() {
         try {
             SAXReader saxReader = new SAXReader();
@@ -286,7 +279,7 @@ public class WeatherData implements Serializable {
             log.error("Could not determine weather conditions", ex);
         }
         parseWeather("");
-    }    
+    }
 
     public void parseWeather(String page) {
         try {
@@ -477,7 +470,8 @@ public class WeatherData implements Serializable {
                     Matcher m = p.matcher(strGetResponseBody);
                     if (m.find()) {
                         mLocalRadar = m.group(1);
-                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar", mLocalRadar);
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar",
+                                mLocalRadar);
                         return;
                     }
                 }
@@ -613,7 +607,7 @@ public class WeatherData implements Serializable {
             mHeadline = headline.trim();
             setDescription(description);
         }
-        
+
         public void setEvent(String value) {
             mEvent = value;
         }
@@ -621,7 +615,7 @@ public class WeatherData implements Serializable {
         public String getEvent() {
             return mEvent;
         }
-        
+
         public void setEffective(Date value) {
             mEffective = value;
         }
@@ -629,7 +623,7 @@ public class WeatherData implements Serializable {
         public Date getExpires() {
             return mExpires;
         }
-        
+
         public void setExpires(Date value) {
             mExpires = value;
         }
@@ -655,11 +649,11 @@ public class WeatherData implements Serializable {
         }
 
         private String mEvent;
-        
+
         private Date mEffective;
-        
+
         private Date mExpires;
-        
+
         private String mHeadline;
 
         private String mDescription;
@@ -668,11 +662,11 @@ public class WeatherData implements Serializable {
     private static String CAP_ALERT = "alert";
 
     private static String CAP_INFO = "info";
-    
+
     private static String CAP_EVENT = "event";
-    
+
     private static String CAP_EFFECTIVE = "effective";
-    
+
     private static String CAP_EXPIRES = "expires";
 
     private static String CAP_HEADLINE = "headline";
@@ -708,22 +702,19 @@ public class WeatherData implements Serializable {
                             event = infoNode.getText();
                             if (log.isDebugEnabled())
                                 log.debug("event:" + event);
-                        } else 
-                        if (infoNode.getName().equals(CAP_EFFECTIVE)) {
+                        } else if (infoNode.getName().equals(CAP_EFFECTIVE)) {
                             String dateString = infoNode.getText();
-                            if (dateString!=null)
+                            if (dateString != null)
                                 effective = mTimeDateFormat.parse(dateString);
                             if (log.isDebugEnabled())
                                 log.debug("effective:" + effective);
-                        } else                            
-                        if (infoNode.getName().equals(CAP_EXPIRES)) {
+                        } else if (infoNode.getName().equals(CAP_EXPIRES)) {
                             String dateString = infoNode.getText();
-                            if (dateString!=null)
+                            if (dateString != null)
                                 expires = mTimeDateFormat.parse(dateString);
                             if (log.isDebugEnabled())
                                 log.debug("expires:" + expires);
-                        } else                            
-                        if (infoNode.getName().equals(CAP_HEADLINE)) {
+                        } else if (infoNode.getName().equals(CAP_HEADLINE)) {
                             headline = infoNode.getText();
                             if (log.isDebugEnabled())
                                 log.debug("headline:" + headline);
@@ -1506,8 +1497,8 @@ public class WeatherData implements Serializable {
     private int mWidth = -1;
 
     private int mHeight = -1;
-    
+
     private int mTimeCounter = 0;
-    
+
     private SimpleDateFormat mTimeDateFormat;
-} 
+}

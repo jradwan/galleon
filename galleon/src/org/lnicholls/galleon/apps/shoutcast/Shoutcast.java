@@ -29,8 +29,6 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.music.Music;
-import org.lnicholls.galleon.apps.podcasting.Podcasting;
-import org.lnicholls.galleon.apps.podcasting.Podcasting.PodcastItemScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -52,7 +50,6 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.winamp.ClassicSkin;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
@@ -96,8 +93,8 @@ public class Shoutcast extends DefaultApplication {
         mCDIcon = getSkinImage("menu", "item");
         mPlaylistIcon = getSkinImage("menu", "playlist");
 
-        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext().getFactory())
-                .getAppContext().getConfiguration();
+        ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext()
+                .getFactory()).getAppContext().getConfiguration();
 
         push(new MusicMenuScreen(this), TRANSITION_NONE);
     }
@@ -108,8 +105,8 @@ public class Shoutcast extends DefaultApplication {
 
             getBelow().setResource(mMenuBackground);
 
-            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext().getFactory())
-                    .getAppContext().getConfiguration();
+            ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext()
+                    .getFactory()).getAppContext().getConfiguration();
 
             try {
                 List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
@@ -329,8 +326,8 @@ public class Shoutcast extends DefaultApplication {
             mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
                     - (TOP - 30 - SAFE_TITLE_V), true);
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
+                    (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Play");
             list.add("Don't do anything");
 
@@ -466,7 +463,7 @@ public class Shoutcast extends DefaultApplication {
 
             setTitle(" ");
 
-                app.setTracker(mTracker);
+            app.setTracker(mTracker);
             getPlayer().startTrack();
         }
 
@@ -533,8 +530,7 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
-            {
+            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
                 if (getTransparency() != 0.0f)
                     setTransparency(0.0f);
             }
@@ -582,8 +578,8 @@ public class Shoutcast extends DefaultApplication {
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V - TOP - 70,
-                    "");
+            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
+                    - TOP - 70, "");
             scrollText.setVisible(false);
 
             setFocusDefault(scrollText);
@@ -593,8 +589,8 @@ public class Shoutcast extends DefaultApplication {
 
             mBusy.setVisible(true);
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+                    (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
@@ -734,7 +730,8 @@ public class Shoutcast extends DefaultApplication {
 
             mTracker = tracker;
 
-            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP - 75);
+            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP
+                    - 75);
             mImageView.setVisible(false);
 
             mPosText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
@@ -753,8 +750,8 @@ public class Shoutcast extends DefaultApplication {
 
             mBusy.setVisible(true);
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+                    (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
             setFocusDefault(list);
@@ -971,5 +968,6 @@ public class Shoutcast extends DefaultApplication {
             mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
         }
     }
+
     private static ShoutcastStations mShoutcastStations;
 }

@@ -18,6 +18,7 @@ package org.lnicholls.galleon.apps.rss;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,15 +26,13 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Date;
-import java.io.*;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
@@ -41,7 +40,6 @@ import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
-import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.ScrollText;
 
@@ -92,9 +90,9 @@ public class RSS extends DefaultApplication {
             super(app, "RSS");
 
             getBelow().setResource(mMenuBackground);
-            
-            RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getContext().getFactory()).getAppContext()
-                    .getConfiguration();
+
+            RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getContext().getFactory())
+                    .getAppContext().getConfiguration();
             List feeds = rssConfiguration.getFeeds();
             NameValue[] feedArray = (NameValue[]) feeds.toArray(new NameValue[0]);
             Arrays.sort(feedArray, new Comparator() {
@@ -116,15 +114,16 @@ public class RSS extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                NameValue nameValue = (NameValue) mMenuList.get(mMenuList.getFocus());
+                if (mMenuList.size() > 0) {
+                    load();
+                    NameValue nameValue = (NameValue) mMenuList.get(mMenuList.getFocus());
 
-                List stories = (List) ((RSSFactory) getContext().getFactory()).mChannels.get(nameValue.getValue());
-                RSSFeedMenuScreen rssFeedMenuScreen = new RSSFeedMenuScreen((RSS) getBApp(), nameValue,
-                        stories);
-                getBApp().push(rssFeedMenuScreen, TRANSITION_LEFT);
-                getBApp().flush();
-                return true;
+                    List stories = (List) ((RSSFactory) getContext().getFactory()).mChannels.get(nameValue.getValue());
+                    RSSFeedMenuScreen rssFeedMenuScreen = new RSSFeedMenuScreen((RSS) getBApp(), nameValue, stories);
+                    getBApp().push(rssFeedMenuScreen, TRANSITION_LEFT);
+                    getBApp().flush();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -146,13 +145,13 @@ public class RSS extends DefaultApplication {
             super(app, null);
 
             getBelow().setResource(mMenuBackground);
-            
+
             Image image = image = Tools.retrieveCachedImage(nameValue.getValue());
-            if (image !=null) {
-                mImage = new BView(getBelow(), SAFE_TITLE_H + (this.BODY_WIDTH - image.getWidth(null))/2, SAFE_TITLE_V, image.getWidth(null), image.getHeight(null));
-                mImage.setResource(createImage(image));    
-            }
-            else
+            if (image != null) {
+                mImage = new BView(getBelow(), SAFE_TITLE_H + (this.BODY_WIDTH - image.getWidth(null)) / 2,
+                        SAFE_TITLE_V, image.getWidth(null), image.getHeight(null));
+                mImage.setResource(createImage(image));
+            } else
                 setTitle(nameValue.getName());
 
             for (int i = 0; i < list.size(); i++) {
@@ -163,13 +162,15 @@ public class RSS extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                ItemIF item = (ItemIF) mMenuList.get(mMenuList.getFocus());
+                if (mMenuList.size() > 0) {
+                    load();
+                    ItemIF item = (ItemIF) mMenuList.get(mMenuList.getFocus());
 
-                RSSScreen rssScreen = new RSSScreen((RSS) getBApp(), item);
-                getBApp().push(rssScreen, TRANSITION_LEFT);
-                getBApp().flush();
-                return true;
+                    RSSScreen rssScreen = new RSSScreen((RSS) getBApp(), item);
+                    getBApp().push(rssScreen, TRANSITION_LEFT);
+                    getBApp().flush();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -193,7 +194,7 @@ public class RSS extends DefaultApplication {
             }
             return super.handleKeyPress(code, rawcode);
         }
-        
+
         private BView mImage;
     }
 
@@ -205,23 +206,22 @@ public class RSS extends DefaultApplication {
             getBelow().setResource(mInfoBackground);
 
             int start = TOP;
-            
-            mScrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP + 30, BODY_WIDTH - 10, getHeight() - 2 * SAFE_TITLE_V - 175,
-                    cleanHTML(item.getDescription()));
 
-            /*mList = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 40,
-                    (width - (SAFE_TITLE_H * 2)) / 2, 90, 35);
-            mList.add("Back to menu");
-            setFocusDefault(mList);
-            */
-            
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+            mScrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP + 30, BODY_WIDTH - 10, getHeight() - 2
+                    * SAFE_TITLE_V - 175, cleanHTML(item.getDescription()));
+
+            /*
+             * mList = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 40, (width -
+             * (SAFE_TITLE_H * 2)) / 2, 90, 35); mList.add("Back to menu"); setFocusDefault(mList);
+             */
+
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
         }
-        
+
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
@@ -234,7 +234,7 @@ public class RSS extends DefaultApplication {
                 return mScrollText.handleKeyPress(code, rawcode);
             }
             return super.handleKeyPress(code, rawcode);
-        }        
+        }
 
         private BList mList;
 
@@ -245,7 +245,7 @@ public class RSS extends DefaultApplication {
 
         public RSSFactory(AppContext appContext) {
             super(appContext);
-            
+
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
@@ -254,7 +254,7 @@ public class RSS extends DefaultApplication {
                         log.error("Could not download stations", ex);
                     }
                 }
-            }), 5);            
+            }), 5);
         }
 
         public void setAppContext(AppContext appContext) {
@@ -265,10 +265,9 @@ public class RSS extends DefaultApplication {
 
         private void updateChannels() {
             final RSSConfiguration rssConfiguration = (RSSConfiguration) getAppContext().getConfiguration();
-            
-            new Thread(){
-                public void run()
-                {
+
+            new Thread() {
+                public void run() {
                     Iterator iterator = rssConfiguration.getFeeds().iterator();
                     while (iterator.hasNext()) {
                         NameValue nameValue = (NameValue) iterator.next();
@@ -278,45 +277,46 @@ public class RSS extends DefaultApplication {
                             mChannels.put(nameValue.getValue(), stories);
                         }
                         try {
-                            PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(RSSFactory.this.getClass().getName() + "." + nameValue.getValue() + "." + "content");
-                            String content = persistentValue==null?null:persistentValue.getValue();
-                            if (PersistentValueManager.isAged(persistentValue))
-                            {
-                                String page = Tools.getPage(new URL(nameValue.getValue())); 
-                                if (page!=null)
+                            PersistentValue persistentValue = PersistentValueManager
+                                    .loadPersistentValue(RSSFactory.this.getClass().getName() + "."
+                                            + nameValue.getValue() + "." + "content");
+                            String content = persistentValue == null ? null : persistentValue.getValue();
+                            if (PersistentValueManager.isAged(persistentValue)) {
+                                String page = Tools.getPage(new URL(nameValue.getValue()));
+                                if (page != null)
                                     content = page;
                             }
 
-                            if (content!=null)
-                            {
+                            if (content != null) {
                                 ChannelBuilderIF builder = new ChannelBuilder();
-                                ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((content.getBytes("UTF-8"))));
-            
-                                if (channel.getItems().size()>0)
-                                {
+                                ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((content
+                                        .getBytes("UTF-8"))));
+
+                                if (channel.getItems().size() > 0) {
                                     stories.clear();
-                                    
+
                                     int count = 0;
                                     Iterator chs = channel.getItems().iterator();
                                     while (chs.hasNext()) {
                                         ItemIF item = (ItemIF) chs.next();
                                         stories.add(item);
                                     }
-                
-                                    if (channel.getImage() != null && Tools.retrieveCachedImage(nameValue.getValue())==null) {
+
+                                    if (channel.getImage() != null
+                                            && Tools.retrieveCachedImage(nameValue.getValue()) == null) {
                                         Tools.cacheImage(channel.getImage().getLocation(), nameValue.getValue());
                                     }
                                 }
-                                
-                                if (PersistentValueManager.isAged(persistentValue))
-                                {
+
+                                if (PersistentValueManager.isAged(persistentValue)) {
                                     int ttl = channel.getTtl();
-                                    if (ttl==0 || ttl == -1)
-                                        ttl = 60*60;
+                                    if (ttl == 0 || ttl == -1)
+                                        ttl = 60 * 60;
                                     else
-                                        ttl = ttl*60;
-                                    
-                                    PersistentValueManager.savePersistentValue(RSSFactory.this.getClass().getName() + "." + nameValue.getValue() + "." + "content", content, ttl);
+                                        ttl = ttl * 60;
+
+                                    PersistentValueManager.savePersistentValue(RSSFactory.this.getClass().getName()
+                                            + "." + nameValue.getValue() + "." + "content", content, ttl);
                                 }
                             }
                         } catch (Exception ex) {
@@ -333,24 +333,26 @@ public class RSS extends DefaultApplication {
 
         private static Hashtable mChannels = new Hashtable();
     }
-    
+
     private static String cleanHTML(String data) {
         String result = "";
-        data = data.replaceAll("\n", " ");
-        int pos1 = data.indexOf("<");
-        if (pos1 != -1) {
-            while (pos1 != -1) {
-                int pos2 = data.indexOf(">");
-                if (pos2 == -1) {
-                    result = result + data;
-                    break;
+        if (data != null) {
+            data = data.replaceAll("\n", " ");
+            int pos1 = data.indexOf("<");
+            if (pos1 != -1) {
+                while (pos1 != -1) {
+                    int pos2 = data.indexOf(">");
+                    if (pos2 == -1) {
+                        result = result + data;
+                        break;
+                    }
+                    result = result + data.substring(0, pos1);
+                    data = data.substring(pos2 + 1);
+                    pos1 = data.indexOf("<");
                 }
-                result = result + data.substring(0, pos1);
-                data = data.substring(pos2 + 1);
-                pos1 = data.indexOf("<");
-            }
-        } else
-            result = data;
+            } else
+                result = data;
+        }
         return StringEscapeUtils.unescapeHtml(result);
     }
 }

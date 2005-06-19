@@ -19,6 +19,7 @@ package org.lnicholls.galleon.widget;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.Resource;
 
 public class DefaultMenuScreen extends DefaultScreen {
 
@@ -52,10 +53,24 @@ public class DefaultMenuScreen extends DefaultScreen {
         {
             BView row = mMenuList.getRow(mMenuList.getFocus());
             BView icon = (BView) row.getChild(0);
+            mRowResource = icon.getResource();
             icon.setResource(((DefaultApplication) getApp()).mBusyIcon);
             icon.flush();
     
             getBApp().play("select.snd");
+            getBApp().flush();
+        }
+    }
+    
+    public void unload() {
+        if (mMenuList.getFocus()!=-1)
+        {
+            BView row = mMenuList.getRow(mMenuList.getFocus());
+            BView icon = (BView) row.getChild(0);
+            icon.setResource(mRowResource);
+            icon.flush();
+    
+            getBApp().play("bonk.snd");
             getBApp().flush();
         }
     }
@@ -101,4 +116,6 @@ public class DefaultMenuScreen extends DefaultScreen {
     protected MenuList mMenuList;
     
     protected int mFocus;
+    
+    private Resource mRowResource;
 }

@@ -506,13 +506,16 @@ public class ToGo {
             } catch (HibernateException ex) {
                 log.error("Video update failed", ex);
             }
-            get.releaseConnection();
         } catch (MalformedURLException ex) {
             Tools.logException(ToGo.class, ex, video.getUrl());
             return false;
         } catch (Exception ex) {
             Tools.logException(ToGo.class, ex, video.getUrl());
             return false;
+        }
+        finally
+        {
+            get.releaseConnection();
         }
         return true;
     }

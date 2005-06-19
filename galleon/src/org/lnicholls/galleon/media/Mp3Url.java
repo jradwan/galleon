@@ -86,6 +86,7 @@ public final class Mp3Url {
 
                 String id = Tools.extractName(Tools.extractName(uri));
                 Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+                log.debug("getStream: audio=" + audio.getPath());
 
                 TimedThread timedThread = new TimedThread(audio.getPath(), application);
                 TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 10);

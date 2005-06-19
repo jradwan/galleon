@@ -149,7 +149,7 @@ public class AppFactory extends Factory {
 
         String title = factory.getAppContext().getConfiguration().getName();
         // name
-        String uri = args.getValue("-uri", URLEncoder.encode(title.replaceAll(" ", ""), "UTF-8")); //getField(clazz,
+        String uri = args.getValue("-uri", URLEncoder.encode(clean(title), "UTF-8")); //getField(clazz,
         // "URI"));
         if (uri == null) {
             uri = clazz;
@@ -183,6 +183,18 @@ public class AppFactory extends Factory {
         factory.init(args);
 
         return factory;
+    }
+    
+    private static String clean(String value)
+    {
+        StringBuffer buffer = new StringBuffer(value.length());
+        synchronized (buffer) {
+            for (int i = 0; i < value.length(); i++) {
+                if (Character.isLetter(value.charAt(i)))
+                    buffer.append(value.charAt(i));
+            }
+        }
+        return buffer.toString();
     }
 
     // Modified from SDK code
@@ -240,40 +252,45 @@ public class AppFactory extends Factory {
     }
 
     public InputStream getStream(String uri) throws IOException {
-        if (uri.toLowerCase().equals("icon.png")) {
-            return getImage("icon");
-        }
-        else
-        if (uri.toLowerCase().endsWith(".mp3")) {
-            String[] parts = uri.split("/");
-            
-            DefaultApplication application = null;
-            int id = -1;
-            if (parts.length==2)
-            {
-                try
+        try
+        {
+            if (uri.toLowerCase().equals("icon.png")) {
+                return getImage("icon");
+            }
+            else
+            if (uri.toLowerCase().endsWith(".mp3")) {
+                String[] parts = uri.split("/");
+                
+                DefaultApplication application = null;
+                int id = -1;
+                if (parts.length==2)
                 {
-                    id = Integer.parseInt(parts[0]);
-                }
-                catch (Exception ex){}
-                // Find the app that asked for the stream
-                for (int i=0;i<active.size();i++) {
-                    Application app = (Application)active.elementAt(i);
-                    if (app.hashCode()==id)
+                    try
                     {
-                        if (app instanceof DefaultApplication)
+                        id = Integer.parseInt(parts[0]);
+                    }
+                    catch (Exception ex){}
+                    // Find the app that asked for the stream
+                    for (int i=0;i<active.size();i++) {
+                        Application app = (Application)active.elementAt(i);
+                        if (app.hashCode()==id)
                         {
-                            application = (DefaultApplication)app;
-                            break;
+                            if (app instanceof DefaultApplication)
+                            {
+                                application = (DefaultApplication)app;
+                                break;
+                            }
                         }
                     }
                 }
+                
+                if (uri.toLowerCase().endsWith(".http.mp3")) {
+                    return Mp3Url.getStream(uri, application);
+                }
+                return Mp3File.getStream(uri);
             }
-            
-            if (uri.toLowerCase().endsWith(".http.mp3")) {
-                return Mp3Url.getStream(uri, application);
-            }
-            return Mp3File.getStream(uri);
+        } catch (Throwable ex) {
+            Tools.logException(AppFactory.class, ex);
         }
 
         return super.getStream(uri);

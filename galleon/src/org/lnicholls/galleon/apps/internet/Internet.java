@@ -19,7 +19,6 @@ package org.lnicholls.galleon.apps.internet;
 import java.awt.Color;
 import java.awt.Image;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
@@ -39,8 +38,6 @@ import org.lnicholls.galleon.widget.Grid;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
-import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.util.ArgumentList;
@@ -72,8 +69,8 @@ public class Internet extends DefaultApplication {
         mLargeFolderIcon = getSkinImage("menu", "gridFolder");
         mItemIcon = getSkinImage("menu", "item");
 
-        InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getContext().getFactory())
-                .getAppContext().getConfiguration();
+        InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getContext()
+                .getFactory()).getAppContext().getConfiguration();
 
         Tracker tracker = new Tracker(internetConfiguration.getUrls(), 0);
 
@@ -304,27 +301,25 @@ public class Internet extends DefaultApplication {
 
     public class ImageScreen extends DefaultScreen {
 
-        private BList list;
-
         public ImageScreen(Internet app) {
             super(app, true);
-            
+
             getBelow().setResource(mInfoBackground);
-            
-            mImage = new BView(this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT-20, true);
-            
+
+            mImage = new BView(this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT - 20, true);
+
             setFooter("Press PLAY to reload");
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             updateView(false);
             return super.handleEnter(arg, isReturn);
         }
-        
+
         public boolean handleExit() {
             stopReload();
             return super.handleExit();
-        }        
+        }
 
         private void updateView(boolean reload) {
             final Image image = currentImage(reload);
@@ -340,9 +335,8 @@ public class Internet extends DefaultApplication {
             }
             flush();
         }
-        
-        private void startReload()
-        {
+
+        private void startReload() {
             if (mImageThread != null && mImageThread.isAlive())
                 mImageThread.interrupt();
 
@@ -370,9 +364,8 @@ public class Internet extends DefaultApplication {
             mPlaying = true;
             setFooter("Press PAUSE to stop reloading");
         }
-        
-        private void stopReload()
-        {
+
+        private void stopReload() {
             if (mImageThread != null && mImageThread.isAlive())
                 mImageThread.interrupt();
             mImageThread = null;
@@ -392,15 +385,6 @@ public class Internet extends DefaultApplication {
             case KEY_PLAY:
                 startReload();
                 break;
-            case KEY_SELECT:
-            case KEY_RIGHT:
-                if (list.getFocus() == 0) {
-                    postEvent(new BEvent.Action(this, "play"));
-                    return true;
-                } else {
-                    postEvent(new BEvent.Action(this, "pop"));
-                    return true;
-                }
             case KEY_LEFT:
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
@@ -453,11 +437,11 @@ public class Internet extends DefaultApplication {
         }
 
         private BView mImage;
-        
+
         private Tracker mTracker;
 
         private Thread mImageThread;
-        
+
         private boolean mPlaying;
     }
 
@@ -502,11 +486,11 @@ public class Internet extends DefaultApplication {
         }
 
         private void updateImages() {
-            final InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext().getConfiguration();
+            final InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext()
+                    .getConfiguration();
 
-            new Thread(){
-                public void run()
-                {
+            new Thread() {
+                public void run() {
                     Iterator iterator = internetConfiguration.getUrls().iterator();
                     while (iterator.hasNext()) {
                         NameValue nameValue = (NameValue) iterator.next();
@@ -518,7 +502,7 @@ public class Internet extends DefaultApplication {
                             Tools.logException(Internet.class, ex);
                         }
 
-                    }                    
+                    }
                 }
             }.start();
         }

@@ -283,7 +283,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
     public void save() {
         log.debug("save()");
         MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) mAppConfiguration;
-        boolean first = musicConfiguration.getPaths().size()==0;
+        boolean first = musicConfiguration.getPaths().size()==0 || musicConfiguration.getGroups().size()==0;
         musicConfiguration.setName(mTitleField.getText());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
@@ -295,6 +295,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         musicConfiguration.setPaths(newItems);
 
         ArrayList categories = new ArrayList();
+        int count = 0;
         if (((NameValue) mCategoryCombo1.getSelectedItem()).getValue().length() > 0)
             categories.add(((NameValue) mCategoryCombo1.getSelectedItem()).getValue());
         if (((NameValue) mCategoryCombo2.getSelectedItem()).getValue().length() > 0)
@@ -317,7 +318,11 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
             categories.add(((NameValue) mCategoryCombo10.getSelectedItem()).getValue());
 
         musicConfiguration.setGroups(categories);
-        
+        if (categories.size()==0)
+            JOptionPane.showMessageDialog(this,
+                    "You have not selected any categories",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
+        else
         if (first)
             JOptionPane.showMessageDialog(this,
                 "Depending on the size of your MP3 collection, it will take some time for the organizer to categorize your collection.\nYou will be able to use the organizer immediately and the categorized files will grow over time.",

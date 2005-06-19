@@ -43,6 +43,8 @@ import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.database.ImageManager;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.media.JpgFile;
 import org.lnicholls.galleon.media.MediaManager;
@@ -58,8 +60,6 @@ import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.Grid;
-import org.lnicholls.galleon.database.PersistentValueManager;
-import org.lnicholls.galleon.database.PersistentValue;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -178,25 +178,28 @@ public class Photos extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
+                if (mMenuList.size() > 0) {
+                    load();
 
-                new Thread() {
-                    public void run() {
-                        try {
-                            FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            File file = (File) nameFile.getValue();
-                            FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-                            Tracker tracker = new Tracker(fileSystemContainer
-                                    .getItems(FileFilters.imageDirectoryFilter), 0);
-                            PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
-                            getBApp().push(pathScreen, TRANSITION_LEFT);
-                            getBApp().flush();
-                        } catch (Exception ex) {
-                            Tools.logException(Photos.class, ex);
+                    new Thread() {
+                        public void run() {
+                            try {
+                                FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
+                                File file = (File) nameFile.getValue();
+                                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
+                                        .getCanonicalPath());
+                                Tracker tracker = new Tracker(fileSystemContainer
+                                        .getItems(FileFilters.imageDirectoryFilter), 0);
+                                PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
+                                getBApp().push(pathScreen, TRANSITION_LEFT);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                Tools.logException(Photos.class, ex);
+                            }
                         }
-                    }
-                }.start();
-                return true;
+                    }.start();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -259,11 +262,11 @@ public class Photos extends DefaultApplication {
                                 }
                                 if (thumbnail != null) {
                                     synchronized (this) {
-                                        if (image.getRotation()!=null && image.getRotation().intValue()!=0)
-                                        {
-                                            thumbnail = ImageManipulator.rotate(thumbnail, parent.getWidth(), parent.getHeight(), image.getRotation().intValue());
+                                        if (image.getRotation() != null && image.getRotation().intValue() != 0) {
+                                            thumbnail = ImageManipulator.rotate(thumbnail, parent.getWidth(), parent
+                                                    .getHeight(), image.getRotation().intValue());
                                         }
-                                        
+
                                         parent.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
                                         parent.setTransparency(0.0f);
                                         parent.flush();
@@ -531,7 +534,8 @@ public class Photos extends DefaultApplication {
 
             int start = TOP;
 
-            mThumbnail = new BView(getBelow(), getWidth() - SAFE_TITLE_H - 210, getHeight() - SAFE_TITLE_V - 200, 200, 200, false);
+            mThumbnail = new BView(getBelow(), getWidth() - SAFE_TITLE_H - 210, getHeight() - SAFE_TITLE_V - 200, 200,
+                    200, false);
 
             mTitleText = new BText(getNormal(), BORDER_LEFT, start - 30, BODY_WIDTH, 70);
             mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
@@ -560,13 +564,14 @@ public class Photos extends DefaultApplication {
 
             mStars = new BView[5];
             for (int i = 0; i < 5; i++) {
-                mStars[i] = new BView(getNormal(), BORDER_LEFT + (i * 40), getHeight() - SAFE_TITLE_V - 200, 34, 34, true);
+                mStars[i] = new BView(getNormal(), BORDER_LEFT + (i * 40), getHeight() - SAFE_TITLE_V - 200, 34, 34,
+                        true);
                 mStars[i].setResource(mStarIcon, RSRC_IMAGE_BESTFIT);
                 mStars[i].setTransparency(0.6f);
             }
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 150, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 150, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 150,
+                    (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 150, 35);
             list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, null, "push");
             list.add("View photo");
             list.add("View slideshow");
@@ -601,8 +606,8 @@ public class Photos extends DefaultApplication {
 
                     updateHints();
 
-                    final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext().getFactory())
-                            .getAppContext().getConfiguration();
+                    final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
+                            .getFactory()).getAppContext().getConfiguration();
                     if (mThumbnailThread != null && mThumbnailThread.isAlive())
                         mThumbnailThread.interrupt();
                     mThumbnailThread = new Thread() {
@@ -613,11 +618,12 @@ public class Photos extends DefaultApplication {
                                     synchronized (mThumbnail) {
                                         if (mThumbnail.getID() != -1) {
                                             synchronized (this) {
-                                                if (image.getRotation()!=null && image.getRotation().intValue()!=0)
-                                                {
-                                                    thumbnail = ImageManipulator.rotate(thumbnail, mThumbnail.getWidth(), mThumbnail.getHeight(), image.getRotation().intValue());
+                                                if (image.getRotation() != null && image.getRotation().intValue() != 0) {
+                                                    thumbnail = ImageManipulator.rotate(thumbnail, mThumbnail
+                                                            .getWidth(), mThumbnail.getHeight(), image.getRotation()
+                                                            .intValue());
                                                 }
-                                                
+
                                                 mThumbnail.setResource(createImage(thumbnail), RSRC_IMAGE_BESTFIT);
                                                 mThumbnail.setVisible(true);
                                                 mThumbnail.setTransparency(1.0f);
@@ -707,12 +713,10 @@ public class Photos extends DefaultApplication {
                 if (list.getFocus() == 2) {
                     postEvent(new BEvent.Action(this, "rotate"));
                     return true;
-                } else
-                if (list.getFocus() == 0) {
+                } else if (list.getFocus() == 0) {
                     postEvent(new BEvent.Action(this, "play"));
                     return true;
-                } else 
-                if (list.getFocus() == 1) {
+                } else if (list.getFocus() == 1) {
                     postEvent(new BEvent.Action(this, "slideshow"));
                     return true;
                 } else {
@@ -777,27 +781,22 @@ public class Photos extends DefaultApplication {
 
                 getBApp().play("select.snd");
                 getBApp().flush();
-                
+
                 Image image = currentImage();
-                try
-                {
+                try {
                     int rotation = 0;
-                    if (image.getRotation()!=null)
+                    if (image.getRotation() != null)
                         rotation = image.getRotation().intValue();
                     rotation = rotation + 90;
-                    image.setRotation(new Integer(rotation%360));
+                    image.setRotation(new Integer(rotation % 360));
                     ImageManager.updateImage(image);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     Tools.logException(Photos.class, ex);
                 }
 
                 updateView();
                 return true;
-            }
-            else
-            if (action.equals("play")) {
+            } else if (action.equals("play")) {
 
                 getBApp().play("select.snd");
                 getBApp().flush();
@@ -809,21 +808,19 @@ public class Photos extends DefaultApplication {
                     }
                 }.start();
                 return true;
+            } else if (action.equals("slideshow")) {
+
+                getBApp().play("select.snd");
+                getBApp().flush();
+
+                new Thread() {
+                    public void run() {
+                        getBApp().push(new SlideshowScreen((Photos) getBApp(), mTracker, true), TRANSITION_LEFT);
+                        getBApp().flush();
+                    }
+                }.start();
+                return true;
             }
-            else
-                if (action.equals("slideshow")) {
-
-                    getBApp().play("select.snd");
-                    getBApp().flush();
-
-                    new Thread() {
-                        public void run() {
-                            getBApp().push(new SlideshowScreen((Photos) getBApp(), mTracker, true), TRANSITION_LEFT);
-                            getBApp().flush();
-                        }
-                    }.start();
-                    return true;
-                }                
 
             return super.handleAction(view, action);
         }
@@ -868,11 +865,11 @@ public class Photos extends DefaultApplication {
     }
 
     public class SlideshowScreen extends DefaultScreen {
-        
+
         public SlideshowScreen(Photos app, Tracker tracker) {
             this(app, tracker, true);
         }
-        
+
         public SlideshowScreen(Photos app, Tracker tracker, boolean showSlideshow) {
             super(app, null, null, false);
 
@@ -884,7 +881,8 @@ public class Photos extends DefaultApplication {
             PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext().getFactory())
                     .getAppContext().getConfiguration();
             if (imagesConfiguration.isUseSafe())
-                mPhoto = new View(getBelow(), SAFE_ACTION_H, SAFE_ACTION_V, getWidth() - 2*SAFE_ACTION_H, getHeight() - 2*SAFE_ACTION_V);
+                mPhoto = new View(getBelow(), SAFE_ACTION_H, SAFE_ACTION_V, getWidth() - 2 * SAFE_ACTION_H, getHeight()
+                        - 2 * SAFE_ACTION_V);
             else
                 mPhoto = new View(getBelow(), 0, 0, getWidth(), getHeight());
         }
@@ -910,15 +908,15 @@ public class Photos extends DefaultApplication {
 
                                     if (photo != null) {
                                         photo = (BufferedImage) Tools.getImage(photo);
-                                        
-                                        BufferedImage scaled = ImageManipulator.getScaledImage(photo, mPhoto.getWidth(),
-                                                mPhoto.getHeight());
-                                        
-                                        if (image.getRotation()!=null && image.getRotation().intValue()!=0)
-                                        {
-                                            scaled = ImageManipulator.rotate(scaled, mPhoto.getWidth(), mPhoto.getHeight(), image.getRotation().intValue());
+
+                                        BufferedImage scaled = ImageManipulator.getScaledImage(photo,
+                                                mPhoto.getWidth(), mPhoto.getHeight());
+
+                                        if (image.getRotation() != null && image.getRotation().intValue() != 0) {
+                                            scaled = ImageManipulator.rotate(scaled, mPhoto.getWidth(), mPhoto
+                                                    .getHeight(), image.getRotation().intValue());
                                         }
-                                        
+
                                         mPhoto.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
                                         mPhoto.setVisible(true);
                                         //mPhoto.setTransparency(1);
@@ -943,8 +941,7 @@ public class Photos extends DefaultApplication {
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             updateView();
 
-            if (mShowSlideshow)
-            {
+            if (mShowSlideshow) {
                 mSlideshow = new Slideshow(this);
                 mSlideshow.start();
             }
@@ -1047,7 +1044,7 @@ public class Photos extends DefaultApplication {
         long lastKeyPress;
 
         private Tracker mTracker;
-        
+
         private boolean mShowSlideshow;
     }
 
@@ -1079,8 +1076,8 @@ public class Photos extends DefaultApplication {
         }
 
         public void run() {
-            final PhotosConfiguration photosConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext().getFactory())
-                    .getAppContext().getConfiguration();
+            final PhotosConfiguration photosConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
+                    .getFactory()).getAppContext().getConfiguration();
 
             Effect[] effects = new Effect[0];
 
@@ -1133,9 +1130,9 @@ public class Photos extends DefaultApplication {
                                     long estimatedTime = System.currentTimeMillis() - startTime;
                                     BufferedImage scaled = ImageManipulator.getScaledImage(photo,
                                             mSlideshowScreen.mPhoto.getWidth(), mSlideshowScreen.mPhoto.getHeight());
-                                    if (image.getRotation()!=null && image.getRotation().intValue()!=0)
-                                    {
-                                        scaled = ImageManipulator.rotate(scaled, mSlideshowScreen.getWidth(), mSlideshowScreen.getHeight(), image.getRotation().intValue());
+                                    if (image.getRotation() != null && image.getRotation().intValue() != 0) {
+                                        scaled = ImageManipulator.rotate(scaled, mSlideshowScreen.getWidth(),
+                                                mSlideshowScreen.getHeight(), image.getRotation().intValue());
                                     }
                                     estimatedTime = System.currentTimeMillis() - startTime;
                                     if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
@@ -1150,7 +1147,7 @@ public class Photos extends DefaultApplication {
                             }
                         } catch (Exception ex) {
                             Tools.logException(Photos.class, ex, "Could retrieve image");
-                            if (getApp().getContext()==null)
+                            if (getApp().getContext() == null)
                                 return;
                         }
                     }

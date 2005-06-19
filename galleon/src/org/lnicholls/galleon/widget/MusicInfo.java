@@ -276,21 +276,10 @@ public class MusicInfo extends BView {
                                         mResults.remove(mPos);
                                     } catch (Throwable ex2) {
                                     }
+                                    if (getApp().getContext()==null)
+                                        return;
                                 } finally {
-                                    synchronized (this) {
-                                        setPainting(false);
-                                        try {
-                                            /*
-                                             * if (mResults != null && mResults.size() > 0)
-                                             * mPosText.setValue(String.valueOf(mPos + 1) + " of " +
-                                             * String.valueOf(mResults.size())); else mPosText.setValue("No images
-                                             * found"); mBusy.setVisible(false);
-                                             */
-                                        } finally {
-                                            setPainting(true);
-                                        }
-                                        getBApp().flush();
-                                    }
+                                    getBApp().flush();
                                 }
                             }
 

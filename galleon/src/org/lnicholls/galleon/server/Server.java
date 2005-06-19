@@ -577,8 +577,7 @@ public class Server {
 
     public void updateServerConfiguration(ServerConfiguration serverConfiguration) {
         boolean needRestart = false;
-        if ((mServerConfiguration.getIPAddress() == null && serverConfiguration.getIPAddress() != null)
-                || (mServerConfiguration.getIPAddress() != null && serverConfiguration.getIPAddress() == null)
+        if (mServerConfiguration.getIPAddress() == null || serverConfiguration.getIPAddress() == null
                 || !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress())
                 || mServerConfiguration.getPort() != serverConfiguration.getPort())
             needRestart = true;

@@ -35,6 +35,20 @@ See the file "COPYING" for more details.
         return "Not subscribed";
     }
     
+    public PodcastTrack getTrack(String url)
+    {
+      if (getTracks()!=null)
+      {
+        for (java.util.Iterator j = getTracks().iterator(); j.hasNext(); /* Nothing */) {
+            PodcastTrack track = (PodcastTrack) j.next();
+            if (track.getUrl().equals(url))
+                return track;
+        }
+      }
+      return null;
+    }
+    
+    
     public static int STATUS_SUBSCRIBED = 1;
 
     public static int STATUS_DELETED = 2;    
@@ -146,6 +160,9 @@ See the file "COPYING" for more details.
       <meta attribute="field-description">Download size in bytes</meta>
     </property>     
     
+    <property name="size" type="long" not-null="true"/>        
+    
+    <property name="podcast" type="int"/>
 
       </composite-element>
       

@@ -37,9 +37,14 @@ import com.tivo.hme.bananas.BView;
 public class MusicPlayer extends DefaultPlayer {
 
     private static Logger log = Logger.getLogger(MusicPlayer.class.getName());
-
+    
     public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
             DefaultApplication application, Tracker tracker) {
+        this(parent, x, y, width, height, visible, application, tracker, true);
+    }
+
+    public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
+            DefaultApplication application, Tracker tracker, boolean showWebImages) {
         super(parent, x, y, width, height, visible);
 
         mTracker = tracker;
@@ -47,7 +52,7 @@ public class MusicPlayer extends DefaultPlayer {
 
         MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
 
-        mMusicInfo = new MusicInfo(this, 0, 0, width, height, true, musicPlayerConfiguration.isShowImages());
+        mMusicInfo = new MusicInfo(this, 0, 0, width, height, true, showWebImages && musicPlayerConfiguration.isShowImages());
 
         mPlayBar = new PlayBar(this);
     }
@@ -204,9 +209,11 @@ public class MusicPlayer extends DefaultPlayer {
         case KEY_SELECT:
         case KEY_RIGHT:
             postEvent(new BEvent.Action(this, "pop"));
+            remove();
             return true;
         case KEY_LEFT:
             postEvent(new BEvent.Action(this, "pop"));
+            remove();
             return true;
         }
         return super.handleKeyPress(code, rawcode);

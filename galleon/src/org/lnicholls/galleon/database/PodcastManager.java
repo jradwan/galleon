@@ -126,6 +126,25 @@ public class PodcastManager {
         }
         return list;
     }
+    
+    public static List listAllSubscribed() throws HibernateException {
+        List list = new ArrayList();
+        Session session = HibernateUtil.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            list = session.createQuery("from org.lnicholls.galleon.database.Podcast as podcast where podcast.status=?").setInteger(0,
+                    Podcast.STATUS_SUBSCRIBED).list();
+            tx.commit();
+        } catch (HibernateException he) {
+            if (tx != null)
+                tx.rollback();
+            throw he;
+        } finally {
+            HibernateUtil.closeSession();
+        }
+        return list;
+    }    
 
     public static List listBetween(int start, int end) throws HibernateException {
         List list = new ArrayList();

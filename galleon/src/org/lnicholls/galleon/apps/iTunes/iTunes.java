@@ -178,33 +178,35 @@ public class iTunes extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
+                if (mMenuList.size() > 0) {
+                    load();
 
-                new Thread() {
-                    public void run() {
-                        try {
-                            FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            List playlists = PlaylistManager.findByTitle((String) nameFile.getValue());
-                            if (playlists != null && playlists.size() > 0) {
-                                Playlist playlist = (Playlist) playlists.get(0);
-                                ArrayList list = new ArrayList();
-                                Iterator iterator = playlist.getTracks().iterator();
-                                while (iterator.hasNext()) {
-                                    PlaylistTrack track = (PlaylistTrack) iterator.next();
-                                    list.add(new FileItem(track.getTrack().getTitle(), new File(track.getTrack()
-                                            .getPath())));
+                    new Thread() {
+                        public void run() {
+                            try {
+                                FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
+                                List playlists = PlaylistManager.findByTitle((String) nameFile.getValue());
+                                if (playlists != null && playlists.size() > 0) {
+                                    Playlist playlist = (Playlist) playlists.get(0);
+                                    ArrayList list = new ArrayList();
+                                    Iterator iterator = playlist.getTracks().iterator();
+                                    while (iterator.hasNext()) {
+                                        PlaylistTrack track = (PlaylistTrack) iterator.next();
+                                        list.add(new FileItem(track.getTrack().getTitle(), new File(track.getTrack()
+                                                .getPath())));
+                                    }
+                                    Tracker tracker = new Tracker(list, 0);
+                                    PathScreen pathScreen = new PathScreen((iTunes) getBApp(), tracker);
+                                    getBApp().push(pathScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
                                 }
-                                Tracker tracker = new Tracker(list, 0);
-                                PathScreen pathScreen = new PathScreen((iTunes) getBApp(), tracker);
-                                getBApp().push(pathScreen, TRANSITION_LEFT);
-                                getBApp().flush();
+                            } catch (Exception ex) {
+                                Tools.logException(iTunes.class, ex);
                             }
-                        } catch (Exception ex) {
-                            Tools.logException(iTunes.class, ex);
                         }
-                    }
-                }.start();
-                return true;
+                    }.start();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }

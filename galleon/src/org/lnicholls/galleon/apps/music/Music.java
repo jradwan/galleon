@@ -49,7 +49,6 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.winamp.ClassicSkin;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -94,8 +93,8 @@ public class Music extends DefaultApplication {
         mCDIcon = getSkinImage("menu", "item");
         mPlaylistIcon = getSkinImage("menu", "playlist");
 
-        MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getContext().getFactory()).getAppContext()
-                .getConfiguration();
+        MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getContext().getFactory())
+                .getAppContext().getConfiguration();
 
         if (musicConfiguration.getPaths().size() == 1) {
             try {
@@ -131,26 +130,29 @@ public class Music extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
+                if (mMenuList.size() > 0) {
+                    load();
 
-                new Thread() {
-                    public void run() {
-                        try {
-                            FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            File file = (File) nameFile.getValue();
-                            FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-                            ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
-                            Tracker tracker = new Tracker(fileSystemContainer
-                                    .getItems(FileFilters.audioDirectoryFilter), 0);
-                            PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
-                            getBApp().push(pathScreen, TRANSITION_LEFT);
-                            getBApp().flush();
-                        } catch (Exception ex) {
-                            Tools.logException(Music.class, ex);
+                    new Thread() {
+                        public void run() {
+                            try {
+                                FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
+                                File file = (File) nameFile.getValue();
+                                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
+                                        .getCanonicalPath());
+                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+                                Tracker tracker = new Tracker(fileSystemContainer
+                                        .getItems(FileFilters.audioDirectoryFilter), 0);
+                                PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                                getBApp().push(pathScreen, TRANSITION_LEFT);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                Tools.logException(Music.class, ex);
+                            }
                         }
-                    }
-                }.start();
-                return true;
+                    }.start();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -192,7 +194,7 @@ public class Music extends DefaultApplication {
                 mMenuList.add(nameFile);
             }
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
             mFocus = mTracker.getPos();
             return super.handleEnter(arg, isReturn);
@@ -200,48 +202,92 @@ public class Music extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
-                final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
-                if (nameFile.isFolder()) {
-                    new Thread() {
-                        public void run() {
+                if (mMenuList.size() > 0) {
+                    load();
+                    final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+                    if (nameFile.isFolder()) {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    mTracker.setPos(mMenuList.getFocus());
+                                    File file = (File) nameFile.getValue();
+                                    FileSystemContainer fileSystemContainer = new FileSystemContainer(file
+                                            .getCanonicalPath());
+                                    ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+                                    Tracker tracker = new Tracker(fileSystemContainer
+                                            .getItems(FileFilters.audioDirectoryFilter), 0);
+                                    PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                                    getBApp().push(pathScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(Music.class, ex);
+                                }
+                            }
+                        }.start();
+                    } else {
+                        if (nameFile.isPlaylist()) {
                             try {
-                                mTracker.setPos(mMenuList.getFocus());
                                 File file = (File) nameFile.getValue();
-                                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-                                        .getCanonicalPath());
-                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
-                                Tracker tracker = new Tracker(fileSystemContainer
-                                        .getItems(FileFilters.audioDirectoryFilter), 0);
+                                Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
+                                Tracker tracker = new Tracker(playlist.getList(), 0);
                                 PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
+                                ex.printStackTrace();
                             }
+                        } else {
+                            new Thread() {
+                                public void run() {
+                                    try {
+                                        mTracker.setPos(mMenuList.getFocus());
+                                        MusicScreen musicScreen = new MusicScreen((Music) getBApp());
+                                        musicScreen.setTracker(mTracker);
+
+                                        getBApp().push(musicScreen, TRANSITION_LEFT);
+                                        getBApp().flush();
+                                    } catch (Exception ex) {
+                                        Tools.logException(Music.class, ex);
+                                    }
+                                }
+                            }.start();
                         }
-                    }.start();
-                } else {
-                    if (nameFile.isPlaylist()) {
-                        try {
-                            File file = (File) nameFile.getValue();
-                            Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
-                            Tracker tracker = new Tracker(playlist.getList(), 0);
-                            PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
-                            getBApp().push(pathScreen, TRANSITION_LEFT);
-                            getBApp().flush();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                    }
+
+                    return true;
+                }
+            } else if (action.equals("play")) {
+                if (mMenuList.size() > 0) {
+                    load();
+                    final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+                    if (nameFile.isFolder()) {
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    mTracker.setPos(mMenuList.getFocus());
+                                    File file = (File) nameFile.getValue();
+                                    FileSystemContainer fileSystemContainer = new FileSystemContainer(file
+                                            .getCanonicalPath(), true);
+                                    ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+                                    Tracker tracker = new Tracker(fileSystemContainer
+                                            .getItems(FileFilters.audioDirectoryFilter), 0);
+
+                                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                                            .getMusicPlayerConfiguration();
+                                    tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+                                    getBApp().push(new PlayerScreen((Music) getBApp(), tracker), TRANSITION_LEFT);
+                                    getBApp().flush();
+                                } catch (Exception ex) {
+                                    Tools.logException(Music.class, ex);
+                                }
+                            }
+                        }.start();
                     } else {
                         new Thread() {
                             public void run() {
                                 try {
                                     mTracker.setPos(mMenuList.getFocus());
-                                    MusicScreen musicScreen = new MusicScreen((Music) getBApp());
-                                    musicScreen.setTracker(mTracker);
-
-                                    getBApp().push(musicScreen, TRANSITION_LEFT);
+                                    getBApp().push(new PlayerScreen((Music) getBApp(), mTracker), TRANSITION_LEFT);
                                     getBApp().flush();
                                 } catch (Exception ex) {
                                     Tools.logException(Music.class, ex);
@@ -249,45 +295,6 @@ public class Music extends DefaultApplication {
                             }
                         }.start();
                     }
-                }
-
-                return true;
-            } else if (action.equals("play")) {
-                load();
-                final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
-                if (nameFile.isFolder()) {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                mTracker.setPos(mMenuList.getFocus());
-                                File file = (File) nameFile.getValue();
-                                FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-                                        .getCanonicalPath(), true);
-                                ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
-                                Tracker tracker = new Tracker(fileSystemContainer
-                                        .getItems(FileFilters.audioDirectoryFilter), 0);
-                                
-                                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-                                tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
-                                getBApp().push(new PlayerScreen((Music) getBApp(), tracker), TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
-                            }
-                        }
-                    }.start();
-                } else {
-                    new Thread() {
-                        public void run() {
-                            try {
-                                mTracker.setPos(mMenuList.getFocus());
-                                getBApp().push(new PlayerScreen((Music) getBApp(), mTracker), TRANSITION_LEFT);
-                                getBApp().flush();
-                            } catch (Exception ex) {
-                                Tools.logException(Music.class, ex);
-                            }
-                        }
-                    }.start();
                 }
             }
             return super.handleAction(view, action);
@@ -339,8 +346,8 @@ public class Music extends DefaultApplication {
             mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
                     - (TOP - 30 - SAFE_TITLE_V), true);
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
+                    (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
             list.add("Play");
             list.add("Don't do anything");
 
@@ -562,8 +569,7 @@ public class Music extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code!=KEY_VOLUMEDOWN && code!=KEY_VOLUMEUP)
-            {
+            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
                 if (getTransparency() != 0.0f)
                     setTransparency(0.0f);
             }
@@ -576,21 +582,15 @@ public class Music extends DefaultApplication {
                 getBApp().flush();
                 return true;
             /*
-            case KEY_NUM0:
-                MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getContext().getFactory())
-                        .getAppContext().getConfiguration();
-                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-                if (musicPlayerConfiguration.isShowImages()) {
-                    getBApp().play("select.snd");
-                    getBApp().flush();
-                    ImagesScreen imagesScreen = new ImagesScreen((Music) getBApp(), mTracker);
-                    getBApp().push(imagesScreen, TRANSITION_LEFT);
-                    getBApp().flush();
-                    return true;
-                } else
-                    return false;*/                    
+             * case KEY_NUM0: MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory)
+             * getContext().getFactory()) .getAppContext().getConfiguration(); MusicPlayerConfiguration
+             * musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration(); if
+             * (musicPlayerConfiguration.isShowImages()) { getBApp().play("select.snd"); getBApp().flush(); ImagesScreen
+             * imagesScreen = new ImagesScreen((Music) getBApp(), mTracker); getBApp().push(imagesScreen,
+             * TRANSITION_LEFT); getBApp().flush(); return true; } else return false;
+             */
             }
-            
+
             return super.handleKeyPress(code, rawcode);
         }
 
@@ -635,8 +635,8 @@ public class Music extends DefaultApplication {
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V - TOP - 70,
-                    "");
+            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
+                    - TOP - 70, "");
             scrollText.setVisible(false);
 
             //setFocusDefault(scrollText);
@@ -647,14 +647,12 @@ public class Music extends DefaultApplication {
             mBusy.setVisible(true);
 
             /*
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-            list.add("Back to player");
-            setFocusDefault(list);
-            */
-            
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+             * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+             * (int) Math .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35); //list.setBarAndArrows(BAR_HANG,
+             * BAR_DEFAULT, H_LEFT, null); list.add("Back to player"); setFocusDefault(list);
+             */
+
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
@@ -791,7 +789,8 @@ public class Music extends DefaultApplication {
 
             mTracker = tracker;
 
-            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP - 75);
+            mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, getHeight() - SAFE_TITLE_V - TOP
+                    - 75);
             mImageView.setVisible(false);
 
             mPosText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 60, BODY_WIDTH, 30);
@@ -811,14 +810,12 @@ public class Music extends DefaultApplication {
             mBusy.setVisible(true);
 
             /*
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-            //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-            list.add("Back to player");
-            setFocusDefault(list);
-            */
-            
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight()-SAFE_TITLE_V)-55, (int) Math
+             * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+             * (int) Math .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35); //list.setBarAndArrows(BAR_HANG,
+             * BAR_DEFAULT, H_LEFT, null); list.add("Back to player"); setFocusDefault(list);
+             */
+
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);

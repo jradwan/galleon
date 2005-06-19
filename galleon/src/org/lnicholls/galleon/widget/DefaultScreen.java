@@ -96,6 +96,18 @@ public class DefaultScreen extends BScreen {
     public boolean handleAction(BView view, Object action) {
         if (action.equals("pop")) {
             this.getBApp().pop();
+            new Thread()
+            {
+                public void run()
+                {
+                    try
+                    {
+                        sleep(500);
+                        remove();
+                    }
+                    catch (Exception ex) {}
+                }
+            }.start();
             return true;
         }
         return super.handleAction(view, action);

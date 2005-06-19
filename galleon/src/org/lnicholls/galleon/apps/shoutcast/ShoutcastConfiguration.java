@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
-import org.lnicholls.galleon.util.NameValue;
 
 public class ShoutcastConfiguration implements AppConfiguration {
 
@@ -39,10 +38,10 @@ public class ShoutcastConfiguration implements AppConfiguration {
         mModified = true;
         mGenre = value;
     }
-    
+
     public List getGenres() {
         return mGenre;
-    }    
+    }
 
     public void addGenre(String value) {
         mModified = true;

@@ -85,21 +85,23 @@ public class Camera extends DefaultApplication {
 
         public boolean handleAction(BView view, Object action) {
             if (action.equals("push")) {
-                load();
+                if (mMenuList.size() > 0) {
+                    load();
 
-                new Thread() {
-                    public void run() {
-                        try {
-                            CameraDevice camera = new CameraDevice();
-                            camera.setDevice(((NameValue) mMenuList.get(mMenuList.getFocus())).getValue());
-                            getBApp().push(new CameraScreen((Camera) getApp(), camera), TRANSITION_NONE);
-                            getBApp().flush();
-                        } catch (Exception ex) {
-                            Tools.logException(Camera.class, ex);
+                    new Thread() {
+                        public void run() {
+                            try {
+                                CameraDevice camera = new CameraDevice();
+                                camera.setDevice(((NameValue) mMenuList.get(mMenuList.getFocus())).getValue());
+                                getBApp().push(new CameraScreen((Camera) getApp(), camera), TRANSITION_NONE);
+                                getBApp().flush();
+                            } catch (Exception ex) {
+                                Tools.logException(Camera.class, ex);
+                            }
                         }
-                    }
-                }.start();
-                return true;
+                    }.start();
+                    return true;
+                }
             }
             return super.handleAction(view, action);
         }
@@ -179,7 +181,7 @@ public class Camera extends DefaultApplication {
                     try {
                         setFooter("Initializing");
                         flush();
-                        
+
                         TimedCallable timedCallable = new TimedCallable(new Callable() {
                             public synchronized Object call() throws Exception {
                                 mCamera.startPlayer();
@@ -197,9 +199,7 @@ public class Camera extends DefaultApplication {
                                 }
                                 sleep(1000);
                             }
-                        }
-                        else
-                        {
+                        } else {
                             setTitle("Error");
                             getBelow().setResource(mMenuBackground);
                         }

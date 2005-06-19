@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
@@ -28,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.gui.FileOptionsTable;
+import org.lnicholls.galleon.gui.OptionsTable;
 import org.lnicholls.galleon.util.NameValue;
 
 import com.jgoodies.forms.builder.PanelBuilder;
@@ -41,13 +43,26 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         super(appConfiguration);
         setLayout(new GridLayout(0, 1));
 
-        PodcastingConfiguration musicConfiguration = (PodcastingConfiguration) appConfiguration;
+        PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) appConfiguration;
 
-        mTitleField = new JTextField(musicConfiguration.getName());
+        mTitleField = new JTextField(podcastingConfiguration.getName());
+        mDownloadCombo = new JComboBox();
+        mDownloadCombo.addItem(new ComboWrapper("All", "-1"));
+        mDownloadCombo.addItem(new ComboWrapper("1", "1"));
+        mDownloadCombo.addItem(new ComboWrapper("2", "2"));
+        mDownloadCombo.addItem(new ComboWrapper("3", "3"));
+        mDownloadCombo.addItem(new ComboWrapper("4", "4"));
+        mDownloadCombo.addItem(new ComboWrapper("5", "5"));
+        defaultCombo(mDownloadCombo, Integer.toString(podcastingConfiguration.getDownload()));
+        mNameField = new JTextField("");
+        mUrlField = new JTextField("");
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, pref, " + // title
+                "9dlu, pref, " + // download
                 "9dlu, pref, " + // directories
+                "9dlu, pref, " + // name
+                "9dlu, pref, " + // url
                 "9dlu, pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
@@ -59,25 +74,33 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Directories", cc.xyw(1, 5, 4));
+        builder.addLabel("Download", cc.xy(1, 5));
+        builder.add(mDownloadCombo, cc.xyw(3, 5, 1));
+        builder.addSeparator("Directories", cc.xyw(1, 7, 4));
+        
+        builder.addLabel("Name", cc.xy(1, 9));
+        builder.add(mNameField, cc.xyw(3, 9, 1));
+        builder.addLabel("URL", cc.xy(1, 11));
+        builder.add(mUrlField, cc.xyw(3, 11, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
-        for (Iterator i = musicConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
+        for (Iterator i = podcastingConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
             NameValue value = (NameValue) i.next();
             ArrayList values = new ArrayList();
             values.add(0, value.getName());
             values.add(1, value.getValue());
             mColumnValues.add(counter++, values);
         }
-
-        mFileOptionsTable = new FileOptionsTable(true, this, mColumnValues);
+        
         ArrayList columnNames = new ArrayList();
         columnNames.add(0, "Name");
-        columnNames.add(1, "Path");
-        //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
-        // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 7, 4));
+        columnNames.add(1, "URL");
+        ArrayList fields = new ArrayList();
+        fields.add(mNameField);
+        fields.add(mUrlField);
+        mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
+        builder.add(mOptionsTable, cc.xyw(1, 13, 4));        
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -89,8 +112,9 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
 
     public void save() {
         log.debug("save()");
-        PodcastingConfiguration musicConfiguration = (PodcastingConfiguration) mAppConfiguration;
-        musicConfiguration.setName(mTitleField.getText());
+        PodcastingConfiguration podcastConfiguration = (PodcastingConfiguration) mAppConfiguration;
+        podcastConfiguration.setName(mTitleField.getText());
+        podcastConfiguration.setDownload(Integer.parseInt(((NameValue) mDownloadCombo.getSelectedItem()).getValue()));
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
         while (iterator.hasNext()) {
@@ -98,12 +122,18 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
             log.debug("Path=" + rows.get(0));
             newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
         }
-        musicConfiguration.setDirectorys(newItems);
+        podcastConfiguration.setDirectorys(newItems);
     }
 
     private JTextComponent mTitleField;
 
-    private FileOptionsTable mFileOptionsTable;
+    private JComboBox mDownloadCombo;
+    
+    private JTextComponent mNameField;
+
+    private JTextComponent mUrlField;
+
+    private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
 }

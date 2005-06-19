@@ -473,7 +473,7 @@ public final class Galleon implements Constants {
                         mException = ex;
                     }
                     
-                    if (mServerControl!=null || counter++ == 30) {
+                    if (mServerControl!=null || counter++ == 60) {
                         //Toolkit.getDefaultToolkit().beep();
                         mProgressBar.setValue(mProgressBar.getMinimum());
                         mProgressBar.setString("");

@@ -53,10 +53,13 @@ public class HelpDialog extends JDialog {
     private void initialize(Component component, URL url) {
         JTextPane documentationField = new HelpPane();
         documentationField.setEditable(false);
-        try {
-            documentationField.setPage(url);
-        } catch (Exception ex) {
-            Tools.logException(HelpDialog.class, ex, "Invalid help url: " + url.toExternalForm());
+        if (url!=null)
+        {
+            try {
+                documentationField.setPage(url);
+            } catch (Exception ex) {
+                Tools.logException(HelpDialog.class, ex, "Invalid help url: " + url.toExternalForm());
+            }
         }
 
         JScrollPane paneScrollPane = new JScrollPane(documentationField);

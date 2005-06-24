@@ -203,13 +203,6 @@
   </app>              
   
   
-  <app id="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobbler">  
-    <image source="audioScrobbler/icon.png" id="icon"/>  
-    <image source="audioScrobbler/background.jpg" id="background"/>        
-    <image source="audioScrobbler/item.png" id="item"/>    
-  </app>                
-  
-  
   <app id="org.lnicholls.galleon.apps.podcasting.Podcasting">  
     <image source="podcasting/icon.png" id="icon"/>  
   	<image source="podcasting/item.png" id="item"/>

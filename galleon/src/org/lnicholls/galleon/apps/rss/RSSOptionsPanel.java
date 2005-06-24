@@ -78,7 +78,7 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
 
         builder.addLabel("Name", cc.xy(1, 7));
         builder.add(mNameField, cc.xyw(3, 7, 1));
-        builder.addLabel("Feed URL", cc.xy(1, 9));
+        builder.addLabel("URL", cc.xy(1, 9));
         builder.add(mFeedField, cc.xyw(3, 9, 1));
 
         mColumnValues = new ArrayList();

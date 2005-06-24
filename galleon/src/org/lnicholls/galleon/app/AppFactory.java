@@ -16,8 +16,6 @@ package org.lnicholls.galleon.app;
  * See the file "COPYING" for more details.
  */
 
-import javax.imageio.*;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,8 +26,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLEncoder;
 
-import javax.imageio.ImageIO;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -38,11 +34,12 @@ import org.lnicholls.galleon.media.Mp3Url;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.widget.*;
+import org.lnicholls.galleon.widget.DefaultApplication;
 
 import com.tivo.hme.http.server.HttpRequest;
 import com.tivo.hme.io.FastInputStream;
-import com.tivo.hme.sdk.*;
+import com.tivo.hme.sdk.Application;
+import com.tivo.hme.sdk.Factory;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Listener;
 import com.tivo.hme.util.ArgumentList;
@@ -61,7 +58,7 @@ public class AppFactory extends Factory {
         mAppManager = appManager;
         setClassLoader(Thread.currentThread().getContextClassLoader());
     }
-    
+
     public void setConfiguration(AppConfiguration appConfiguration) {
         getAppContext().setConfiguration(appConfiguration);
     }
@@ -184,9 +181,8 @@ public class AppFactory extends Factory {
 
         return factory;
     }
-    
-    private static String clean(String value)
-    {
+
+    private static String clean(String value) {
         StringBuffer buffer = new StringBuffer(value.length());
         synchronized (buffer) {
             for (int i = 0; i < value.length(); i++) {
@@ -241,49 +237,43 @@ public class AppFactory extends Factory {
         }
         return appFactory;
     }
-    
+
     protected InputStream getImage(String key) throws IOException {
-        ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName().substring(0,this.getClass().getName().indexOf("$")), null, key);
-        
+        ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(
+                this.getClass().getName().substring(0, this.getClass().getName().indexOf("$")), null, key);
+
         //ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        
-        //ImageIO.write(image, "png", byteArrayOutputStream);                
+
+        //ImageIO.write(image, "png", byteArrayOutputStream);
         return new ByteArrayInputStream(baos.toByteArray());
     }
 
     public InputStream getStream(String uri) throws IOException {
-        try
-        {
+        try {
             if (uri.toLowerCase().equals("icon.png")) {
                 return getImage("icon");
-            }
-            else
-            if (uri.toLowerCase().endsWith(".mp3")) {
+            } else if (uri.toLowerCase().endsWith(".mp3")) {
                 String[] parts = uri.split("/");
-                
+
                 DefaultApplication application = null;
                 int id = -1;
-                if (parts.length==2)
-                {
-                    try
-                    {
+                if (parts.length == 2) {
+                    try {
                         id = Integer.parseInt(parts[0]);
+                    } catch (Exception ex) {
                     }
-                    catch (Exception ex){}
                     // Find the app that asked for the stream
-                    for (int i=0;i<active.size();i++) {
-                        Application app = (Application)active.elementAt(i);
-                        if (app.hashCode()==id)
-                        {
-                            if (app instanceof DefaultApplication)
-                            {
-                                application = (DefaultApplication)app;
+                    for (int i = 0; i < active.size(); i++) {
+                        Application app = (Application) active.elementAt(i);
+                        if (app.hashCode() == id) {
+                            if (app instanceof DefaultApplication) {
+                                application = (DefaultApplication) app;
                                 break;
                             }
                         }
                     }
                 }
-                
+
                 if (uri.toLowerCase().endsWith(".http.mp3")) {
                     return Mp3Url.getStream(uri, application);
                 }
@@ -309,8 +299,7 @@ public class AppFactory extends Factory {
                 Tools.logException(AppFactory.class, ex, uri);
             }
 
-            if (duration==-1)
-            {
+            if (duration == -1) {
                 InputStream tmp = getStream(uri);
                 if (tmp != null) {
                     try {
@@ -320,8 +309,8 @@ public class AppFactory extends Factory {
                     }
                 }
             }
-            
-            if (duration!=-1)
+
+            if (duration != -1)
                 http.addHeader(IHmeProtocol.TIVO_DURATION, String.valueOf(duration));
         }
         super.addHeaders(http, uri);
@@ -357,7 +346,7 @@ public class AppFactory extends Factory {
         }
         return mListener;
     }
-    
+
     private AppManager mAppManager;
 
     private AppContext mAppContext;

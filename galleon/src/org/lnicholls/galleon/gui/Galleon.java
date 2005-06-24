@@ -437,7 +437,7 @@ public final class Galleon implements Constants {
 
             //enable debug logging
 
-            mProgressBar = new JProgressBar(0, 30);
+            mProgressBar = new JProgressBar(0, 60);
             mProgressBar.setValue(0);
             //mProgressBar.setStringPainted(true);
 

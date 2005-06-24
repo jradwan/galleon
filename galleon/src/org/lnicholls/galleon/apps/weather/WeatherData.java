@@ -76,22 +76,29 @@ public class WeatherData implements Serializable {
         PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "."
                 + "id");
         if (persistentValue != null) {
-            String cachedId = persistentValue.getValue();
-            String cachedCity = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "city")
-                    .getValue();
-            String cachedState = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "state")
-                    .getValue();
-            String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip")
-                    .getValue();
-            String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip")
-                    .getValue();
-            String cachedLocalRadar = PersistentValueManager.loadPersistentValue(
-                    this.getClass().getName() + "." + "localradar").getValue();
-            if ((cachedCity != null && cachedCity.equals(city)) && (cachedState != null && cachedState.equals(state))
-                    && (cachedZip != null && cachedZip.equals(city))) {
-                mId = cachedId;
-                mFip = cachedFip;
-                mLocalRadar = cachedLocalRadar;
+            try
+            {
+                String cachedId = persistentValue.getValue();
+                String cachedCity = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "city")
+                        .getValue();
+                String cachedState = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "state")
+                        .getValue();
+                String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip")
+                        .getValue();
+                String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip")
+                        .getValue();
+                String cachedLocalRadar = PersistentValueManager.loadPersistentValue(
+                        this.getClass().getName() + "." + "localradar").getValue();
+                if ((cachedCity != null && cachedCity.equals(city)) && (cachedState != null && cachedState.equals(state))
+                        && (cachedZip != null && cachedZip.equals(city))) {
+                    mId = cachedId;
+                    mFip = cachedFip;
+                    mLocalRadar = cachedLocalRadar;
+                }
+            }
+            catch (Throwable ex)
+            {
+                log.error("Could not retrieve cached weather data", ex);
             }
         }
 

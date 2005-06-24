@@ -249,6 +249,7 @@
 
         <echo>Creating apps</echo>
         <copy file="./media/images/togo/icon.png" tofile="${build}/org/lnicholls/galleon/apps/togo/icon.png" />        
+        <copy file="./doc/togoapp.html" tofile="${build}/org/lnicholls/galleon/apps/togo/help.html" />        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.togo.ToGo"/>
@@ -257,7 +258,7 @@
             <attribute name="Title" value="ToGo"/>
             <attribute name="ReleaseDate" value="04/03/05"/>          
             <attribute name="Description" value="ToGo"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -267,14 +268,14 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/togo.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**" />
-            <fileset dir="./src/org/lnicholls/galleon/apps/togo" excludes="*.java" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**"/>
         </jar>
         <copy file="${build}/apps/togo.jar" tofile="./apps/togo.jar" />        
         
         <copy file="./media/images/weather/icon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/icon.png" />        
         <copy file="./media/images/weather/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/weather/alerticon.png" />                
         <copy file="./media/fonts/Dekadens.ttf" tofile="${build}/org/lnicholls/galleon/apps/weather/Dekadens.ttf" />                
+        <copy file="./doc/weatherapp.html" tofile="${build}/org/lnicholls/galleon/apps/weather/help.html" />        
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
@@ -283,7 +284,7 @@
             <attribute name="Title" value="Weather"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Weather"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -293,7 +294,7 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/weather.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/weather" excludes="*.java" />
             <fileset dir="./media/fonts" includes="Dekadens.ttf"/>
         </jar>
@@ -305,6 +306,7 @@
             <include name="**/*.wsz"/>
           </fileset>
         </copy>        
+        <copy file="./doc/musicapp.html" tofile="${build}/org/lnicholls/galleon/apps/music/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.music.Music"/>
@@ -313,7 +315,7 @@
             <attribute name="Title" value="Music"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Music"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -323,13 +325,14 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/music.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/music/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/music/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/music" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/music.jar" tofile="./apps/music.jar" />                        
         
         
         <copy file="./media/images/photos/icon.png" tofile="${build}/org/lnicholls/galleon/apps/photos/icon.png" />        
+        <copy file="./doc/photosapp.html" tofile="${build}/org/lnicholls/galleon/apps/photos/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.photos.Photos"/>
@@ -338,7 +341,7 @@
             <attribute name="Title" value="Photos"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
             <attribute name="Description" value="Photos"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -348,12 +351,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/photos.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/photos/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/photos/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/photos" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/photos.jar" tofile="./apps/photos.jar" />                                
         
         <copy file="./media/images/shoutcast/icon.png" tofile="${build}/org/lnicholls/galleon/apps/shoutcast/icon.png" />        
+        <copy file="./doc/shoutcastapp.html" tofile="${build}/org/lnicholls/galleon/apps/shoutcast/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.shoutcast.Shoutcast"/>
@@ -362,7 +366,7 @@
             <attribute name="Title" value="Shoutcast"/>
             <attribute name="ReleaseDate" value="04/16/05"/>          
             <attribute name="Description" value="Shoutcast"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -372,13 +376,14 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/shoutcast.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/shoutcast/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/shoutcast/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/shoutcast" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/shoutcast.jar" tofile="./apps/shoutcast.jar" />                                
         
 
         <copy file="./media/images/musicOrganizer/icon.png" tofile="${build}/org/lnicholls/galleon/apps/musicOrganizer/icon.png" />        
+        <copy file="./doc/musicorganizerapp.html" tofile="${build}/org/lnicholls/galleon/apps/musicOrganizer/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizer"/>
@@ -387,7 +392,7 @@
             <attribute name="Title" value="Music Organizer"/>
             <attribute name="ReleaseDate" value="04/22/05"/>          
             <attribute name="Description" value="Music Organizer"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -397,12 +402,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/musicOrganizer.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/musicOrganizer/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/musicOrganizer/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/musicOrganizer" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/musicOrganizer.jar" tofile="./apps/musicOrganizer.jar" />                        
         
         <copy file="./media/images/rss/icon.png" tofile="${build}/org/lnicholls/galleon/apps/rss/icon.png" />        
+        <copy file="./doc/rssapp.html" tofile="${build}/org/lnicholls/galleon/apps/rss/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.rss.RSS"/>
@@ -411,7 +417,7 @@
             <attribute name="Title" value="RSS"/>
             <attribute name="ReleaseDate" value="04/23/05"/>          
             <attribute name="Description" value="RSS"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -421,12 +427,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/rss.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/rss/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/rss/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/rss" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/rss.jar" tofile="./apps/rss.jar" />                                
         
         <copy file="./media/images/desktop/icon.png" tofile="${build}/org/lnicholls/galleon/apps/desktop/icon.png" />        
+        <copy file="./doc/desktopapp.html" tofile="${build}/org/lnicholls/galleon/apps/desktop/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.desktop.Desktop"/>
@@ -435,7 +442,7 @@
             <attribute name="Title" value="Desktop"/>
             <attribute name="ReleaseDate" value="05/04/05"/>          
             <attribute name="Description" value="Desktop"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -445,13 +452,14 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/desktop.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/desktop/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/desktop/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/desktop" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/desktop.jar" tofile="./apps/desktop.jar" />                                        
         
         <copy file="./media/images/email/icon.png" tofile="${build}/org/lnicholls/galleon/apps/email/icon.png" />        
         <copy file="./media/images/email/alerticon.png" tofile="${build}/org/lnicholls/galleon/apps/email/alerticon.png" />        
+        <copy file="./doc/emailapp.html" tofile="${build}/org/lnicholls/galleon/apps/email/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.email.Email"/>
@@ -460,7 +468,7 @@
             <attribute name="Title" value="Email"/>
             <attribute name="ReleaseDate" value="05/09/05"/>          
             <attribute name="Description" value="Email"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -470,12 +478,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/email.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/email/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/email/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/email" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/email.jar" tofile="./apps/email.jar" />                                                
         
         <copy file="./media/images/internet/icon.png" tofile="${build}/org/lnicholls/galleon/apps/internet/icon.png" />        
+        <copy file="./doc/internetapp.html" tofile="${build}/org/lnicholls/galleon/apps/internet/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.internet.Internet"/>
@@ -484,7 +493,7 @@
             <attribute name="Title" value="Internet Images"/>
             <attribute name="ReleaseDate" value="05/14/05"/>          
             <attribute name="Description" value="Internet Images"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -494,13 +503,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/internet.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/internet/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/internet/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/internet" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/internet.jar" tofile="./apps/internet.jar" />                                                        
         
-
         <copy file="./media/images/playlists/icon.png" tofile="${build}/org/lnicholls/galleon/apps/playlists/icon.png" />        
+        <copy file="./doc/playlistsapp.html" tofile="${build}/org/lnicholls/galleon/apps/playlists/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.playlists.Playlists"/>
@@ -509,7 +518,7 @@
             <attribute name="Title" value="Playlists"/>
             <attribute name="ReleaseDate" value="05/14/05"/>          
             <attribute name="Description" value="Playlists"/>                    
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -519,13 +528,14 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/playlists.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/playlists/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/playlists/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/playlists" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/playlists.jar" tofile="./apps/playlists.jar" />                                                        
         
 <!--        
         <copy file="./media/images/audioScrobbler/icon.png" tofile="${build}/org/lnicholls/galleon/apps/audioScrobbler/icon.png" />        
+        <copy file="./doc/audioScrobblerapp.html" tofile="${build}/org/lnicholls/galleon/apps/audioScrobbler/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobbler"/>
@@ -534,7 +544,7 @@
             <attribute name="Title" value="Audio Scrobbler"/>
             <attribute name="ReleaseDate" value="05/16/05"/>          
             <attribute name="Description" value="Audio Scrobbler"/>
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -544,12 +554,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/audioScrobbler.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/audioScrobbler/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/audioScrobbler/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/audioScrobbler" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/audioScrobbler.jar" tofile="./apps/audioScrobbler.jar" />                                                                
 -->        
         <copy file="./media/images/podcasting/icon.png" tofile="${build}/org/lnicholls/galleon/apps/podcasting/icon.png" />        
+        <copy file="./doc/podcastingapp.html" tofile="${build}/org/lnicholls/galleon/apps/podcasting/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.podcasting.Podcasting"/>
@@ -558,7 +569,7 @@
             <attribute name="Title" value="Podcasting"/>
             <attribute name="ReleaseDate" value="05/20/05"/>          
             <attribute name="Description" value="Podcasting"/>
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -568,12 +579,13 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/podcasting.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/podcasting/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/podcasting/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/podcasting" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/podcasting.jar" tofile="./apps/podcasting.jar" />
         
         <copy file="./media/images/iTunes/icon.png" tofile="${build}/org/lnicholls/galleon/apps/iTunes/icon.png" />        
+        <copy file="./doc/itunesapp.html" tofile="${build}/org/lnicholls/galleon/apps/iTunes/help.html" />                
         <manifest file="${build}/MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.iTunes.iTunes"/>
@@ -582,7 +594,7 @@
             <attribute name="Title" value="iTunes"/>
             <attribute name="ReleaseDate" value="06/04/05"/>          
             <attribute name="Description" value="iTunes"/>
-            <attribute name="Documentaton" value="help.html"/>                              
+            <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
             <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
@@ -592,7 +604,7 @@
           </section>
         </manifest>        
         <jar jarfile="${build}/apps/iTunes.jar" compress="yes" manifest="${build}/MANIFEST.MF">
-            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/iTunes/**" />
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/iTunes/**"/>
             <fileset dir="./src/org/lnicholls/galleon/apps/iTunes" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/iTunes.jar" tofile="./apps/iTunes.jar" />        

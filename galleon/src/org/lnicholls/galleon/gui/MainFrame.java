@@ -39,14 +39,14 @@ import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.List;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceTypeListener;
@@ -84,8 +84,8 @@ import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
-import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
+import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 
@@ -102,7 +102,8 @@ public class MainFrame extends JFrame {
     private static Logger log = Logger.getLogger(MainFrame.class.getName());
 
     public MainFrame(String version) {
-        super("Galleon " + version);
+        //super("Galleon " + version);
+        super("Galleon");
         setDefaultCloseOperation(0);
 
         JMenuBar menuBar = new JMenuBar();
@@ -244,10 +245,13 @@ public class MainFrame extends JFrame {
 
     public DefaultTreeModel getAppsModel() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("ROOT");
-        Iterator iterator = Galleon.getApps().iterator();
-        while (iterator.hasNext()) {
-            AppContext app = (AppContext) iterator.next();
-            root.add(new DefaultMutableTreeNode(getAppNode(app)));
+        if (Galleon.getApps()!=null)
+        {
+            Iterator iterator = Galleon.getApps().iterator();
+            while (iterator.hasNext()) {
+                AppContext app = (AppContext) iterator.next();
+                root.add(new DefaultMutableTreeNode(getAppNode(app)));
+            }
         }
         return new DefaultTreeModel(root);
     }
@@ -281,8 +285,8 @@ public class MainFrame extends JFrame {
                 url = classLoader.getResource("icon.png");
             icon = new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
-            Tools.logException(OptionsPanelManager.class, ex, "Could not load icon " + 
-                    " for app " + appDescriptor.getClassName());
+            Tools.logException(OptionsPanelManager.class, ex, "Could not load icon " + " for app "
+                    + appDescriptor.getClassName());
         }
 
         AppNode appNode = new AppNode(app, icon, appConfigurationPanel);
@@ -364,7 +368,6 @@ public class MainFrame extends JFrame {
                 AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
                 mAppsCombo.addItem(new AppDescriptorWrapper(appDescriptor));
             }
-            
 
             getContentPane().setLayout(new BorderLayout());
 
@@ -480,15 +483,17 @@ public class MainFrame extends JFrame {
         public void keyReleased(KeyEvent e) {
             String name = mNameField.getText();
             if (name.length() > 0) {
-                Iterator iterator = Galleon.getApps().iterator();
-                while (iterator.hasNext()) {
-                    AppContext app = (AppContext) iterator.next();
-                    if (app.getConfiguration().getName().equals(name)) {
-                        mOKButton.setEnabled(false);
-                        return;
+                if (Galleon.getApps()!=null)
+                {
+                    Iterator iterator = Galleon.getApps().iterator();
+                    while (iterator.hasNext()) {
+                        AppContext app = (AppContext) iterator.next();
+                        if (app.getConfiguration().getName().equals(name)) {
+                            mOKButton.setEnabled(false);
+                            return;
+                        }
                     }
                 }
-
                 mOKButton.setEnabled(true);
                 return;
             }
@@ -537,7 +542,8 @@ public class MainFrame extends JFrame {
             mNameField.setText(serverConfiguration.getName());
             mVersionField = new JTextField();
             mVersionField.setEditable(false);
-            mVersionField.setText(serverConfiguration.getVersion());
+            //mVersionField.setText(serverConfiguration.getVersion());
+            mVersionField.setText("1.0.0");
             mReloadCombo = new JComboBox();
             mReloadCombo.addItem(new NameValueWrapper("5 minutes", "5"));
             mReloadCombo.addItem(new NameValueWrapper("10 minutes", "10"));
@@ -559,18 +565,19 @@ public class MainFrame extends JFrame {
                 try {
                     String name = Tools.extractName(file.getCanonicalPath());
                     mSkinCombo.addItem(new NameValueWrapper(name, file.getCanonicalPath()));
-                    if (defaultSkin.length()==0)
+                    if (defaultSkin.length() == 0)
                         defaultSkin = file.getCanonicalPath();
                 } catch (Exception ex) {
                 }
             }
-            defaultCombo(mSkinCombo, serverConfiguration.getSkin().length()==0?defaultSkin:serverConfiguration.getSkin());
+            defaultCombo(mSkinCombo, serverConfiguration.getSkin().length() == 0 ? defaultSkin : serverConfiguration
+                    .getSkin());
             mGenerateThumbnails = new JCheckBox("Generate Thumbnails");
             mGenerateThumbnails.setSelected(serverConfiguration.getGenerateThumbnails());
             mShuffleItems = new JCheckBox("Shuffle Items");
             mShuffleItems.setSelected(serverConfiguration.getShuffleItems());
             mDebug = new JCheckBox("Debug logging");
-            mDebug .setSelected(serverConfiguration.isDebug());
+            mDebug.setSelected(serverConfiguration.isDebug());
             mPort = new JFormattedTextField();
             try {
                 MaskFormatter formatter = new MaskFormatter("####");
@@ -759,13 +766,13 @@ public class MainFrame extends JFrame {
         private JTextField mVersionField;
 
         private JComboBox mReloadCombo;
-        
+
         private JComboBox mSkinCombo;
 
         private JCheckBox mGenerateThumbnails;
 
         private JCheckBox mShuffleItems;
-        
+
         private JCheckBox mDebug;
 
         private JFormattedTextField mPort;
@@ -778,7 +785,7 @@ public class MainFrame extends JFrame {
 
         private ServerConfiguration mServerConfiguration;
     }
-    
+
     public class MusicPlayerDialog extends JDialog implements ActionListener {
 
         class MusicWrapper extends NameValue {
@@ -794,13 +801,15 @@ public class MainFrame extends JFrame {
         private MusicPlayerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
             super(frame, "Music Player", true);
             mServerConfiguration = serverConfiguration;
-            
+
             MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
-            
+
             mPlayersField = new JComboBox();
             mPlayersField.setToolTipText("Select a music player");
-            mPlayersField.addItem(new MusicWrapper(StringUtils.capitalize(MusicPlayerConfiguration.CLASSIC), MusicPlayerConfiguration.CLASSIC));
-            mPlayersField.addItem(new MusicWrapper(StringUtils.capitalize(MusicPlayerConfiguration.WINAMP), MusicPlayerConfiguration.WINAMP));
+            mPlayersField.addItem(new MusicWrapper(StringUtils.capitalize(MusicPlayerConfiguration.CLASSIC),
+                    MusicPlayerConfiguration.CLASSIC));
+            mPlayersField.addItem(new MusicWrapper(StringUtils.capitalize(MusicPlayerConfiguration.WINAMP),
+                    MusicPlayerConfiguration.WINAMP));
             defaultCombo(mPlayersField, musicPlayerConfiguration.getPlayer());
 
             List skins = Galleon.getWinampSkins();
@@ -826,33 +835,36 @@ public class MainFrame extends JFrame {
             mUseAmazonField.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
                     try {
-                        BrowserLauncher.openURL("http://www.amazon.com/exec/obidos/tg/browse/-/5174/ref%3Dtab%5Fm%5Fm%5F9/104-1230741-3818310");
+                        BrowserLauncher
+                                .openURL("http://www.amazon.com/exec/obidos/tg/browse/-/5174/ref%3Dtab%5Fm%5Fm%5F9/104-1230741-3818310");
                     } catch (Exception ex) {
                     }
                 }
-            });        
-            
+            });
+
             mUseFileField = new JCheckBox("Use Folder.jpg          ");
             mUseFileField.setToolTipText("Check to specify that the Folder.jpg file should be used for album art");
             mUseFileField.setSelected(musicPlayerConfiguration.isUseFile());
-            
+
             mShowImagesField = new JCheckBox("Show web images        ");
             mShowImagesField.setToolTipText("Check to specify that web images of the artist should be shown");
             mShowImagesField.setSelected(musicPlayerConfiguration.isShowImages());
             mShowImagesField.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
-                    if (mShowImagesField.isSelected())
-                    {
-                        JOptionPane.showMessageDialog(MainFrame.this, "All search engine queries for images are configured to filter out adult content by default.\nHowever, it is still possible that undesirable content might be returned in these search results.", "Warning",
-                                JOptionPane.WARNING_MESSAGE);
+                    if (mShowImagesField.isSelected()) {
+                        JOptionPane
+                                .showMessageDialog(
+                                        MainFrame.this,
+                                        "All search engine queries for images are configured to filter out adult content by default.\nHowever, it is still possible that undesirable content might be returned in these search results.",
+                                        "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             });
-            
+
             mRandomPlayFoldersField = new JCheckBox("Random play folders          ");
             mRandomPlayFoldersField.setToolTipText("Check to specify that music in folders should be played randomly");
             mRandomPlayFoldersField.setSelected(musicPlayerConfiguration.isRandomPlayFolders());
-            
+
             FormLayout layout = new FormLayout("right:pref, 3dlu, 100dlu:g, right:pref:grow",
                     "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
 
@@ -884,7 +896,7 @@ public class MainFrame extends JFrame {
             builder.add(mUseAmazonField, cc.xyw(1, 13, 3));
             builder.add(mUseFileField, cc.xyw(1, 15, 3));
             builder.add(mShowImagesField, cc.xyw(1, 17, 3));
-            
+
             getContentPane().add(builder.getPanel(), "Center");
 
             JButton[] array = new JButton[3];
@@ -918,12 +930,13 @@ public class MainFrame extends JFrame {
             if ("ok".equals(e.getActionCommand())) {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 try {
-                    MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
+                    MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration
+                            .getMusicPlayerConfiguration();
                     musicPlayerConfiguration.setPlayer(((NameValue) mPlayersField.getSelectedItem()).getValue());
                     musicPlayerConfiguration.setSkin(((NameValue) mSkinsField.getSelectedItem()).getValue());
                     musicPlayerConfiguration.setUseAmazon(mUseAmazonField.isSelected());
                     musicPlayerConfiguration.setUseFile(mUseFileField.isSelected());
-                    musicPlayerConfiguration.setShowImages(mShowImagesField.isSelected());                    
+                    musicPlayerConfiguration.setShowImages(mShowImagesField.isSelected());
                     musicPlayerConfiguration.setRandomPlayFolders(mRandomPlayFoldersField.isSelected());
 
                     Galleon.updateServerConfiguration(mServerConfiguration);
@@ -942,24 +955,24 @@ public class MainFrame extends JFrame {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 return;
             }
-            
+
             this.setVisible(false);
         }
 
         private JComboBox mPlayersField;
-        
+
         private JComboBox mSkinsField;
-        
-        private JCheckBox mUseFileField; 
-        
+
+        private JCheckBox mUseFileField;
+
         private JCheckBox mUseAmazonField;
-        
+
         private JCheckBox mShowImagesField;
-        
+
         private JCheckBox mRandomPlayFoldersField;
 
         private ServerConfiguration mServerConfiguration;
-    }    
+    }
 
     public void displayHelp(URL url) {
         if (mHelpDialog != null) {
@@ -1086,62 +1099,56 @@ public class MainFrame extends JFrame {
                 }
             }
 
-            public void addService(JmDNS jmdns, String type, String name) {
-                if (name.endsWith("." + type)) {
-                    name = name.substring(0, name.length() - (type.length() + 1));
-                }
+            public void serviceAdded(ServiceEvent event) {
+                JmDNS jmdns = event.getDNS();
+                String type = event.getType();
+                String name = event.getName();
                 log.debug("addService: " + name);
-
-                ServiceInfo service = jmdns.getServiceInfo(type, name);
-                if (service == null) {
-                    log.error("Service not found: " + type + " (" + name + ")");
-                } else {
-                    if (!name.endsWith(".")) {
-                        name = name + "." + type;
-                    }
-                    jmdns.requestServiceInfo(type, name);
-                }
+                jmdns.requestServiceInfo(type, name);
             }
 
-            public void removeService(JmDNS jmdns, String type, String name) {
-                if (name.endsWith("." + type)) {
-                    name = name.substring(0, name.length() - (type.length() + 1));
-                }
+            public void serviceRemoved(ServiceEvent event) {
+                JmDNS jmdns = event.getDNS();
+                String type = event.getType();
+                String name = event.getName();
                 log.debug("removeService: " + name);
             }
 
-            public void addServiceType(JmDNS jmdns, String type) {
+            public void serviceTypeAdded(ServiceEvent event) {
+                JmDNS jmdns = event.getDNS();
+                String type = event.getType();
+                String name = event.getName();
                 log.debug("addServiceType: " + type);
             }
 
-            public void resolveService(JmDNS jmdns, String type, String name, ServiceInfo info) {
+            public void serviceResolved(ServiceEvent event) {
+                JmDNS jmdns = event.getDNS();
+                String type = event.getType();
+                String name = event.getName();
+                ServiceInfo info = event.getInfo();
                 log.debug("resolveService: " + type + " (" + name + ")");
 
                 if (type.equals(HTTP_SERVICE)) {
-                    if (info == null) {
-                        log.error("Service not found: " + type + "(" + name + ")");
-                    } else {
-                        for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
-                            String prop = (String) names.nextElement();
-                            if (prop.equals(TIVO_PLATFORM)) {
-                                if (info.getPropertyString(prop).startsWith(TIVO_PLATFORM_PREFIX)) {
-                                    mFound = true;
-                                }
+                    for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
+                        String prop = (String) names.nextElement();
+                        if (prop.equals(TIVO_PLATFORM)) {
+                            if (info.getPropertyString(prop).startsWith(TIVO_PLATFORM_PREFIX)) {
+                                mFound = true;
                             }
                         }
+                    }
 
-                        if (mFound) {
-                            mResultsField.setText((mResultsField.getText().equals("Searching...") ? "" : mResultsField
-                                    .getText()
-                                    + ", ")
-                                    + name.substring(0, name.length() - (type.length() + 1)));
-                        }
+                    if (mFound) {
+                        mResultsField.setText((mResultsField.getText().equals("Searching...") ? "" : mResultsField
+                                .getText()
+                                + ", ")
+                                + name);
                     }
                 }
             }
 
             public void stop() {
-                mJmDNS.removeServiceListener(this);
+                mJmDNS.removeServiceListener(HTTP_SERVICE, this);
             }
 
             public boolean found() {

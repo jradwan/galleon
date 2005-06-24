@@ -1,6 +1,14 @@
 Galleon
 -------
 
+Version 0.0.0 beta 12:
+----------------------
+1. Upgraded to JmDNS 1.0 RC2
+2. Fixed some data bugs in various apps.
+3. Updated project web pages.
+4. Fixed album cover image bug.
+
+
 Version 0.0.0 beta 11:
 ----------------------
 Fixed email sorting.
@@ -131,11 +139,11 @@ How to enabled HME on your TiVo DVR:
 Known issues:
 1. The server needs to be running for the configuration GUI to work.
 2. Most JavaHMO plugins have been ported to Galleon.
-3. HME apps are deployed in the Galleon apps directory. 
+3. HME apps are deployed in the Galleon hme directory. 
 4. Galleon requires the 1.4 JRE, but the 1.5 JRE is highly recommended.
 5. Weather errors arent handled properly.
 6. Weather web links need parameters.
-7. App removal does not work.
+7. App removal requires Galleon to be restarted.
 8. Weather currently only uses zip.
 9. When you start Galleon, it might take some time before the ToGo list is populated.
 19. Music app only plays one folder of songs at a time.
@@ -144,10 +152,9 @@ Known issues:
 13. Sorting not supported yet.
 14. Port 1099 required for GUI to update the server.
 15. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
-16. Port 7288 required for multicast DNS.
+16. Port 7288 required for accessing the apps from your TiVo.
 17. Only one weather app at a time is supported.
 18. Port 1527 needed for database.
-19. The camera driver sometimes takes 100% of the CPU requiring Galleon to be restarted.
 
 
 How to install Galleon:
@@ -225,12 +232,6 @@ The harder way:
 3. Zip the files (including the new skin.xml file) and rename to *.gln.
 4. Put the skin file in the skins directory.
 5. Use the configuration GUI File/Properties menu to change the selected skin.
-
-
-Cameras:
-The Camera app uses the Java Media Framework:
-http://java.sun.com/products/java-media/jmf/index.jsp
-
 
 =====================================================
 galleon.sourceforge.net

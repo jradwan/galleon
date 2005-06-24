@@ -371,7 +371,7 @@ public class Podcasting extends DefaultApplication {
                 public int compare(Object o1, Object o2) { 
                     PodcastTrack podcastTrack1 = (PodcastTrack)o1; 
                     PodcastTrack podcastTrack2 = (PodcastTrack)o2; 
-                    if (podcastTrack1 != null && podcastTrack2 != null) 
+                    if (podcastTrack1 != null && podcastTrack2 != null && podcastTrack1.getPublicationDate()!=null && podcastTrack2.getPublicationDate()!=null) 
                         return -podcastTrack1.getPublicationDate().compareTo(podcastTrack2.getPublicationDate()); 
                     else 
                         return 0; 

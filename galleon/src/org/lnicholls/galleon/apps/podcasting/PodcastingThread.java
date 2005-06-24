@@ -391,6 +391,8 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
         value = value.replaceAll("<", "_");
         value = value.replaceAll(">", "_");
         value = value.replaceAll("=", "_");
+        value = value.replaceAll("\\*", "_");
+        value = value.replaceAll("\\?", "_");
         return value;
     }
 

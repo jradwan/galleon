@@ -141,12 +141,15 @@ public final class OptionsPanelManager extends InternalFrame implements ActionLi
             } else if ("help".equals(e.getActionCommand())) {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 try {
-                    URL url = mAppNode.getAppContext().getClass().getClassLoader().getResource(
-                            mAppNode.getAppContext().getDescriptor().getDocumentation());
+                    String path = mAppNode.getAppContext().getDescriptor().getClassName();
+                    path = path.substring(0, path.lastIndexOf("."));
+                    path = path.replaceAll("\\.","/");
+                    URL url = mAppNode.getConfigurationPanel().getClass().getClassLoader().getResource(
+                            path+"/"+mAppNode.getAppContext().getDescriptor().getDocumentation());
                     mMainFrame.displayHelp(url);
                 } catch (Exception ex) {
                     Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
-                            + mAppNode.getAppContext().getConfiguration());
+                            + mAppNode.getAppContext().getDescriptor().getDocumentation());
                     JOptionPane.showMessageDialog(mMainFrame, "No help available for this app.", "Help",
                             JOptionPane.INFORMATION_MESSAGE);
                 }

@@ -203,6 +203,14 @@ public class MusicInfo extends BView {
                                             getBApp().flush();
                                         }
                                     }
+                                    else
+                                    {
+                                        synchronized (this) {
+                                            mCover.clearResource();
+                                            mCover.setVisible(false);
+                                            getBApp().flush();
+                                        }
+                                    }
                                 } catch (Exception ex) {
                                     Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
                                 }

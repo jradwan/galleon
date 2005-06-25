@@ -223,7 +223,7 @@ public class iTunes extends DefaultApplication {
             BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
-            name.setValue(Tools.trim(nameFile.getName(), 40));
+            name.setValue(Tools.trim(Tools.clean(nameFile.getName()), 40));
         }
 
         BText mCountText;
@@ -353,7 +353,7 @@ public class iTunes extends DefaultApplication {
             BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
-            name.setValue(Tools.trim(nameFile.getName(), 40));
+            name.setValue(Tools.trim(Tools.clean(nameFile.getName()), 40));
         }
 
         public boolean handleKeyPress(int code, long rawcode) {

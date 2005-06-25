@@ -7,6 +7,7 @@ Version 0.0.0 beta 12:
 2. Fixed some data bugs in various apps.
 3. Updated project web pages.
 4. Fixed album cover image bug.
+5. Support playlists with relative path tracks.
 
 
 Version 0.0.0 beta 11:

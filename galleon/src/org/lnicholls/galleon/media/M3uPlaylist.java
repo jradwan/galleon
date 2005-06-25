@@ -159,7 +159,7 @@ public class M3uPlaylist extends Playlist {
                     if (inputLine.startsWith("http"))
                         mItems.add(new Item(name, inputLine));
                     else
-                        mItems.add(new FileItem(name, new File(inputLine)));
+                        mItems.add(new FileItem(name, getFile(playlist, inputLine)));
 
                     name = "";
                     duration = "";

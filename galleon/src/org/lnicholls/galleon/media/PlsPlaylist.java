@@ -171,7 +171,7 @@ public class PlsPlaylist extends Playlist {
                 mItems.add(new FileItem(plsEntry.title, new File(audio.getPath())));
             }
             */
-            mItems.add(new FileItem(plsEntry.title, new File(plsEntry.file)));
+            mItems.add(new FileItem(plsEntry.title, getFile(playlist, plsEntry.file)));
         }
     }
 

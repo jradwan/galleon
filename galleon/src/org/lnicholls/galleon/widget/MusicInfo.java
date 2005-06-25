@@ -130,7 +130,7 @@ public class MusicInfo extends BView {
         if (audio != null) {
             try {
                 setPainting(false);
-                mTitleText.setValue(Tools.trim(title, 100));
+                mTitleText.setValue(Tools.trim(Tools.clean(title), 100));
                 String song = audio.getTitle();
                 if (song.equals(Mp3File.DEFAULT_ARTIST))
                     song = title;
@@ -152,7 +152,7 @@ public class MusicInfo extends BView {
                         }
                     }
                 } else {
-                    mSongText.setValue("Song: " + Tools.trim(song, 40));
+                    mSongText.setValue("Song: " + Tools.trim(Tools.clean(song), 40));
                     mTrackText.setValue("Track: " + audio.getTrack());
                     mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
                     mAlbumText.setValue("Album: " + Tools.trim(audio.getAlbum(), 40));

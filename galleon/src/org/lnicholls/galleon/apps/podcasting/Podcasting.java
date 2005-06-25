@@ -1319,7 +1319,10 @@ public class Podcasting extends DefaultApplication {
                 }
     
                 if (podcastTrack.getStatus() == PodcastTrack.STATUS_PLAYED)
-                    list.set(0, "Play"); // delete
+                {
+                    list.set(0, "Play");
+                    list.set(1, "Delete");
+                }
                 else if (podcastTrack.getStatus() == PodcastTrack.STATUS_QUEUED
                         || podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADING)
                     list.set(0, "Cancel download");
@@ -1348,6 +1351,33 @@ public class Podcasting extends DefaultApplication {
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
+                if (list.getFocus() == 1) {
+                    String command = (String) list.get(list.getFocus());
+                    if (command.equals("Delete")) {
+                        PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
+                        try {
+                            Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
+
+                            PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
+                            track.setStatus(PodcastTrack.STATUS_DELETED);
+                            track.setDownloadSize(0);
+                            track.setDownloadTime(0);
+                            Audio audio = track.getTrack();
+                            track.setTrack(null);
+                            PodcastManager.updatePodcast(podcast);
+                            AudioManager.deleteAudio(audio);
+                            File file = new File(audio.getPath());
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                            list.set(0, "Download");
+                            list.set(1, "Don't do anything");
+                        } catch (Exception ex) {
+                            Tools.logException(Podcasting.class, ex);
+                        }
+                        break;
+                    }
+                }
             case KEY_RIGHT:
                 if (list.getFocus() == 0) {
                     String command = (String) list.get(list.getFocus());
@@ -1371,6 +1401,7 @@ public class Podcasting extends DefaultApplication {
                                 file.delete();
                             }
                             list.set(0, "Download");
+                            list.set(1, "Don't do anything");
                         } catch (Exception ex) {
                             Tools.logException(Podcasting.class, ex);
                         }

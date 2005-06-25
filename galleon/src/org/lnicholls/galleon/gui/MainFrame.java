@@ -102,8 +102,7 @@ public class MainFrame extends JFrame {
     private static Logger log = Logger.getLogger(MainFrame.class.getName());
 
     public MainFrame(String version) {
-        //super("Galleon " + version);
-        super("Galleon");
+        super("Galleon " + version);
         setDefaultCloseOperation(0);
 
         JMenuBar menuBar = new JMenuBar();
@@ -164,6 +163,7 @@ public class MainFrame extends JFrame {
                                 Galleon.getMainFrame(),
                                 "Galleon Version "
                                         + Tools.getVersion()
+                                        + "\nJava Version "+System.getProperty("java.vm.version")
                                         + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
                                 "About", JOptionPane.INFORMATION_MESSAGE);
             }
@@ -542,8 +542,7 @@ public class MainFrame extends JFrame {
             mNameField.setText(serverConfiguration.getName());
             mVersionField = new JTextField();
             mVersionField.setEditable(false);
-            //mVersionField.setText(serverConfiguration.getVersion());
-            mVersionField.setText("1.0.0");
+            mVersionField.setText(serverConfiguration.getVersion());
             mReloadCombo = new JComboBox();
             mReloadCombo.addItem(new NameValueWrapper("5 minutes", "5"));
             mReloadCombo.addItem(new NameValueWrapper("10 minutes", "10"));

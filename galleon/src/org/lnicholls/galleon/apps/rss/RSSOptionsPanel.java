@@ -111,8 +111,13 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
             JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        if (mColumnValues.size() == 0) {
+            JOptionPane.showMessageDialog(this, "No URLs configured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
         return true;
-    }
+    }    
 
     public void load() {
     }

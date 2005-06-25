@@ -785,10 +785,15 @@
           <param name="fileset" value="**/forms.jar,**/looks.jar"/>
           <param name="jarfile" value="forms.jar"/>          
         </antcall>                                                
+        
+        <antcall target="combinejars">
+          <param name="fileset" value="**/hme.jar,**/jmdns.jar"/>
+          <param name="jarfile" value="hme.jar"/>          
+        </antcall>                                                        
 
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar,**/hme.jar,**/jmdns.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />

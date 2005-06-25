@@ -53,7 +53,7 @@ public class OptionsTableModel extends AbstractTableModel {
 
     public Object getValueAt(int row, int col, boolean hideSensitive) {
         String name = getColumnName(col);
-        if (hideSensitive && (name.toLowerCase().equals("username") || name.toLowerCase().equals("password")))
+        if (hideSensitive && (name.toLowerCase().equals("password")))
             return "******";
         else
         {

@@ -162,7 +162,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         if (iterator.hasNext())
             defaultCombo(mCategoryCombo8, (String) iterator.next());
         if (iterator.hasNext())
-            defaultCombo(mCategoryCombo9, (String) iterator.next());        
+            defaultCombo(mCategoryCombo9, (String) iterator.next());
         if (iterator.hasNext())
             defaultCombo(mCategoryCombo10, (String) iterator.next());
 
@@ -280,10 +280,37 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
     public void load() {
     }
 
+    public boolean valid() {
+        if (mTitleField.getText().trim().length() == 0) {
+            JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (mColumnValues.size() == 0) {
+            JOptionPane.showMessageDialog(this, "No directories configured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if ((((NameValue) mCategoryCombo1.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo2.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo3.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo4.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo5.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo6.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo7.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo8.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo9.getSelectedItem()).getValue().length() == 0)
+                && (((NameValue) mCategoryCombo10.getSelectedItem()).getValue().length() == 0)) {
+            JOptionPane.showMessageDialog(this, "No categories configured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
     public void save() {
         log.debug("save()");
         MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) mAppConfiguration;
-        boolean first = musicConfiguration.getPaths().size()==0 || musicConfiguration.getGroups().size()==0;
+        boolean first = musicConfiguration.getPaths().size() == 0 || musicConfiguration.getGroups().size() == 0;
         musicConfiguration.setName(mTitleField.getText());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
@@ -318,15 +345,15 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
             categories.add(((NameValue) mCategoryCombo10.getSelectedItem()).getValue());
 
         musicConfiguration.setGroups(categories);
-        if (categories.size()==0)
-            JOptionPane.showMessageDialog(this,
-                    "You have not selected any categories",
-                    "Warning", JOptionPane.WARNING_MESSAGE);
-        else
-        if (first)
-            JOptionPane.showMessageDialog(this,
-                "Depending on the size of your MP3 collection, it will take some time for the organizer to categorize your collection.\nYou will be able to use the organizer immediately and the categorized files will grow over time.",
-                "Info", JOptionPane.INFORMATION_MESSAGE);
+        if (categories.size() == 0)
+            JOptionPane.showMessageDialog(this, "You have not selected any categories", "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+        else if (first)
+            JOptionPane
+                    .showMessageDialog(
+                            this,
+                            "Depending on the size of your MP3 collection, it will take some time for the organizer to categorize your collection.\nYou will be able to use the organizer immediately and the categorized files will grow over time.",
+                            "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JTextComponent mTitleField;
@@ -348,11 +375,11 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
     private JComboBox mCategoryCombo7;
 
     private JComboBox mCategoryCombo8;
-    
+
     private JComboBox mCategoryCombo9;
-    
+
     private JComboBox mCategoryCombo10;
-    
+
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;

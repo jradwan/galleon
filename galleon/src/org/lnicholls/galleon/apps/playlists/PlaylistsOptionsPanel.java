@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
@@ -82,6 +83,19 @@ public class PlaylistsOptionsPanel extends AppConfigurationPanel {
 
     public void load() {
     }
+    
+    public boolean valid() {
+        if (mTitleField.getText().trim().length() == 0) {
+            JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (mColumnValues.size() == 0) {
+            JOptionPane.showMessageDialog(this, "No playlists configured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
+        return true;
+    }        
 
     public void save() {
         log.debug("save()");

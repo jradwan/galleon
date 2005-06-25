@@ -67,7 +67,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         mProtocolCombo.addItem(new ComboWrapper("IMAP", "imap"));
         mProtocolCombo.addItem(new ComboWrapper("IMAPS", "imaps"));
         mServerField = new JTextField();
-        mUsernameField = new JPasswordField();
+        mUsernameField = new JTextField();
         mPasswordField = new JPasswordField();
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
@@ -144,6 +144,11 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
             JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        if (mColumnValues.size() == 0) {
+            JOptionPane.showMessageDialog(this, "No email accounts configured.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
         return true;
     }
 
@@ -180,7 +185,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
 
     private JTextComponent mServerField;
 
-    private JPasswordField mUsernameField;
+    private JTextField mUsernameField;
 
     private JPasswordField mPasswordField;
 

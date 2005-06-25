@@ -103,7 +103,8 @@ Section -StopGalleon SEC00
   Quit
 
 Wait:
-  Sleep 5000 ; wait for JVM to stop and release resources
+  DetailPrint "Ending ${PRODUCT_NAME} service"
+  Sleep 10000 ; wait for JVM to stop and release resources
 
 End:
 

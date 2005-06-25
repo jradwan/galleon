@@ -115,8 +115,12 @@ public class iTunesOptionsPanel extends AppConfigurationPanel implements ActionL
             }
         }
     }
-
+    
     public boolean valid() {
+        if (mTitleField.getText().trim().length() == 0) {
+            JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
         File file = new File(mPlaylistPathField.getText());
         if (file.exists())
             return true;

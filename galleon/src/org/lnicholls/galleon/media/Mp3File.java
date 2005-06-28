@@ -326,13 +326,13 @@ public final class Mp3File {
 
         try {
             secondPass(file, audio);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             Tools.logException(Mp3File.class, ex, filename);
         }
 
         try {
             thirdPass(file, audio);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             Tools.logException(Mp3File.class, ex, filename);
         }
 
@@ -340,7 +340,7 @@ public final class Mp3File {
             String value = Tools.trimSuffix(file.getName());
             Pattern pattern = Pattern.compile("(.*) - (.*)");
             Matcher matcher = pattern.matcher(value);
-            if (matcher.matches()) {
+            if (matcher!=null && matcher.matches()) {
                 audio.setArtist(matcher.group(1));
                 audio.setTitle(matcher.group(2));
             } else
@@ -745,8 +745,9 @@ public final class Mp3File {
             frames.mark(size);
             frames.read(bframes);
             frames.reset();
-        } catch (IOException ex) {
+        } catch (Throwable ex) {
             Tools.logException(Mp3File.class, ex, "Cannot parse ID3v2");
+            return;
         }
 
         try {
@@ -775,7 +776,7 @@ public final class Mp3File {
                     //System.out.println("Album cover art found");
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             Tools.logException(Mp3File.class, ex, "Cannot parse ID3v2");
         }
     }
@@ -785,7 +786,7 @@ public final class Mp3File {
         try {
             String[] ENC_TYPES = { "ISO-8859-1", "UTF16", "UTF-16BE", "UTF-8" };
             value = new String(bframes, offset + skip, size - skip, ENC_TYPES[bframes[offset]]);
-        } catch (Exception ex) { //UnsupportedEncodingException
+        } catch (Throwable ex) { //UnsupportedEncodingException
             Tools.logException(Mp3File.class, ex, "ID3v2 Encoding error");
         }
         return value;

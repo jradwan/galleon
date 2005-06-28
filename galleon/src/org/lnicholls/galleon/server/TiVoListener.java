@@ -17,21 +17,17 @@ package org.lnicholls.galleon.server;
  */
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.net.*;
 
 import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceTypeListener;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.util.ReloadCallback;
-import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 
 public class TiVoListener implements ServiceListener, ServiceTypeListener {
@@ -55,66 +51,46 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
             ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
             String address = serverConfiguration.getIPAddress();
             InetAddress inetAddress = InetAddress.getLocalHost();
-            if (address != null && address.length() > 0)
+            if (address!=null && address.length()>0)
                 inetAddress = InetAddress.getByName(address);
             
-            final JmDNS jmdns = new JmDNS(inetAddress);
+            JmDNS jmdns = new JmDNS(inetAddress);
             jmdns.addServiceListener(HTTP_SERVICE, this);
-            log.debug("Interface: " + jmdns.getInterface());
-            
-            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-                public void reload() {
-                    try {
-                        Set keys = mServices.keySet();
-                        Iterator iterator = keys.iterator();
-                        while (iterator.hasNext())
-                        {
-                            String service = (String)iterator.next();
-                            log.debug("refresh service request: "+service);
-                            ServiceEvent event = (ServiceEvent)mServices.get(service);
-                            jmdns.requestServiceInfo(event.getType(), event.getName());
-                        }
-                    } catch (Exception ex) {
-                        log.error("Could not refresh services", ex);
-                    }
-                }
-            }), 15);
-            
+            log.debug("Interface: "+jmdns.getInterface());
         } catch (IOException ex) {
             Tools.logException(TiVoListener.class, ex);
         }
     }
 
-    public void serviceAdded(ServiceEvent event) {
-        JmDNS jmdns = event.getDNS();
-        String type = event.getType();
-        String name = event.getName();
+    public void addService(JmDNS jmdns, String type, String name) {
+        if (name.endsWith("." + type)) {
+            name = name.substring(0, name.length() - (type.length() + 1));
+        }
         log.debug("addService: " + name);
 
-        jmdns.requestServiceInfo(type, name);
-        mServices.put(name,event);
+        ServiceInfo service = jmdns.getServiceInfo(type, name);
+        if (service == null) {
+            log.error("Service not found: " + type + " (" + name + ")");
+        } else {
+            if (!name.endsWith(".")) {
+                name = name + "." + type;
+            }
+            jmdns.requestServiceInfo(type, name);
+        }
     }
 
-    public void serviceRemoved(ServiceEvent event) {
-        JmDNS jmdns = event.getDNS();
-        String type = event.getType();
-        String name = event.getName();
+    public void removeService(JmDNS jmdns, String type, String name) {
+        if (name.endsWith("." + type)) {
+            name = name.substring(0, name.length() - (type.length() + 1));
+        }
         log.debug("removeService: " + name);
-        mServices.remove(name);
     }
 
-    public void serviceTypeAdded(ServiceEvent event) {
-        JmDNS jmdns = event.getDNS();
-        String type = event.getType();
-        String name = event.getName();
+    public void addServiceType(JmDNS jmdns, String type) {
         log.debug("addServiceType: " + type);
     }
 
-    public void serviceResolved(ServiceEvent event) {
-        JmDNS jmdns = event.getDNS();
-        String type = event.getType();
-        String name = event.getName();
-        ServiceInfo info = event.getInfo();
+    public void resolveService(JmDNS jmdns, String type, String name, ServiceInfo info) {
         log.debug("resolveService: " + type + " (" + name + ")");
 
         /*
@@ -123,73 +99,81 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
          */
 
         if (type.equals(HTTP_SERVICE)) {
-            boolean found = false;
-            TiVo tivo = new TiVo();
-            tivo.setName(name);
-            tivo.setServer(info.getServer());
-            tivo.setPort(info.getPort());
-            tivo.setAddress(info.getAddress().getHostAddress());
+            if (info == null) {
+                log.error("Service not found: " + type + "(" + name + ")");
+            } else {
+                boolean found = false;
+                TiVo tivo = new TiVo();
+                tivo.setName(name.substring(0, name.length() - (type.length() + 1)));
+                tivo.setServer(info.getServer());
+                tivo.setPort(info.getPort());
+                tivo.setAddress(info.getAddress());
 
-            for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
-                String prop = (String) names.nextElement();
-                if (prop.equals(TIVO_PLATFORM)) {
-                    tivo.setPlatform(info.getPropertyString(prop));
-                    if (tivo.getPlatform().startsWith(TIVO_PLATFORM_PREFIX))
-                        found = true;
-                } else if (prop.equals(TIVO_TSN)) {
-                    tivo.setServiceNumber(info.getPropertyString(prop));
-                } else if (prop.equals(TIVO_SW_VERSION)) {
-                    tivo.setSoftwareVersion(info.getPropertyString(prop));
-                } else if (prop.equals(TIVO_PATH)) {
-                    tivo.setPath(info.getPropertyString(prop));
-                }
-            }
-
-            if (found) {
-                List tivos = Server.getServer().getTiVos();
-                boolean matched = false;
-                Iterator iterator = tivos.iterator();
-                while (iterator.hasNext()) {
-                    TiVo knownTiVo = (TiVo) iterator.next();
-                    if (knownTiVo.getAddress().equals(tivo.getAddress())) {
-                        matched = true;
-                        boolean modified = false;
-                        if (!tivo.getPlatform().equals(knownTiVo.getPlatform())) {
-                            knownTiVo.setPlatform(tivo.getPlatform());
-                            modified = true;
-                        }
-                        if (!tivo.getServiceNumber().equals(knownTiVo.getServiceNumber())) {
-                            knownTiVo.setServiceNumber(tivo.getServiceNumber());
-                            modified = true;
-                        }
-                        if (!tivo.getSoftwareVersion().equals(knownTiVo.getSoftwareVersion())) {
-                            knownTiVo.setSoftwareVersion(tivo.getSoftwareVersion());
-                            modified = true;
-                        }
-                        if (!tivo.getPath().equals(knownTiVo.getPath())) {
-                            knownTiVo.setPath(tivo.getPath());
-                            modified = true;
-                        }
-                        if (!tivo.getServer().equals(knownTiVo.getServer())) {
-                            knownTiVo.setServer(tivo.getServer());
-                            modified = true;
-                        }
-                        if (tivo.getPort() != knownTiVo.getPort()) {
-                            knownTiVo.setPort(tivo.getPort());
-                            modified = true;
-                        }
-                        if (modified)
-                            Server.getServer().updateTiVos(tivos);
+                for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
+                    String prop = (String) names.nextElement();
+                    if (prop.equals(TIVO_PLATFORM)) {
+                        tivo.setPlatform(info.getPropertyString(prop));
+                        if (tivo.getPlatform().startsWith(TIVO_PLATFORM_PREFIX))
+                            found = true;
+                    } else if (prop.equals(TIVO_TSN)) {
+                        tivo.setServiceNumber(info.getPropertyString(prop));
+                    } else if (prop.equals(TIVO_SW_VERSION)) {
+                        tivo.setSoftwareVersion(info.getPropertyString(prop));
+                    } else if (prop.equals(TIVO_PATH)) {
+                        tivo.setPath(info.getPropertyString(prop));
                     }
                 }
-                if (!matched) {
-                    tivos.add(tivo);
-                    Server.getServer().updateTiVos(tivos);
-                    log.info("Found TiVo: " + tivo.toString());
+
+                if (found) {
+                    List tivos = Server.getServer().getTiVos();
+                    boolean matched = false;
+                    Iterator iterator = tivos.iterator();
+                    while (iterator.hasNext()) {
+                        TiVo knownTiVo = (TiVo) iterator.next();
+                        if (knownTiVo.getAddress().equals(tivo.getAddress())) {
+                            matched = true;
+                            boolean modified = false;
+                            if (!tivo.getPlatform().equals(knownTiVo.getPlatform()))
+                            {
+                                knownTiVo.setPlatform(tivo.getPlatform());
+                                modified = true;
+                            }
+                            if (!tivo.getServiceNumber().equals(knownTiVo.getServiceNumber()))
+                            {
+                                knownTiVo.setServiceNumber(tivo.getServiceNumber());
+                                modified = true;
+                            }
+                            if (!tivo.getSoftwareVersion().equals(knownTiVo.getSoftwareVersion()))
+                            {
+                                knownTiVo.setSoftwareVersion(tivo.getSoftwareVersion());
+                                modified = true;
+                            }
+                            if (!tivo.getPath().equals(knownTiVo.getPath()))
+                            {
+                                knownTiVo.setPath(tivo.getPath());
+                                modified = true;
+                            }
+                            if (!tivo.getServer().equals(knownTiVo.getServer()))
+                            {
+                                knownTiVo.setServer(tivo.getServer());
+                                modified = true;
+                            }
+                            if (tivo.getPort()!=knownTiVo.getPort())
+                            {
+                                knownTiVo.setPort(tivo.getPort());
+                                modified = true;
+                            }
+                            if (modified)
+                                Server.getServer().updateTiVos(tivos);
+                        }
+                    }
+                    if (!matched) {
+                        tivos.add(tivo);
+                        Server.getServer().updateTiVos(tivos);
+                        log.info("Found TiVo: " + tivo.toString());
+                    }
                 }
             }
         }
     }
-    
-    private HashMap mServices = new HashMap();
 }

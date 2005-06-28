@@ -62,7 +62,7 @@ public class Server {
         mServer = this;
 
         try {
-            System.out.println("Galleon is starting...");
+            System.out.println("Galleon " + Tools.getVersion() +" is starting...");
 
             ArrayList errors = new ArrayList();
             setup(errors);
@@ -268,6 +268,7 @@ public class Server {
             mRegistry.bind("serverControl", new ServerControlImpl());
 
             System.out.println("Galleon is ready.");
+            mReady = true;
 
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
@@ -476,37 +477,51 @@ public class Server {
     }
 
     public synchronized void scheduleLongTerm(TimerTask task, long time) {
+        if (mReady)
+            scheduleLongTerm(task, 0, time);
+        else
+            scheduleLongTerm(task, 360, time);
+    }
+    
+    public synchronized void scheduleLongTerm(TimerTask task, long delay, long time) {
         if (log.isDebugEnabled())
             log.debug("Server schedule long term: " + task + " for " + time);
         if (time <= 0)
             time = getReload();
         try {
-            mLongTermTimer.schedule(task, 1000 * 60, time * 1000 * 60);
+            mLongTermTimer.schedule(task, 1000 * delay, time * 1000 * 60);
         } catch (IllegalStateException ex) {
             Tools.logException(Server.class, ex);
             // Try again...
             reset();
             try {
-                mLongTermTimer.schedule(task, 1000 * 120, time * 1000 * 60);
+                mLongTermTimer.schedule(task, 1000 * delay * 2, time * 1000 * 60);
             } catch (IllegalStateException ex2) {
                 Tools.logException(Server.class, ex2);
             }
         }
     }
-
+    
     public synchronized void scheduleShortTerm(TimerTask task, long time) {
+        if (mReady)
+            scheduleShortTerm(task, 0, time);
+        else
+            scheduleShortTerm(task, 120, time);
+    }
+
+    public synchronized void scheduleShortTerm(TimerTask task, long delay, long time) {
         if (log.isDebugEnabled())
             log.debug("Server schedule short term: " + task + " for " + time);
         if (time <= 0)
             time = getReload();
         try {
-            mShortTermTimer.schedule(task, 1000 * 30, time * 1000 * 60);
+            mShortTermTimer.schedule(task, 1000 * delay, time * 1000 * 60);
         } catch (IllegalStateException ex) {
             Tools.logException(Server.class, ex);
             // Try again...
             reset();
             try {
-                mShortTermTimer.schedule(task, 1000 * 60, time * 1000 * 60);
+                mShortTermTimer.schedule(task, 1000 * delay * 2, time * 1000 * 60);
             } catch (IllegalStateException ex2) {
                 Tools.logException(Server.class, ex2);
             }
@@ -764,4 +779,6 @@ public class Server {
     private static Skin mSkin;
 
     private static boolean mStartMain;
+    
+    private static boolean mReady;
 }

@@ -103,7 +103,7 @@ public class Photos extends DefaultApplication {
             File file = new File(trackerContext);
             if (file.exists()) {
                 FileSystemContainer fileSystemContainer = new FileSystemContainer(trackerContext);
-                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+                Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
                 setTracker(tracker);
             } else {
                 List files = new ArrayList();
@@ -150,7 +150,7 @@ public class Photos extends DefaultApplication {
                 FileItem nameFile = new FileItem(nameValue.getName(), file);
                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
                 setCurrentTrackerContext(file.getCanonicalPath());
-                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.imageDirectoryFilter), 0);
+                Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.imageDirectoryFilter), 0);
                 PathScreen pathScreen = new PathScreen(this, tracker, true);
                 push(pathScreen, TRANSITION_LEFT);
                 flush();
@@ -189,7 +189,7 @@ public class Photos extends DefaultApplication {
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                         .getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
-                                        .getItems(FileFilters.imageDirectoryFilter), 0);
+                                        .getItemsSorted(FileFilters.imageDirectoryFilter), 0);
                                 PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
@@ -379,7 +379,7 @@ public class Photos extends DefaultApplication {
                                     FileSystemContainer fileSystemContainer = new FileSystemContainer(file
                                             .getCanonicalPath());
                                     Tracker tracker = new Tracker(fileSystemContainer
-                                            .getItems(FileFilters.imageDirectoryFilter), 0);
+                                            .getItemsSorted(FileFilters.imageDirectoryFilter), 0);
                                     PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
                                     getBApp().push(pathScreen, TRANSITION_LEFT);
                                     getBApp().flush();
@@ -424,7 +424,7 @@ public class Photos extends DefaultApplication {
 
                                 File file = (File) nameFile.getValue();
                                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-                                        .getCanonicalPath());
+                                        .getCanonicalPath(), true);
                                 Tracker tracker = new Tracker(fileSystemContainer
                                         .getItems(FileFilters.imageDirectoryFilter), 0);
                                 getBApp().push(new SlideshowScreen((Photos) getBApp(), tracker), TRANSITION_LEFT);
@@ -926,8 +926,8 @@ public class Photos extends DefaultApplication {
                                         scaled = null;
                                     }
                                 }
-                            } catch (Exception ex) {
-                                Tools.logException(Photos.class, ex, "Could retrieve image");
+                            } catch (Throwable ex) {
+                                Tools.logException(Photos.class, ex, "Could not retrieve image: "+file.getAbsolutePath());
                             }
                         }
                     }.start();

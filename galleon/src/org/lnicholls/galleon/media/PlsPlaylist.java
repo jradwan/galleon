@@ -33,6 +33,7 @@ import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 
 /*
  * .pls Playlists of audio files and URLs.
@@ -171,7 +172,10 @@ public class PlsPlaylist extends Playlist {
                 mItems.add(new FileItem(plsEntry.title, new File(audio.getPath())));
             }
             */
-            mItems.add(new FileItem(plsEntry.title, getFile(playlist, plsEntry.file)));
+            if (!plsEntry.file.startsWith("http"))
+                mItems.add(new FileItem(plsEntry.title, getFile(playlist, plsEntry.file)));
+            else
+                mItems.add(new Item(plsEntry.title, plsEntry.file));
         }
     }
 

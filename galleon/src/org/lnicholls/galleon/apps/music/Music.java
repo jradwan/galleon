@@ -20,6 +20,8 @@ import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,6 +40,7 @@ import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
+import org.lnicholls.galleon.util.FileSorters.SortCollator;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
@@ -49,6 +52,7 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -103,7 +107,7 @@ public class Music extends DefaultApplication {
                 FileItem nameFile = new FileItem(nameValue.getName(), file);
                 FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
                 setCurrentTrackerContext(file.getCanonicalPath());
-                Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+                Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
                 PathScreen pathScreen = new PathScreen(this, tracker, true);
                 push(pathScreen, TRANSITION_LEFT);
             } catch (Exception ex) {
@@ -142,7 +146,7 @@ public class Music extends DefaultApplication {
                                         .getCanonicalPath());
                                 ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                 Tracker tracker = new Tracker(fileSystemContainer
-                                        .getItems(FileFilters.audioDirectoryFilter), 0);
+                                        .getItemsSorted(FileFilters.audioDirectoryFilter), 0);
                                 PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
@@ -215,7 +219,7 @@ public class Music extends DefaultApplication {
                                             .getCanonicalPath());
                                     ((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
                                     Tracker tracker = new Tracker(fileSystemContainer
-                                            .getItems(FileFilters.audioDirectoryFilter), 0);
+                                            .getItemsSorted(FileFilters.audioDirectoryFilter), 0);
                                     PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
                                     getBApp().push(pathScreen, TRANSITION_LEFT);
                                     getBApp().flush();
@@ -229,10 +233,13 @@ public class Music extends DefaultApplication {
                             try {
                                 File file = (File) nameFile.getValue();
                                 Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
-                                Tracker tracker = new Tracker(playlist.getList(), 0);
-                                PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
-                                getBApp().push(pathScreen, TRANSITION_LEFT);
-                                getBApp().flush();
+                                if (playlist!=null && playlist.getList()!=null)
+                                {
+                                    Tracker tracker = new Tracker(playlist.getList(), 0);
+                                    PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
+                                    getBApp().push(pathScreen, TRANSITION_LEFT);
+                                    getBApp().flush();
+                                }
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -282,7 +289,29 @@ public class Music extends DefaultApplication {
                                 }
                             }
                         }.start();
-                    } else {
+                    } else 
+                        if (nameFile.isPlaylist()) {
+                            new Thread() {
+                                public void run() {
+                                    try {
+                                        mTracker.setPos(mMenuList.getFocus());
+                                        File file = (File) nameFile.getValue();
+                                        Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
+                                        if (playlist!=null && playlist.getList()!=null)
+                                        {
+                                            Tracker tracker = new Tracker(playlist.getList(), 0);
+                                            MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                                                    .getMusicPlayerConfiguration();
+                                            tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+                                            getBApp().push(new PlayerScreen((Music) getBApp(), tracker), TRANSITION_LEFT);
+                                            getBApp().flush();
+                                        }
+                                    } catch (Exception ex) {
+                                        Tools.logException(Music.class, ex);
+                                    }
+                                }
+                            }.start();
+                        } else {                        
                         new Thread() {
                             public void run() {
                                 try {
@@ -991,7 +1020,7 @@ public class Music extends DefaultApplication {
         }
 
         public void run() {
-            while (true) {
+            while (getApp().getContext()!=null) {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {

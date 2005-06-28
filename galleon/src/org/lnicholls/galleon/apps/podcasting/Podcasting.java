@@ -1325,11 +1325,20 @@ public class Podcasting extends DefaultApplication {
                 }
                 else if (podcastTrack.getStatus() == PodcastTrack.STATUS_QUEUED
                         || podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADING)
+                {
                     list.set(0, "Cancel download");
+                    list.set(1, "Don't do anything");
+                }
                 else if (podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADED)
+                {
                     list.set(0, "Play");
+                    list.set(1, "Don't do anything");
+                }
                 else
+                {
                     list.set(0, "Download");
+                    list.set(1, "Don't do anything");
+                }
                 getBApp().flush();
             } catch (Exception ex) {
                 Tools.logException(Podcasting.class, ex);
@@ -1717,7 +1726,7 @@ public class Podcasting extends DefaultApplication {
         }
 
         public void run() {
-            while (true) {
+            while (getApp().getContext()!=null) {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {

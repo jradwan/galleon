@@ -115,7 +115,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 
         builder.addLabel("Name", cc.xy(1, 1));
         builder.add(mNameField, cc.xy(3, 1));
-        builder.addLabel("IP Address", cc.xy(1, 3));
+        builder.addLabel("TiVo IP Address", cc.xy(1, 3));
         builder.add(mAddressField, cc.xy(3, 3));
         builder.addLabel("Capacity (GB)", cc.xy(1, 5));
         builder.add(mCapacityField, cc.xy(3, 5));

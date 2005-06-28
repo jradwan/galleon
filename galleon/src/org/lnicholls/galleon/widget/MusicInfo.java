@@ -116,9 +116,8 @@ public class MusicInfo extends BView {
             mStars[i].setLocation(0 + (i * 40), 160, mAnim);
         }
     }
-    
-    public Audio getAudio()
-    {
+
+    public Audio getAudio() {
         return mAudio;
     }
 
@@ -167,9 +166,8 @@ public class MusicInfo extends BView {
                 }
 
                 setRating(audio);
-                
-                if (mAudio!=null)
-                {
+
+                if (mAudio != null) {
                     if (!audio.getArtist().equals(mAudio.getArtist())) {
                         if (mResults != null) {
                             mResults.clear();
@@ -178,7 +176,7 @@ public class MusicInfo extends BView {
                     }
                 }
 
-                if (mAudio == null || !audio.getId().equals(mAudio.getId())) {
+                if (mAudio == null || audio.getId()==null || !audio.getId().equals(mAudio.getId())) {
                     clearCover();
 
                     if (mCoverThread != null && mCoverThread.isAlive()) {
@@ -202,9 +200,7 @@ public class MusicInfo extends BView {
                                             mCover.setTransparency(0.0f, mAnim);
                                             getBApp().flush();
                                         }
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         synchronized (this) {
                                             mCover.clearResource();
                                             mCover.setVisible(false);
@@ -215,9 +211,9 @@ public class MusicInfo extends BView {
                                     Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
                                 }
 
-                                try {
-                                    while (mWebImages) {
-                                        if (mCover.getResource()!=null)
+                                while (mWebImages & getApp().getContext() != null) {
+                                    try {
+                                        if (mCover.getResource() != null)
                                             sleep(10000);
 
                                         synchronized (this) {
@@ -259,7 +255,9 @@ public class MusicInfo extends BView {
                                                     //mUrlText.setValue(nameValue.getName());
                                                     int x = mCover.getX();
                                                     int y = mCover.getY();
-                                                    mCover.setLocation(mCover.getX()+mCover.getWidth(),mCover.getY());
+                                                    mCover
+                                                            .setLocation(mCover.getX() + mCover.getWidth(), mCover
+                                                                    .getY());
                                                     mCover.setVisible(true);
                                                     mCover.setTransparency(1f);
                                                     mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
@@ -277,17 +275,18 @@ public class MusicInfo extends BView {
                                         }
 
                                         mPos = (mPos + 1) % mResults.size();
-                                    }
-                                } catch (Exception ex) {
-                                    Tools.logException(MusicInfo.class, ex, "Could not retrieve image");
-                                    try {
-                                        mResults.remove(mPos);
-                                    } catch (Throwable ex2) {
-                                    }
-                                    if (getApp().getContext()==null)
+
+                                    } catch (InterruptedException ex) {
                                         return;
-                                } finally {
-                                    getBApp().flush();
+                                    } catch (Exception ex) {
+                                        Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
+                                        try {
+                                            mResults.remove(mPos);
+                                        } catch (Throwable ex2) {
+                                        }
+                                    } finally {
+                                        getBApp().flush();
+                                    }
                                 }
                             }
 
@@ -300,7 +299,8 @@ public class MusicInfo extends BView {
                         mCoverThread.start();
                     }
                 }
-
+            } catch (Exception ex) {
+                Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
             } finally {
                 setPainting(true);
             }

@@ -326,11 +326,18 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
                                                 audio = (Audio) audios.get(0);
                                             } else {
                                                 audio = Mp3File.getAudio(file.getCanonicalPath());
-                                                AudioManager.createAudio(audio);
+                                                if (audio!=null)
+                                                {
+                                                    audio.setOrigen("Podcast");
+                                                    AudioManager.createAudio(audio);
+                                                }
                                             }
-                                            track.setTrack(audio);
-                                            track.setStatus(PodcastTrack.STATUS_DOWNLOADED);
-                                            PodcastManager.updatePodcast(podcast);
+                                            if (audio!=null)
+                                            {
+                                                track.setTrack(audio);
+                                                track.setStatus(PodcastTrack.STATUS_DOWNLOADED);
+                                                PodcastManager.updatePodcast(podcast);
+                                            }
                                         } catch (Exception ex) {
                                             Tools.logException(PodcastingThread.class, ex, "Track update failed");
                                         }

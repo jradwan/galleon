@@ -46,7 +46,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceTypeListener;
@@ -164,7 +163,7 @@ public class MainFrame extends JFrame {
                                 "Galleon Version "
                                         + Tools.getVersion()
                                         + "\nJava Version "+System.getProperty("java.vm.version")
-                                        + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\n\251 2005 Leon Nicholls. All Rights Reserved.",
+                                        + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\nCopyright \251 2005 Leon Nicholls. All Rights Reserved.",
                                 "About", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -215,7 +214,7 @@ public class MainFrame extends JFrame {
 
         panel.add(mainSplitPane, "Center");
 
-        JLabel statusField = new JLabel("\251 2005 Leon Nicholls");
+        JLabel statusField = new JLabel("Copyright \251 2005 Leon Nicholls");
         statusField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(statusField, "West");
@@ -651,7 +650,7 @@ public class MainFrame extends JFrame {
             builder.addSeparator("Network", cc.xyw(1, 19, 6));
             builder.addLabel("Port", cc.xy(1, 21));
             builder.add(mPort, cc.xy(3, 21));
-            builder.addLabel("IP Address", cc.xy(1, 23));
+            builder.addLabel("PC IP Address", cc.xy(1, 23));
             builder.add(mIPAddress, cc.xy(3, 23));
             button = new JButton("<< Test...");
             button.setActionCommand("network");
@@ -1098,56 +1097,62 @@ public class MainFrame extends JFrame {
                 }
             }
 
-            public void serviceAdded(ServiceEvent event) {
-                JmDNS jmdns = event.getDNS();
-                String type = event.getType();
-                String name = event.getName();
+            public void addService(JmDNS jmdns, String type, String name) {
+                if (name.endsWith("." + type)) {
+                    name = name.substring(0, name.length() - (type.length() + 1));
+                }
                 log.debug("addService: " + name);
-                jmdns.requestServiceInfo(type, name);
+
+                ServiceInfo service = jmdns.getServiceInfo(type, name);
+                if (service == null) {
+                    log.error("Service not found: " + type + " (" + name + ")");
+                } else {
+                    if (!name.endsWith(".")) {
+                        name = name + "." + type;
+                    }
+                    jmdns.requestServiceInfo(type, name);
+                }
             }
 
-            public void serviceRemoved(ServiceEvent event) {
-                JmDNS jmdns = event.getDNS();
-                String type = event.getType();
-                String name = event.getName();
+            public void removeService(JmDNS jmdns, String type, String name) {
+                if (name.endsWith("." + type)) {
+                    name = name.substring(0, name.length() - (type.length() + 1));
+                }
                 log.debug("removeService: " + name);
             }
 
-            public void serviceTypeAdded(ServiceEvent event) {
-                JmDNS jmdns = event.getDNS();
-                String type = event.getType();
-                String name = event.getName();
+            public void addServiceType(JmDNS jmdns, String type) {
                 log.debug("addServiceType: " + type);
             }
 
-            public void serviceResolved(ServiceEvent event) {
-                JmDNS jmdns = event.getDNS();
-                String type = event.getType();
-                String name = event.getName();
-                ServiceInfo info = event.getInfo();
+            public void resolveService(JmDNS jmdns, String type, String name, ServiceInfo info) {
                 log.debug("resolveService: " + type + " (" + name + ")");
 
                 if (type.equals(HTTP_SERVICE)) {
-                    for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
-                        String prop = (String) names.nextElement();
-                        if (prop.equals(TIVO_PLATFORM)) {
-                            if (info.getPropertyString(prop).startsWith(TIVO_PLATFORM_PREFIX)) {
-                                mFound = true;
+                    if (info == null) {
+                        log.error("Service not found: " + type + "(" + name + ")");
+                    } else {
+                        for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
+                            String prop = (String) names.nextElement();
+                            if (prop.equals(TIVO_PLATFORM)) {
+                                if (info.getPropertyString(prop).startsWith(TIVO_PLATFORM_PREFIX)) {
+                                    mFound = true;
+                                }
                             }
                         }
-                    }
 
-                    if (mFound) {
-                        mResultsField.setText((mResultsField.getText().equals("Searching...") ? "" : mResultsField
-                                .getText()
-                                + ", ")
-                                + name);
+                        if (mFound) {
+                            mResultsField.setText((mResultsField.getText().equals("Searching...") ? "" : mResultsField
+                                    .getText()
+                                    + ", ")
+                                    + name.substring(0, name.length() - (type.length() + 1)));
+                        }
                     }
                 }
             }
 
             public void stop() {
-                mJmDNS.removeServiceListener(HTTP_SERVICE, this);
+                mJmDNS.removeServiceListener(this);
             }
 
             public boolean found() {

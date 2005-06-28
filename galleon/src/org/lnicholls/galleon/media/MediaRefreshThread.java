@@ -98,7 +98,7 @@ public class MediaRefreshThread extends Thread {
             try {
                 AudioManager.scroll(new AudioManager.Callback() {
                     public void visit(Session session, Audio audio) {
-                        if (!audio.getPath().startsWith("http"))
+                        if (!audio.getPath().startsWith("http") && !(audio.getOrigen()!=null && audio.getOrigen().equals("Podcast")))
                         {
                             File file = new File(audio.getPath());
                             if (!file.exists()) {

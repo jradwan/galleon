@@ -134,10 +134,13 @@ public class Playlists extends DefaultApplication {
                         try {
                             File file = (File) nameFile.getValue();
                             Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
-                            Tracker tracker = new Tracker(playlist.getList(), 0);
-                            PathScreen pathScreen = new PathScreen((Playlists) getBApp(), tracker);
-                            getBApp().push(pathScreen, TRANSITION_LEFT);
-                            getBApp().flush();
+                            if (playlist!=null && playlist.getList()!=null)
+                            {
+                                Tracker tracker = new Tracker(playlist.getList(), 0);
+                                PathScreen pathScreen = new PathScreen((Playlists) getBApp(), tracker);
+                                getBApp().push(pathScreen, TRANSITION_LEFT);
+                                getBApp().flush();
+                            }
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -542,60 +545,64 @@ public class Playlists extends DefaultApplication {
             } catch (Exception ex) {
                 Tools.logException(Playlists.class, ex);
             }
-            if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
-                try {
-                    setPainting(false);
-                    mBusy.setVisible(false);
-                    getBApp().flush();
-                    scrollText.setVisible(true);
-                    scrollText.setText(audio.getLyrics());
-                    getBApp().flush();
-                } finally {
-                    setPainting(true);
-                }
-            } else {
-                final Audio lyricsAudio = audio;
-
-                mLyricsThread = new Thread() {
-                    public void run() {
-                        try {
-                            String lyrics = Lyrics.getLyrics(lyricsAudio.getTitle(), lyricsAudio.getArtist());
-                            if (lyrics == null || lyrics.trim().length() == 0) {
-                                lyrics = "Lyrics not found";
-                            } else {
-                                synchronized (this) {
-                                    try {
-                                        lyricsAudio.setLyrics(lyrics);
-                                        AudioManager.updateAudio(lyricsAudio);
-                                    } catch (Exception ex) {
-                                        Tools.logException(Playlists.class, ex, "Could not update lyrics");
+            
+            if (audio!=null)
+            {
+                if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
+                    try {
+                        setPainting(false);
+                        mBusy.setVisible(false);
+                        getBApp().flush();
+                        scrollText.setVisible(true);
+                        scrollText.setText(audio.getLyrics());
+                        getBApp().flush();
+                    } finally {
+                        setPainting(true);
+                    }
+                } else {
+                    final Audio lyricsAudio = audio;
+    
+                    mLyricsThread = new Thread() {
+                        public void run() {
+                            try {
+                                String lyrics = Lyrics.getLyrics(lyricsAudio.getTitle(), lyricsAudio.getArtist());
+                                if (lyrics == null || lyrics.trim().length() == 0) {
+                                    lyrics = "Lyrics not found";
+                                } else {
+                                    synchronized (this) {
+                                        try {
+                                            lyricsAudio.setLyrics(lyrics);
+                                            AudioManager.updateAudio(lyricsAudio);
+                                        } catch (Exception ex) {
+                                            Tools.logException(Playlists.class, ex, "Could not update lyrics");
+                                        }
                                     }
                                 }
-                            }
-                            synchronized (this) {
-                                try {
-                                    setPainting(false);
-                                    mBusy.setVisible(false);
-                                    getBApp().flush();
-                                    scrollText.setVisible(true);
-                                    scrollText.setText(lyrics);
-                                    getBApp().flush();
-                                } finally {
-                                    setPainting(true);
+                                synchronized (this) {
+                                    try {
+                                        setPainting(false);
+                                        mBusy.setVisible(false);
+                                        getBApp().flush();
+                                        scrollText.setVisible(true);
+                                        scrollText.setText(lyrics);
+                                        getBApp().flush();
+                                    } finally {
+                                        setPainting(true);
+                                    }
                                 }
+                            } catch (Exception ex) {
+                                Tools.logException(Playlists.class, ex, "Could retrieve lyrics");
                             }
-                        } catch (Exception ex) {
-                            Tools.logException(Playlists.class, ex, "Could retrieve lyrics");
                         }
-                    }
-
-                    public void interrupt() {
-                        synchronized (this) {
-                            super.interrupt();
+    
+                        public void interrupt() {
+                            synchronized (this) {
+                                super.interrupt();
+                            }
                         }
-                    }
-                };
-                mLyricsThread.start();
+                    };
+                    mLyricsThread.start();
+                }
             }
         }
 
@@ -852,7 +859,7 @@ public class Playlists extends DefaultApplication {
         }
 
         public void run() {
-            while (true) {
+            while (getApp().getContext()!=null) {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {

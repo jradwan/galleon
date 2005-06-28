@@ -1089,7 +1089,7 @@ public class MusicOrganizer extends DefaultApplication {
         }
 
         public void run() {
-            while (true) {
+            while (getApp().getContext()!=null) {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {

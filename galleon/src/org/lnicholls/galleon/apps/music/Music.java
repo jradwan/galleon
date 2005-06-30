@@ -231,6 +231,7 @@ public class Music extends DefaultApplication {
                     } else {
                         if (nameFile.isPlaylist()) {
                             try {
+                                mTracker.setPos(mMenuList.getFocus());
                                 File file = (File) nameFile.getValue();
                                 Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
                                 if (playlist!=null && playlist.getList()!=null)
@@ -599,8 +600,8 @@ public class Music extends DefaultApplication {
 
         public boolean handleKeyPress(int code, long rawcode) {
             if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (getTransparency() != 0.0f)
-                    setTransparency(0.0f);
+                if (mScreenSaver!=null)
+                    mScreenSaver.restore();
             }
             switch (code) {
             case KEY_INFO:
@@ -1024,7 +1025,9 @@ public class Music extends DefaultApplication {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f, getResource("*60000"));
+                        mPlayerScreen.setTransparency(0.9f);
+                        mPlayerScreen.getBelow().setResource(Color.BLACK);
+                        mPlayerScreen.flush();
                     }
                 } catch (InterruptedException ex) {
                     return;
@@ -1039,6 +1042,13 @@ public class Music extends DefaultApplication {
             synchronized (this) {
                 super.interrupt();
             }
+        }
+        
+        public void restore()
+        {
+            mPlayerScreen.setTransparency(0.0f);
+            mPlayerScreen.getBelow().setResource(mPlayerBackground);
+            mPlayerScreen.flush();
         }
 
         private PlayerScreen mPlayerScreen;

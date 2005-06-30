@@ -187,6 +187,9 @@ public class MusicInfo extends BView {
                     if (!audio.getPath().startsWith("http")) {
                         mCoverThread = new Thread() {
                             public void run() {
+                                int x = mCover.getX();
+                                int y = mCover.getY();
+                                
                                 try {
                                     MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                             .getMusicPlayerConfiguration();
@@ -253,11 +256,7 @@ public class MusicInfo extends BView {
                                                     if (mCover.getResource() != null)
                                                         mCover.getResource().remove();
                                                     //mUrlText.setValue(nameValue.getName());
-                                                    int x = mCover.getX();
-                                                    int y = mCover.getY();
-                                                    mCover
-                                                            .setLocation(mCover.getX() + mCover.getWidth(), mCover
-                                                                    .getY());
+                                                    mCover.setLocation(x + mCover.getWidth(), y);
                                                     mCover.setVisible(true);
                                                     mCover.setTransparency(1f);
                                                     mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);

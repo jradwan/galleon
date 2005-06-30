@@ -137,14 +137,27 @@ public class PlsPlaylist extends Playlist {
             plsEntry = (PlsEntry) i.next();
 
             // Only allow format: http://205.188.234.66:8010
-            /*
             Audio audio = null;
             if (plsEntry.file.startsWith("http")) {
                 try {
-                    audio = (Audio) MediaManager.getMedia(plsEntry.file);
+                    List list = AudioManager.findByPath(plsEntry.file);
+                    if (list!=null && list.size()>0)
+                    {
+                        audio = (Audio)list.get(0);
+                    }
                 } catch (Exception ex) {
                 }
-            } else {
+                
+                if (audio==null)
+                {
+                    try {
+                        audio = (Audio) MediaManager.getMedia(plsEntry.file);
+                    } catch (Exception ex) {
+                    }
+                }
+            } 
+            /*
+            else {
                 File file = getFile(playlist, plsEntry.file);
                 if (file != null) {
                     try {
@@ -153,6 +166,7 @@ public class PlsPlaylist extends Playlist {
                     }
                 }
             }
+            */
 
             if (audio != null) {
                 audio.setTrack(plsEntry.n);
@@ -169,9 +183,8 @@ public class PlsPlaylist extends Playlist {
                     Tools.logException(M3uPlaylist.class, ex);
                 }
 
-                mItems.add(new FileItem(plsEntry.title, new File(audio.getPath())));
+                //mItems.add(new FileItem(plsEntry.title, new File(audio.getPath())));
             }
-            */
             if (!plsEntry.file.startsWith("http"))
                 mItems.add(new FileItem(plsEntry.title, getFile(playlist, plsEntry.file)));
             else

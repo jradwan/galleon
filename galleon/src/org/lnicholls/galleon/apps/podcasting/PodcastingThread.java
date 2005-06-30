@@ -359,6 +359,11 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
             } // handle silently for waking up
             catch (Exception ex2) {
                 Tools.logException(PodcastingThread.class, ex2);
+                try
+                {
+                    sleep(1000 * 30);
+                }
+                catch (Exception ex){}
             }
         }
     }

@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.music.Music;
+import org.lnicholls.galleon.apps.music.Music.PlayerScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -48,6 +49,7 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -132,6 +134,7 @@ public class Playlists extends DefaultApplication {
                     final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
                     if (nameFile.isPlaylist()) {
                         try {
+                            mTracker.setPos(mMenuList.getFocus());
                             File file = (File) nameFile.getValue();
                             Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
                             if (playlist!=null && playlist.getList()!=null)
@@ -170,8 +173,17 @@ public class Playlists extends DefaultApplication {
                         public void run() {
                             try {
                                 mTracker.setPos(mMenuList.getFocus());
-                                getBApp().push(new PlayerScreen((Playlists) getBApp(), mTracker), TRANSITION_LEFT);
-                                getBApp().flush();
+                                File file = (File) nameFile.getValue();
+                                Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
+                                if (playlist!=null && playlist.getList()!=null)
+                                {
+                                    Tracker tracker = new Tracker(playlist.getList(), 0);
+                                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                                            .getMusicPlayerConfiguration();
+                                    tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+                                    getBApp().push(new PlayerScreen((Playlists) getBApp(), tracker), TRANSITION_LEFT);
+                                    getBApp().flush();
+                                }
                             } catch (Exception ex) {
                                 Tools.logException(Playlists.class, ex);
                             }
@@ -361,6 +373,8 @@ public class Playlists extends DefaultApplication {
             Tracker currentTracker = defaultApplication.getTracker();
             if (currentTracker != null && currentAudio != null) {
                 Item newItem = (Item) tracker.getList().get(tracker.getPos());
+                System.out.println(currentAudio.getPath());
+                System.out.println(newItem.getValue());
                 if (currentAudio.getPath().equals(newItem.getValue().toString())) {
                     mTracker = currentTracker;
                     sameTrack = true;
@@ -445,8 +459,8 @@ public class Playlists extends DefaultApplication {
 
         public boolean handleKeyPress(int code, long rawcode) {
             if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (getTransparency() != 0.0f)
-                    setTransparency(0.0f);
+                if (mScreenSaver!=null)
+                    mScreenSaver.restore();
             }
             switch (code) {
             case KEY_INFO:
@@ -863,12 +877,14 @@ public class Playlists extends DefaultApplication {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f, getResource("*60000"));
+                        mPlayerScreen.setTransparency(0.9f);
+                        mPlayerScreen.getBelow().setResource(Color.BLACK);
+                        mPlayerScreen.flush();
                     }
                 } catch (InterruptedException ex) {
                     return;
                 } catch (Exception ex2) {
-                    Tools.logException(Playlists.class, ex2);
+                    Tools.logException(Music.class, ex2);
                     break;
                 }
             }
@@ -878,6 +894,13 @@ public class Playlists extends DefaultApplication {
             synchronized (this) {
                 super.interrupt();
             }
+        }
+        
+        public void restore()
+        {
+            mPlayerScreen.setTransparency(0.0f);
+            mPlayerScreen.getBelow().setResource(mPlayerBackground);
+            mPlayerScreen.flush();
         }
 
         private PlayerScreen mPlayerScreen;

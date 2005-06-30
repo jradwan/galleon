@@ -461,7 +461,7 @@ public class Tools {
         String version = Constants.CURRENT_VERSION.getMajor() + "." + Constants.CURRENT_VERSION.getRelease() + "."
                 + Constants.CURRENT_VERSION.getMaintenance();
         if (Constants.CURRENT_VERSION.getDevelopment() != 0)
-            return version + " beta " + Constants.CURRENT_VERSION.getDevelopment();
+            return version + " RC " + Constants.CURRENT_VERSION.getDevelopment();
         else
             return version;
     }

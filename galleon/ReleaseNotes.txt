@@ -1,6 +1,12 @@
 Galleon
 -------
 
+Version 1.0.0:
+----------------------
+Fixed playlist app play bug.
+Changed screensaver.
+
+
 Version 0.0.0 beta 13:
 ----------------------
 Fixed music sorting.

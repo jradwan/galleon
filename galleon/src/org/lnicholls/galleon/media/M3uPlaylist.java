@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
@@ -106,17 +107,29 @@ public class M3uPlaylist extends Playlist {
                     if (log.isDebugEnabled())
                         log.debug("PlaylistItem: " + name + "=" + inputLine);
 
-                    /*
                     Audio audio = null;
 
                     // Handle urls
                     if (inputLine.startsWith("http")) {
                         try {
-                            audio = (Audio) MediaManager.getMedia(inputLine);
+                            List list = AudioManager.findByPath(inputLine);
+                            if (list!=null && list.size()>0)
+                            {
+                                audio = (Audio)list.get(0);
+                            }
                         } catch (Exception ex) {
+                        }
+                        
+                        if (audio==null)
+                        {
+                            try {
+                                audio = (Audio) MediaManager.getMedia(inputLine);
+                            } catch (Exception ex) {
+                            }
                         }
                     }
                     // Handle files
+                    /*
                     else {
                         File file = getFile(playlist, inputLine);
                         if (file != null) {
@@ -126,6 +139,7 @@ public class M3uPlaylist extends Playlist {
                             }
                         }
                     }
+                    */
 
                     if (audio != null) {
                         audio.setTitle(name);
@@ -150,12 +164,13 @@ public class M3uPlaylist extends Playlist {
                             Tools.logException(M3uPlaylist.class, ex);
                         }
 
+                        /*
                         if (audio.getPath().startsWith("http"))
                             mItems.add(new Item(name, audio.getPath()));
                         else
                             mItems.add(new FileItem(name, new File(audio.getPath())));
+                            */
                     }
-                    */
                     if (inputLine.startsWith("http"))
                         mItems.add(new Item(name, inputLine));
                     else

@@ -509,7 +509,10 @@ public class DefaultApplication extends BApplication {
         if (audio == null) {
             try {
                 audio = (Audio) MediaManager.getMedia(path);
-                AudioManager.createAudio(audio);
+                if (audio!=null)
+                {
+                    AudioManager.createAudio(audio);
+                }
             } catch (Exception ex) {
                 Tools.logException(DefaultApplication.class, ex);
             }

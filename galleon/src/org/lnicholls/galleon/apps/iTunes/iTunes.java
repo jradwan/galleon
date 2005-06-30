@@ -29,6 +29,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
+import org.lnicholls.galleon.apps.music.Music.PlayerScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -608,8 +610,8 @@ public class iTunes extends DefaultApplication {
 
         public boolean handleKeyPress(int code, long rawcode) {
             if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (getTransparency() != 0.0f)
-                    setTransparency(0.0f);
+                if (mScreenSaver!=null)
+                    mScreenSaver.restore();
             }
             switch (code) {
             case KEY_INFO:
@@ -1033,12 +1035,14 @@ public class iTunes extends DefaultApplication {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f, getResource("*60000"));
+                        mPlayerScreen.setTransparency(0.9f);
+                        mPlayerScreen.getBelow().setResource(Color.BLACK);
+                        mPlayerScreen.flush();
                     }
                 } catch (InterruptedException ex) {
                     return;
                 } catch (Exception ex2) {
-                    Tools.logException(iTunes.class, ex2);
+                    Tools.logException(Music.class, ex2);
                     break;
                 }
             }
@@ -1048,6 +1052,13 @@ public class iTunes extends DefaultApplication {
             synchronized (this) {
                 super.interrupt();
             }
+        }
+        
+        public void restore()
+        {
+            mPlayerScreen.setTransparency(0.0f);
+            mPlayerScreen.getBelow().setResource(mPlayerBackground);
+            mPlayerScreen.flush();
         }
 
         private PlayerScreen mPlayerScreen;

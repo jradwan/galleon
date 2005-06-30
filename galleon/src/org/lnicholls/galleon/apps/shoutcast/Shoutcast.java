@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.music.Music;
+import org.lnicholls.galleon.apps.music.Music.PlayerScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -531,8 +532,8 @@ public class Shoutcast extends DefaultApplication {
 
         public boolean handleKeyPress(int code, long rawcode) {
             if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (getTransparency() != 0.0f)
-                    setTransparency(0.0f);
+                if (mScreenSaver!=null)
+                    mScreenSaver.restore();
             }
             return super.handleKeyPress(code, rawcode);
         }
@@ -934,12 +935,14 @@ public class Shoutcast extends DefaultApplication {
                 try {
                     sleep(1000 * 5 * 60);
                     synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f, getResource("*60000"));
+                        mPlayerScreen.setTransparency(0.9f);
+                        mPlayerScreen.getBelow().setResource(Color.BLACK);
+                        mPlayerScreen.flush();
                     }
                 } catch (InterruptedException ex) {
                     return;
                 } catch (Exception ex2) {
-                    Tools.logException(Shoutcast.class, ex2);
+                    Tools.logException(Music.class, ex2);
                     break;
                 }
             }
@@ -949,6 +952,13 @@ public class Shoutcast extends DefaultApplication {
             synchronized (this) {
                 super.interrupt();
             }
+        }
+        
+        public void restore()
+        {
+            mPlayerScreen.setTransparency(0.0f);
+            mPlayerScreen.getBelow().setResource(mPlayerBackground);
+            mPlayerScreen.flush();
         }
 
         private PlayerScreen mPlayerScreen;

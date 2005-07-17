@@ -326,25 +326,38 @@ public class AppFactory extends Factory {
 
     private Listener getSharedListener() {
         if (mListener == null) {
-            try {
+        	String arguments = "";
+        	try {
                 ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
-                String arguments = "";
                 if (serverConfiguration.getIPAddress() != null
                         && serverConfiguration.getIPAddress().trim().length() > 0) {
                     arguments = "-i " + serverConfiguration.getIPAddress();
                 }
                 if (serverConfiguration.getPort() != 0) {
                     arguments = arguments + (arguments.length() == 0 ? "" : " ") + "-port "
-                            + serverConfiguration.getPort();
+                            + Server.getServer().getPort();
                 }
                 log.debug("arguments: " + arguments);
                 ArgumentList argumentList = new ArgumentList(arguments);
-                mListener = new Listener(argumentList);
+                mListener = new Listener(argumentList, Server.getServer().getPort());
             } catch (Exception ex) {
-                Tools.logException(AppFactory.class, ex);
+                Tools.logException(AppFactory.class, ex, arguments);
+                try
+                {
+                    mListener = new Listener(new ArgumentList(""), Server.getServer().getPort());
+                }
+                catch (Exception ex2)
+                {
+                	Tools.logException(AppFactory.class, ex2);	
+                }
             }
         }
         return mListener;
+    }
+    
+    public Listener getListener()
+    {
+    	return mListener;
     }
 
     private AppManager mAppManager;

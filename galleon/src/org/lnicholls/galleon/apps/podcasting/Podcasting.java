@@ -59,6 +59,7 @@ import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.winamp.WinampPlayer;
+import org.lnicholls.galleon.widget.ScreenSaver;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -1608,8 +1609,8 @@ public class Podcasting extends DefaultApplication {
                             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                     .getMusicPlayerConfiguration();
                             if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
-                                        BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker, false);
+                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
+                                        BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
                             else
                                 player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
                                         PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
@@ -1647,8 +1648,12 @@ public class Podcasting extends DefaultApplication {
                     setFocus(player);
                     mBusy.setVisible(false);
 
-                    mScreenSaver = new ScreenSaver(PlayerScreen.this);
-                    mScreenSaver.start();
+                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+                    if (musicPlayerConfiguration.isScreensaver())
+                    {
+                        mScreenSaver = new ScreenSaver(PlayerScreen.this);
+                        mScreenSaver.start();
+                    }
                     getBApp().flush();
                 }
 
@@ -1683,10 +1688,8 @@ public class Podcasting extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (mScreenSaver!=null)
-                    mScreenSaver.restore();
-            }
+            if (mScreenSaver!=null)
+                mScreenSaver.handleKeyPress(code, rawcode);
             return super.handleKeyPress(code, rawcode);
         }
 
@@ -1720,45 +1723,6 @@ public class Podcasting extends DefaultApplication {
             }
         }
         return audio;
-    }
-
-    private class ScreenSaver extends Thread {
-        public ScreenSaver(PlayerScreen playerScreen) {
-            mPlayerScreen = playerScreen;
-        }
-
-        public void run() {
-            while (getApp().getContext()!=null) {
-                try {
-                    sleep(1000 * 5 * 60);
-                    synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f);
-                        mPlayerScreen.getBelow().setResource(Color.BLACK);
-                        mPlayerScreen.flush();
-                    }
-                } catch (InterruptedException ex) {
-                    return;
-                } catch (Exception ex2) {
-                    Tools.logException(Music.class, ex2);
-                    break;
-                }
-            }
-        }
-
-        public void interrupt() {
-            synchronized (this) {
-                super.interrupt();
-            }
-        }
-        
-        public void restore()
-        {
-            mPlayerScreen.setTransparency(0.0f);
-            mPlayerScreen.getBelow().setResource(mPlayerBackground);
-            mPlayerScreen.flush();
-        }
-
-        private PlayerScreen mPlayerScreen;
     }
 
     private static String cleanHTML(String data) {

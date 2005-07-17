@@ -61,6 +61,8 @@ import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.WinampPlayer;
+import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -146,7 +148,7 @@ public class iTunes extends DefaultApplication {
             iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getContext().getFactory())
                     .getAppContext().getConfiguration();
 
-            mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 20, BODY_WIDTH, 20);
+            mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, 20);
             mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
             mCountText.setFont("default-18.font");
             mCountText.setColor(Color.GREEN);
@@ -210,6 +212,36 @@ public class iTunes extends DefaultApplication {
                     return true;
                 }
             }
+            else if (action.equals("play")) {
+                load();
+                new Thread() {
+                    public void run() {
+                        try {
+                        	FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
+                            List playlists = PlaylistManager.findByTitle((String) nameFile.getValue());
+                            if (playlists != null && playlists.size() > 0) {
+                                Playlist playlist = (Playlist) playlists.get(0);
+                                ArrayList list = new ArrayList();
+                                Iterator iterator = playlist.getTracks().iterator();
+                                while (iterator.hasNext()) {
+                                    PlaylistTrack track = (PlaylistTrack) iterator.next();
+                                    list.add(new FileItem(track.getTrack().getTitle(), new File(track.getTrack()
+                                            .getPath())));
+                                }
+                                Tracker tracker = new Tracker(list, 0);
+                                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+                                tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+                                PathScreen pathScreen = new PathScreen((iTunes) getBApp(), tracker);
+                                getBApp().push(new PlayerScreen((iTunes) getBApp(), tracker), TRANSITION_LEFT);
+                                getBApp().flush();
+                            }
+                        } catch (Exception ex) {
+                            Tools.logException(Music.class, ex);
+                        }
+                    }
+                }.start();
+                return true;
+            }
             return super.handleAction(view, action);
         }
 
@@ -226,6 +258,15 @@ public class iTunes extends DefaultApplication {
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(Tools.clean(nameFile.getName()), 40));
+        }
+        
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_PLAY:
+                postEvent(new BEvent.Action(this, "play"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
         }
 
         BText mCountText;
@@ -383,8 +424,7 @@ public class iTunes extends DefaultApplication {
 
             getBelow().setResource(mInfoBackground);
 
-            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
-                    - (TOP - 30 - SAFE_TITLE_V), true);
+            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
 
             list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
                     (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
@@ -558,8 +598,8 @@ public class iTunes extends DefaultApplication {
                             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                     .getMusicPlayerConfiguration();
                             if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
-                                        BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker);
+                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
+                                        BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
                             else
                                 player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
                                         PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
@@ -573,8 +613,12 @@ public class iTunes extends DefaultApplication {
                     setFocus(player);
                     mBusy.setVisible(false);
 
-                    mScreenSaver = new ScreenSaver(PlayerScreen.this);
-                    mScreenSaver.start();
+                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+                    if (musicPlayerConfiguration.isScreensaver())
+                    {
+                        mScreenSaver = new ScreenSaver(PlayerScreen.this);
+                        mScreenSaver.start();
+                    }
                     getBApp().flush();
                 }
 
@@ -609,10 +653,8 @@ public class iTunes extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (mScreenSaver!=null)
-                    mScreenSaver.restore();
-            }
+            if (mScreenSaver!=null)
+                mScreenSaver.handleKeyPress(code, rawcode);
             switch (code) {
             case KEY_INFO:
                 getBApp().play("select.snd");
@@ -675,7 +717,7 @@ public class iTunes extends DefaultApplication {
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
+            scrollText = new ScrollText(getNormal(), BORDER_LEFT, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
                     - TOP - 70, "");
             scrollText.setVisible(false);
 
@@ -692,7 +734,7 @@ public class iTunes extends DefaultApplication {
              * BAR_DEFAULT, H_LEFT, null); list.add("Back to player"); setFocusDefault(list);
              */
 
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
@@ -1023,45 +1065,6 @@ public class iTunes extends DefaultApplication {
         private BText mPosText;
 
         private BText mUrlText;
-    }
-
-    private class ScreenSaver extends Thread {
-        public ScreenSaver(PlayerScreen playerScreen) {
-            mPlayerScreen = playerScreen;
-        }
-
-        public void run() {
-            while (getApp().getContext()!=null) {
-                try {
-                    sleep(1000 * 5 * 60);
-                    synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f);
-                        mPlayerScreen.getBelow().setResource(Color.BLACK);
-                        mPlayerScreen.flush();
-                    }
-                } catch (InterruptedException ex) {
-                    return;
-                } catch (Exception ex2) {
-                    Tools.logException(Music.class, ex2);
-                    break;
-                }
-            }
-        }
-
-        public void interrupt() {
-            synchronized (this) {
-                super.interrupt();
-            }
-        }
-        
-        public void restore()
-        {
-            mPlayerScreen.setTransparency(0.0f);
-            mPlayerScreen.getBelow().setResource(mPlayerBackground);
-            mPlayerScreen.flush();
-        }
-
-        private PlayerScreen mPlayerScreen;
     }
 
     public static class iTunesFactory extends AppFactory {

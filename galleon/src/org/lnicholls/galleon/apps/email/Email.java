@@ -231,11 +231,13 @@ public class Email extends DefaultApplication {
     public class EmailScreen extends DefaultScreen {
 
         public EmailScreen(Email app, EmailItem item) {
-            super(app, Tools.trim(item.getSubject(), 28), false);
+            super(app);
+            
+            setSmallTitle(Tools.trim(item.getSubject(), 28));
 
             getBelow().setResource(mInfoBackground);
 
-            int start = TOP - 30;
+            int start = BORDER_TOP;
 
             BText fromText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
             fromText.setFlags(RSRC_HALIGN_LEFT);
@@ -258,7 +260,7 @@ public class Email extends DefaultApplication {
 
             start += 25;
 
-            mScrollText = new ScrollText(getNormal(), SAFE_TITLE_H, start, BODY_WIDTH - 10, getHeight() - 2
+            mScrollText = new ScrollText(getNormal(), BORDER_LEFT, start, BODY_WIDTH - 10, getHeight() - 2
                     * SAFE_TITLE_V - 193, cleanHTML(item.getBody()));
 
             /*
@@ -266,7 +268,7 @@ public class Email extends DefaultApplication {
              * (SAFE_TITLE_H * 2)) / 2, 90, 35); mList.add("Back to menu"); setFocusDefault(mList);
              */
 
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);

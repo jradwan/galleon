@@ -50,13 +50,15 @@ public class FileSystemContainer {
         final ArrayList items = new ArrayList();
 
         File directory = FileGatherer.resolveLink(new File(getPath())); // Handle shortcuts
-        if (!directory.isHidden() && directory.isDirectory()) {
-            FileGatherer.gatherDirectory(directory, fileFilter, mRecursive, new FileGatherer.GathererCallback() {
+        if (directory.isDirectory()) {
+        	FileGatherer.gatherDirectory(directory, fileFilter, mRecursive, new FileGatherer.GathererCallback() {
                 public void visit(File file, File originalFile) {
-                    if (originalFile.equals(file))
+                	if (originalFile.equals(file))
                     {
-                        if (file.isDirectory())
-                            items.add(new FolderItem(file.getName(), file));
+                		if (file.isDirectory())
+                		{
+                			items.add(new FolderItem(file.getName(), file));
+                		}
                         else
                         {
                             if (FileFilters.playlistFilter.accept(file))
@@ -68,7 +70,9 @@ public class FileSystemContainer {
                     else
                     {
                         if (file.isDirectory())
+                        {
                             items.add(new FolderItem(originalFile.getName(), file));
+                        }
                         else
                         {
                             if (FileFilters.playlistFilter.accept(file))

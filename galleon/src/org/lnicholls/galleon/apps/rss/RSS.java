@@ -201,13 +201,15 @@ public class RSS extends DefaultApplication {
     public class RSSScreen extends DefaultScreen {
 
         public RSSScreen(RSS app, ItemIF item) {
-            super(app, cleanHTML(item.getTitle()), false);
+            super(app);
+            
+            setSmallTitle(cleanHTML(item.getTitle()));
 
             getBelow().setResource(mInfoBackground);
 
             int start = TOP;
 
-            mScrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP + 30, BODY_WIDTH - 10, getHeight() - 2
+            mScrollText = new ScrollText(getNormal(), BORDER_LEFT, BORDER_TOP, BODY_WIDTH - 10, getHeight() - 2
                     * SAFE_TITLE_V - 175, cleanHTML(item.getDescription()));
 
             /*
@@ -215,7 +217,7 @@ public class RSS extends DefaultApplication {
              * (SAFE_TITLE_H * 2)) / 2, 90, 35); mList.add("Back to menu"); setFocusDefault(mList);
              */
 
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);

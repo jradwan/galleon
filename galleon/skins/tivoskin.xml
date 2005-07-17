@@ -5,8 +5,8 @@
 <skin version="1.0.0" galleon="1.0.0">
   <!-- skin attributes -->
   <title>Default</title>
-  <releaseDate>04/08/05</releaseDate>
-  <description>This is the default Galleon skin</description>
+  <releaseDate>07/01/05</releaseDate>
+  <description>This is the TiVo skin</description>
   <authorName>Leon Nicholls</authorName>
   <authorEmail>javahmo@users.sourceforge.net</authorEmail>
   <authorHomepage>http://galleon.sourceforge.net</authorHomepage>
@@ -27,33 +27,8 @@
   	<image source="music/folder.png" id="folder"/>	
   	<image source="music/playlist.png" id="playlist"/>		
     <!-- max 640x480 -->  
-    <image source="music/background.jpg" id="background"/>
-  
-    <!-- Each app consists of several screens, each possibly with their -->
-    <!-- own backgrounds. If each screen does not have a background     -->
-    <!-- declared, it will default to the app background image          -->
-  
-    <!-- id = Galleon identifier for screen -->
-    <!-- background = name of image for background -->
-    <screen id="menu">
-      <!--image source="music/background.jpg" id="background"/-->
-    </screen>      
-    
-    <!-- id = Galleon identifier for screen -->
-    <screen id="info">    
-      <!--image source="music/background.jpg" id="background"/-->    
-    </screen>      
-    
-    <!-- id = Galleon identifier for screen -->
-    <!-- background = name of image for background -->    
-    <screen id="lyrics" background="background">            
-      <!--image source="music/background.jpg" id="background"/-->
-    </screen>              
-    <!-- id = Galleon identifier for screen -->
-    <!-- background = name of image for background -->
-    <screen id="images" background="background">
-      <!--image source="music/background.jpg" id="background"/-->
-    </screen>              
+    <!-- if background is MPG then only one is allowed -->      
+    <image source="music/background.mpg" id="background"/>
   
   </app>
 
@@ -63,13 +38,13 @@
     <image source="photos/folder.png" id="folder"/>
     <image source="photos/folder_red_open.png" id="gridFolder"/>
     <image source="photos/camera.png" id="item"/>    
-    <image source="photos/background.jpg" id="background"/>    
+    <image source="photos/background.mpg" id="background"/>    
   </app>  
   
 
   <app id="org.lnicholls.galleon.apps.togo.ToGo">  
     <image source="togo/icon.png" id="icon"/>  
-    <image source="togo/background.jpg" id="background"/>    
+    <image source="togo/background.mpg" id="background"/>    
     <image source="togo/yellowball.png" id="expiresSoon"/>        
     <image source="togo/yellowball!.png" id="expired"/>            
     <image source="togo/greenball.png" id="saveUntilDelete"/>                    
@@ -83,7 +58,7 @@
     <image source="weather/icon.png" id="icon"/>  
     <image source="weather/alerticon.png" id="alert"/>      
     <image source="weather/icon.png" id="item"/>  
-    <image source="weather/background.jpg" id="background"/>    
+    <image source="weather/background.mpg" id="background"/>    
     <image source="weather/00.png" id="00"/>  
     <image source="weather/01.png" id="01"/>  
     <image source="weather/02.png" id="02"/>  
@@ -140,7 +115,7 @@
     <image source="shoutcast/icon.png" id="icon"/>  
   	<image source="shoutcast/station.png" id="item"/>
   	<image source="shoutcast/folder.png" id="folder"/>	
-    <image source="shoutcast/background.jpg" id="background"/>
+    <image source="shoutcast/background.mpg" id="background"/>
 
     <screen id="player">        
       <image source="shoutcast/stop.png" id="stop"/>  
@@ -155,7 +130,7 @@
     <image source="musicOrganizer/icon.png" id="icon"/>  
   	<image source="musicOrganizer/cd.png" id="item"/>
   	<image source="musicOrganizer/folder.png" id="folder"/>	
-    <image source="musicOrganizer/background.jpg" id="background"/>
+    <image source="musicOrganizer/background.mpg" id="background"/>
 
     <screen id="player">        
       <image source="musicOrganizer/stop.png" id="stop"/>  
@@ -170,7 +145,7 @@
     <image source="rss/icon.png" id="icon"/>  
     <image source="rss/folder.png" id="folder"/>
     <image source="rss/item.png" id="item"/>
-    <image source="rss/background.jpg" id="background"/>    
+    <image source="rss/background.mpg" id="background"/>    
   </app>    
   
   
@@ -182,7 +157,7 @@
   <app id="org.lnicholls.galleon.apps.email.Email">  
     <image source="email/icon.png" id="icon"/>  
     <image source="email/alerticon.png" id="alert"/>          
-    <image source="email/background.jpg" id="background"/>        
+    <image source="email/background.mpg" id="background"/>        
     <image source="email/icon.png" id="item"/>    
     <image source="email/folder.png" id="folder"/>    
   </app>          
@@ -190,7 +165,7 @@
   
   <app id="org.lnicholls.galleon.apps.internet.Internet">  
     <image source="internet/icon.png" id="icon"/>  
-    <image source="internet/background.jpg" id="background"/>        
+    <image source="internet/background.mpg" id="background"/>        
     <image source="internet/icon.png" id="item"/>    
     <image source="internet/icon.png" id="folder"/>    
   </app>            
@@ -198,7 +173,7 @@
   
   <app id="org.lnicholls.galleon.apps.playlists.Playlists">  
     <image source="playlists/icon.png" id="icon"/>  
-    <image source="playlists/background.jpg" id="background"/>        
+    <image source="playlists/background.mpg" id="background"/>        
     <image source="playlists/playlist.png" id="item"/>    
   </app>              
   
@@ -207,7 +182,7 @@
     <image source="podcasting/icon.png" id="icon"/>  
   	<image source="podcasting/item.png" id="item"/>
   	<image source="podcasting/folder.png" id="folder"/>	
-    <image source="podcasting/background.jpg" id="background"/>
+    <image source="podcasting/background.mpg" id="background"/>
   </app>                  
   
 
@@ -215,15 +190,15 @@
     <image source="iTunes/icon.png" id="icon"/>  
   	<image source="iTunes/item.png" id="item"/>
   	<image source="iTunes/folder.png" id="folder"/>	
-    <image source="iTunes/background.jpg" id="background"/>
+    <image source="iTunes/background.mpg" id="background"/>
   </app>                  
   
-
+  
   <app id="org.lnicholls.galleon.apps.movies.Movies">  
     <image source="movies/icon.png" id="icon"/>  
   	<image source="movies/item.png" id="item"/>
   	<image source="movies/folder.png" id="folder"/>	
-    <image source="movies/background.jpg" id="background"/>
+    <image source="movies/background.mpg" id="background"/>
   </app>                    
 
 </skin>

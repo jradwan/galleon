@@ -51,6 +51,7 @@ import org.lnicholls.galleon.media.MediaRefreshThread;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.FileFilters;
+import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
@@ -69,6 +70,8 @@ import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.WinampPlayer;
+import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -125,7 +128,7 @@ public class MusicOrganizer extends DefaultApplication {
             MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) ((MusicOrganizerFactory) getContext()
                     .getFactory()).getAppContext().getConfiguration();
 
-            mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 20, BODY_WIDTH, 20);
+            mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, 20);
             mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
             mCountText.setFont("default-18.font");
             mCountText.setColor(Color.GREEN);
@@ -174,6 +177,59 @@ public class MusicOrganizer extends DefaultApplication {
                 }.start();
                 return true;
             }
+            else if (action.equals("play")) {
+                load();
+                new Thread() {
+                    public void run() {
+                        try {
+                        	String restrictions = "(1=1)";
+                            List files = new ArrayList();
+                            try {
+                                Transaction tx = null;
+                                Session session = HibernateUtil.openSession();
+                                try {
+                                    tx = session.beginTransaction();
+                                    String queryString = "from org.lnicholls.galleon.database.Audio audio where "
+                                            + restrictions + " AND substr(audio.path,1,4)<>'http'" + " AND audio.origen<>'Podcast'";
+                                    log.debug(queryString);
+                                    Query query = session.createQuery(queryString).setCacheable(true);
+                                    Audio audio = null;
+                                    ScrollableResults items = query.scroll();
+                                    if (items.first()) {
+                                        items.beforeFirst();
+                                        while (items.next()) {
+                                            audio = (Audio) items.get(0);
+                                            files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
+                                        }
+                                    }
+
+                                    tx.commit();
+                                } catch (HibernateException he) {
+                                    if (tx != null)
+                                        tx.rollback();
+                                    throw he;
+                                } finally {
+                                    HibernateUtil.closeSession();
+                                }
+                            } catch (Exception ex) {
+                                Tools.logException(MusicOrganizer.class, ex);
+                            }
+
+                            Tracker tracker = new Tracker(files, 0);
+
+                            MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                                    .getMusicPlayerConfiguration();
+                            tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+                            getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), tracker),
+                                    TRANSITION_LEFT);
+                            getBApp().flush();
+                        } catch (Exception ex) {
+                            Tools.logException(Music.class, ex);
+                        }
+                    }
+                }.start();
+                return true;
+            }            
             return super.handleAction(view, action);
         }
 
@@ -190,6 +246,15 @@ public class MusicOrganizer extends DefaultApplication {
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(Tools.clean(nameFile.getName()), 40));
+        }
+        
+        public boolean handleKeyPress(int code, long rawcode) {
+            switch (code) {
+            case KEY_PLAY:
+                postEvent(new BEvent.Action(this, "play"));
+                return true;
+            }
+            return super.handleKeyPress(code, rawcode);
         }
 
         BText mCountText;
@@ -215,7 +280,7 @@ public class MusicOrganizer extends DefaultApplication {
             mFormatString = formatString;
             mLevel = level;
 
-            mLevelText = new BText(this, SAFE_TITLE_H + 30, TOP - 20, this.getWidth(), 20);
+            mLevelText = new BText(this, SAFE_TITLE_H + 30, TOP - 30, this.getWidth(), 20);
             mLevelText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
             mLevelText.setFont("default-18.font");
             mLevelText.setColor(Color.WHITE);
@@ -323,7 +388,7 @@ public class MusicOrganizer extends DefaultApplication {
                                         try {
                                             tx = session.beginTransaction();
                                             String queryString = "from org.lnicholls.galleon.database.Audio audio where "
-                                                    + restrictions + " AND substr(audio.path,1,4)<>'http'";
+                                                    + restrictions + " AND substr(audio.path,1,4)<>'http'" + " AND audio.origen<>'Podcast'";
                                             log.debug(queryString);
                                             Query query = session.createQuery(queryString).setCacheable(true);
                                             Audio audio = null;
@@ -421,7 +486,7 @@ public class MusicOrganizer extends DefaultApplication {
                 }
 
                 String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
-                        + " AND substr(audio.path,1,4)<>'http'";
+                        + " AND substr(audio.path,1,4)<>'http'" + " AND audio.origen<>'Podcast'";
 
                 setCurrentTrackerContext(queryString);
 
@@ -452,8 +517,7 @@ public class MusicOrganizer extends DefaultApplication {
 
             getBelow().setResource(mInfoBackground);
 
-            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
-                    - (TOP - 30 - SAFE_TITLE_V), true);
+            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
 
             list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
                     (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
@@ -626,8 +690,8 @@ public class MusicOrganizer extends DefaultApplication {
                             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                     .getMusicPlayerConfiguration();
                             if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
-                                        BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker);
+                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
+                                        BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
                             else
                                 player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
                                         PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
@@ -641,8 +705,12 @@ public class MusicOrganizer extends DefaultApplication {
                     setFocus(player);
                     mBusy.setVisible(false);
 
-                    mScreenSaver = new ScreenSaver(PlayerScreen.this);
-                    mScreenSaver.start();
+                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+                    if (musicPlayerConfiguration.isScreensaver())
+                    {
+                        mScreenSaver = new ScreenSaver(PlayerScreen.this);
+                        mScreenSaver.start();
+                    }
                     getBApp().flush();
                 }
 
@@ -678,10 +746,8 @@ public class MusicOrganizer extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (mScreenSaver!=null)
-                    mScreenSaver.restore();
-            }
+            if (mScreenSaver!=null)
+                mScreenSaver.handleKeyPress(code, rawcode);
             switch (code) {
             case KEY_INFO:
                 getBApp().play("select.snd");
@@ -735,7 +801,7 @@ public class MusicOrganizer extends DefaultApplication {
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
+            scrollText = new ScrollText(getNormal(), BORDER_LEFT, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
                     - TOP - 70, "");
             scrollText.setVisible(false);
 
@@ -752,7 +818,7 @@ public class MusicOrganizer extends DefaultApplication {
              * BAR_DEFAULT, H_LEFT, null); list.add("Back to player"); setFocusDefault(list);
              */
 
-            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+            BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
                     .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to player"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
@@ -1083,45 +1149,6 @@ public class MusicOrganizer extends DefaultApplication {
         private BText mPosText;
 
         private BText mUrlText;
-    }
-
-    private class ScreenSaver extends Thread {
-        public ScreenSaver(PlayerScreen playerScreen) {
-            mPlayerScreen = playerScreen;
-        }
-
-        public void run() {
-            while (getApp().getContext()!=null) {
-                try {
-                    sleep(1000 * 5 * 60);
-                    synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f);
-                        mPlayerScreen.getBelow().setResource(Color.BLACK);
-                        mPlayerScreen.flush();
-                    }
-                } catch (InterruptedException ex) {
-                    return;
-                } catch (Exception ex2) {
-                    Tools.logException(Music.class, ex2);
-                    break;
-                }
-            }
-        }
-
-        public void interrupt() {
-            synchronized (this) {
-                super.interrupt();
-            }
-        }
-        
-        public void restore()
-        {
-            mPlayerScreen.setTransparency(0.0f);
-            mPlayerScreen.getBelow().setResource(mPlayerBackground);
-            mPlayerScreen.flush();
-        }
-
-        private PlayerScreen mPlayerScreen;
     }
 
     public static final String[] FIELDS = { "Song", "Artist", "Album", "Year", "Track", "Genre", "Bitrate", "Duration",
@@ -1754,11 +1781,11 @@ public class MusicOrganizer extends DefaultApplication {
                 if (level == formatString.getCount()) {
                     // Retrieve fields
                     queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
-                            + " AND (substr(audio.path,1,4)<>'http') order by " + order + " " + direction;
+                            + " AND (substr(audio.path,1,4)<>'http') AND (audio.origen<>'Podcast') order by " + order + " " + direction;
                 } else {
                     // Retrieve fields
                     queryString = "select distinct " + view + " from org.lnicholls.galleon.database.Audio audio where "
-                            + restrictions + " AND (substr(audio.path,1,4)<>'http') order by " + order + " "
+                            + restrictions + " AND (substr(audio.path,1,4)<>'http') AND (audio.origen<>'Podcast') order by " + order + " "
                             + direction;
                 }
                 log.debug(queryString);

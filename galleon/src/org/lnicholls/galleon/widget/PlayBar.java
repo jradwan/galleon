@@ -34,16 +34,16 @@ public class PlayBar extends BView {
 
     private static final int PLAYBAR_Y_OFFSET = 12;
 
-    private static final int TIMEWIDTH = 50;
+    private static final int TIMEWIDTH = 45;
 
     private static final int SHUTTLEPART_HEIGHT = 15;
 
-    private static final int SHUTTLE_WIDTH = (int) (TIMEWIDTH * 1.5);
+    private static final int SHUTTLE_WIDTH = (int) (TIMEWIDTH * 2.0);
 
     private static final int SHUTTLE_HEIGHT = PREFERRED_H;
 
     public PlayBar(BView parent) {
-        super(parent, 0, parent.getHeight() - PREFERRED_H, parent.getWidth(), PREFERRED_H);
+        super(parent, 0, parent.getHeight() - PREFERRED_H - 10, parent.getWidth(), PREFERRED_H);
 
         mProgress = new BView(this, TIMEWIDTH, PLAYBAR_Y_OFFSET + 8, this.getWidth() - 2 * TIMEWIDTH, PLAYBAR_H - 16);
         mProgress.setVisible(false);
@@ -118,8 +118,10 @@ public class PlayBar extends BView {
         }
         mShuttleTime.setValue(formatTime(mPosition));
         mShuttle.setLocation(TIMEWIDTH - (SHUTTLE_WIDTH / 2) + centerOffset, mShuttle.getY());
+        mShuttle.flush();
         
-        mProgress.setSize(centerOffset, mProgress.getHeight());
+        mProgress.setSize(centerOffset+1, mProgress.getHeight());
+        mProgress.flush();
     }
 
     public void setProgress(int seconds) {
@@ -136,6 +138,7 @@ public class PlayBar extends BView {
             mProgress.setVisible(true);
         }
         mProgress.setSize(newWidth, mProgress.getHeight());
+        mProgress.flush();
     }
 
     public void setDuration(int duration) {

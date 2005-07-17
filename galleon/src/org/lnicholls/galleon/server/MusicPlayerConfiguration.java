@@ -63,6 +63,14 @@ public class MusicPlayerConfiguration implements Serializable {
     public boolean isShowImages() {
         return mShowImages;
     }
+    
+    public void setScreensaver(boolean value) {
+        mScreensaver = value;
+    }
+
+    public boolean isScreensaver() {
+        return mScreensaver;
+    }
 
     public void setModified(boolean value) {
         mModified = value;
@@ -101,6 +109,8 @@ public class MusicPlayerConfiguration implements Serializable {
     private boolean mUseAmazon = true;
 
     private boolean mShowImages = false;
+    
+    private boolean mScreensaver = true;
     
     private String mPlayer = WINAMP;
     

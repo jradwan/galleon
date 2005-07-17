@@ -149,9 +149,11 @@ public class MusicPlayer extends DefaultPlayer {
             else
                 audio = getAudio((String) nameFile.getValue());
 
+            /*
             if (mPlaying && audio != null) {
                 mMusicInfo.setAudio(audio);
             }
+            */
         } catch (Exception ex) {
         }
     }

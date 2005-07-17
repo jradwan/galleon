@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Iterator;
 
 import net.sf.hibernate.Session;
 
@@ -69,20 +70,31 @@ public class MediaRefreshThread extends Thread {
                             try {
                                 if (!file.isDirectory())
                                 {
-                                    List list = AudioManager.findByPath(file.getAbsolutePath());
+                                	if (!file.getAbsolutePath().equals(file.getCanonicalPath()))
+                                	{
+	                                	List list = AudioManager.findByPath(file.getAbsolutePath());
+	                                	if (list.size() > 0) {
+	                                		Audio audio = (Audio) list.get(0);
+	                                		AudioManager.deleteAudio(audio);
+	                                	}
+                                	}
+                                	
+                                	List list = AudioManager.findByPath(file.getCanonicalPath());
+                                    
                                     if (list.size() > 0) {
                                         Audio audio = (Audio) list.get(0);
+                                        audio.setPath(file.getCanonicalPath());
                                         Date date = new Date(file.lastModified());
                                         if (date.getTime() > audio.getDateModified().getTime()) {
                                             if (log.isDebugEnabled())
-                                                log.debug("Changed: " + file.getAbsolutePath());
-                                            audio = (Audio) MediaManager.getMedia(audio, file.getAbsolutePath());
+                                                log.debug("Changed: " + file.getCanonicalPath());
+                                            audio = (Audio) MediaManager.getMedia(audio, file.getCanonicalPath());
                                             AudioManager.updateAudio(audio);
                                         }
                                     } else {
                                         if (log.isDebugEnabled())
-                                            log.debug("New: " + file.getAbsolutePath());
-                                        Audio audio = (Audio) MediaManager.getMedia(file.getAbsolutePath());
+                                            log.debug("New: " + file.getCanonicalPath());
+                                        Audio audio = (Audio) MediaManager.getMedia(file.getCanonicalPath());
                                         AudioManager.createAudio(audio);
                                     }
                                 }
@@ -102,14 +114,15 @@ public class MediaRefreshThread extends Thread {
                         {
                             File file = new File(audio.getPath());
                             if (!file.exists()) {
-                                if (log.isDebugEnabled())
-                                    log.debug("Removed: " + file.getAbsolutePath());
-    
                                 try {
-                                    session.delete(audio);
+                                	session.delete(audio);
+
+                                    if (log.isDebugEnabled())
+                                        log.debug("Removed: " + audio.getPath());
+                                    
                                     Thread.sleep(10); // give the CPU some breathing time
                                 } catch (Exception ex) {
-                                    Tools.logException(MediaRefreshThread.class, ex, "Could not remove: " + file.getAbsolutePath());
+                                    Tools.logException(MediaRefreshThread.class, ex, "Could not remove: " + audio.getPath());
                                 }
                             }
                         }

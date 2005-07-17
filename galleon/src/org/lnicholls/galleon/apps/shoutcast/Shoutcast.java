@@ -52,6 +52,7 @@ import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.WinampPlayer;
+import org.lnicholls.galleon.widget.ScreenSaver;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -324,8 +325,7 @@ public class Shoutcast extends DefaultApplication {
 
             getBelow().setResource(mInfoBackground);
 
-            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, BODY_HEIGHT
-                    - (TOP - 30 - SAFE_TITLE_V), true);
+            mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
 
             list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
                     (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
@@ -480,8 +480,8 @@ public class Shoutcast extends DefaultApplication {
                             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                     .getMusicPlayerConfiguration();
                             if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH,
-                                        BODY_HEIGHT - 20, false, (DefaultApplication) getApp(), mTracker);
+                                player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
+                                        BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
                             else
                                 player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
                                         PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
@@ -495,8 +495,12 @@ public class Shoutcast extends DefaultApplication {
                     setFocus(player);
                     mBusy.setVisible(false);
 
-                    mScreenSaver = new ScreenSaver(PlayerScreen.this);
-                    mScreenSaver.start();
+                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+                    if (musicPlayerConfiguration.isScreensaver())
+                    {
+                        mScreenSaver = new ScreenSaver(PlayerScreen.this);
+                        mScreenSaver.start();
+                    }
                     getBApp().flush();
                 }
 
@@ -531,10 +535,8 @@ public class Shoutcast extends DefaultApplication {
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
-            if (code != KEY_VOLUMEDOWN && code != KEY_VOLUMEUP) {
-                if (mScreenSaver!=null)
-                    mScreenSaver.restore();
-            }
+            if (mScreenSaver!=null)
+                mScreenSaver.handleKeyPress(code, rawcode);
             return super.handleKeyPress(code, rawcode);
         }
 
@@ -579,7 +581,7 @@ public class Shoutcast extends DefaultApplication {
 
             mTracker = tracker;
 
-            scrollText = new ScrollText(getNormal(), SAFE_TITLE_H, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
+            scrollText = new ScrollText(getNormal(), BORDER_LEFT, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
                     - TOP - 70, "");
             scrollText.setVisible(false);
 
@@ -590,7 +592,7 @@ public class Shoutcast extends DefaultApplication {
 
             mBusy.setVisible(true);
 
-            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
+            list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40,
                     (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
             //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
             list.add("Back to player");
@@ -923,45 +925,6 @@ public class Shoutcast extends DefaultApplication {
         private BText mPosText;
 
         private BText mUrlText;
-    }
-
-    private class ScreenSaver extends Thread {
-        public ScreenSaver(PlayerScreen playerScreen) {
-            mPlayerScreen = playerScreen;
-        }
-
-        public void run() {
-            while (getApp().getContext()!=null) {
-                try {
-                    sleep(1000 * 5 * 60);
-                    synchronized (this) {
-                        mPlayerScreen.setTransparency(0.9f);
-                        mPlayerScreen.getBelow().setResource(Color.BLACK);
-                        mPlayerScreen.flush();
-                    }
-                } catch (InterruptedException ex) {
-                    return;
-                } catch (Exception ex2) {
-                    Tools.logException(Music.class, ex2);
-                    break;
-                }
-            }
-        }
-
-        public void interrupt() {
-            synchronized (this) {
-                super.interrupt();
-            }
-        }
-        
-        public void restore()
-        {
-            mPlayerScreen.setTransparency(0.0f);
-            mPlayerScreen.getBelow().setResource(mPlayerBackground);
-            mPlayerScreen.flush();
-        }
-
-        private PlayerScreen mPlayerScreen;
     }
 
     public static class ShoutcastFactory extends AppFactory {

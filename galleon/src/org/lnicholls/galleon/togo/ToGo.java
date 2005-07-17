@@ -48,6 +48,15 @@ import org.dom4j.*;
 import org.dom4j.io.*;
 
 public class ToGo {
+	
+	/*
+	 * 	https://<tivo ip>/nowplaying/index.html
+	 *
+	 *	using user: tivo
+	 *	pass: <MAK>
+	 *
+	 * http://<your tivo ip>/TiVoConnect?AnchorOffset=0&Command=QueryContainer&Details=All&ItemCount=1 
+	 */
 
     private static String QUERY_CONTAINER = "/TiVoConnect?Command=QueryContainer&Container=%2FNowPlaying";
 
@@ -134,6 +143,17 @@ public class ToGo {
                             tivo.setNumShows(0);
                         } else {
                             // Nothing changed
+                        	
+                        	synchronized(this)
+                        	{
+	                        	List recordings = VideoManager.listAll();
+	                        	Iterator iterator = recordings.listIterator();
+	                            while (iterator.hasNext()) {
+	                                Video video = (Video) iterator.next();
+	                                if (video.getUrl().indexOf(tivo.getAddress())!=-1)
+	                                	videos.add(video);
+	                            }
+                        	}
                             break;
                         }
 

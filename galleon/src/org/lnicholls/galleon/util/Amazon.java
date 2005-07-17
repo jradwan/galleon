@@ -22,11 +22,30 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.htmlparser.Node;
+import org.htmlparser.NodeFilter;
+import org.htmlparser.Parser;
+import org.htmlparser.Tag;
+import org.htmlparser.beans.StringBean;
+import org.htmlparser.filters.AndFilter;
+import org.htmlparser.filters.HasAttributeFilter;
+import org.htmlparser.filters.HasParentFilter;
+import org.htmlparser.filters.NodeClassFilter;
+import org.htmlparser.filters.TagNameFilter;
+import org.htmlparser.tags.CompositeTag;
+import org.htmlparser.tags.ImageTag;
+import org.htmlparser.tags.LinkTag;
+import org.htmlparser.tags.TitleTag;
+import org.htmlparser.util.NodeList;
+import org.lnicholls.galleon.database.Movie;
 import org.lnicholls.galleon.server.Server;
 
 public class Amazon {
@@ -127,6 +146,36 @@ public class Amazon {
         mTime = System.currentTimeMillis();
         return image;
     }
+    
+	public static String getMoviePoster(String name) {
+		if (System.currentTimeMillis() - mTime < 1000) {
+            // Not allowed to call AWS more than once a second
+            try {
+                Thread.currentThread().sleep(1000);
+            } catch (Exception ex) {
+            }
+        }
 
+		String url = null;
+		try {
+			Parser parser = new Parser("http://www.amazon.com/exec/obidos/search-handle-url?index=theatrical&field-keywords="+URLEncoder.encode(name));  //www.amazon.com/exec/obidos/search-handle-url?index=theatrical&field-keywords=Batman
+
+			NodeList linkList = parser.extractAllNodesThatMatch(new NodeClassFilter(LinkTag.class));
+			for (int j = 0; j < linkList.size(); j++) {
+				LinkTag linkTag = (LinkTag) linkList.elementAt(j);
+				if (linkTag.getLink().indexOf("ZZZZZ")!=-1)
+				{
+					url = linkTag.extractLink();
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			Tools.logException(Amazon.class, ex, "Could not get movie poster: " + name);
+		}
+		
+		mTime = System.currentTimeMillis();
+		return url;
+	}
+    
     private static long mTime = System.currentTimeMillis();
 }

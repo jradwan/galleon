@@ -53,7 +53,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
         super("PodcastingThread");
 
         mPodcastingConfiguration = podcastingConfiguration;
-
+        
         setPriority(Thread.MIN_PRIORITY);
     }
 
@@ -93,7 +93,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
                             // Update podcast
                             ChannelIF channel = Podcasting.getChannel(podcast.getPath());
                             if (channel != null) {
-                                podcast.setDescription(channel.getDescription());
+                                podcast.setDescription(Tools.trim(channel.getDescription(),4096));
                                 podcast.setDateUpdated(channel.getLastBuildDate());
 
                                 List items = Podcasting.getListing(channel);
@@ -112,7 +112,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
                                             }
                                         }
                                         if (!existing)
-                                            currentTracks.add(new PodcastTrack(item.getTitle(), item.getDescription(),
+                                            currentTracks.add(new PodcastTrack(item.getTitle(), Tools.trim(item.getDescription(),4096),
                                                     item.getDate(), item.getEnclosure().getLocation().toExternalForm(),
                                                     0, 0, 0, 0, podcast.getId(), null));
                                     }
@@ -138,8 +138,8 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
                                     }
 
                                     if (!found) {
-                                        deleteAudio(podcast, tracks[k]);
-                                        synchronized (this) {
+                                    	deleteAudio(podcast, tracks[k]);
+                                    	synchronized (this) {
                                             try {
                                                 podcast.getTracks().remove(tracks[k]);
                                                 PodcastManager.updatePodcast(podcast);
@@ -324,6 +324,11 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
                                             List audios = AudioManager.findByPath(file.getCanonicalPath());
                                             if (audios != null && audios.size() > 0) {
                                                 audio = (Audio) audios.get(0);
+                                                if (audio!=null)
+                                                {
+                                                    audio.setOrigen("Podcast");
+                                                    AudioManager.updateAudio(audio);
+                                                }
                                             } else {
                                                 audio = Mp3File.getAudio(file.getCanonicalPath());
                                                 if (audio!=null)
@@ -387,7 +392,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
                             PodcastManager.updatePodcast(podcast);
                             AudioManager.deleteAudio(audio);
                         } catch (Exception ex) {
-                            Tools.logException(PodcastingThread.class, ex, "Audio delete failed");
+                            Tools.logException(PodcastingThread.class, ex, "Audio delete failed: " + audio.getPath());
                         }
                     }
                 }

@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.desktop.Desktop;
+import org.lnicholls.galleon.apps.photos.Photos.PGrid;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
@@ -175,9 +176,9 @@ public class Internet extends DefaultApplication {
 
             mTracker = tracker;
 
-            int w = getWidth() - 2 * SAFE_TITLE_H;
-            int h = getHeight() - 2 * SAFE_TITLE_V - 60;
-            grid = new PGrid(this.getNormal(), SAFE_TITLE_H, SAFE_TITLE_V + 60, w, h, h / 3);
+            int w = getWidth() - 2 * BORDER_LEFT;
+            int h = getHeight() - TOP - SAFE_TITLE_V - 2*PAD;
+            grid = new PGrid(this.getNormal(), BORDER_LEFT, BORDER_TOP, w, h, h / 3);
             BHighlights highlights = grid.getHighlights();
             highlights.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
             highlights.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
@@ -302,9 +303,9 @@ public class Internet extends DefaultApplication {
     public class ImageScreen extends DefaultScreen {
 
         public ImageScreen(Internet app) {
-            super(app, true);
+            super(app, null, null, false);
 
-            getBelow().setResource(mInfoBackground);
+            //getBelow().setResource(mInfoBackground);
 
             mImage = new BView(this, BORDER_LEFT, SAFE_TITLE_V, BODY_WIDTH, BODY_HEIGHT - 20, true);
 

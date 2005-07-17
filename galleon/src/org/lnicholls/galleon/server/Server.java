@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Iterator;
 
 import org.apache.log4j.*;
 import org.apache.log4j.Logger;
@@ -60,6 +61,9 @@ import org.tanukisoftware.wrapper.WrapperManager;
 public class Server {
     public Server() {
         mServer = this;
+        
+        mShortTermTasks = new ArrayList();
+        mLongTermTasks  = new ArrayList();
 
         try {
             System.out.println("Galleon " + Tools.getVersion() +" is starting...");
@@ -222,7 +226,7 @@ public class Server {
             // Start time task for period operations such as internet downloads
             mLongTermTimer = new Timer();
             mShortTermTimer = new Timer();
-
+            
             // Load apps
             mAppManager = new AppManager(mAppClassLoader);
 
@@ -232,12 +236,9 @@ public class Server {
             
             setDebugLogging(mServerConfiguration.isDebug());
             
-            mTiVoListener = new TiVoListener();
+            //mTiVoListener = new TiVoListener();
 
             mAppManager.loadApps();
-
-            // Create a port listener
-            //findAvailablePort();
 
             //mAppManager.startPlugins();
 
@@ -262,14 +263,34 @@ public class Server {
                 mRegistry = LocateRegistry.getRegistry(1099);
                 String[] names = mRegistry.list();
             } catch (Exception ex) {
-                mRegistry = LocateRegistry.createRegistry(1099);
+                int port = Tools.findAvailablePort(1099);
+                if (port!=1099)
+                {
+                    log.info("Changed port to "+port);
+                }
+                
+                mRegistry = LocateRegistry.createRegistry(port);
             }
 
             mRegistry.bind("serverControl", new ServerControlImpl());
 
             System.out.println("Galleon is ready.");
             mReady = true;
-
+            
+            Iterator iterator = mShortTermTasks.iterator();
+            while (iterator.hasNext())
+            {
+            	TaskInfo taskInfo = (TaskInfo)iterator.next();
+            	scheduleShortTerm(taskInfo.task, 0, taskInfo.time);	
+            }
+            mShortTermTasks.clear();
+            iterator = mLongTermTasks.iterator();
+            while (iterator.hasNext())
+            {
+            	TaskInfo taskInfo = (TaskInfo)iterator.next();
+            	scheduleLongTerm(taskInfo.task, 0, taskInfo.time);	
+            }
+            mLongTermTasks.clear();
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
             return new Integer(1);
@@ -348,7 +369,7 @@ public class Server {
             InetAddress inetAddress = InetAddress.getLocalHost();
 
             log.info("Galleon Version=" + getVersion());
-            log.info("Local IP=" + inetAddress.getHostAddress());
+            log.info("Local IP=" + Tools.getLocalIpAddress());
             log.info("Host=" + inetAddress.getHostName());
 
             Tools.logMemory();
@@ -418,7 +439,15 @@ public class Server {
     }
 
     public int getPort() {
-        return mServerConfiguration.getPort();
+        if (mPort==-1)
+        {
+            mPort = Tools.findAvailablePort(mServerConfiguration.getPort());
+            if (mPort!=mServerConfiguration.getPort())
+            {
+                log.info("Changed port to "+mPort);
+            }
+        }
+        return mPort;
     }
 
     public void setName(String name) {
@@ -475,12 +504,24 @@ public class Server {
             Tools.logException(Server.class, e);
         }
     }
+    
+    class TaskInfo
+    {
+    	TaskInfo(TimerTask task, long time)
+    	{
+    		this.task = task;
+    		this.time = time;
+    	}
+    	
+    	TimerTask task;
+    	long time;
+    }
 
     public synchronized void scheduleLongTerm(TimerTask task, long time) {
         if (mReady)
             scheduleLongTerm(task, 0, time);
         else
-            scheduleLongTerm(task, 360, time);
+        	mShortTermTasks.add(new TaskInfo(task, time));
     }
     
     public synchronized void scheduleLongTerm(TimerTask task, long delay, long time) {
@@ -506,7 +547,7 @@ public class Server {
         if (mReady)
             scheduleShortTerm(task, 0, time);
         else
-            scheduleShortTerm(task, 120, time);
+        	mLongTermTasks.add(new TaskInfo(task, time));
     }
 
     public synchronized void scheduleShortTerm(TimerTask task, long delay, long time) {
@@ -526,35 +567,6 @@ public class Server {
                 Tools.logException(Server.class, ex2);
             }
         }
-    }
-
-    private void findAvailablePort() {
-        if (log.isDebugEnabled())
-            log.debug("findAvailablePort()");
-        boolean found = false;
-        boolean configurationChanged = false;
-        int port = getPort();
-        while (!found) {
-            try {
-                if (log.isDebugEnabled())
-                    log.debug("Trying port " + port);
-                ServerSocket serverSocket = new ServerSocket(port);
-                found = true;
-                serverSocket.close();
-                serverSocket = null;
-            } catch (Exception ex) {
-                configurationChanged = true;
-                if (log.isDebugEnabled())
-                    log.debug("Port " + port + " is already in use.");
-                port = port + 1;
-            }
-        }
-        if (configurationChanged) {
-            if (log.isDebugEnabled())
-                log.debug("Changed server port to " + port);
-            setPort(port);
-        }
-        log.info("Using port " + port);
     }
 
     private void preLoadFonts() {
@@ -591,11 +603,13 @@ public class Server {
     }
 
     public void updateServerConfiguration(ServerConfiguration serverConfiguration) {
-        boolean needRestart = false;
+        boolean needRestart = true;
+        /*
         if (mServerConfiguration.getIPAddress() == null || serverConfiguration.getIPAddress() == null
                 || !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress())
                 || mServerConfiguration.getPort() != serverConfiguration.getPort())
             needRestart = true;
+            */
         mServerConfiguration = serverConfiguration;
         setDebugLogging(mServerConfiguration.isDebug());
         /*
@@ -772,7 +786,7 @@ public class Server {
 
     private static Registry mRegistry;
 
-    private static TiVoListener mTiVoListener;
+    //private static TiVoListener mTiVoListener;
 
     private static URLClassLoader mAppClassLoader;
 
@@ -781,4 +795,10 @@ public class Server {
     private static boolean mStartMain;
     
     private static boolean mReady;
+    
+    private int mPort = -1;
+    
+    private ArrayList mShortTermTasks;
+    
+    private ArrayList mLongTermTasks;
 }

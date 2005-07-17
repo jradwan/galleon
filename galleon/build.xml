@@ -257,7 +257,7 @@
           <section name="Galleon">
             <attribute name="Title" value="ToGo"/>
             <attribute name="ReleaseDate" value="04/03/05"/>          
-            <attribute name="Description" value="ToGo"/>                    
+            <attribute name="Description" value="The ToGo app allows a user to control the ToGo feature directly from the TiVo recorder instead of using the TiVo desktop software on the PC."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -283,7 +283,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Weather"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
-            <attribute name="Description" value="Weather"/>                    
+            <attribute name="Description" value="The weather app displays the current weather conditions, 5 day forecast, local radar image, national radar image and any weather alerts."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -314,7 +314,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Music"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
-            <attribute name="Description" value="Music"/>                    
+            <attribute name="Description" value="The music app allows a user to browse MP3 files using the file system folders."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -340,7 +340,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Photos"/>
             <attribute name="ReleaseDate" value="03/03/05"/>          
-            <attribute name="Description" value="Photos"/>                    
+            <attribute name="Description" value="The photos app allows you to browse JPEG, BMP, PNG and GIF files using the file system folders."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -365,7 +365,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Shoutcast"/>
             <attribute name="ReleaseDate" value="04/16/05"/>          
-            <attribute name="Description" value="Shoutcast"/>                    
+            <attribute name="Description" value="The Shoutcast app allows you to listen to online radio streams based on your favorite genres."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -391,7 +391,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Music Organizer"/>
             <attribute name="ReleaseDate" value="04/22/05"/>          
-            <attribute name="Description" value="Music Organizer"/>                    
+            <attribute name="Description" value="The organizer imports MP3 files from a list of directories, reads their tags and then creates a record for each file in an embedded database. These records are then used to categorize all of the MP3 files based on their tag information."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -416,7 +416,7 @@
           <section name="Galleon">
             <attribute name="Title" value="RSS"/>
             <attribute name="ReleaseDate" value="04/23/05"/>          
-            <attribute name="Description" value="RSS"/>                    
+            <attribute name="Description" value="The RSS app allows you to view their favorite RSS feeds."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -441,7 +441,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Desktop"/>
             <attribute name="ReleaseDate" value="05/04/05"/>          
-            <attribute name="Description" value="Desktop"/>                    
+            <attribute name="Description" value="The Desktop app provides a live view of the desktop of the PC running Galleon."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -467,7 +467,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Email"/>
             <attribute name="ReleaseDate" value="05/09/05"/>          
-            <attribute name="Description" value="Email"/>                    
+            <attribute name="Description" value="The Email app allows you to view your new incoming email on your TiVo."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -492,7 +492,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Internet Images"/>
             <attribute name="ReleaseDate" value="05/14/05"/>          
-            <attribute name="Description" value="Internet Images"/>                    
+            <attribute name="Description" value="The Internet app allows you to view Internet images such as webcams."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -517,7 +517,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Playlists"/>
             <attribute name="ReleaseDate" value="05/14/05"/>          
-            <attribute name="Description" value="Playlists"/>                    
+            <attribute name="Description" value="The Playlists app allows you to play your favorite .m3u and .pls playlists."/>                    
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -568,7 +568,7 @@
           <section name="Galleon">
             <attribute name="Title" value="Podcasting"/>
             <attribute name="ReleaseDate" value="05/20/05"/>          
-            <attribute name="Description" value="Podcasting"/>
+            <attribute name="Description" value="The Podcasting app allows you to subscribe and listen to your favorite podcasts."/>
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -593,7 +593,7 @@
           <section name="Galleon">
             <attribute name="Title" value="iTunes"/>
             <attribute name="ReleaseDate" value="06/04/05"/>          
-            <attribute name="Description" value="iTunes"/>
+            <attribute name="Description" value="The iTunes app allows you to play your iTunes playlists on your TiVo. Only MP3 files are supported."/>
             <attribute name="Documentation" value="help.html"/>                              
             <attribute name="AuthorName" value="Leon Nicholls"/>                                        
             <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
@@ -608,6 +608,32 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/iTunes" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/iTunes.jar" tofile="./apps/iTunes.jar" />        
+        
+        
+        <copy file="./media/images/movies/icon.png" tofile="${build}/org/lnicholls/galleon/apps/movies/icon.png" />        
+        <copy file="./doc/moviesapp.html" tofile="${build}/org/lnicholls/galleon/apps/movies/help.html" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.movies.Movies"/>
+          <attribute name="HME-Arguments" value=""/>
+          <section name="Galleon">
+            <attribute name="Title" value="Movies"/>
+            <attribute name="ReleaseDate" value="07/09/05"/>          
+            <attribute name="Description" value="The Movies app allows you view local movie theater listings."/>
+            <attribute name="Documentation" value="help.html"/>                              
+            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
+            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
+            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
+            <attribute name="Version" value="1.0"/>
+            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.movies.MoviesOptionsPanel"/>            
+            <attribute name="Categories" value="Music"/>            
+          </section>
+        </manifest>        
+        <jar jarfile="${build}/apps/movies.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/movies/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/movies" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/movies.jar" tofile="./apps/movies.jar" />                
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
@@ -616,7 +642,7 @@
 
         <delete dir="${build}/org" />
 
-        <echo>Creating skin</echo>
+        <echo>Creating Galleon skin</echo>
         <copy file="./media/images/busy2.gif" tofile="${build}/skins/music/busy.gif" />                                
         <copy file="./media/images/star.png" tofile="${build}/skins/music/star.png" />                                        
 
@@ -646,8 +672,6 @@
         </copy>        
         
 
-        <copy file="./media/images/busy2.gif" tofile="${build}/skins/shoutcast/busy.gif" />                                
-        <copy file="./media/images/star.png" tofile="${build}/skins/shoutcast/star.png" />                                        
         <copy file="./media/images/shoutcast/icon.png" tofile="${build}/skins/shoutcast/icon.png" />        
         <copy file="./media/images/shoutcast/folder.png" tofile="${build}/skins/shoutcast/folder.png" />                
         <copy file="./media/images/shoutcast/station.png" tofile="${build}/skins/shoutcast/station.png" />                
@@ -690,6 +714,11 @@
         <copy file="./media/images/iTunes/folder.png" tofile="${build}/skins/iTunes/folder.png" />                
         <copy file="./media/images/iTunes/item.png" tofile="${build}/skins/iTunes/item.png" />                
         <copy file="./media/images/iTunes/background.jpg" tofile="${build}/skins/iTunes/background.jpg" />                
+        
+        <copy file="./media/images/movies/icon.png" tofile="${build}/skins/movies/icon.png" />        
+        <copy file="./media/images/movies/folder.png" tofile="${build}/skins/movies/folder.png" />                
+        <copy file="./media/images/movies/item.png" tofile="${build}/skins/movies/item.png" />                
+        <copy file="./media/images/movies/background.jpg" tofile="${build}/skins/movies/background.jpg" />                        
 
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -713,8 +742,115 @@
 -->        
         <delete dir="${build}/skins/podcasting" />
         <delete dir="${build}/skins/iTunes" />
+        <delete dir="${build}/skins/movies" />        
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
+        
+<!-- TiVo Skin -->        
+        <echo>Creating TiVo skin</echo>
+        <copy file="./media/images/busy2.gif" tofile="${build}/skins/music/busy.gif" />                                
+        <copy file="./media/images/star.png" tofile="${build}/skins/music/star.png" />                                        
+
+        <copy file="./media/images/music/icon.png" tofile="${build}/skins/music/icon.png" />        
+        <copy file="./media/images/music/folder.png" tofile="${build}/skins/music/folder.png" />                
+        <copy file="./media/images/music/cd.png" tofile="${build}/skins/music/cd.png" />                
+        <copy file="./media/images/music/playlist.png" tofile="${build}/skins/music/playlist.png" />                        
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/music/background.mpg" />
+
+        <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
+        <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
+        <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
+        <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/photos/background.mpg" />        
+        
+        <copy file="./media/images/togo/background.jpg" tofile="${build}/skins/togo/background.jpg" />
+        <copy file="./media/images/togo/icon.png" tofile="${build}/skins/togo/icon.png" />                
+        <copy file="./media/images/togo/yellowball.png" tofile="${build}/skins/togo/yellowball.png" />                
+        <copy file="./media/images/togo/yellowball!.png" tofile="${build}/skins/togo/yellowball!.png" />                        
+        <copy file="./media/images/togo/greenball.png" tofile="${build}/skins/togo/greenball.png" />                                        
+        <copy file="./media/images/togo/redball.png" tofile="${build}/skins/togo/redball.png" />                                                
+        <copy file="./media/images/togo/blueball.png" tofile="${build}/skins/togo/blueball.png" />                                                        
+        <copy file="./media/images/togo/empty.png" tofile="${build}/skins/togo/empty.png" />                                                                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/togo/background.mpg" />        
+        
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/weather/background.mpg" />
+        <copy todir="${build}/skins/weather/">
+            <fileset dir="./media/images/weather" includes="*.png" />
+        </copy>        
+
+        <copy file="./media/images/shoutcast/icon.png" tofile="${build}/skins/shoutcast/icon.png" />        
+        <copy file="./media/images/shoutcast/folder.png" tofile="${build}/skins/shoutcast/folder.png" />                
+        <copy file="./media/images/shoutcast/station.png" tofile="${build}/skins/shoutcast/station.png" />                
+        <copy file="./media/images/tivo/orange.mpg" tofile="${build}/skins/shoutcast/background.mpg" />
+        
+        <copy file="./media/images/musicOrganizer/icon.png" tofile="${build}/skins/musicOrganizer/icon.png" />        
+        <copy file="./media/images/musicOrganizer/folder.png" tofile="${build}/skins/musicOrganizer/folder.png" />                
+        <copy file="./media/images/musicOrganizer/cd.png" tofile="${build}/skins/musicOrganizer/cd.png" />                
+        <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/musicOrganizer/background.mpg" />
+        
+        <copy file="./media/images/rss/icon.png" tofile="${build}/skins/rss/icon.png" />        
+        <copy file="./media/images/rss/folder.png" tofile="${build}/skins/rss/folder.png" />                
+        <copy file="./media/images/rss/item.png" tofile="${build}/skins/rss/item.png" />                
+        <copy file="./media/images/tivo/purple.mpg" tofile="${build}/skins/rss/background.mpg" />
+        
+        <copy file="./media/images/desktop/icon.png" tofile="${build}/skins/desktop/icon.png" />        
+        
+        <copy file="./media/images/email/icon.png" tofile="${build}/skins/email/icon.png" />                
+        <copy file="./media/images/tivo/purple.mpg" tofile="${build}/skins/email/background.mpg" />
+        <copy file="./media/images/email/folder.png" tofile="${build}/skins/email/folder.png" />
+        
+        <copy file="./media/images/internet/icon.png" tofile="${build}/skins/internet/icon.png" />                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/internet/background.mpg" />
+        
+        <copy file="./media/images/playlists/icon.png" tofile="${build}/skins/playlists/icon.png" />                
+        <copy file="./media/images/tivo/orange.mpg" tofile="${build}/skins/playlists/background.mpg" />
+        <copy file="./media/images/playlists/playlist.png" tofile="${build}/skins/playlists/playlist.png" />                                
+        
+        
+<!--
+        <copy file="./media/images/audioScrobbler/icon.png" tofile="${build}/skins/audioScrobbler/icon.png" />                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/audioScrobbler/background.mpg" />
+        <copy file="./media/images/audioScrobbler/item.png" tofile="${build}/skins/audioScrobbler/item.png" />
+-->
+        <copy file="./media/images/podcasting/icon.png" tofile="${build}/skins/podcasting/icon.png" />        
+        <copy file="./media/images/podcasting/folder.png" tofile="${build}/skins/podcasting/folder.png" />                
+        <copy file="./media/images/podcasting/item.png" tofile="${build}/skins/podcasting/item.png" />                
+        <copy file="./media/images/tivo/purple.mpg" tofile="${build}/skins/podcasting/background.mpg" />
+        
+        <copy file="./media/images/iTunes/icon.png" tofile="${build}/skins/iTunes/icon.png" />        
+        <copy file="./media/images/iTunes/folder.png" tofile="${build}/skins/iTunes/folder.png" />                
+        <copy file="./media/images/iTunes/item.png" tofile="${build}/skins/iTunes/item.png" />                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/iTunes/background.mpg" />
+        
+        <copy file="./media/images/movies/icon.png" tofile="${build}/skins/movies/icon.png" />        
+        <copy file="./media/images/movies/folder.png" tofile="${build}/skins/movies/folder.png" />                
+        <copy file="./media/images/movies/item.png" tofile="${build}/skins/movies/item.png" />                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/movies/background.mpg" />        
+
+        <copy file="./skins/tivoskin.xml" tofile="${build}/skins/skin.xml" />        
+        <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
+        <zip destfile="${build}/skins/tivo.gln" basedir="${build}/skins" compress="yes"/>
+        <copy file="${build}/skins/tivo.gln" tofile="./skins/tivo.gln" />                                
+
+
+        <delete dir="${build}/skins/music" />
+        <delete dir="${build}/skins/photos" />        
+        <delete dir="${build}/skins/shoutcast" />        
+        <delete dir="${build}/skins/togo" />                
+        <delete dir="${build}/skins/weather" />                
+        <delete dir="${build}/skins/rss" />                        
+        <delete dir="${build}/skins/musicOrganizer" />                                
+        <delete dir="${build}/skins/desktop" />                                        
+        <delete dir="${build}/skins/email" />                                                        
+        <delete dir="${build}/skins/playlists" />                                                                
+        <delete dir="${build}/skins/internet" />                                                                        
+<!--
+        <delete dir="${build}/skins/audioScrobbler" />
+-->        
+        <delete dir="${build}/skins/podcasting" />
+        <delete dir="${build}/skins/iTunes" />
+        <delete dir="${build}/skins/movies" />        
+        <delete file="${build}/skins/skin.xml" />                        
+        <delete file="${build}/skins/Readme.txt" />                                        
     </target>
     
     <target name="combinejars">    

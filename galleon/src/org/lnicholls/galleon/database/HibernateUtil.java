@@ -64,6 +64,8 @@ public class HibernateUtil {
             configuration.addClass(PersistentValue.class);
             configuration.addClass(Playlist.class);
             configuration.addClass(Podcast.class);
+            configuration.addClass(Movie.class);
+            configuration.addClass(Theater.class);
 
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {
@@ -105,7 +107,7 @@ public class HibernateUtil {
                 Version version = (Version) versions.get(0);
                 return version.getMajor() == Constants.CURRENT_VERSION.getMajor()
                         && version.getRelease() == Constants.CURRENT_VERSION.getRelease()
-                        && version.getRelease() == Constants.CURRENT_VERSION.getRelease()
+                        && version.getMaintenance() == Constants.CURRENT_VERSION.getMaintenance()
                         && version.getDevelopment() == Constants.CURRENT_VERSION.getDevelopment();
             }
         } catch (HibernateException he) {
@@ -125,7 +127,7 @@ public class HibernateUtil {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            Version current = new Version(Constants.CURRENT_VERSION.getMajor(), Constants.CURRENT_VERSION.getRelease(), Constants.CURRENT_VERSION.getRelease(),Constants.CURRENT_VERSION.getDevelopment(),new Date());
+            Version current = new Version(Constants.CURRENT_VERSION.getMajor(), Constants.CURRENT_VERSION.getRelease(), Constants.CURRENT_VERSION.getMaintenance(),Constants.CURRENT_VERSION.getDevelopment(),new Date());
             session.save(current);
             tx.commit();
         } catch (HibernateException he) {

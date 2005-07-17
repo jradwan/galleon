@@ -16,10 +16,16 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Color;
+
+import org.lnicholls.galleon.util.Tools;
+
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
+import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
+import com.tivo.hme.sdk.View;
 
 public class DefaultMenuScreen extends DefaultScreen {
 
@@ -39,10 +45,61 @@ public class DefaultMenuScreen extends DefaultScreen {
     public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
         mMenuList.init();
         mMenuList.setFocus(mFocus,false);
+        
+        /*
+        mAnimationThread = new Thread(){
+            public void run()
+            {
+                int ease = 1;             // The current ease value
+                int animTime = 10000;  // Animation time
+                try
+                {
+                    boolean parity = false;
+                    while (getContext() != null) {
+                        parity = !parity;
+                        
+                        Resource anim = getResource("*" + animTime + ","
+                                + ((float)ease / 100f));
+                        
+                        mTitleAnimation.setLocation(-mTitleAnimation.getWidth(),0);
+                        mTitleAnimation.setTransparency(0.7f);
+                        mTitleAnimation.setVisible(true);
+                        
+                        mTitleAnimation.setLocation(getWidth(),0, anim);
+                        mTitleAnimation.setTransparency(1.0f, anim);
+                        mTitleAnimation.flush();
+                        
+                        try {
+                            synchronized (this) {
+                                wait(animTime);
+                            }
+                        } catch (InterruptedException e) {
+                            return;
+                        }   
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(DefaultMenuScreen.class, ex);
+                }
+            }
+            
+            public void interrupt() {
+                synchronized (this) {
+                    super.interrupt();
+                }
+            }
+        };
+        mAnimationThread.start();
+        */        
+        
         return super.handleEnter(arg, isReturn);
     }
 
     public boolean handleExit() {
+        if (mAnimationThread != null && mAnimationThread.isAlive()) {
+            mAnimationThread.interrupt();
+            mAnimationThread = null;
+        }
+        
         mFocus = mMenuList.getFocus();
         mMenuList.clearViews();
         return super.handleExit();
@@ -118,4 +175,6 @@ public class DefaultMenuScreen extends DefaultScreen {
     protected int mFocus;
     
     private Resource mRowResource;
+    
+    private Thread mAnimationThread;
 }

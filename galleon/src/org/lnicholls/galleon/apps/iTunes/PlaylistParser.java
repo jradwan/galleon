@@ -211,6 +211,15 @@ public class PlaylistParser extends DefaultHandler {
                             if (list != null && list.size() > 0) {
                                 Audio audio = (Audio) list.get(0);
                                 if (audio != null && mPlaylist != null) {
+                                	if (!audio.getPath().startsWith("http"))
+                                    {
+                                    	File file = new File(audio.getPath());
+                                    	if (!file.exists())
+                                    	{
+                                    		return;
+                                    	}
+                                    }
+                                	
                                     //mPlaylist.getTracks().add(new PlaylistTrack(audio));
                                     mPlaylistTracks.add(new PlaylistTrack(audio));
                                     try {
@@ -314,7 +323,7 @@ public class PlaylistParser extends DefaultHandler {
                 try {
                     File file = new File(location);
                     if (file.exists() && file.getName().toLowerCase().endsWith(".mp3")) {
-                        location = file.getAbsolutePath();
+                        location = file.getCanonicalPath();
                         audio.setPath(location);
                     } else
                         return;
@@ -334,7 +343,7 @@ public class PlaylistParser extends DefaultHandler {
             } catch (Exception ex) {
                 Tools.logException(PlaylistParser.class, ex);
             }
-
+            
             try {
                 if (track.containsKey("Date Modified")) {
                     Date modified = mDateFormat.parse((String) track.get("Date Modified"));

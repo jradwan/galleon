@@ -59,4 +59,6 @@ public interface ServerControl extends Remote {
     public List getWinampSkins() throws RemoteException;
     
     public List getSkins() throws RemoteException;
+    
+    public int getPort() throws RemoteException;
 }

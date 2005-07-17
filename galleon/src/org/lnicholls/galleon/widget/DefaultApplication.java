@@ -156,6 +156,13 @@ public class DefaultApplication extends BApplication {
         case KEY_SLOW:
             mPlayer.stopTrack();
             break;
+        /*
+        case KEY_ADVANCE:
+        	play("right.snd");
+            flush();
+        	mPlayer.jumpTrack();
+            break;
+            */            
         case KEY_CLEAR:
             setActive(false);
             break;
@@ -239,6 +246,8 @@ public class DefaultApplication extends BApplication {
         public static final int PAUSE = 1;
 
         public static final int STOP = 2;
+        
+        public static final int FORWARD = 3;
 
         public Player(DefaultApplication defaultApplication) {
             mDefaultApplication = defaultApplication;
@@ -263,8 +272,16 @@ public class DefaultApplication extends BApplication {
             //System.out.println("playTrack:");
             if (mPlayerState != PLAY) {
                 if (mStreamResource != null) {
-                    mPlayerState = PLAY;
-                    mStreamResource.play();
+                    if (mPlayerState == FORWARD)
+                    {
+                    	mPlayerState = PLAY;
+                    	mStreamResource.setSpeed(1);
+                    }
+                    else
+                    {
+                    	mPlayerState = PLAY;
+                    	mStreamResource.play();
+                    }
                 } else
                     startTrack();
             }
@@ -342,6 +359,53 @@ public class DefaultApplication extends BApplication {
                     mStreamResource = null;
                     mDefaultApplication.flush();
                     reset();
+                }
+            }
+        }
+        
+        public void jumpTrack() {
+            //System.out.println("stopTrack:");
+            if (mPlayerState != STOP) {
+                if (mStreamResource != null) {
+                	mPlayerState = FORWARD;
+                	
+                	int skip = mTotal/4;
+                	System.out.println("skip="+skip);
+                	
+                	System.out.println("mCurrentPosition="+mCurrentPosition);
+                	
+                	if (mCurrentPosition < 1*skip)
+                	{
+                		System.out.println("new position="+1*skip);
+                		mStreamResource.setPosition(1*skip);
+                	}
+                	else
+            		if (mCurrentPosition < 2*skip)
+            		{
+            			System.out.println("new position="+2*skip);
+            			mStreamResource.setPosition(2*skip);
+            		}
+            		else                		
+            		if (mCurrentPosition < 3*skip)
+            		{
+            			System.out.println("new position="+3*skip);
+            			mStreamResource.setPosition(3*skip);
+            		}
+                	else                		
+            		if (mCurrentPosition < 4*skip)
+            		{
+            			System.out.println("new position="+4*skip);
+            			mStreamResource.setPosition(4*skip);
+            		}
+            		else
+            		{
+            			System.out.println(0);
+            			mStreamResource.setPosition(0);
+            		}
+                	
+                	mStreamResource.setSpeed(3);
+                	mDefaultApplication.flush();
+                	System.out.println("flushed");
                 }
             }
         }

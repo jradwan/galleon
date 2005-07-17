@@ -125,7 +125,21 @@ public final class Galleon implements Constants {
              * mServerConfiguration.getIPAddress(); if (mAddress == null || mAddress.length() == 0) mAddress =
              * "127.0.0.1";
              */
-            mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099);
+            for (int i=0;i<100;i++)
+            {
+                try
+                {
+                    mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099+i);
+                    String[] names = mRegistry.list();
+                    log.info("Found server at: " + mServerAddress + " on " +(1099+i));
+                    break;
+                }
+                catch (Throwable ex)
+                {
+                    if (log.isDebugEnabled())
+                        Tools.logException(Galleon.class, ex);    
+                }
+            }
 
             File directory = new File(System.getProperty("apps"));
             if (!directory.exists() || !directory.isDirectory()) {
@@ -425,6 +439,19 @@ public final class Galleon implements Constants {
                     JOptionPane.ERROR_MESSAGE);
         }
         return null;
+    }
+    
+    public static int getPort() {
+        try {
+            ServerControl serverControl = getServerControl();
+            return serverControl.getPort();
+        } catch (Exception ex) {
+            Tools.logException(Galleon.class, ex, "Could not get port from server: " + mServerAddress);
+
+            JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return -1;
     }
     
     public static class ConnectionDialog extends JDialog {

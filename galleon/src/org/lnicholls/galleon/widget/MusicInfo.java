@@ -37,6 +37,7 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
+import com.tivo.hme.sdk.View;
 
 public class MusicInfo extends BView {
 
@@ -57,6 +58,8 @@ public class MusicInfo extends BView {
         int start = 0;
 
         mCover = new BView(this, this.getWidth() - 210, 130, 200, 200, false);
+        mCover.setResource(Color.BLACK);
+        mCover.setTransparency(0.75f);
 
         mTitleText = new BText(this, 0, start, this.getWidth(), 70);
         mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
@@ -67,43 +70,43 @@ public class MusicInfo extends BView {
 
         start += 70;
 
-        mSongText = new BText(this, 0, start, this.getWidth(), 20);
+        mSongText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mSongText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mSongText.setFont("default-18-bold.font");
         mSongText.setShadow(true);
 
-        mTrackText = new BText(this, 0, start, this.getWidth(), 20);
+        mTrackText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mTrackText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mTrackText.setFont("default-18-bold.font");
         mTrackText.setShadow(true);
 
         start += 20;
 
-        mAlbumText = new BText(this, 0, start, this.getWidth(), 20);
+        mAlbumText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mAlbumText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mAlbumText.setFont("default-18-bold.font");
         mAlbumText.setShadow(true);
 
-        mYearText = new BText(this, 0, start, this.getWidth(), 20);
+        mYearText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mYearText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mYearText.setFont("default-18-bold.font");
         mYearText.setShadow(true);
 
         start += 20;
 
-        mArtistText = new BText(this, 0, start, this.getWidth(), 20);
+        mArtistText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mArtistText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mArtistText.setFont("default-18-bold.font");
         mArtistText.setShadow(true);
 
-        mGenreText = new BText(this, 0, start, this.getWidth(), 20);
+        mGenreText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mGenreText.setFlags(RSRC_HALIGN_RIGHT | RSRC_VALIGN_TOP);
         mGenreText.setFont("default-18-bold.font");
         mGenreText.setShadow(true);
 
         start += 20;
 
-        mDurationText = new BText(this, 0, start, this.getWidth(), 20);
+        mDurationText = new LabelText(this, 0, start, this.getWidth(), 20, true);
         mDurationText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_TOP);
         mDurationText.setFont("default-18-bold.font");
         mDurationText.setShadow(true);
@@ -125,7 +128,7 @@ public class MusicInfo extends BView {
         setAudio(audio, audio.getTitle());
     }
 
-    public void setAudio(final Audio audio, String title) {
+    public synchronized void setAudio(final Audio audio, String title) {
         if (audio != null) {
             try {
                 setPainting(false);
@@ -134,7 +137,9 @@ public class MusicInfo extends BView {
                 if (song.equals(Mp3File.DEFAULT_ARTIST))
                     song = title;
                 if (audio.getPath().startsWith("http")) {
-                    mSongText.setValue("Stream: " + Tools.trim(song, 80));
+                    //mSongText.setValue("Stream: " + Tools.trim(song, 80));
+                    mSongText.setLabel("Stream:");
+                    mSongText.setValue(Tools.trim(song, 80));
                     mTrackText.setVisible(false);
                     mDurationText.setVisible(false);
                     mAlbumText.setVisible(false);
@@ -151,13 +156,23 @@ public class MusicInfo extends BView {
                         }
                     }
                 } else {
-                    mSongText.setValue("Song: " + Tools.trim(Tools.clean(song), 40));
-                    mTrackText.setValue("Track: " + audio.getTrack());
-                    mDurationText.setValue("Duration: " + mTimeFormat.format(new Date(audio.getDuration())));
-                    mAlbumText.setValue("Album: " + Tools.trim(audio.getAlbum(), 40));
-                    mYearText.setValue("Year: " + String.valueOf(audio.getDate()));
-                    mArtistText.setValue("Artist: " + Tools.trim(audio.getArtist(), 40));
-                    mGenreText.setValue("Genre: " + audio.getGenre());
+                    mSongText.setLabel("Title:");
+                    mSongText.setValue(Tools.trim(song, 45));
+                    mTrackText.setLabel("Track:");
+                    mTrackText.setValue(String.valueOf(audio.getTrack()));
+                    mDurationText.setLabel("Duration:");
+                    mDurationText.setValue(mTimeFormat.format(new Date(audio.getDuration())));
+                    mAlbumText.setLabel("Album:");
+                    mAlbumText.setValue(Tools.trim(audio.getAlbum(), 40));
+                    mYearText.setLabel("Year:");
+                    if (audio.getDate()==0)
+                    	mYearText.setValue("None");
+                    else
+                    	mYearText.setValue(String.valueOf(audio.getDate()));
+                    mArtistText.setLabel("Artist:");
+                    mArtistText.setValue(Tools.trim(audio.getArtist(), 40));
+                    mGenreText.setLabel("Genre:");
+                    mGenreText.setValue(audio.getGenre());
                     mDurationText.setVisible(true);
                     mAlbumText.setVisible(true);
                     mYearText.setVisible(true);
@@ -166,144 +181,170 @@ public class MusicInfo extends BView {
                 }
 
                 setRating(audio);
+                
+                if (mAudio==null || !mAudio.getId().equals(audio.getId()))
+                {
+                	mAudio = audio;
 
-                if (mAudio != null) {
-                    if (!audio.getArtist().equals(mAudio.getArtist())) {
-                        if (mResults != null) {
-                            mResults.clear();
-                            mResults = null;
-                        }
-                    }
-                }
-
-                if (mAudio == null || audio.getId()==null || !audio.getId().equals(mAudio.getId())) {
-                    clearCover();
-
-                    if (mCoverThread != null && mCoverThread.isAlive()) {
-                        mCoverThread.interrupt();
-                        mCoverThread = null;
-                    }
-
-                    if (!audio.getPath().startsWith("http")) {
+                	if (mCoverThread==null)
+                    {
                         mCoverThread = new Thread() {
-                            public void run() {
+                        	public void run() {
                                 int x = mCover.getX();
                                 int y = mCover.getY();
                                 
-                                try {
-                                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
-                                            .getMusicPlayerConfiguration();
-                                    java.awt.Image image = Mp3File.getCover(audio, musicPlayerConfiguration
-                                            .isUseAmazon(), musicPlayerConfiguration.isUseFile());
-                                    if (image != null) {
-                                        synchronized (this) {
-                                            mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-                                            mCover.setVisible(true);
-                                            mCover.setTransparency(1.0f);
-                                            mCover.setTransparency(0.0f, mAnim);
-                                            getBApp().flush();
-                                        }
-                                    } else {
-                                        synchronized (this) {
-                                            mCover.clearResource();
-                                            mCover.setVisible(false);
-                                            getBApp().flush();
-                                        }
-                                    }
-                                } catch (Exception ex) {
-                                    Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
-                                }
-
-                                while (mWebImages & getApp().getContext() != null) {
-                                    try {
-                                        if (mCover.getResource() != null)
-                                            sleep(10000);
-
-                                        synchronized (this) {
-                                            //mBusy.setVisible(true);
-                                            getBApp().flush();
-                                        }
-
-                                        if (mResults == null || mResults.size() == 0) {
-                                            if (mResults != null) {
-                                                mResults.clear();
-                                                mResults = null;
-                                            }
-
-                                            mResults = Yahoo.getImages("\"" + audio.getArtist() + "\" music");
-                                            mPos = 0;
-                                        }
-                                        if (mResults.size() == 0) {
-                                            synchronized (this) {
-                                                setPainting(false);
-                                                try {
-                                                    //mBusy.setVisible(false);
-                                                    getBApp().flush();
-                                                } finally {
-                                                    setPainting(true);
-                                                }
-                                            }
-                                            return;
-                                        }
-
-                                        NameValue nameValue = (NameValue) mResults.get(mPos);
-                                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
-
-                                        if (image != null) {
-                                            synchronized (this) {
-                                                setPainting(false);
-                                                try {
-                                                    if (mCover.getResource() != null)
-                                                        mCover.getResource().remove();
-                                                    //mUrlText.setValue(nameValue.getName());
-                                                    mCover.setLocation(x + mCover.getWidth(), y);
-                                                    mCover.setVisible(true);
-                                                    mCover.setTransparency(1f);
-                                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-                                                    Resource resource = getResource("*1000");
-                                                    mCover.setTransparency(0f, resource);
-                                                    mCover.setLocation(x, y, resource);
-                                                    image.flush();
-                                                    image = null;
-                                                } finally {
-                                                    setPainting(true);
-                                                }
-                                            }
-                                        } else {
-                                            mResults.remove(mPos);
-                                        }
-
-                                        mPos = (mPos + 1) % mResults.size();
-
-                                    } catch (InterruptedException ex) {
-                                        return;
-                                    } catch (Exception ex) {
-                                        Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
-                                        try {
-                                            mResults.remove(mPos);
-                                        } catch (Throwable ex2) {
-                                        }
-                                    } finally {
-                                        getBApp().flush();
-                                    }
-                                }
-                            }
-
-                            public void interrupt() {
-                                synchronized (this) {
-                                    super.interrupt();
+                                Audio audio = null;
+                                while (true)
+                                {
+                                	if (mAudio!=null && !mAudio.getPath().startsWith("http")) {
+                                		if (audio==null || !audio.getId().equals(mAudio.getId()))
+                                		{
+    	                            		try {
+    	            		                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+    	            		                            .getMusicPlayerConfiguration();
+    	            		                    java.awt.Image image = Mp3File.getCover(mAudio, musicPlayerConfiguration
+    	            		                            .isUseAmazon(), musicPlayerConfiguration.isUseFile());
+    	            		                    if (image != null) {
+    	            		                        synchronized (this) {
+    	            		                            mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+    	            		                            mCover.setVisible(true);
+    	            		                            mCover.setTransparency(0.0f, mAnim);
+    	            		                            getBApp().flush();
+    	            		                        }
+    	            		                    } else {
+    	            		                        synchronized (this) {
+    	            		                            mCover.clearResource();
+    	            		                            mCover.setVisible(false);
+    	            		                            getBApp().flush();
+    	            		                        }
+    	            		                    }
+    	            		                    audio = mAudio;
+    	            		                } catch (Exception ex) {
+    	            		                    Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
+    	            		                }
+    	            		                
+    	            		                while (mWebImages & getApp().getContext() != null) {
+    	            		                    try {
+    	            		                        if (mCover.getResource() != null)
+    	            		                        	synchronized(this)
+    	            		                        	{
+    	            		                        		wait(10000);
+    	            		                        	}
+    	            		                        
+    	            		                        if (!audio.getArtist().equals(mAudio.getArtist()))
+    	            		                        {
+    	            		                        	if (mResults != null) {
+    	            		                                mResults.clear();
+    	            		                                mResults = null;
+    	            		                            }
+    	
+    	            		                        	mCover.setVisible(false);
+    	            		                            if (mCover.getResource() != null)
+    	            		                                mCover.getResource().remove();
+    	            		                        	
+    	            		                            break;
+    	            		                        }
+    	            		
+    	            		                        if (mResults == null) {
+    	            		                            if (mResults != null) {
+    	            		                                mResults.clear();
+    	            		                                mResults = null;
+    	            		                            }
+    	            		
+    	            		                            mResults = Yahoo.getImages("\"" + audio.getArtist() + "\" music");
+    	            		                            if (mResults.size() == 0) {
+    	            		                                mResults = null;
+    	            		                                return;
+    	            		                            }
+    	            		                            mPos = 0;
+    	            		                        }
+    	            		
+    	            		                        NameValue nameValue = (NameValue) mResults.get(mPos);
+    	            		                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
+    	            		
+    	            		                        if (image != null) {
+    	            		                                setPainting(false);
+    	            		                                try {
+    	            		                                    if (mCover.getResource() != null)
+    	            		                                        mCover.getResource().remove();
+    	            		                                    //mUrlText.setValue(nameValue.getName());
+    	            		                                    mCover.setLocation(x + mCover.getWidth(), y);
+    	            		                                    mCover.setVisible(true);
+    	            		                                    mCover.setTransparency(1f);
+    	            		                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+    	            		                                    Resource resource = getResource("*1000");
+    	            		                                    mCover.setTransparency(0f, resource);
+    	            		                                    mCover.setLocation(x, y, resource);
+    	            		                                    image.flush();
+    	            		                                    image = null;
+    	            		                                } finally {
+    	            		                                    setPainting(true);
+    	            		                                }
+    	            		                        } else {
+    	            		                            mResults.remove(mPos);
+    	            		                        }
+    	            		
+    	            		                        mPos = (mPos + 1) % mResults.size();
+    	            		
+    	            		                    } catch (InterruptedException ex) {
+    	            		                        return;
+    	            		                    } catch (Exception ex) {
+    	            		                        Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
+    	            		                        try {
+    	            		                            mResults.remove(mPos);
+    	            		                        } catch (Throwable ex2) {
+    	            		                        }
+    	            		                    } finally {
+    	            		                        getBApp().flush();
+    	            		                    }
+    	            		                }
+                                		}
+                                		else
+                                    	{
+                                			try
+                    	                	{
+                    		                	synchronized(this)
+                                            	{
+                                            		wait(10000);
+                                            	}
+                    	                	} catch (InterruptedException ex) {
+                    	                        return;
+                    	                	}
+                                    	}
+                	                }
+                                	else
+                                	{
+    		                            try
+                	                	{
+                		                	synchronized(this)
+                                        	{
+                		                		mCover.setVisible(false);
+            		                            if (mCover.getResource() != null)
+            		                                mCover.getResource().remove();
+            		                            getBApp().flush();
+                		                		
+                                        		wait(10000);
+                                        	}
+                	                	} catch (InterruptedException ex) {
+                	                        return;
+                	                	}
+                                	}
                                 }
                             }
                         };
                         mCoverThread.start();
                     }
+                	
+                    synchronized(mCoverThread)
+	                {
+	                	mCoverThread.notifyAll();
+	                }
                 }
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
             } finally {
                 setPainting(true);
             }
-            mAudio = audio;
         }
     }
 
@@ -330,16 +371,18 @@ public class MusicInfo extends BView {
     private void clearCover() {
         setPainting(false);
         try {
-            if (mCoverThread != null && mCoverThread.isAlive()) {
-                mCoverThread.interrupt();
-                mCoverThread = null;
-                /*
-                 * if (mResults != null) { mResults.clear(); mResults = null; }
-                 */
-
-                mCover.setVisible(false);
-                if (mCover.getResource() != null)
-                    mCover.getResource().remove();
+                if (mCoverThread != null && mCoverThread.isAlive()) {
+                    mCoverThread.interrupt();
+                    mCoverThread = null;
+                    
+                    /*
+                     * if (mResults != null) { mResults.clear(); mResults = null; }
+                     */
+    /*
+                    mCover.setVisible(false);
+                    if (mCover.getResource() != null)
+                        mCover.getResource().remove();
+*/                        
             }
         } finally {
             setPainting(true);
@@ -402,22 +445,22 @@ public class MusicInfo extends BView {
     private Resource mAnim = getResource("*2000");
 
     private BView mCover;
-
+    
     private BText mTitleText;
 
-    private BText mSongText;
+    private LabelText mSongText;
 
-    private BText mTrackText;
+    private LabelText mTrackText;
 
-    private BText mArtistText;
+    private LabelText mArtistText;
 
-    private BText mAlbumText;
+    private LabelText mAlbumText;
 
-    private BText mDurationText;
+    private LabelText mDurationText;
 
-    private BText mYearText;
+    private LabelText mYearText;
 
-    private BText mGenreText;
+    private LabelText mGenreText;
 
     private Tracker mTracker;
 

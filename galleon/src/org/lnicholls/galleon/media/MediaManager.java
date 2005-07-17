@@ -72,16 +72,10 @@ public final class MediaManager {
             return JpgFile.getImage(filename);
         }    
         else if (filename.toLowerCase().endsWith(".png") || filename.toLowerCase().endsWith(".bmp")
-                || filename.toLowerCase().endsWith(".gif") || filename.toLowerCase().endsWith(".pnm")
-                || filename.toLowerCase().endsWith(".tiff") || filename.toLowerCase().endsWith(".tif")
-                || filename.toLowerCase().endsWith(".wbmp") || filename.toLowerCase().endsWith(".fpx")
-                || filename.toLowerCase().endsWith(".pgm"))
+                || filename.toLowerCase().endsWith(".gif") || filename.toLowerCase().endsWith(".wbmp"))
         {               
-            //return new ImageProxy(filename);
+        	return ImageFile.getImage(filename);
         }    
-        else
-            return null;    
-            
         return null;    
     }
     

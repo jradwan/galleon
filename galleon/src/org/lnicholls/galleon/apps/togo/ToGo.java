@@ -100,36 +100,15 @@ public class ToGo extends DefaultApplication {
             mDateFormat.applyPattern("EEE M/dd");
             mCalendar = new GregorianCalendar();
 
-            int start = TOP - 30;
-            int offset = 30;
+            int start = TOP - 25;
 
             ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getContext().getFactory())
                     .getAppContext().getConfiguration();
-            BText countText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
-            countText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+            BText countText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
+            countText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
             countText.setFont("default-18.font");
             countText.setColor(Color.GREEN);
             countText.setShadow(true);
-
-            BText lengthText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
-            lengthText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-            lengthText.setFont("default-18.font");
-            lengthText.setColor(Color.GREEN);
-            lengthText.setShadow(true);
-
-            start += 20;
-
-            BText sizeText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
-            sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-            sizeText.setFont("default-18.font");
-            sizeText.setColor(Color.GREEN);
-            sizeText.setShadow(true);
-
-            BText availableText = new BText(getNormal(), BORDER_LEFT + offset, start, BODY_WIDTH - 2 * offset, 20);
-            availableText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-            availableText.setFont("default-18.font");
-            availableText.setColor(Color.GREEN);
-            availableText.setShadow(true);
 
             int totalCount = 0;
             int totalTime = 0;
@@ -173,17 +152,21 @@ public class ToGo extends DefaultApplication {
                 long available = (totalCapacity * 1024) - (totalSize / (1024 * 1024));
                 if (available < 0)
                     available = 0;
-                countText.setValue("Total: " + String.valueOf(totalCount));
+                String value = "";
+                value = "Total: " + String.valueOf(totalCount);
                 SimpleDateFormat timeFormat = new SimpleDateFormat();
                 timeFormat.applyPattern("H:mm");
                 int duration = (int) Math.rint(totalTime / 1000 / 60.0);
                 mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
                 mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
-                lengthText.setValue("Length: " + timeFormat.format(mCalendar.getTime()));
+                value = value + "   " + "Length: " + timeFormat.format(mCalendar.getTime());
                 DecimalFormat numberFormat = new DecimalFormat("###,###");
-                sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
-                availableText.setValue("Available: " + numberFormat.format(available) + " MB");
+                //sizeText.setValue("Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB");
+                value = value + "   " + "Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB";
+                value = value + "   " + "Available: " + numberFormat.format(available) + " MB";
+                
+                countText.setValue(value);
             }
 
             //setFooter("Press 0 for Sort by Date, 1 Group All, 2 Group Suggestions"); // 0 for Sort by Title, 1 List

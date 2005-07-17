@@ -31,8 +31,12 @@ public class DefaultScreen extends BScreen {
     private static final Logger log = Logger.getLogger(DefaultScreen.class.getName());
 
     protected final int TOP = SAFE_TITLE_V + 80;
-
-    protected final int BORDER_LEFT = SAFE_TITLE_H;
+    
+    protected final int PAD = 10;
+    
+    protected final int BORDER_TOP = TOP + PAD;
+    
+    protected final int BORDER_LEFT = SAFE_TITLE_H + PAD;
 
     protected final int BODY_WIDTH = getWidth() - BORDER_LEFT - (SAFE_TITLE_H);
 
@@ -79,6 +83,20 @@ public class DefaultScreen extends BScreen {
 
     public DefaultScreen(DefaultApplication app, String background, String title, boolean hints) {
         super(app);
+        
+        /*
+        mTitleAnimation = new BView(getBelow(), 0, 0, getWidth()/2, 100, false);
+        //mTitleAnimation.setResource(Color.RED);
+        BText text = new BText(mTitleAnimation, 0, 0, mTitleAnimation.getWidth(), mTitleAnimation.getHeight());
+        text.setValue("MUSIC");
+        text.setColor(Color.yellow);
+        //text.setShadow(Color.black, 3);
+        text.setFlags(RSRC_HALIGN_CENTER | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
+        text.setFont("default-100.font");
+        
+        //mTitleAnimation.setResource(createImage("galleon.png"));
+         */
+
         setTitle(title);
 
         if (background != null)
@@ -128,7 +146,7 @@ public class DefaultScreen extends BScreen {
     public void setTitle(String value) {
         if (value != null && value.length() > 0) {
             if (mTitle == null) {
-                mTitle = new BText(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)), 110);
+                mTitle = new BText(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)) - 20, 110);
                 mTitle.setValue(" ");
                 mTitle.setColor(Color.yellow);
                 mTitle.setShadow(Color.black, 3);
@@ -140,11 +158,27 @@ public class DefaultScreen extends BScreen {
             mTitle.setValue(value);
         }
     }
+    
+    public void setSmallTitle(String value) {
+        if (value != null && value.length() > 0) {
+            if (mTitle == null) {
+                mTitle = new BText(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)) - 20, 110);
+                mTitle.setValue(" ");
+                mTitle.setColor(Color.yellow);
+                mTitle.setShadow(Color.black, 3);
+                //mTitle.setFlags(RSRC_HALIGN_CENTER);
+                mTitle.setFlags(RSRC_HALIGN_CENTER | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
+                mTitle.setFont("default-24.font");
+            }
+
+            mTitle.setValue(value);
+        }
+    }
 
     public void setFooter(String value) {
         if (value != null && value.length() > 0) {
             if (mFooter == null) {
-                mFooter = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 18, (getWidth() - (SAFE_TITLE_H * 2)), 20);
+                mFooter = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)), 20);
                 mFooter.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
                 mFooter.setFont("default-18.font");
             }
@@ -177,4 +211,6 @@ public class DefaultScreen extends BScreen {
     private HintsView mHints;
 
     protected BView mBusy;
+    
+    protected BView mTitleAnimation;
 }

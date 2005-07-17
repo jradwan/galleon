@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import org.lnicholls.galleon.util.*;
+
 /**
  * Manage all app jar files. The directory in which app jars are deployed are scanned and queried for their app
  * descriptors. The manager will instantiate a app based on settings in the configuration file.
@@ -166,14 +168,19 @@ public final class AppManager {
     
     public void removeApp(AppContext appContext)
     {
-        Iterator iterator = mApps.iterator();
-        while (iterator.hasNext()) {
-            AppFactory app = (AppFactory) iterator.next();
-            if (appContext.getId()==app.getAppContext().getId())
-            {
-                mApps.remove(app);
-                return;
-            }
+    	try {
+	    	Iterator iterator = mApps.iterator();
+	        while (iterator.hasNext()) {
+	            AppFactory app = (AppFactory) iterator.next();
+	            if (appContext.getId()==app.getAppContext().getId())
+	            {
+	                mAppFactory.getListener().remove(app);
+	                mApps.remove(app);
+	                return;
+	            }
+	        }
+    	} catch (Exception ex) {
+            Tools.logException(AppManager.class, ex, "Could not remove app");
         }
     }
     

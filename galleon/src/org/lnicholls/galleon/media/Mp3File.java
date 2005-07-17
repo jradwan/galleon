@@ -314,8 +314,13 @@ public final class Mp3File {
     }
 
     public static final Audio getAudio(Audio audio, String filename) {
-        audio.setPath(filename);
         File file = new File(filename);
+        try {
+            audio.setPath(file.getCanonicalPath());
+        } catch (Exception ex) {
+            Tools.logException(Mp3File.class, ex, filename);
+        }
+        
         audio.setSize(file.length());
         audio.setDateModified(new Date(file.lastModified()));
         try {

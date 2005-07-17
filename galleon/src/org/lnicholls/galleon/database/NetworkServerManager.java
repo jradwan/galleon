@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.util.Tools;
 
 public class NetworkServerManager {
 
@@ -70,6 +71,13 @@ public class NetworkServerManager {
                 {
                     log.error("Invalid derby.drda.portNumber: "+ derbyProperties.getProperty("derby.drda.portNumber"), ex);    
                 }
+            }
+            
+            int port = Tools.findAvailablePort(mPort);
+            if (port!=mPort)
+            {
+                mPort = port;
+                log.info("Changed port to "+mPort);
             }
     
             try {
@@ -163,7 +171,7 @@ public class NetworkServerManager {
         waitForStart();
         
         //Connection conn =
-        // DriverManager.getConnection("jdbc:derby:galleon;user=galleon;password=galleon"+";create=true");
+        //DriverManager.getConnection("jdbc:derby:galleon;user=galleon;password=galleon"+";create=true");
         Connection conn = DriverManager.getConnection(mHibernateProperties.getProperty("hibernate.connection.url")
                 + ";create=true");
         

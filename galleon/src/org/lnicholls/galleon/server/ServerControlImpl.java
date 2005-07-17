@@ -121,4 +121,9 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     {
         return Server.getServer().getWinampSkins();
     }
+    
+    public int getPort() throws RemoteException
+    {
+        return Server.getServer().getPort();
+    }
 }

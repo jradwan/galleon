@@ -1,6 +1,18 @@
 Galleon
 -------
 
+Version 1.0.1:
+----------------------
+Made screensaver configurable.
+Added new skin with TiVo look-and-feel.
+Improved default port logic.
+Support more image formats: jpg, png, gif, bmp, wbmp
+Added play to top-level music, iTunes, photo, organizer menus.
+Fixed app removal.
+Movies app.
+Fix web images update bug.
+
+
 Version 1.0.0:
 ----------------------
 Fixed playlist app play bug.
@@ -159,7 +171,6 @@ Known issues:
 4. Galleon requires the 1.4 JRE, but the 1.5 JRE is highly recommended.
 5. Weather errors arent handled properly.
 6. Weather web links need parameters.
-7. App removal requires Galleon to be restarted.
 8. Weather currently only uses zip.
 9. When you start Galleon, it might take some time before the ToGo list is populated.
 19. Music app only plays one folder of songs at a time.

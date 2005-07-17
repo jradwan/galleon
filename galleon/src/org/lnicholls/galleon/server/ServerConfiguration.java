@@ -86,7 +86,9 @@ public class ServerConfiguration implements Serializable {
     }
 
     public String getIPAddress() {
-        return mIPAddress;
+        if (mIPAddress==null)
+        	return Tools.getLocalIpAddress();
+    	return mIPAddress;
     }
 
     public void setShuffleItems(boolean shuffleItems) {

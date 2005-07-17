@@ -163,6 +163,7 @@ public class MainFrame extends JFrame {
                                 "Galleon Version "
                                         + Tools.getVersion()
                                         + "\nJava Version "+System.getProperty("java.vm.version")
+                                        + "\nPort "+Galleon.getPort()
                                         + "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\nCopyright \251 2005 Leon Nicholls. All Rights Reserved.",
                                 "About", JOptionPane.INFORMATION_MESSAGE);
             }
@@ -650,6 +651,10 @@ public class MainFrame extends JFrame {
             builder.addSeparator("Network", cc.xyw(1, 19, 6));
             builder.addLabel("Port", cc.xy(1, 21));
             builder.add(mPort, cc.xy(3, 21));
+            if (serverConfiguration.getPort()!=Galleon.getPort())
+            {
+                builder.addLabel("("+Galleon.getPort()+")", cc.xy(4, 21));    
+            }
             builder.addLabel("PC IP Address", cc.xy(1, 23));
             builder.add(mIPAddress, cc.xy(3, 23));
             button = new JButton("<< Test...");
@@ -703,7 +708,7 @@ public class MainFrame extends JFrame {
                     mServerConfiguration.setShuffleItems(mShuffleItems.isSelected());
                     mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
                     mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
-                    mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText()));
+                    mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText().trim()));
                     mServerConfiguration.setDebug(mDebug.isSelected());
 
                     Galleon.updateServerConfiguration(mServerConfiguration);
@@ -858,13 +863,17 @@ public class MainFrame extends JFrame {
                     }
                 }
             });
-
+            
             mRandomPlayFoldersField = new JCheckBox("Random play folders          ");
             mRandomPlayFoldersField.setToolTipText("Check to specify that music in folders should be played randomly");
             mRandomPlayFoldersField.setSelected(musicPlayerConfiguration.isRandomPlayFolders());
+            
+            mScreensaverField = new JCheckBox("Screensaver          ");
+            mScreensaverField.setToolTipText("Check to enable the screensaver");
+            mScreensaverField.setSelected(musicPlayerConfiguration.isScreensaver());            
 
             FormLayout layout = new FormLayout("right:pref, 3dlu, 100dlu:g, right:pref:grow",
-                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
+                    "pref, 3dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
 
             PanelBuilder builder = new PanelBuilder(layout);
             //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
@@ -890,10 +899,11 @@ public class MainFrame extends JFrame {
             builder.add(label, cc.xy(1, 7));
             builder.add(mSkinsField, cc.xyw(3, 7, 1));
             builder.add(mRandomPlayFoldersField, cc.xyw(1, 9, 3));
-            builder.addSeparator("Album Art", cc.xyw(1, 11, 4));
-            builder.add(mUseAmazonField, cc.xyw(1, 13, 3));
-            builder.add(mUseFileField, cc.xyw(1, 15, 3));
-            builder.add(mShowImagesField, cc.xyw(1, 17, 3));
+            builder.add(mScreensaverField, cc.xyw(1, 11, 3));
+            builder.addSeparator("Album Art", cc.xyw(1, 13, 4));
+            builder.add(mUseAmazonField, cc.xyw(1, 15, 3));
+            builder.add(mUseFileField, cc.xyw(1, 17, 3));
+            builder.add(mShowImagesField, cc.xyw(1, 19, 3));
 
             getContentPane().add(builder.getPanel(), "Center");
 
@@ -936,6 +946,7 @@ public class MainFrame extends JFrame {
                     musicPlayerConfiguration.setUseFile(mUseFileField.isSelected());
                     musicPlayerConfiguration.setShowImages(mShowImagesField.isSelected());
                     musicPlayerConfiguration.setRandomPlayFolders(mRandomPlayFoldersField.isSelected());
+                    musicPlayerConfiguration.setScreensaver(mScreensaverField.isSelected());
 
                     Galleon.updateServerConfiguration(mServerConfiguration);
                 } catch (Exception ex) {
@@ -968,6 +979,8 @@ public class MainFrame extends JFrame {
         private JCheckBox mShowImagesField;
 
         private JCheckBox mRandomPlayFoldersField;
+        
+        private JCheckBox mScreensaverField;
 
         private ServerConfiguration mServerConfiguration;
     }

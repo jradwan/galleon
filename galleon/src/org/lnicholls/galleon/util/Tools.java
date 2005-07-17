@@ -39,6 +39,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -714,6 +715,21 @@ public class Tools {
         }
         return null;
     }
+    
+    public static void deleteCachedImage(String key) {
+        try {
+        	List list = ThumbnailManager.findByKey(key);
+        	if (list!=null && list.size()>0)
+        	{
+        		Thumbnail thumbnail = (Thumbnail) list.get(0);
+            	ThumbnailManager.deleteThumbnail(thumbnail);
+        	}
+        } catch (HibernateException ex) {
+            log.error("Image delete failed", ex);
+        } catch (Exception ex) {
+            Tools.logException(Tools.class, ex, key);
+        }
+    }    
 
     public static Image getImage(URL url, int width, int height) {
         if (url != null) {
@@ -847,5 +863,26 @@ public class Tools {
             Tools.logException(Tools.class, ex, value);
         }
         return value;
+    }
+    
+    public static int findAvailablePort(int port) {
+        if (log.isDebugEnabled())
+            log.debug("findAvailablePort: "+port);
+        for (int i=0;i<100;i++)
+        {
+            try {
+                if (log.isDebugEnabled())
+                    log.debug("Trying port " + port);
+                ServerSocket serverSocket = new ServerSocket(port);
+                serverSocket.close();
+                serverSocket = null;
+                break;
+            } catch (Exception ex) {
+                if (log.isDebugEnabled())
+                    log.debug("Port " + port + " is already in use.");
+                port = port + 1;
+            }
+        }
+        return port;
     }
 }

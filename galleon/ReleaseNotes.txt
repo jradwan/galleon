@@ -1,7 +1,7 @@
 Galleon
 -------
 
-Version 1.0.1:
+Version 1.1.0:
 ----------------------
 Made screensaver configurable.
 Added new skin with TiVo look-and-feel.

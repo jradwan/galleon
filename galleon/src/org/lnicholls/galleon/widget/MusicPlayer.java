@@ -42,7 +42,7 @@ public class MusicPlayer extends DefaultPlayer {
             DefaultApplication application, Tracker tracker) {
         this(parent, x, y, width, height, visible, application, tracker, true);
     }
-
+    
     public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
             DefaultApplication application, Tracker tracker, boolean showWebImages) {
         super(parent, x, y, width, height, visible);

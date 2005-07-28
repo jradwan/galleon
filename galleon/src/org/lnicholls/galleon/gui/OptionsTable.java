@@ -275,8 +275,17 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                     }
                 }
                 for (int i = 0; i < mFields.size(); i++) {
-                    JTextField field = (JTextField) mFields.get(i);
-                    field.setText("");
+                    if (mFields.get(i) instanceof JTextField)
+                    {
+                    	JTextField field = (JTextField) mFields.get(i);
+                    	field.setText("");
+                    }
+                    else
+                	if (mFields.get(i) instanceof JComboBox)
+                    {
+                		JComboBox field = (JComboBox) mFields.get(i);
+                    	field.setSelectedIndex(0);
+                    }                    	
                 }
             } catch (Exception ex) {
                 Tools.logException(OptionsTable.class, ex);

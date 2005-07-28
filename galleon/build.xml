@@ -994,6 +994,8 @@
         <copy file="./bin/unix/Realpath" tofile="${build}/bin/Realpath" />
         <copy file="./bin/unix/Wrapper" tofile="${build}/bin/Wrapper" />
         <copy file="./bin/unix/Galleon" tofile="${build}/bin/Galleon" />
+        <copy file="./bin/unix/run.sh" tofile="${build}/bin/run.sh" />        
+        <copy file="./bin/unix/gui.sh" tofile="${build}/bin/gui.sh" />                
         <chmod file="${build}/bin/*" perm="a+rx" />        
     </target>
 

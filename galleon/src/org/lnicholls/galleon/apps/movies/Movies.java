@@ -403,6 +403,11 @@ public class Movies extends DefaultApplication {
 			mGenreText.setValue(movie.getGenre());
 
 			if (movie.getThumbUrl().length()>0) {
+				if (mImageThread != null && mImageThread.isAlive()) {
+					mImageThread.interrupt();
+					mImageThread = null;
+				}
+				
 				mImageThread = new Thread() {
 					public void run() {
 						int x = mImage.getX();
@@ -411,7 +416,11 @@ public class Movies extends DefaultApplication {
 						try {
 							Image image = Tools.retrieveCachedImage(new URL(movie.getThumbUrl()));
 							if (image==null)
+							{
 								image = Tools.getImage(new URL(movie.getThumbUrl()), -1, -1);
+								if (image!=null)
+									Tools.cacheImage(image, image.getWidth(null), image.getHeight(null), movie.getThumbUrl());
+							}
 							if (image != null) {
 								synchronized (this) {
 									mImage.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
@@ -435,8 +444,8 @@ public class Movies extends DefaultApplication {
 			}
 			else
 			{
-				setPainting(false);
 				try {
+					setPainting(false);
 					mImage.setVisible(false);
 					if (mImage.getResource() != null)
 						mImage.getResource().remove();
@@ -447,16 +456,16 @@ public class Movies extends DefaultApplication {
 		}
 
 		private void clearImage() {
-			setPainting(false);
 			try {
+				setPainting(false);
 				if (mImageThread != null && mImageThread.isAlive()) {
 					mImageThread.interrupt();
 					mImageThread = null;
-
-					mImage.setVisible(false);
-					if (mImage.getResource() != null)
-						mImage.getResource().remove();
 				}
+				mImage.setVisible(false);
+				if (mImage.getResource() != null)
+					mImage.getResource().remove();
+				getBApp().flush();
 			} finally {
 				setPainting(true);
 			}
@@ -522,7 +531,7 @@ public class Movies extends DefaultApplication {
 
 		private Thread mImageThread;
 
-		private Resource mAnim = getResource("*2000");
+		private Resource mAnim = getResource("*1000");
 	}
 
 	public class LyricsScreen extends DefaultScreen {
@@ -757,8 +766,8 @@ public class Movies extends DefaultApplication {
 						}
 						if (mResults.size() == 0) {
 							synchronized (this) {
-								setPainting(false);
 								try {
+									setPainting(false);
 									mBusy.setVisible(false);
 									getBApp().flush();
 								} finally {
@@ -773,8 +782,8 @@ public class Movies extends DefaultApplication {
 
 						if (image != null) {
 							synchronized (this) {
-								setPainting(false);
 								try {
+									setPainting(false);
 									if (mImageView.getResource() != null)
 										mImageView.getResource().remove();
 									mUrlText.setValue(nameValue.getName());
@@ -797,8 +806,8 @@ public class Movies extends DefaultApplication {
 						mResults.remove(mPos);
 					} finally {
 						synchronized (this) {
-							setPainting(false);
 							try {
+								setPainting(false);
 								if (mResults != null && mResults.size() > 0)
 									mPosText.setValue(String.valueOf(mPos + 1) + " of "
 											+ String.valueOf(mResults.size()));
@@ -829,8 +838,8 @@ public class Movies extends DefaultApplication {
 		}
 
 		public boolean handleExit() {
-			setPainting(false);
 			try {
+				setPainting(false);
 				if (mImageThread != null && mImageThread.isAlive()) {
 					mImageThread.interrupt();
 					mImageThread = null;
@@ -902,6 +911,7 @@ public class Movies extends DefaultApplication {
 			Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
 				public void reload() {
 					try {
+						log.debug("Movies");
 						HashMap currentTheaters = new HashMap();
 						HashMap currentMovies = new HashMap();
 						
@@ -1105,6 +1115,7 @@ public class Movies extends DefaultApplication {
 									}
 								}
 							}
+							parser = null;
 						} catch (Exception ex) {
 							Tools.logException(Movies.class, ex);
 						}
@@ -1113,7 +1124,7 @@ public class Movies extends DefaultApplication {
 						{
 							try
 							{
-								NodeFilter filter = null;
+									NodeFilter filter = null;
 						           NodeList list = new NodeList ();
 						           
 						           String theatre = null;
@@ -1275,6 +1286,7 @@ public class Movies extends DefaultApplication {
 							    			   }
 							               }
 							           }
+							           parser = null;
 						           }								
 							} catch (Exception ex) {
 								Tools.logException(Movies.class, ex);

@@ -127,7 +127,8 @@ public class AudioScrobbler extends DefaultApplication {
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
-                        updateData();
+                        log.debug("Audioscrobbler");
+                    	updateData();
                     } catch (Exception ex) {
                         log.error("Could not download data", ex);
                     }
@@ -177,13 +178,13 @@ public class AudioScrobbler extends DefaultApplication {
                                     }
 
                                     int ttl = channel.getTtl();
-                                    if (ttl == 0 || ttl == -1)
-                                        ttl = 60 * 60;
-                                    else
-                                        ttl = ttl * 60;
+                                    if (ttl < 10)
+                						ttl = 60;
+                					else
+                						ttl = 60 * 6;
 
                                     PersistentValueManager.savePersistentValue(AudioScrobblerFactory.this.getClass()
-                                            .getName(), content, ttl);
+                                            .getName(), content, ttl * 60);
                                     return;
                                 }
                             }

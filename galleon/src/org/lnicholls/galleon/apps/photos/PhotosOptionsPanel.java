@@ -119,11 +119,16 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
         mTransitionTimeField.addItem(new ImagesWrapper("19 seconds", "19"));
         mTransitionTimeField.addItem(new ImagesWrapper("20 seconds", "20"));
         defaultCombo(mTransitionTimeField, String.valueOf(imagesConfiguration.getTransitionTime()));
+        
+        mRandomPlayFoldersField = new JCheckBox("Random play folders          ");
+        mRandomPlayFoldersField.setToolTipText("Check to specify that photos in folders should be played randomly");
+        mRandomPlayFoldersField.setSelected(imagesConfiguration.isRandomPlayFolders());        
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, 9dlu, " + // general
                 "pref, 9dlu, " + // title
                 "pref, 9dlu, " + // options
                 "pref, 9dlu, " + // safe
+                "pref, 9dlu, " + // random                
                 "pref, 9dlu, " + // slideshow effects
                 "pref, 9dlu, " + // effect
                 "pref, 9dlu, " + // display time
@@ -142,14 +147,15 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
         builder.add(mTitleField, cc.xyw(3, 3, 1));
         builder.addSeparator("Options", cc.xyw(1, 5, 4));
         builder.add(mUseSafeField, cc.xyw(3, 7, 1));
-        builder.addSeparator("Slideshow Effects", cc.xyw(1, 9, 4));
-        builder.addLabel("Effect", cc.xy(1, 11));
-        builder.add(mEffectsField, cc.xyw(3, 11, 1));
-        builder.addLabel("Display Time", cc.xy(1, 13));
-        builder.add(mDisplayTimeField, cc.xy(3, 13));
-        builder.addLabel("Transition Time", cc.xy(1, 15));
-        builder.add(mTransitionTimeField, cc.xy(3, 15));
-        builder.addSeparator("Directories", cc.xyw(1, 17, 4));
+        builder.add(mRandomPlayFoldersField, cc.xyw(3, 9, 1));
+        builder.addSeparator("Slideshow Effects", cc.xyw(1, 11, 4));
+        builder.addLabel("Effect", cc.xy(1, 13));
+        builder.add(mEffectsField, cc.xyw(3, 13, 1));
+        builder.addLabel("Display Time", cc.xy(1, 15));
+        builder.add(mDisplayTimeField, cc.xy(3, 15));
+        builder.addLabel("Transition Time", cc.xy(1, 17));
+        builder.add(mTransitionTimeField, cc.xy(3, 17));
+        builder.addSeparator("Directories", cc.xyw(1, 19, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -167,7 +173,7 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
         columnNames.add(1, "Path");
         //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
         // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 19, 4));
+        builder.add(mFileOptionsTable, cc.xyw(1, 21, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -200,6 +206,7 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
                 .getValue()));
         imagesConfiguration.setTransitionTime(Integer.parseInt(((NameValue) mTransitionTimeField.getSelectedItem())
                 .getValue()));
+        imagesConfiguration.setRandomPlayFolders(mRandomPlayFoldersField.isSelected());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
         while (iterator.hasNext()) {
@@ -213,6 +220,8 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
     private JTextComponent mTitleField;
 
     private JCheckBox mUseSafeField;
+    
+    private JCheckBox mRandomPlayFoldersField;
 
     private JComboBox mEffectsField;
 

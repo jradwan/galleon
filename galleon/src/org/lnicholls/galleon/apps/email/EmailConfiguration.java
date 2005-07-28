@@ -110,6 +110,14 @@ public class EmailConfiguration implements AppConfiguration {
         public void setPassword(String value) {
             mPassword = value;
         }
+        
+        public boolean valid() {
+            return mValid;
+        }
+
+        public void setValid(boolean value) {
+            mValid = value;
+        }
 
         public String toString() {
             return ToStringBuilder.reflectionToString(this);
@@ -124,6 +132,8 @@ public class EmailConfiguration implements AppConfiguration {
         private String mUsername;
 
         private String mPassword;
+        
+        private boolean mValid = true;
     }
 
     private String mName;

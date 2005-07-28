@@ -126,4 +126,19 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     {
         return Server.getServer().getPort();
     }
+    
+    public List getPodcasts() throws RemoteException
+    {
+        return Server.getServer().getPodcasts();
+    }    
+    
+    public void setPodcasts(List list) throws RemoteException
+    {
+        Server.getServer().setPodcasts(list);
+    }
+    
+    public boolean isCurrentVersion() throws RemoteException
+    {
+    	return Server.getServer().isCurrentVersion();
+    }
 }

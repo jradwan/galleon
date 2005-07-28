@@ -561,6 +561,7 @@ public class ToGo {
         value = value.replaceAll("\\\\", " ");
         value = value.replaceAll("/", " ");
         value = value.replaceAll("\"", " ");
+        value = value.replaceAll("\\?", " ");
         return value;
     }
     

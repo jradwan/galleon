@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Iterator;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
@@ -54,7 +55,8 @@ public class PlaylistParser extends DefaultHandler {
         super();
 
         try {
-            XMLReader xmlReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+        	mCurrentPlaylists = new ArrayList(); 
+        	XMLReader xmlReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
             xmlReader.setContentHandler(this);
             xmlReader.setErrorHandler(this);
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -64,6 +66,35 @@ public class PlaylistParser extends DefaultHandler {
                 xmlReader.parse(new InputSource(fileInputStream));
                 fileInputStream.close();
             }
+            
+            // Remove old playlists
+            List list = PlaylistManager.listAll();
+            if (list!=null && list.size()>0)
+            {
+	            Iterator playlistIterator = list.iterator();
+	        	while (playlistIterator.hasNext())
+	            {
+	            	Playlist playlist = (Playlist)playlistIterator.next();
+	            	boolean found = false;
+	            	Iterator iterator = mCurrentPlaylists.iterator();
+	                while (iterator.hasNext())
+	                {
+	                	Playlist currentPlaylist = (Playlist)iterator.next();
+	                	if (currentPlaylist.getExternalId().equals(playlist.getExternalId()))
+	                	{
+	                		found = true;
+	                		break;
+	                	}
+	                }
+	                
+	                if (!found)
+	                {
+	                	PlaylistManager.deletePlaylist(playlist);
+	                	log.debug("Removed playlist: "+playlist.getTitle());
+	                }
+	            }
+            }
+            mCurrentPlaylists.clear();
         } catch (IOException ex) {
             Tools.logException(PlaylistParser.class, ex);
         } catch (SAXException ex) {
@@ -154,7 +185,7 @@ public class PlaylistParser extends DefaultHandler {
                 mTracks = null;
 
                 try {
-                    Thread.sleep(10); // give the CPU some breathing time
+                    Thread.sleep(50); // give the CPU some breathing time
                 } catch (Exception ex) {
                 }
             }
@@ -198,6 +229,8 @@ public class PlaylistParser extends DefaultHandler {
                             if (mPlaylist.getId() == null) {
                                 PlaylistManager.createPlaylist(mPlaylist);
                             }
+                            
+                            mCurrentPlaylists.add(mPlaylist);
 
                             mPlaylistTracks = new ArrayList();
                         } catch (Exception ex) {
@@ -223,7 +256,7 @@ public class PlaylistParser extends DefaultHandler {
                                     //mPlaylist.getTracks().add(new PlaylistTrack(audio));
                                     mPlaylistTracks.add(new PlaylistTrack(audio));
                                     try {
-                                        Thread.sleep(10); // give the CPU some breathing time
+                                        Thread.sleep(50); // give the CPU some breathing time
                                     } catch (Exception ex) {
                                     }
                                 }
@@ -507,4 +540,6 @@ public class PlaylistParser extends DefaultHandler {
     private Playlist mPlaylist;
 
     private ArrayList mPlaylistTracks;
+    
+    private ArrayList mCurrentPlaylists;
 }

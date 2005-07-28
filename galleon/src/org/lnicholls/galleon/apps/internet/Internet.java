@@ -472,6 +472,7 @@ public class Internet extends DefaultApplication {
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
+                    	log.debug("Internet");
                         updateImages();
                     } catch (Exception ex) {
                         log.error("Could not download internet images", ex);

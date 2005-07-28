@@ -1946,7 +1946,8 @@ public class MusicOrganizer extends DefaultApplication {
             Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
-                        if (mMediaRefreshThread == null || !mMediaRefreshThread.isAlive()) {
+                    	log.debug("Organizer");
+                    	if (mMediaRefreshThread == null || !mMediaRefreshThread.isAlive()) {
                             updatePaths();
                         }
                     } catch (Exception ex) {

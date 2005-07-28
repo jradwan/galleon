@@ -38,10 +38,12 @@ import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -143,6 +145,8 @@ public class RSS extends DefaultApplication {
     public class RSSFeedMenuScreen extends DefaultMenuScreen {
         public RSSFeedMenuScreen(RSS app, NameValue nameValue, List list) {
             super(app, null);
+            
+            mList = list;
 
             getBelow().setResource(mMenuBackground);
 
@@ -166,7 +170,9 @@ public class RSS extends DefaultApplication {
                     load();
                     ItemIF item = (ItemIF) mMenuList.get(mMenuList.getFocus());
 
-                    RSSScreen rssScreen = new RSSScreen((RSS) getBApp(), item);
+                    Tracker tracker = new Tracker(mList, mMenuList.getFocus());
+                    
+                    RSSScreen rssScreen = new RSSScreen((RSS) getBApp(), tracker);
                     getBApp().push(rssScreen, TRANSITION_LEFT);
                     getBApp().flush();
                     return true;
@@ -183,7 +189,7 @@ public class RSS extends DefaultApplication {
             BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
-            name.setValue(Tools.trim(cleanHTML(item.getTitle()), 40));
+            name.setValue(Tools.trim(Tools.cleanHTML(item.getTitle()), 40));
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
@@ -196,21 +202,23 @@ public class RSS extends DefaultApplication {
         }
 
         private BView mImage;
+        
+        private List mList;
     }
 
     public class RSSScreen extends DefaultScreen {
 
-        public RSSScreen(RSS app, ItemIF item) {
-            super(app);
+        public RSSScreen(RSS app, Tracker tracker) {
+            super(app, true);
             
-            setSmallTitle(cleanHTML(item.getTitle()));
-
+            mTracker = tracker;
+            
             getBelow().setResource(mInfoBackground);
 
             int start = TOP;
 
-            mScrollText = new ScrollText(getNormal(), BORDER_LEFT, BORDER_TOP, BODY_WIDTH - 10, getHeight() - 2
-                    * SAFE_TITLE_V - 175, cleanHTML(item.getDescription()));
+            mScrollText = new ScrollText(getNormal(), BORDER_LEFT, BORDER_TOP, BODY_WIDTH - 25, getHeight() - 2
+                    * SAFE_TITLE_V - 175, "");
 
             /*
              * mList = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 40, (width -
@@ -218,10 +226,23 @@ public class RSS extends DefaultApplication {
              */
 
             BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
+        }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+			updateView();
+
+			return super.handleEnter(arg, isReturn);
+		}
+        
+        private void updateView() {
+        	ItemIF item = (ItemIF) mTracker.getList().get(mTracker.getPos());
+        	setSmallTitle(Tools.cleanHTML(item.getTitle()));
+        	mScrollText.setText(Tools.cleanHTML(item.getDescription()));
         }
 
         public boolean handleKeyPress(int code, long rawcode) {
@@ -229,18 +250,42 @@ public class RSS extends DefaultApplication {
             case KEY_SELECT:
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
+            case KEY_CHANNELUP:
+				getBApp().play("pageup.snd");
+				getBApp().flush();
+				getPrevPos();
+				updateView();
+				return true;
+			case KEY_CHANNELDOWN:
+				getBApp().play("pagedown.snd");
+				getBApp().flush();
+				getNextPos();
+				updateView();
+				return true;
             case KEY_UP:
             case KEY_DOWN:
-            case KEY_CHANNELUP:
-            case KEY_CHANNELDOWN:
                 return mScrollText.handleKeyPress(code, rawcode);
             }
             return super.handleKeyPress(code, rawcode);
         }
+        
+        public void getNextPos() {
+			if (mTracker != null) {
+				int pos = mTracker.getNextPos();
+			}
+		}
+
+		public void getPrevPos() {
+			if (mTracker != null) {
+				int pos = mTracker.getPrevPos();
+			}
+		}
 
         private BList mList;
 
         private ScrollText mScrollText;
+        
+        private Tracker mTracker;
     }
 
     public static class RSSFactory extends AppFactory {
@@ -251,6 +296,7 @@ public class RSS extends DefaultApplication {
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
+                    	log.debug("RSS");
                         updateChannels();
                     } catch (Exception ex) {
                         log.error("Could not download stations", ex);
@@ -312,13 +358,13 @@ public class RSS extends DefaultApplication {
 
                                 if (PersistentValueManager.isAged(persistentValue)) {
                                     int ttl = channel.getTtl();
-                                    if (ttl == 0 || ttl == -1)
-                                        ttl = 60 * 60;
-                                    else
-                                        ttl = ttl * 60;
+                                    if (ttl < 10)
+                						ttl = 60;
+                					else
+                						ttl = 60 * 6;
 
                                     PersistentValueManager.savePersistentValue(RSSFactory.this.getClass().getName()
-                                            + "." + nameValue.getValue() + "." + "content", content, ttl);
+                                            + "." + nameValue.getValue() + "." + "content", content, ttl * 60);
                                 }
                             }
                         } catch (Exception ex) {
@@ -334,27 +380,5 @@ public class RSS extends DefaultApplication {
         }
 
         private static Hashtable mChannels = new Hashtable();
-    }
-
-    private static String cleanHTML(String data) {
-        String result = "";
-        if (data != null) {
-            data = data.replaceAll("\n", " ");
-            int pos1 = data.indexOf("<");
-            if (pos1 != -1) {
-                while (pos1 != -1) {
-                    int pos2 = data.indexOf(">");
-                    if (pos2 == -1) {
-                        result = result + data;
-                        break;
-                    }
-                    result = result + data.substring(0, pos1);
-                    data = data.substring(pos2 + 1);
-                    pos1 = data.indexOf("<");
-                }
-            } else
-                result = data;
-        }
-        return StringEscapeUtils.unescapeHtml(result);
     }
 }

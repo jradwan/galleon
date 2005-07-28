@@ -131,7 +131,7 @@ public class WeatherData implements Serializable {
 
         Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
             public void reload() {
-
+            	log.debug("Weather");
                 if (++mTimeCounter % 144 == 0) // every 720 mins
                 {
                     getAllWeather();

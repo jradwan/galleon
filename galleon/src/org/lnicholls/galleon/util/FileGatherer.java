@@ -114,31 +114,36 @@ public class FileGatherer {
         // to apply several different filters later and we don't want to repeat
         // the listFiles() call for performance reasons.
         File[] directories = directory.listFiles(FileFilters.directoryFilter);
-        if (recursive && directories.length > 0) {
-            for (int i = 0; i < directories.length; ++i) {
-                File dir = resolveLink(directories[i]);
-                if (dir != null) // broken shortcut
-                {
-                    gatherDirectoryFromFileSystem(dir, suffixFilter, true, recursionDepth, callback);
-                }
-            }
+        if (directories!=null )
+        {
+	        if (recursive && directories.length > 0) {
+	            for (int i = 0; i < directories.length; ++i) {
+	                File dir = resolveLink(directories[i]);
+	                if (dir != null) // broken shortcut
+	                {
+	                    gatherDirectoryFromFileSystem(dir, suffixFilter, true, recursionDepth, callback);
+	                }
+	            }
+	        }
         }
         directories = null;
 
         File[] files = directory.listFiles();
-
-        // Iterate through the list of files, taking the correct action by type.
-        for (int i = 0; i < files.length; ++i) {
-            // Before applying file filters, dereference shortcuts (if any)
-            File file = resolveLink(files[i]);
-            if (file != null) // broken shortcut
-            {
-                if (suffixFilter.accept(file))
-                    try {
-                        callback.visit(file, files[i]);
-                    } catch (Throwable ex) {
-                    }
-            }
+        if (files!=null)
+        {
+	        // Iterate through the list of files, taking the correct action by type.
+	        for (int i = 0; i < files.length; ++i) {
+	            // Before applying file filters, dereference shortcuts (if any)
+	            File file = resolveLink(files[i]);
+	            if (file != null) // broken shortcut
+	            {
+	                if (suffixFilter.accept(file))
+	                    try {
+	                        callback.visit(file, files[i]);
+	                    } catch (Throwable ex) {
+	                    }
+	            }
+	        }
         }
         files = null;
 

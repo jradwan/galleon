@@ -51,6 +51,7 @@ public class ShoutcastStations {
         Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
             public void reload() {
                 try {
+                	log.debug("Shoutcast");
                     getPlaylists();
                 } catch (Exception ex) {
                     log.error("Could not download stations", ex);

@@ -753,8 +753,8 @@ public class Playlists extends DefaultApplication {
 
                         if (image != null) {
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                	setPainting(false);
                                     if (mImageView.getResource() != null)
                                         mImageView.getResource().remove();
                                     mUrlText.setValue(nameValue.getName());
@@ -777,8 +777,8 @@ public class Playlists extends DefaultApplication {
                         mResults.remove(mPos);
                     } finally {
                         synchronized (this) {
-                            setPainting(false);
                             try {
+                            	setPainting(false);
                                 if (mResults != null && mResults.size() > 0)
                                     mPosText.setValue(String.valueOf(mPos + 1) + " of "
                                             + String.valueOf(mResults.size()));
@@ -809,8 +809,8 @@ public class Playlists extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+            	setPainting(false);
                 if (mImageThread != null && mImageThread.isAlive()) {
                     mImageThread.interrupt();
                     mImageThread = null;

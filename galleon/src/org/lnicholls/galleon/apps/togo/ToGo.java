@@ -417,6 +417,7 @@ public class ToGo extends DefaultApplication {
                 if (video.getStatus() == Video.STATUS_DOWNLOADING || video.getStatus() == Video.STATUS_DOWNLOADED) {
                     statusBarBg.setVisible(true);
                     statusBar.setVisible(true);
+                    statusBar.setSize(1, statusBar.getHeight());
                     //speedText.setVisible(true);
 
                     if (video.getDownloadTime() > 0) {

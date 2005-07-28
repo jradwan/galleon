@@ -1,6 +1,21 @@
 Galleon
 -------
 
+Version 1.2.0:
+----------------------
+Fixed iTunes reload logic
+Support adding podcast subscription feeds
+Error message for email server problems
+Added support for iTunes RSS tags in podcast app
+Fixed ToGo rules criteria text
+Added paging to RSS and email screens
+Fixed organizer
+Support random play of folders in photos app
+Support music controls during photo slideshow (up/down keys)
+Fixed random play
+Automatic version checking
+
+
 Version 1.1.0:
 ----------------------
 Made screensaver configurable.

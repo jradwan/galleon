@@ -278,7 +278,7 @@ public final class Mp3File {
 
     private static final Boolean DEFAULT_VBR = Boolean.FALSE;
 
-    private static final String DEFAULT_MIME_TYPE = "audio/mpeg";
+    public static final String DEFAULT_MIME_TYPE = "audio/mpeg";
 
     private static final int DEFAULT_TYPE = 0;
 
@@ -289,6 +289,8 @@ public final class Mp3File {
     private static final int DEFAULT_RATING = 0;
 
     private static final String DEFAULT_TONE = "";
+    
+    public static final String PC = "PC";
 
     public static final String getGenre(int number) {
         if ((number < 0) || (number >= genres.length))
@@ -725,6 +727,7 @@ public final class Mp3File {
         audio.setPlayCount(DEFAULT_PLAY_COUNT);
         audio.setRating(DEFAULT_RATING);
         audio.setTone(DEFAULT_TONE);
+        audio.setOrigen(PC);
     }
 
     /*
@@ -951,12 +954,17 @@ public final class Mp3File {
                 Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
                 File file = new File(audio.getPath());
                 if (file.exists()) {
-                    AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
-                    log.debug("Audio Type : " + aff.getType());
-                    AudioInputStream in = AudioSystem.getAudioInputStream(file);
-                    AudioFormat baseFormat = in.getFormat();
-                    log.debug("Source Format : " + baseFormat.toString());
-                    return in;
+                    try
+                    {
+	                	AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);
+	                    log.debug("Audio Type : " + aff.getType());
+	                    AudioInputStream in = AudioSystem.getAudioInputStream(file);
+	                    AudioFormat baseFormat = in.getFormat();
+	                    log.debug("Source Format : " + baseFormat.toString());
+	                    return in;
+                    } catch (Exception ex) {
+                        return new FileInputStream(file);
+                    }
                 }
             } catch (Exception ex) {
                 Tools.logException(Mp3File.class, ex, uri);

@@ -214,17 +214,27 @@ public class DefaultApplication extends BApplication {
 
         public void setRandom(boolean value) {
             mRandom = value;
-            mRandomizer = new Random();
-
-            mPos = getRandomPos();
+            if (mRandom)
+            {
+	            mRandomizer = new Random();
+	            mRandomAvailable = null;
+	            mPos = getRandomPos();
+            }
         }
 
         private int getRandomPos() {
             if (mList.size()>1)
             {
-                int pos = mRandomizer.nextInt(mList.size());
-                while (pos==mPos)
-                    pos = mRandomizer.nextInt(mList.size());
+            	if (mRandomAvailable == null || mRandomAvailable.size()==0)
+            	{
+            		mRandomAvailable = new ArrayList(mList.size());
+            		for (int i=0;i<mList.size();i++)
+            			mRandomAvailable.add(new Integer(i));
+            	}
+            	
+            	int index = mRandomizer.nextInt(mRandomAvailable.size());
+            	int pos = ((Integer)mRandomAvailable.get(index)).intValue();
+            	mRandomAvailable.remove(index);
                 return pos;
             }
             else
@@ -238,6 +248,8 @@ public class DefaultApplication extends BApplication {
         private boolean mRandom;
 
         private Random mRandomizer = new Random();
+        
+        private ArrayList mRandomAvailable = null;
     }
 
     public static class Player implements IHmeEventHandler, IHmeProtocol {

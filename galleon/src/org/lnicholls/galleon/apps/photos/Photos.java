@@ -236,7 +236,10 @@ public class Photos extends DefaultApplication {
 											.getItemsSorted(FileFilters.imageDirectoryFilter),
 									0);
 
-                            getBApp().push(new SlideshowScreen((Photos) getBApp(),tracker), TRANSITION_LEFT);
+							PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
+									.getFactory()).getAppContext().getConfiguration();
+							tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
+							getBApp().push(new SlideshowScreen((Photos) getBApp(),tracker), TRANSITION_LEFT);
 							getBApp().flush();
                         } catch (Exception ex) {
                             Tools.logException(Music.class, ex);
@@ -504,6 +507,9 @@ public class Photos extends DefaultApplication {
 										fileSystemContainer
 												.getItems(FileFilters.imageDirectoryFilter),
 										0);
+								PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
+										.getFactory()).getAppContext().getConfiguration();
+								tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
 								getBApp().push(
 										new SlideshowScreen((Photos) getBApp(),
 												tracker), TRANSITION_LEFT);
@@ -1080,6 +1086,7 @@ public class Photos extends DefaultApplication {
 				mPhoto.setVisible(false);
 				if (mPhoto.getResource() != null)
 					mPhoto.getResource().remove();
+				getBApp().flush();
 			}
 		}
 
@@ -1099,6 +1106,14 @@ public class Photos extends DefaultApplication {
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
+			case KEY_UP:
+            	code = KEY_CHANNELUP;
+            	getApp().handleKeyPress(code, rawcode);
+            	return true;
+            case KEY_DOWN:
+            	code = KEY_CHANNELDOWN;
+            	getApp().handleKeyPress(code, rawcode);
+            	return true;
 			case KEY_CHANNELUP:
 				getBApp().play("pageup.snd");
 				getBApp().flush();

@@ -61,4 +61,10 @@ public interface ServerControl extends Remote {
     public List getSkins() throws RemoteException;
     
     public int getPort() throws RemoteException;
+    
+    public List getPodcasts() throws RemoteException;
+    
+    public void setPodcasts(List list) throws RemoteException;
+    
+    public boolean isCurrentVersion() throws RemoteException;
 }

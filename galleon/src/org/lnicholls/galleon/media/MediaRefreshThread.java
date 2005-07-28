@@ -85,20 +85,22 @@ public class MediaRefreshThread extends Thread {
                                         Audio audio = (Audio) list.get(0);
                                         audio.setPath(file.getCanonicalPath());
                                         Date date = new Date(file.lastModified());
-                                        if (date.getTime() > audio.getDateModified().getTime()) {
+                                        if (date.getTime() > audio.getDateModified().getTime() || audio.getOrigen()==null) {
                                             if (log.isDebugEnabled())
                                                 log.debug("Changed: " + file.getCanonicalPath());
                                             audio = (Audio) MediaManager.getMedia(audio, file.getCanonicalPath());
+                                            audio.setOrigen("PC");
                                             AudioManager.updateAudio(audio);
                                         }
                                     } else {
                                         if (log.isDebugEnabled())
                                             log.debug("New: " + file.getCanonicalPath());
                                         Audio audio = (Audio) MediaManager.getMedia(file.getCanonicalPath());
+                                        audio.setOrigen("PC");
                                         AudioManager.createAudio(audio);
                                     }
                                 }
-                                Thread.sleep(10); // give the CPU some breathing time
+                                Thread.sleep(50); // give the CPU some breathing time
                             } catch (Exception ex) {
                                 Tools.logException(MediaRefreshThread.class, ex, file.getAbsolutePath());
                             }
@@ -120,7 +122,7 @@ public class MediaRefreshThread extends Thread {
                                     if (log.isDebugEnabled())
                                         log.debug("Removed: " + audio.getPath());
                                     
-                                    Thread.sleep(10); // give the CPU some breathing time
+                                    Thread.sleep(50); // give the CPU some breathing time
                                 } catch (Exception ex) {
                                     Tools.logException(MediaRefreshThread.class, ex, "Could not remove: " + audio.getPath());
                                 }

@@ -16,7 +16,9 @@ package org.lnicholls.galleon.database;
  * See the file "COPYING" for more details.
  */
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.hibernate.HibernateException;
@@ -26,6 +28,9 @@ import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.Tools;
 
 public class PodcastManager {
 
@@ -85,6 +90,7 @@ public class PodcastManager {
             session.update(Podcast);
             tx.commit();
         } catch (HibernateException he) {
+        	log.debug(Podcast.getPath());
             if (tx != null)
                 tx.rollback();
             throw he;
@@ -309,4 +315,87 @@ public class PodcastManager {
             HibernateUtil.closeSession();
         }
     }
+    
+    public static List getPodcasts() throws HibernateException
+    {
+    	List names = new ArrayList();
+    	try {
+            List podcasts = listAllSubscribed();
+            if (podcasts != null && podcasts.size() > 0) {
+                for (Iterator i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
+                    Podcast podcast = (Podcast) i.next();
+                    names.add(new NameValue(podcast.getTitle(),podcast.getPath()));
+                }
+            }
+        } catch (Exception ex) {
+            Tools.logException(PodcastManager.class, ex);
+        }
+    	return names;
+    }    
+    
+    public static void setPodcasts(List list) throws HibernateException
+    {
+    	try {
+            List podcasts = listAllSubscribed();
+            if (podcasts != null && podcasts.size() > 0) {
+                Iterator iterator = list.iterator();
+                while (iterator.hasNext())
+                {
+                	NameValue nameValue = (NameValue)iterator.next();
+                	boolean found = false;
+                	for (Iterator i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
+                        Podcast podcast = (Podcast) i.next();
+                        if (podcast.getPath().equals(nameValue.getValue()))
+                        {
+                        	podcast.setTitle(nameValue.getName());
+                        	updatePodcast(podcast);
+                        	found = true;
+                        	break;
+                        }
+                    }
+                    
+                    if (!found)
+                    {
+    	            	Podcast podcast = new Podcast(nameValue.getName(), Podcast.STATUS_SUBSCRIBED, nameValue.getValue(), 0, new ArrayList());
+    	                createPodcast(podcast);
+                    }
+                }
+                
+                // Remove podcasts no longer on list
+                for (Iterator i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
+                    Podcast podcast = (Podcast) i.next();
+                    
+                    boolean found = false;
+                    iterator = list.iterator();
+                    while (iterator.hasNext())
+                    {
+                    	NameValue nameValue = (NameValue)iterator.next();
+                    	if (podcast.getPath().equals(nameValue.getValue()))
+                    	{
+                    		found = true;
+                    		break;
+                    	}
+                    }
+                    if (!found)
+                    {
+                    	podcast.setStatus(Podcast.STATUS_DELETED);
+                    	updatePodcast(podcast);
+                    }
+                }
+            }
+            else
+            {
+            	Iterator iterator = list.iterator();
+                while (iterator.hasNext())
+                {
+                	NameValue nameValue = (NameValue)iterator.next();
+  	            	Podcast podcast = new Podcast(nameValue.getName(), Podcast.STATUS_SUBSCRIBED, nameValue.getValue(), 0, new ArrayList());
+   	                createPodcast(podcast);
+                }            	
+            }
+        } catch (Exception ex) {
+            Tools.logException(PodcastManager.class, ex);
+        }
+    }    
+    
 }

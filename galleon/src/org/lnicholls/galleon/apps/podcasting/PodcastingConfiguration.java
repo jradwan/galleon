@@ -24,87 +24,75 @@ import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 
 public class PodcastingConfiguration implements AppConfiguration {
-    
-    public static int ALL = -1;
 
-    public String getName() {
-        return mName;
-    }
+	public static int ALL = -1;
 
-    public void setName(String value) {
-        if (mName != null && !mName.equals(value))
-            mModified = true;
-        mName = value;
-    }
-    
-    public int getDownload() {
-        return mDownload;
-    }
+	public String getName() {
+		return mName;
+	}
 
-    public void setDownload(int value) {
-        if (mDownload != value)
-            mModified = true;
-        mDownload = value;
-    }
-    
-    public List getDirectorys() {
-        if (mDirectories==null)
-        {
-            mDirectories = new ArrayList();
-            mDirectories.add(new NameValue("iPodder.org","http://www.ipodder.org/discuss/reader$4.opml"));
-            mDirectories.add(new NameValue("iPodderX Top Picks","http://directory.ipodderx.com/opml/iPodderX_Picks.opml"));
-            mDirectories.add(new NameValue("iPodderX Most Popular","http://directory.ipodderx.com/opml/iPodderX_Popular.opml"));
-            mDirectories.add(new NameValue("Podcast Alley Top 50","http://www.podcastalley.com/PodcastAlleyTop50.opml"));
-            mDirectories.add(new NameValue("Podcast Alley 10 Newest","http://www.podcastalley.com/PodcastAlley10Newest.opml"));
-            mDirectories.add(new NameValue("GigaDial 25 Latest","http://www.gigadial.net/public/opml/dial25.opml"));
-            mDirectories.add(new NameValue("Sports Podcast Network","http://sportspodnet.com/opml/spn.opml"));
-        }        
-        return mDirectories;
-    }
+	public void setName(String value) {
+		if (mName != null && !mName.equals(value))
+			mModified = true;
+		mName = value;
+	}
 
-    public void setDirectorys(List value) {
-        mModified = true;
-        mDirectories = value;
-    }
+	public int getDownload() {
+		return mDownload;
+	}
 
-    public void addDirectory(NameValue nameValue) {
-        mModified = true;
-        mDirectories.add(nameValue);
-    }
-    
-    public List getSubscriptions() {
-        return mSubscriptions;
-    }
+	public void setDownload(int value) {
+		if (mDownload != value)
+			mModified = true;
+		mDownload = value;
+	}
 
-    public void setSubscriptions(List value) {
-        mModified = true;
-        mSubscriptions = value;
-    }
+	public List getDirectorys() {
+		if (mDirectories == null) {
+			mDirectories = new ArrayList();
+			mDirectories.add(new NameValue("iPodder.org", "http://www.ipodder.org/discuss/reader$4.opml"));
+			mDirectories.add(new NameValue("iPodderX Top Picks",
+					"http://directory.ipodderx.com/opml/iPodderX_Picks.opml"));
+			mDirectories.add(new NameValue("iPodderX Most Popular",
+					"http://directory.ipodderx.com/opml/iPodderX_Popular.opml"));
+			mDirectories
+					.add(new NameValue("Podcast Alley Top 50", "http://www.podcastalley.com/PodcastAlleyTop50.opml"));
+			mDirectories.add(new NameValue("Podcast Alley 10 Newest",
+					"http://www.podcastalley.com/PodcastAlley10Newest.opml"));
+			mDirectories.add(new NameValue("GigaDial 25 Latest", "http://www.gigadial.net/public/opml/dial25.opml"));
+			mDirectories.add(new NameValue("GigaDial All", "http://www.gigadial.net/public/opml/dial.opml"));
+			mDirectories.add(new NameValue("Sports Podcast Network", "http://sportspodnet.com/opml/spn.opml"));
+		}
+		return mDirectories;
+	}
 
-    public void addSubscription(NameValue nameValue) {
-        mModified = true;
-        mSubscriptions.add(nameValue);
-    }    
-    
-    public void setModified(boolean value) {
-        mModified = value;
-    }
+	public void setDirectorys(List value) {
+		mModified = true;
+		mDirectories = value;
+	}
 
-    public boolean isModified() {
-        return mModified;
-    }
+	public void addDirectory(NameValue nameValue) {
+		mModified = true;
+		mDirectories.add(nameValue);
+	}
 
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	public void setModified(boolean value) {
+		mModified = value;
+	}
 
-    private String mName;
-    
-    private int mDownload = 1;
-    
-    private boolean mModified;
+	public boolean isModified() {
+		return mModified;
+	}
 
-    private List mDirectories;
-    
-    private List mSubscriptions;
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+
+	private String mName;
+
+	private int mDownload = 1;
+
+	private boolean mModified;
+
+	private List mDirectories;
 }

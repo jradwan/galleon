@@ -51,6 +51,7 @@ import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -58,8 +59,11 @@ import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.http.server.HttpRequest;
+import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.util.ArgumentList;
+
+import de.nava.informa.core.ItemIF;
 
 public class Email extends DefaultApplication {
 
@@ -160,6 +164,7 @@ public class Email extends DefaultApplication {
         public EmailAccountMenuScreen(Email app, Account account, List list, boolean first) {
             super(app, null);
 
+            mList = list;
             mFirst = first;
 
             getBelow().setResource(mMenuBackground);
@@ -168,6 +173,16 @@ public class Email extends DefaultApplication {
                     .getAppContext().getConfiguration();
 
             setTitle(account.getName());
+            
+            if (!account.valid())
+            {
+	            BText countText = new BText(getNormal(), BORDER_LEFT, TOP - 25, BODY_WIDTH, 20);
+	            countText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
+	            countText.setFont("default-18.font");
+	            countText.setColor(Color.RED);
+	            countText.setShadow(true);
+	            countText.setValue("Mail server error");
+            }
 
             // Sort by date
             EmailItem[] itemArray = (EmailItem[]) list.toArray(new EmailItem[0]);
@@ -192,7 +207,9 @@ public class Email extends DefaultApplication {
                     load();
                     EmailItem item = (EmailItem) mMenuList.get(mMenuList.getFocus());
 
-                    EmailScreen rssScreen = new EmailScreen((Email) getBApp(), item);
+                    Tracker tracker = new Tracker(mList, mMenuList.getFocus());
+                    
+                    EmailScreen rssScreen = new EmailScreen((Email) getBApp(), tracker);
                     getBApp().push(rssScreen, TRANSITION_LEFT);
                     getBApp().flush();
                     return true;
@@ -226,42 +243,42 @@ public class Email extends DefaultApplication {
         private BView mImage;
 
         private boolean mFirst;
+        
+        private List mList;
     }
 
     public class EmailScreen extends DefaultScreen {
 
-        public EmailScreen(Email app, EmailItem item) {
-            super(app);
+        public EmailScreen(Email app, Tracker tracker) {
+            super(app, true);
             
-            setSmallTitle(Tools.trim(item.getSubject(), 28));
-
+            mTracker = tracker;
+            
             getBelow().setResource(mInfoBackground);
 
             int start = BORDER_TOP;
 
-            BText fromText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
-            fromText.setFlags(RSRC_HALIGN_LEFT);
-            fromText.setFont("default-24-bold.font");
-            fromText.setColor(Color.GREEN);
-            fromText.setShadow(Color.black, 2);
-            fromText.setValue("From: " + item.getFrom());
+            mFromText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            mFromText.setFlags(RSRC_HALIGN_LEFT);
+            mFromText.setFont("default-24-bold.font");
+            mFromText.setColor(Color.GREEN);
+            mFromText.setShadow(Color.black, 2);
 
             start += 30;
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat();
-            dateFormat.applyPattern("EEE M/dd H:mm");
+            mDateFormat = new SimpleDateFormat();
+            mDateFormat.applyPattern("EEE M/dd H:mm");
 
-            BText dateText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
-            dateText.setFlags(RSRC_HALIGN_LEFT);
-            dateText.setFont("default-18-bold.font");
-            dateText.setColor(Color.GREEN);
-            dateText.setShadow(true);
-            dateText.setValue("Date: " + dateFormat.format(item.getDate()));
+            mDateText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
+            mDateText.setFlags(RSRC_HALIGN_LEFT);
+            mDateText.setFont("default-18-bold.font");
+            mDateText.setColor(Color.GREEN);
+            mDateText.setShadow(true);
 
             start += 25;
 
-            mScrollText = new ScrollText(getNormal(), BORDER_LEFT, start, BODY_WIDTH - 10, getHeight() - 2
-                    * SAFE_TITLE_V - 193, cleanHTML(item.getBody()));
+            mScrollText = new ScrollText(getNormal(), BORDER_LEFT, start, BODY_WIDTH - 25, getHeight() - 2
+                    * SAFE_TITLE_V - 193, "");
 
             /*
              * mList = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 40, (width -
@@ -269,29 +286,75 @@ public class Email extends DefaultApplication {
              */
 
             BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
-                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
+                    .round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 35);
             button.setResource(createText("default-24.font", Color.white, "Return to menu"));
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
         }
+        
+        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+			updateView();
+
+			return super.handleEnter(arg, isReturn);
+		}
+        
+        private void updateView() {
+        	EmailItem item = (EmailItem) mTracker.getList().get(mTracker.getPos());
+        	
+        	setSmallTitle(Tools.trim(item.getSubject(), 28));
+        	mFromText.setValue("From: " + item.getFrom());
+        	mDateText.setValue("Date: " + mDateFormat.format(item.getDate()));
+        	mScrollText.setText(cleanHTML(item.getBody()));
+        }        
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
             case KEY_SELECT:
                 postEvent(new BEvent.Action(this, "pop"));
                 return true;
+            case KEY_CHANNELUP:
+				getBApp().play("pageup.snd");
+				getBApp().flush();
+				getPrevPos();
+				updateView();
+				return true;
+			case KEY_CHANNELDOWN:
+				getBApp().play("pagedown.snd");
+				getBApp().flush();
+				getNextPos();
+				updateView();
+				return true;            
             case KEY_UP:
             case KEY_DOWN:
-            case KEY_CHANNELUP:
-            case KEY_CHANNELDOWN:
                 return mScrollText.handleKeyPress(code, rawcode);
             }
             return super.handleKeyPress(code, rawcode);
         }
+        
+        public void getNextPos() {
+			if (mTracker != null) {
+				int pos = mTracker.getNextPos();
+			}
+		}
+
+		public void getPrevPos() {
+			if (mTracker != null) {
+				int pos = mTracker.getPrevPos();
+			}
+		}   
+		
+		private BText mFromText;
+		
+		private BText mDateText;
+		
+		private SimpleDateFormat mDateFormat;
 
         private BList mList;
 
         private ScrollText mScrollText;
+        
+        private Tracker mTracker;
     }
 
     private static class EmailItem {
@@ -341,7 +404,8 @@ public class Email extends DefaultApplication {
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
-                        updateAccounts();
+                    	log.debug("Email");
+                    	updateAccounts();
                     } catch (Exception ex) {
                         log.error("Could not download email", ex);
                     }
@@ -454,10 +518,12 @@ public class Email extends DefaultApplication {
                                 }
                             }
                             folder.close(false);
-
                             store.close();
+                            
+                            account.setValid(true);
                         } catch (Exception ex) {
-                            Tools.logException(Email.class, ex, "Could not reload email");
+                        	account.setValid(false);
+                        	Tools.logException(Email.class, ex, "Could not reload email");
                         }
                     }
                 }

@@ -126,94 +126,123 @@ public class Rule implements Serializable {
         if (mValue.length() == 0)
             return true;
         if (mCriteria.equals(CRITERIA_TITLE)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getTitle().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getTitle().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getTitle().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getTitle().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_DESCRIPTION)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getDescription().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getDescription().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getDescription().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getDescription().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_EPISODE)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getEpisodeTitle().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getEpisodeTitle().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getEpisodeTitle().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getEpisodeTitle().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_CHANNEL)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getChannel().toLowerCase().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getChannel().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getChannel().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getChannel().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_STATION)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getStation().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getStation().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getStation().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getStation().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_RATING)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getRating().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getRating().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getRating().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getRating().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_QUALITY)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getRecordingQuality().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getRecordingQuality().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getRecordingQuality().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getRecordingQuality().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_GENRE)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getProgramGenre().toLowerCase().indexOf(mValue) != -1);
-        } else if (mCriteria.equals(CRITERIA_TYPE)) {
-            if (mComparison.equals(COMPARISON_CONTAINS))
-                return (video.getProgramGenre().toLowerCase().indexOf(mValue) != -1);
-            else if (mComparison.equals(COMPARISON_EQUALS))
-                return (video.getProgramGenre().toLowerCase().equals(mValue));
-            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-                return (video.getProgramGenre().toLowerCase().startsWith(mValue));
-            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-                return (video.getProgramGenre().toLowerCase().endsWith(mValue));
-        } else if (mCriteria.equals(CRITERIA_DATE)) {
-            try {
-                DateFormat dateFormat = new SimpleDateFormat();
-                Date date = dateFormat.parse(mValue);
-                if (mComparison.equals(COMPARISON_EQUALS))
-                    return (video.getDateRecorded().equals(date));
-                else if (mComparison.equals(COMPARISON_MORE_THAN))
-                    return (video.getDateRecorded().after(date));
-                else if (mComparison.equals(COMPARISON_LESS_THAN))
-                    return (video.getDateRecorded().before(date));
-            } catch (ParseException ex) {
-                Tools.logException(Rule.class, ex);
+            if (video.getTitle()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getTitle().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getTitle().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getTitle().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getTitle().toLowerCase().endsWith(mValue));
             }
-
+        } else if (mCriteria.equals(CRITERIA_DESCRIPTION)) {
+            if (video.getDescription()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getDescription().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getDescription().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getDescription().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getDescription().toLowerCase().endsWith(mValue));
+            }
+        } else if (mCriteria.equals(CRITERIA_EPISODE)) {
+            if (video.getEpisodeTitle()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getEpisodeTitle().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getEpisodeTitle().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getEpisodeTitle().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getEpisodeTitle().toLowerCase().endsWith(mValue));
+            }
+        } else if (mCriteria.equals(CRITERIA_CHANNEL)) {
+            if (video.getChannel()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getChannel().toLowerCase().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getChannel().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getChannel().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getChannel().toLowerCase().endsWith(mValue));
+            }
+        } else if (mCriteria.equals(CRITERIA_STATION)) {
+            if (video.getStation()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getStation().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getStation().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getStation().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getStation().toLowerCase().endsWith(mValue));
+            }
+        } else if (mCriteria.equals(CRITERIA_RATING)) {
+            if (video.getRating()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getRating().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getRating().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getRating().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getRating().toLowerCase().endsWith(mValue));
+            }
+        } else if (mCriteria.equals(CRITERIA_QUALITY)) {
+        	if (video.getRecordingQuality()!=null)
+        	{
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getRecordingQuality().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getRecordingQuality().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getRecordingQuality().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getRecordingQuality().toLowerCase().endsWith(mValue));
+        	}
+        } else if (mCriteria.equals(CRITERIA_GENRE)) {
+            if (video.getProgramGenre()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getProgramGenre().toLowerCase().indexOf(mValue) != -1);
+            }
+        } else if (mCriteria.equals(CRITERIA_TYPE)) {
+            if (video.getProgramGenre()!=null)
+            {
+	        	if (mComparison.equals(COMPARISON_CONTAINS))
+	                return (video.getProgramGenre().toLowerCase().indexOf(mValue) != -1);
+	            else if (mComparison.equals(COMPARISON_EQUALS))
+	                return (video.getProgramGenre().toLowerCase().equals(mValue));
+	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
+	                return (video.getProgramGenre().toLowerCase().startsWith(mValue));
+	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
+	                return (video.getProgramGenre().toLowerCase().endsWith(mValue));
+            }
+        } else if (mCriteria.equals(CRITERIA_DATE)) {
+        	if (video.getDateRecorded()!=null)
+        	{
+	        	try {
+	                DateFormat dateFormat = new SimpleDateFormat();
+	                Date date = dateFormat.parse(mValue);
+	                if (mComparison.equals(COMPARISON_EQUALS))
+	                    return (video.getDateRecorded().equals(date));
+	                else if (mComparison.equals(COMPARISON_MORE_THAN))
+	                    return (video.getDateRecorded().after(date));
+	                else if (mComparison.equals(COMPARISON_LESS_THAN))
+	                    return (video.getDateRecorded().before(date));
+	            } catch (ParseException ex) {
+	                Tools.logException(Rule.class, ex);
+	            }
+        	}
         } else if (mCriteria.equals(CRITERIA_DURATION)) {
             try {
                 int duration = Integer.parseInt(mValue) / 1000;
@@ -259,6 +288,10 @@ public class Rule implements Serializable {
             return "Type";
         else if (mCriteria.equals(CRITERIA_DATE))
             return "Date";
+        else if (mCriteria.equals(CRITERIA_DURATION))
+            return "Duration";        
+        else if (mCriteria.equals(CRITERIA_SIZE))
+            return "Size";        
 
         return "";
     }

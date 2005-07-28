@@ -46,7 +46,7 @@ public class MusicInfo extends BView {
     public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible) {
         this(parent, x, y, width, height, visible, false);
     }
-
+    
     public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible, boolean webImages) {
         super(parent, x, y, width, height, visible);
 
@@ -158,8 +158,14 @@ public class MusicInfo extends BView {
                 } else {
                     mSongText.setLabel("Title:");
                     mSongText.setValue(Tools.trim(song, 45));
-                    mTrackText.setLabel("Track:");
-                    mTrackText.setValue(String.valueOf(audio.getTrack()));
+                    if (audio.getOrigen()!=null && audio.getOrigen().equals("Podcast"))
+                    	mTrackText.setVisible(false);
+                    else
+                    {
+                    	mTrackText.setLabel("Track:");
+                    	mTrackText.setValue(String.valueOf(audio.getTrack()));
+                    	mTrackText.setVisible(true);
+                    }
                     mDurationText.setLabel("Duration:");
                     mDurationText.setValue(mTimeFormat.format(new Date(audio.getDuration())));
                     mAlbumText.setLabel("Album:");
@@ -194,7 +200,7 @@ public class MusicInfo extends BView {
                                 int y = mCover.getY();
                                 
                                 Audio audio = null;
-                                while (true)
+                                while (getApp().getContext()!=null)
                                 {
                                 	if (mAudio!=null && !mAudio.getPath().startsWith("http")) {
                                 		if (audio==null || !audio.getId().equals(mAudio.getId()))

@@ -62,13 +62,20 @@ public class Wipe extends Effect {
     public void apply(View view, Image image) {
         Resource anim = view.getResource("*" + getDelay());
 
-        view.getApp().getRoot().setPainting(false);
-        View view2 = new View(view.getParent(), view.getX(), view.getY(), view.getWidth(), view.getHeight());
-        view2.setResource(view.getResource());
-        view.setResource(view.createImage(image));
-        view.getApp().getRoot().setPainting(true);
-        image.flush(); 
-        image = null;
+        View view2 = null;
+        try
+        {
+	        view.getApp().getRoot().setPainting(false);
+	        view2 = new View(view.getParent(), view.getX(), view.getY(), view.getWidth(), view.getHeight());
+	        view2.setResource(view.getResource());
+	        view.setResource(view.createImage(image));
+	        image.flush(); 
+	        image = null;
+        }
+        finally
+        {
+        	view.getApp().getRoot().setPainting(true);        	
+        }
 
         if (mInTransparent) {
             view.setTransparency(1);

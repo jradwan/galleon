@@ -935,8 +935,8 @@ public class iTunes extends DefaultApplication {
                         }
                         if (mResults.size() == 0) {
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                	setPainting(false);
                                     mBusy.setVisible(false);
                                     getBApp().flush();
                                 } finally {
@@ -951,8 +951,8 @@ public class iTunes extends DefaultApplication {
 
                         if (image != null) {
                             synchronized (this) {
-                                setPainting(false);
                                 try {
+                                	setPainting(false);
                                     if (mImageView.getResource() != null)
                                         mImageView.getResource().remove();
                                     mUrlText.setValue(nameValue.getName());
@@ -975,8 +975,8 @@ public class iTunes extends DefaultApplication {
                         mResults.remove(mPos);
                     } finally {
                         synchronized (this) {
-                            setPainting(false);
                             try {
+                            	setPainting(false);
                                 if (mResults != null && mResults.size() > 0)
                                     mPosText.setValue(String.valueOf(mPos + 1) + " of "
                                             + String.valueOf(mResults.size()));
@@ -1007,8 +1007,8 @@ public class iTunes extends DefaultApplication {
         }
 
         public boolean handleExit() {
-            setPainting(false);
             try {
+            	setPainting(false);
                 if (mImageThread != null && mImageThread.isAlive()) {
                     mImageThread.interrupt();
                     mImageThread = null;
@@ -1082,24 +1082,32 @@ public class iTunes extends DefaultApplication {
             Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
-                        if (mThread == null || !mThread.isAlive()) {
+                    	log.debug("iTunes");
+                    	if (mThread == null || !mThread.isAlive()) {
                             reloadItunesLibrary();
                         }
                     } catch (Exception ex) {
-                        log.error("Could not download stations", ex);
+                        log.error("Could not reload playlists", ex);
                     }
                 }
-            }), 60 * 5);
+            }), 1);
+        }
+        
+        public void setAppContext(AppContext appContext) {
+            super.setAppContext(appContext);
+
+            reloadItunesLibrary();
         }
 
         private void reloadItunesLibrary() {
             final iTunesConfiguration iTunesConfiguration = (iTunesConfiguration) getAppContext().getConfiguration();
 
             MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-
+            
             if (mThread != null && mThread.isAlive()) {
-                mThread.interrupt();
+            	mThread.interrupt();
             }
+
             mThread = new Thread() {
                 public void run() {
                     try {
@@ -1113,7 +1121,7 @@ public class iTunes extends DefaultApplication {
                             File file = new File(iTunesConfiguration.getPlaylistPath());
                             if (file.exists()) {
                                 fileDate = new Date(file.lastModified());
-                                if (fileDate.after(date))
+                                if (fileDate.getTime()-date.getTime()>1000)
                                     reload = true;
                             }
                         } else

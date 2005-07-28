@@ -32,6 +32,8 @@ import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.gui.FileOptionsTable;
 import org.lnicholls.galleon.gui.OptionsTable;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.gui.Galleon;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -55,12 +57,19 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         mDownloadCombo.addItem(new ComboWrapper("4", "4"));
         mDownloadCombo.addItem(new ComboWrapper("5", "5"));
         defaultCombo(mDownloadCombo, Integer.toString(podcastingConfiguration.getDownload()));
-        mNameField = new JTextField("");
-        mUrlField = new JTextField("");
+        mSubscriptionsNameField = new JTextField("");
+        mSubscriptionsUrlField = new JTextField("");
+        
+        mDirectoriesNameField = new JTextField("");
+        mDirectoriesUrlField = new JTextField("");
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, pref, " + // title
                 "9dlu, pref, " + // download
+                "9dlu, pref, " + // directories
+                "9dlu, pref, " + // name
+                "9dlu, pref, " + // url
+                "9dlu, pref, " + // table                
                 "9dlu, pref, " + // directories
                 "9dlu, pref, " + // name
                 "9dlu, pref, " + // url
@@ -77,31 +86,68 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         builder.add(mTitleField, cc.xyw(3, 3, 1));
         builder.addLabel("Download", cc.xy(1, 5));
         builder.add(mDownloadCombo, cc.xyw(3, 5, 1));
-        builder.addSeparator("Directories", cc.xyw(1, 7, 4));
+
+        builder.addSeparator("Subscriptions", cc.xyw(1, 7, 4));
         
         builder.addLabel("Name", cc.xy(1, 9));
-        builder.add(mNameField, cc.xyw(3, 9, 1));
+        builder.add(mSubscriptionsNameField, cc.xyw(3, 9, 1));
         builder.addLabel("URL", cc.xy(1, 11));
-        builder.add(mUrlField, cc.xyw(3, 11, 1));
+        builder.add(mSubscriptionsUrlField, cc.xyw(3, 11, 1));
 
-        mColumnValues = new ArrayList();
+        mSubscriptionsColumnValues = new ArrayList();
         int counter = 0;
-        for (Iterator i = podcastingConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
-            NameValue value = (NameValue) i.next();
-            ArrayList values = new ArrayList();
-            values.add(0, value.getName());
-            values.add(1, value.getValue());
-            mColumnValues.add(counter++, values);
+        try
+        {
+	        if (Galleon.getPodcasts()!=null)
+	        {
+		        for (Iterator i = Galleon.getPodcasts().iterator(); i.hasNext(); /* Nothing */) {
+		            NameValue value = (NameValue) i.next();
+		            ArrayList values = new ArrayList();
+		            values.add(0, value.getName());
+		            values.add(1, value.getValue());
+		            mSubscriptionsColumnValues.add(counter++, values);
+		        }
+	        }
+        }
+        catch (Exception ex)
+        {
+        	Tools.logException(PodcastingOptionsPanel.class, ex);
         }
         
         ArrayList columnNames = new ArrayList();
         columnNames.add(0, "Name");
         columnNames.add(1, "URL");
         ArrayList fields = new ArrayList();
-        fields.add(mNameField);
-        fields.add(mUrlField);
-        mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 13, 4));        
+        fields.add(mSubscriptionsNameField);
+        fields.add(mSubscriptionsUrlField);
+        mSubscriptionsOptionsTable = new OptionsTable(this, columnNames, mSubscriptionsColumnValues, fields);
+        builder.add(mSubscriptionsOptionsTable, cc.xyw(1, 13, 4));        
+        
+        builder.addSeparator("Directories", cc.xyw(1, 15, 4));
+        
+        builder.addLabel("Name", cc.xy(1, 17));
+        builder.add(mDirectoriesNameField, cc.xyw(3, 17, 1));
+        builder.addLabel("URL", cc.xy(1, 19));
+        builder.add(mDirectoriesUrlField, cc.xyw(3, 19, 1));
+
+        mDirectoriesColumnValues = new ArrayList();
+        counter = 0;
+        for (Iterator i = podcastingConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
+            NameValue value = (NameValue) i.next();
+            ArrayList values = new ArrayList();
+            values.add(0, value.getName());
+            values.add(1, value.getValue());
+            mDirectoriesColumnValues.add(counter++, values);
+        }
+        
+        columnNames = new ArrayList();
+        columnNames.add(0, "Name");
+        columnNames.add(1, "URL");
+        fields = new ArrayList();
+        fields.add(mDirectoriesNameField);
+        fields.add(mDirectoriesUrlField);
+        mDirectoriesOptionsTable = new OptionsTable(this, columnNames, mDirectoriesColumnValues, fields);
+        builder.add(mDirectoriesOptionsTable, cc.xyw(1, 21, 4));        
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -116,7 +162,7 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
             JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if (mColumnValues.size() == 0) {
+        if (mDirectoriesColumnValues.size() == 0) {
             JOptionPane.showMessageDialog(this, "No directories configured.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -130,7 +176,22 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         podcastConfiguration.setName(mTitleField.getText());
         podcastConfiguration.setDownload(Integer.parseInt(((NameValue) mDownloadCombo.getSelectedItem()).getValue()));
         ArrayList newItems = new ArrayList();
-        Iterator iterator = mColumnValues.iterator();
+        Iterator iterator = mSubscriptionsColumnValues.iterator();
+        while (iterator.hasNext()) {
+            ArrayList rows = (ArrayList) iterator.next();
+            log.debug("Path=" + rows.get(0));
+            newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
+        }
+        try
+        {
+        	Galleon.setPodcasts(newItems);
+        }
+        catch (Exception ex)
+        {
+        	Tools.logException(PodcastingOptionsPanel.class, ex);
+        }
+        newItems = new ArrayList();
+        iterator = mDirectoriesColumnValues.iterator();
         while (iterator.hasNext()) {
             ArrayList rows = (ArrayList) iterator.next();
             log.debug("Path=" + rows.get(0));
@@ -143,11 +204,19 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
 
     private JComboBox mDownloadCombo;
     
-    private JTextComponent mNameField;
+    private JTextComponent mSubscriptionsNameField;
 
-    private JTextComponent mUrlField;
+    private JTextComponent mSubscriptionsUrlField;
 
-    private OptionsTable mOptionsTable;
+    private OptionsTable mSubscriptionsOptionsTable;
 
-    private ArrayList mColumnValues;
+    private ArrayList mSubscriptionsColumnValues;    
+    
+    private JTextComponent mDirectoriesNameField;
+
+    private JTextComponent mDirectoriesUrlField;
+
+    private OptionsTable mDirectoriesOptionsTable;
+
+    private ArrayList mDirectoriesColumnValues;
 }

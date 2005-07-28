@@ -90,6 +90,14 @@ public class PhotosConfiguration implements AppConfiguration {
     public boolean isModified() {
         return mModified;
     }
+    
+    public void setRandomPlayFolders(boolean value) {
+        mRandomPlayFolders = value;
+    }
+
+    public boolean isRandomPlayFolders() {
+        return mRandomPlayFolders;
+    }    
 
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -108,4 +116,6 @@ public class PhotosConfiguration implements AppConfiguration {
     private boolean mModified;
 
     private List mPaths = new ArrayList();
+    
+    private boolean mRandomPlayFolders = true;
 }

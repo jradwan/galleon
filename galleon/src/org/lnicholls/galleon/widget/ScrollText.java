@@ -223,6 +223,7 @@ public class ScrollText extends BView {
         int newtop = mTop;
 
         switch (code) {
+        /*
         case KEY_UP:
             newtop = mTop - 1;
             break;
@@ -234,6 +235,15 @@ public class ScrollText extends BView {
             break;
         case KEY_CHANNELDOWN:
             newtop = mTop + pagesize;
+            break;
+*/
+        case KEY_CHANNELUP:
+        case KEY_UP:
+        	newtop = mTop - pagesize;
+            break;
+        case KEY_CHANNELDOWN:
+        case KEY_DOWN:
+        	newtop = mTop + pagesize;
             break;
         default:
             return super.handleKeyPress(code, rawcode);

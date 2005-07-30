@@ -14,6 +14,7 @@ Support random play of folders in photos app
 Support music controls during photo slideshow (up/down keys)
 Fixed random play
 Automatic version checking
+Support more MP3 file formats
 
 
 Version 1.1.0:
@@ -191,12 +192,11 @@ Known issues:
 19. Music app only plays one folder of songs at a time.
 11. TiVo sometimes reboots after using the Music app for some time.
 12. Music player generates resource not found errors.
-13. Sorting not supported yet.
-14. Port 1099 required for GUI to update the server.
-15. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
-16. Port 7288 required for accessing the apps from your TiVo.
-17. Only one weather app at a time is supported.
-18. Port 1527 needed for database.
+13. Port 1099 required for GUI to update the server.
+14. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
+15. Port 7288 required for accessing the apps from your TiVo.
+16. Only one weather app at a time is supported.
+17. Port 1527 needed for database.
 
 
 How to install Galleon:

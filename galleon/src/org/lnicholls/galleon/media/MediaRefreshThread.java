@@ -29,15 +29,17 @@ import net.sf.hibernate.Session;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.util.FileGatherer;
 import org.lnicholls.galleon.util.Tools;
 
 public class MediaRefreshThread extends Thread {
     private static Logger log = Logger.getLogger(MediaRefreshThread.class.getName());
 
-    public MediaRefreshThread() throws IOException {
+    public MediaRefreshThread(String context) throws IOException {
         super("MediaRefreshThread");
         setPriority(Thread.MIN_PRIORITY);
+        mContext = context;
         mPaths = new ArrayList();
     }
 
@@ -51,6 +53,8 @@ public class MediaRefreshThread extends Thread {
 
             if (log.isDebugEnabled())
                 log.debug("MediaRefreshThread end");
+            
+            PersistentValueManager.savePersistentValue(MediaRefreshThread.class.getName() + "." + mContext, new Date().toGMTString());
         } // handle silently for waking up
         catch (Exception ex) {
             Tools.logException(MediaRefreshThread.class, ex);
@@ -172,5 +176,6 @@ public class MediaRefreshThread extends Thread {
         }
     }
 
+    private String mContext;
     private ArrayList mPaths;
 }

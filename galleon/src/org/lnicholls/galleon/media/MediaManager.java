@@ -89,7 +89,7 @@ public final class MediaManager {
 
         try
         {
-            mMediaRefreshThread = new MediaRefreshThread();
+            mMediaRefreshThread = new MediaRefreshThread("MediaManager");
             for (int i=0;i<mPaths.size();i++)
                 mMediaRefreshThread.addPath((PathInfo)mPaths.get(i));
             mMediaRefreshThread.start();

@@ -156,7 +156,7 @@ public class AudioScrobbler extends DefaultApplication {
                             try {
                                 String page = Tools.getPage(new URL("http://ws.audioscrobbler.com/rss/recent.php?user="
                                         + Tools.decrypt(audioScrobblerConfiguration.getUsername())));
-                                if (page != null)
+                                if (page != null && page.length()>0)
                                     content = page;
                             } catch (Exception ex) {
                                 log.error("Could get audio scrobbler data");

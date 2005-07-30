@@ -102,7 +102,7 @@ public class ShoutcastStations {
 
                             URL url = new URL(link);
                             String page = Tools.getPage(url);
-                            if (page != null) {
+                            if (page != null && page.length()>0) {
                                 String inputLine = "";
                                 BufferedReader reader = new BufferedReader(new StringReader(page));
                                 while ((inputLine = reader.readLine()) != null && !found) {

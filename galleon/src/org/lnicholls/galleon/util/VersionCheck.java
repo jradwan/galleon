@@ -16,8 +16,6 @@
 
 package org.lnicholls.galleon.util;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Collection;
@@ -26,6 +24,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
@@ -43,34 +43,47 @@ public class VersionCheck {
 					"http://sourceforge.net/export/rss2_projnews.php?group_id=126291&rss_fulltext=1")); // Sourceforge
 			// RSS
 			// feed
-			ChannelBuilderIF builder = new ChannelBuilder();
-			ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((page.getBytes("UTF-8"))));
-			//ChannelIF channel = FeedParser.parse(builder, new FileInputStream(new File("d:/galleon/rss2_projnews.php.xml")));
+			if (page != null && page.length() > 0) {
+				ChannelBuilderIF builder = new ChannelBuilder();
+				ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((page.getBytes("UTF-8"))));
+				// ChannelIF channel = FeedParser.parse(builder, new
+				// FileInputStream(new
+				// File("d:/galleon/rss2_projnews.php.xml")));
 
-			if (channel != null) {
-				if (channel.getItems() != null && channel.getItems().size() > 0) {
-					Collection items = channel.getItems();
-					Iterator i = items.iterator();
-					ItemIF item = (ItemIF) i.next();
+				if (channel != null) {
+					if (channel.getItems() != null && channel.getItems().size() > 0) {
+						Collection items = channel.getItems();
+						Iterator i = items.iterator();
+						ItemIF item = (ItemIF) i.next();
 
-					String REGEX = "Galleon (.*) for TiVo";
-					Pattern p = Pattern.compile(REGEX);
-					Matcher m = p.matcher(item.getTitle());
-					if (m.find()) {
-						if (log.isDebugEnabled())
-							log.debug("Current version: " + m.group(1).trim());
-						if (!Tools.getVersion().equals(m.group(1).trim())) {
-							return false;
+						String REGEX = "Galleon (.*) for TiVo";
+						Pattern p = Pattern.compile(REGEX);
+						Matcher m = p.matcher(item.getTitle());
+						if (m.find()) {
+							String version = m.group(1).trim();
+							if (log.isDebugEnabled())
+								log.debug("Current version: " + version);
+							PersistentValue persistentValue = PersistentValueManager
+									.loadPersistentValue(VersionCheck.class.getName() + ".version");
+							if (persistentValue != null) {
+								if (persistentValue.getValue().equals(version))
+									return true;
+							}
+
+							if (!Tools.getVersion().equals(version)) {
+								PersistentValueManager.savePersistentValue(VersionCheck.class.getName() + ".version",
+										version);
+								return false;
+							}
 						}
 					}
 				}
+				builder.close();
+				builder = null;
 			}
-			builder.close();
-			builder = null;
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex);
 		}
 		return true;
 	}
-
 }

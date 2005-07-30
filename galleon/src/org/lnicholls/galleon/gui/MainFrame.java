@@ -154,6 +154,40 @@ public class MainFrame extends JFrame {
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic('H');
 		helpMenu.putClientProperty("jgoodies.noIcons", Boolean.TRUE);
+		helpMenu.add(new MenuAction("Configuration", null, "", new Integer(KeyEvent.VK_C)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher
+							.openURL("http://galleon.sourceforge.net/phpwiki/index.php/Configure");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		helpMenu.add(new MenuAction("FAQ", null, "", new Integer(KeyEvent.VK_F)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher
+							.openURL("http://galleon.sourceforge.net/phpwiki/index.php/FAQ");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		helpMenu.add(new MenuAction("TiVo Community Forum", null, "", new Integer(KeyEvent.VK_T)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher
+							.openURL("http://www.tivocommunity.com/tivo-vb/forumdisplay.php?f=35");
+				} catch (Exception ex) {
+				}
+			}
+
+		});		
+		helpMenu.addSeparator();		
 		helpMenu.add(new MenuAction("About...", null, "", new Integer(KeyEvent.VK_A)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -652,7 +686,7 @@ public class MainFrame extends JFrame {
 			builder.add(mMediaAccessKey, cc.xyw(3, 17, 2));
 
 			builder.addSeparator("Network", cc.xyw(1, 19, 6));
-			builder.addLabel("Port", cc.xy(1, 21));
+			builder.addLabel("PC Port", cc.xy(1, 21));
 			builder.add(mPort, cc.xy(3, 21));
 			if (serverConfiguration.getPort() != Galleon.getPort()) {
 				builder.addLabel("(" + Galleon.getPort() + ")", cc.xy(4, 21));

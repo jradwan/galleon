@@ -180,21 +180,24 @@ public class WeatherData implements Serializable {
             SAXReader saxReader = new SAXReader();
             URL url = new URL("http://xoap.weather.com/search/search?where=" + zip); // try city, state too
             String page = Tools.getPage(url);
-            log.debug("Locations: " + page);
-            StringReader stringReader = new StringReader(page);
-            Document document = saxReader.read(stringReader);
-            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
-
-            Element root = document.getRootElement(); // check for errors
-            search.setVersion(Tools.getAttribute(root, "ver"));
-
-            for (Iterator i = root.elementIterator("loc"); i.hasNext();) {
-                Element element = (Element) i.next();
-                Location location = new Location();
-                location.setId(Tools.getAttribute(element, "id"));
-                location.setType(Tools.getAttribute(element, "type"));
-                location.setValue(element.getText());
-                search.addLocation(location);
+            if (page != null && page.length()>0)
+            {
+	            log.debug("Locations: " + page);
+	            StringReader stringReader = new StringReader(page);
+	            Document document = saxReader.read(stringReader);
+	            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+	
+	            Element root = document.getRootElement(); // check for errors
+	            search.setVersion(Tools.getAttribute(root, "ver"));
+	
+	            for (Iterator i = root.elementIterator("loc"); i.hasNext();) {
+	                Element element = (Element) i.next();
+	                Location location = new Location();
+	                location.setId(Tools.getAttribute(element, "id"));
+	                location.setType(Tools.getAttribute(element, "type"));
+	                location.setValue(element.getText());
+	                search.addLocation(location);
+	            }
             }
         } catch (Exception ex) {
             log.error("Could not determine weather locations", ex);

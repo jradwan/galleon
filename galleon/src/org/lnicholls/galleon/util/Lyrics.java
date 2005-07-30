@@ -78,45 +78,47 @@ public class Lyrics {
                     + version.getRelease() + "." + version.getMaintenance() + "&ti=" + URLEncoder.encode(song) + "&ar="
                     + URLEncoder.encode(artist) + "&act=query&and=1");
             String page = Tools.getPage(url);
-            
-            log.debug("getLyrics1: "+page);
-            
-            song = clean(song).toLowerCase();
-            log.debug("song="+song);
-            artist = clean(artist).toLowerCase();
-            log.debug("artist="+artist);
-
-            if (page != null) {
-                SAXReader saxReader = new SAXReader();
-                StringReader stringReader = new StringReader(page);
-                Document document = saxReader.read(stringReader);
-                // <results>
-                Element root = document.getRootElement();
-                int count = Integer.parseInt(root.attribute(COUNT).getText());
-                if (count > 0) {
-                    for (Iterator i = root.elementIterator(); i.hasNext();) {
-                        Element element = (Element) i.next();
-                        boolean found = false;
-                        if (element.getName().equals(RESULT)) {
-                            String returnedArtist = element.attribute(ARTIST).getText();
-                            if (returnedArtist!=null && artist.indexOf(clean(returnedArtist).toLowerCase())==-1)
-                                break;
-                            String returnedTitle = element.attribute(TITLE).getText();
-                            if (returnedTitle!=null && song.indexOf(clean(returnedTitle).toLowerCase())==-1)
-                                break;
-                            
-                            String id = element.attribute(ID).getText();
-                            if (id != null) {
-                                url = new URL("http://lyrictracker.com/soap.php?cln=galleon&clv=" + version.getMajor()
-                                        + "." + version.getRelease() + "." + version.getMaintenance() + "&id=" + id
-                                        + "&act=detail");
-                                page = Tools.getPage(url);
-                                log.debug("getLyrics1: "+page);
-                                return page.replaceAll("\\'","'");
-                            }
-                        }
-                    }
-                }
+            if (page != null && page.length()>0)
+            {
+	            log.debug("getLyrics1: "+page);
+	            
+	            song = clean(song).toLowerCase();
+	            log.debug("song="+song);
+	            artist = clean(artist).toLowerCase();
+	            log.debug("artist="+artist);
+	
+	            if (page != null) {
+	                SAXReader saxReader = new SAXReader();
+	                StringReader stringReader = new StringReader(page);
+	                Document document = saxReader.read(stringReader);
+	                // <results>
+	                Element root = document.getRootElement();
+	                int count = Integer.parseInt(root.attribute(COUNT).getText());
+	                if (count > 0) {
+	                    for (Iterator i = root.elementIterator(); i.hasNext();) {
+	                        Element element = (Element) i.next();
+	                        boolean found = false;
+	                        if (element.getName().equals(RESULT)) {
+	                            String returnedArtist = element.attribute(ARTIST).getText();
+	                            if (returnedArtist!=null && artist.indexOf(clean(returnedArtist).toLowerCase())==-1)
+	                                break;
+	                            String returnedTitle = element.attribute(TITLE).getText();
+	                            if (returnedTitle!=null && song.indexOf(clean(returnedTitle).toLowerCase())==-1)
+	                                break;
+	                            
+	                            String id = element.attribute(ID).getText();
+	                            if (id != null) {
+	                                url = new URL("http://lyrictracker.com/soap.php?cln=galleon&clv=" + version.getMajor()
+	                                        + "." + version.getRelease() + "." + version.getMaintenance() + "&id=" + id
+	                                        + "&act=detail");
+	                                page = Tools.getPage(url);
+	                                log.debug("getLyrics1: "+page);
+	                                return page.replaceAll("\\'","'");
+	                            }
+	                        }
+	                    }
+	                }
+	            }
             }
         } catch (Exception ex) {
             Tools.logException(Lyrics.class, ex, "Could not get lyrics for: " + song);

@@ -195,9 +195,11 @@ public class Email extends DefaultApplication {
                 }
             });
 
+            mList = new ArrayList();
             for (int i = 0; i < itemArray.length; i++) {
                 EmailItem item = (EmailItem) itemArray[i];
                 mMenuList.add(item);
+                mList.add(item);
             }
         }
 
@@ -302,7 +304,7 @@ public class Email extends DefaultApplication {
         private void updateView() {
         	EmailItem item = (EmailItem) mTracker.getList().get(mTracker.getPos());
         	
-        	setSmallTitle(Tools.trim(item.getSubject(), 28));
+        	setSmallTitle(item.getSubject());
         	mFromText.setValue("From: " + item.getFrom());
         	mDateText.setValue("Date: " + mDateFormat.format(item.getDate()));
         	mScrollText.setText(cleanHTML(item.getBody()));

@@ -331,7 +331,7 @@ public class RSS extends DefaultApplication {
                             String content = persistentValue == null ? null : persistentValue.getValue();
                             if (PersistentValueManager.isAged(persistentValue)) {
                                 String page = Tools.getPage(new URL(nameValue.getValue()));
-                                if (page != null)
+                                if (page != null && page.length()>0)
                                     content = page;
                             }
 

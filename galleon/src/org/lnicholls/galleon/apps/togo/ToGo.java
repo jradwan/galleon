@@ -41,6 +41,7 @@ import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
+import org.lnicholls.galleon.widget.*;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -275,38 +276,38 @@ public class ToGo extends DefaultApplication {
 
             start += 85;
 
-            dateText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            dateText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
             dateText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-            dateText.setFont("default-18.font");
+            dateText.setFont("default-18-bold.font");
             dateText.setShadow(true);
 
-            durationText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            durationText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
             durationText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-            durationText.setFont("default-18.font");
+            durationText.setFont("default-18-bold.font");
             durationText.setShadow(true);
 
             start += 20;
 
-            ratingText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            ratingText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
             ratingText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-            ratingText.setFont("default-18.font");
+            ratingText.setFont("default-18-bold.font");
             ratingText.setShadow(true);
 
-            videoText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            videoText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
             videoText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-            videoText.setFont("default-18.font");
+            videoText.setFont("default-18-bold.font");
             videoText.setShadow(true);
 
             start += 20;
 
-            genreText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            genreText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
             genreText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
-            genreText.setFont("default-18.font");
+            genreText.setFont("default-18-bold.font");
             genreText.setShadow(true);
 
-            sizeText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+            sizeText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
             sizeText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
-            sizeText.setFont("default-18.font");
+            sizeText.setFont("default-18-bold.font");
             sizeText.setShadow(true);
 
             start += 30;
@@ -394,6 +395,7 @@ public class ToGo extends DefaultApplication {
                         + mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
 
+                dateText.setLabel("Date:");
                 dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + video.getChannelMajorNumber() + " "
                         + video.getStation());
 
@@ -402,15 +404,23 @@ public class ToGo extends DefaultApplication {
                 mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
                 mCalendar.set(GregorianCalendar.SECOND, 0);
 
-                durationText.setValue("Duration: " + mTimeFormat.format(mCalendar.getTime()));
+                durationText.setLabel("Duration:");
+                durationText.setValue(mTimeFormat.format(mCalendar.getTime()));
 
-                ratingText.setValue("Rated: " + (video.getRating() == null ? "N/A" : video.getRating()));
+                ratingText.setLabel("Rated:");
+                ratingText.setValue((video.getRating() == null ? "N/A" : video.getRating()));
 
-                videoText.setValue("Video: " + video.getRecordingQuality());
+                videoText.setLabel("Video:");
+                String txt = video.getRecordingQuality();
+                if (txt.equalsIgnoreCase("good"))
+                	txt = "Basic";
+                videoText.setValue(txt);
 
-                genreText.setValue("Genre: " + Tools.trim(video.getProgramGenre(), 40));
+                genreText.setLabel("Genre:");
+                genreText.setValue(Tools.trim(video.getProgramGenre(), 40));
 
-                sizeText.setValue("Size: " + mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");
+                sizeText.setLabel("Size:");
+                sizeText.setValue(mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");
 
                 statusText.setValue(video.getStatusString());
 
@@ -624,17 +634,17 @@ public class ToGo extends DefaultApplication {
 
         private BText descriptionText;
 
-        private BText dateText;
+        private LabelText dateText;
 
-        private BText durationText;
+        private LabelText durationText;
 
-        private BText ratingText;
+        private LabelText ratingText;
 
-        private BText videoText;
+        private LabelText videoText;
 
-        private BText genreText;
+        private LabelText genreText;
 
-        private BText sizeText;
+        private LabelText sizeText;
 
         private BView statusBarBg;
 

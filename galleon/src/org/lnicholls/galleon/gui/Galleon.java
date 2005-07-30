@@ -199,8 +199,9 @@ public final class Galleon implements Constants {
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					try {
 						BrowserLauncher
-								.openURL("http://sourceforge.net/project/showfiles.php?group_id=126291&package_id=138205");
+								.openURL("http://galleon.sourceforge.net");
 					} catch (Exception ex) {
+						Tools.logException(Galleon.class, ex);
 					}
 				}
 			}

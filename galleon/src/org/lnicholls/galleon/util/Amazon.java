@@ -103,41 +103,44 @@ public class Amazon {
             // http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&SubscriptionId=1S15VY5XR4PV42R2YRG2&Operation=ItemSearch&SearchIndex=Music&ResponseGroup=Images&Artist="
             // + artist + "&Title=" + title
             String page = Tools.getPage(url);
-            log.debug("Amazon images: " + page);
-
-            StringReader stringReader = new StringReader(page);
-            Document document = saxReader.read(stringReader);
-
-            //Document document = saxReader.read(new File("d:/galleon/amazon.xml"));
-            Element root = document.getRootElement();
-
-            Element items = root.element("Items");
-            if (items != null) {
-                for (Iterator i = items.elementIterator("Item"); i.hasNext();) {
-                    Element item = (Element) i.next();
-
-                    Element someImage = item.element("LargeImage");
-                    if (someImage == null)
-                        someImage = item.element("MediumImage");
-                    if (someImage == null)
-                        someImage = item.element("SmallImage");
-                    if (someImage != null) {
-                        Element address = someImage.element("URL");
-                        if (address != null) {
-                            log.debug(address.getTextTrim());
-
-                            Element height = someImage.element("Height");
-                            Element width = someImage.element("Width");
-                            try {
-                                image = Tools.getImage(new URL(address.getTextTrim()),
-                                        Integer.parseInt(height.getTextTrim()), Integer.parseInt(width.getTextTrim()));
-                                break;
-                            } catch (Exception ex) {
-                                log.error("Could not download Amazon image: " + address.getTextTrim(), ex);
-                            }
-                        }
-                    }
-                }
+            if (page != null && page.length()>0)
+            {
+	            log.debug("Amazon images: " + page);
+	
+	            StringReader stringReader = new StringReader(page);
+	            Document document = saxReader.read(stringReader);
+	
+	            //Document document = saxReader.read(new File("d:/galleon/amazon.xml"));
+	            Element root = document.getRootElement();
+	
+	            Element items = root.element("Items");
+	            if (items != null) {
+	                for (Iterator i = items.elementIterator("Item"); i.hasNext();) {
+	                    Element item = (Element) i.next();
+	
+	                    Element someImage = item.element("LargeImage");
+	                    if (someImage == null)
+	                        someImage = item.element("MediumImage");
+	                    if (someImage == null)
+	                        someImage = item.element("SmallImage");
+	                    if (someImage != null) {
+	                        Element address = someImage.element("URL");
+	                        if (address != null) {
+	                            log.debug(address.getTextTrim());
+	
+	                            Element height = someImage.element("Height");
+	                            Element width = someImage.element("Width");
+	                            try {
+	                                image = Tools.getImage(new URL(address.getTextTrim()),
+	                                        Integer.parseInt(height.getTextTrim()), Integer.parseInt(width.getTextTrim()));
+	                                break;
+	                            } catch (Exception ex) {
+	                                log.error("Could not download Amazon image: " + address.getTextTrim(), ex);
+	                            }
+	                        }
+	                    }
+	                }
+	            }
             }
         } catch (Exception ex) {
             Tools.logException(Amazon.class, ex, "Could parse AWS url: "+url.toExternalForm());

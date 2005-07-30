@@ -17,7 +17,7 @@
 !define PRODUCT_VERSION "1.2.0"
 !define PRODUCT_PUBLISHER "Galleon"
 !define PRODUCT_WEB_SITE "http://galleon.sourceforge.net"
-!define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar;pja.jar;dom4j.jar org.lnicholls.galleon.gui.Galleon'
+!define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar;pja.jar;dom4j.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
 !define PRODUCT_BUILD_DIR "d:\galleon\build"
 
 !define JRE_VERSION "1.5.0"
@@ -277,7 +277,7 @@ ClassPath:
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Readme.lnk" "$INSTDIR\Readme.txt"
   SetOutPath "$INSTDIR\lib"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar;pja.jar;dom4j.jar org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar;pja.jar;dom4j.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
 
 InstallService:
   DetailPrint "Installing ${PRODUCT_NAME} service"

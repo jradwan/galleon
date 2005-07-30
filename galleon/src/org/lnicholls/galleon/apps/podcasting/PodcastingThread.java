@@ -294,7 +294,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 											try {
 												output.write(buf, 0, amount);
 												output.flush();
-											} catch (IOException e) {
+											} catch (Exception e) {
 											}
 
 											if ((System.currentTimeMillis() - last > 10000) && (total > 0)) {
@@ -319,6 +319,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 												}
 												last = System.currentTimeMillis();
 											}
+											Thread.sleep(10); // give the CPU some breathing time
 										}
 										diff = (System.currentTimeMillis() - start) / 1000.0;
 										output.close();

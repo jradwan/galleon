@@ -25,20 +25,18 @@ import java.net.URL;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
-import org.lnicholls.galleon.apps.music.Music.PlayerScreen;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -62,8 +60,8 @@ import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
-import org.lnicholls.galleon.winamp.WinampPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -126,7 +124,7 @@ public class Podcasting extends DefaultApplication {
 			if (PersistentValueManager.isAged(persistentValue) && !location.equals("local")) {
 				try {
 					String page = Tools.getPage(new URL(location));
-					if (page != null)
+					if (page != null && page.length() > 0)
 						content = page;
 				} catch (Exception ex) {
 					Tools.logException(Podcasting.class, ex, "Could not cache document: " + location);
@@ -231,18 +229,19 @@ public class Podcasting extends DefaultApplication {
 		if (PersistentValueManager.isAged(persistentValue)) {
 			try {
 				String page = Tools.getPage(new URL(podcast.getPath()));
-				if (page != null)
+				if (page != null && page.length() > 0)
 					content = page;
 			} catch (Exception ex) {
 				Tools.logException(Podcasting.class, ex, "Could not cache listing: " + podcast.getPath());
 			}
 		}
-		
+
 		if (content != null) {
 			try {
 				SAXReader saxReader = new SAXReader();
 				StringReader stringReader = new StringReader(content);
-				//Document document = saxReader.read(new File("d:/galleon/itunes2.rss.xml"));
+				// Document document = saxReader.read(new
+				// File("d:/galleon/itunes2.rss.xml"));
 				Document document = saxReader.read(stringReader);
 				stringReader.close();
 				stringReader = null;
@@ -269,7 +268,7 @@ public class Podcasting extends DefaultApplication {
 						if ((value = Tools.getAttribute(channel, "author")) != null) {
 							channelAuthor = value;
 						}
-						
+
 						if ((value = Tools.getAttribute(channel, "title")) != null) {
 							channelTitle = value;
 						}
@@ -330,48 +329,50 @@ public class Podcasting extends DefaultApplication {
 								}
 							}
 						}
-						
-						if (channelAuthor!=null && channelAuthor.length()>0)
+
+						if (channelAuthor != null && channelAuthor.length() > 0)
 							podcast.setAuthor(Tools.cleanHTML(channelAuthor));
-						if (channelTitle!=null && channelTitle.length()>0)
+						if (channelTitle != null && channelTitle.length() > 0)
 							podcast.setTitle(Tools.cleanHTML(channelTitle));
-						if (channelLink!=null && channelLink.length()>0)
+						if (channelLink != null && channelLink.length() > 0)
 							podcast.setLink(channelLink);
-						if (channelDescription!=null && channelDescription.length()>0)
+						if (channelDescription != null && channelDescription.length() > 0)
 							podcast.setDescription(Tools.trim(Tools.cleanHTML(channelDescription), 4096));
-						if (channelSubtitle!=null && channelSubtitle.length()>0)
+						if (channelSubtitle != null && channelSubtitle.length() > 0)
 							podcast.setSubtitle(Tools.trim(Tools.cleanHTML(channelSubtitle), 4096));
-						if (channelImage1==null)
-							podcast.setImage(channelImage1); // rss
-						else
-							podcast.setImage(channelImage2); // itunes
-						if (channelBlock!=null)
+						if (channelImage2 == null) {
+							if (channelImage1 != null
+									&& (channelImage1.endsWith(".png") || channelImage1.endsWith(".jpg") || channelImage1
+											.endsWith(".gif")))
+								podcast.setImage(channelImage1); // rss
+						} else {
+							if (channelImage2.endsWith(".png") || channelImage2.endsWith(".jpg"))
+								podcast.setImage(channelImage2); // itunes
+						}
+						if (channelBlock != null)
 							podcast.setBlock(new Boolean(!channelBlock.toLowerCase().equals("no")));
 						else
 							podcast.setBlock(Boolean.FALSE);
-						if (channelCategory!=null && channelCategory.length()>0)
+						if (channelCategory != null && channelCategory.length() > 0)
 							podcast.setCategory(Tools.cleanHTML(channelCategory));
-						if (channelExplicit!=null)
+						if (channelExplicit != null)
 							podcast.setExplicit(new Boolean(!channelExplicit.toLowerCase().equals("no")));
 						else
 							podcast.setExplicit(Boolean.FALSE);
-						if (channelKeywords!=null && channelKeywords.length()>0)
+						if (channelKeywords != null && channelKeywords.length() > 0)
 							podcast.setKeywords(Tools.cleanHTML(channelKeywords));
-						if (channelSummary!=null && channelSummary.length()>0)
+						if (channelSummary != null && channelSummary.length() > 0)
 							podcast.setSummary(Tools.trim(channelSummary, 4096));
-						if (channelTtl!=null && channelTtl.length()>0)
-						{
-							try
-							{
+						if (channelTtl != null && channelTtl.length() > 0) {
+							try {
 								podcast.setTtl(new Integer(channelTtl));
+							} catch (Exception ex) {
 							}
-							catch (Exception ex){}
-						}
-						else
+						} else
 							podcast.setTtl(new Integer(0));
 
 						List tracks = podcast.getTracks();
-						if (tracks==null)
+						if (tracks == null)
 							tracks = new ArrayList();
 						for (Iterator i = channel.elementIterator("item"); i.hasNext();) {
 							Element item = (Element) i.next();
@@ -396,7 +397,7 @@ public class Podcasting extends DefaultApplication {
 							if ((value = Tools.getAttribute(item, "title")) != null) {
 								title = value;
 							}
-							
+
 							if ((value = Tools.getAttribute(item, "description")) != null) {
 								description = value;
 							}
@@ -473,90 +474,82 @@ public class Podcasting extends DefaultApplication {
 							if ((value = Tools.getAttribute(item, "subtitle")) != null) {
 								subtitle = value;
 							}
-							
-							if (enclosureUrl!=null && enclosureUrl.length()>0 && enclosureUrl.endsWith(".mp3"))
-							{
+
+							if (enclosureUrl != null && enclosureUrl.length() > 0 && enclosureUrl.endsWith(".mp3")) {
 								PodcastTrack podcastTrack = null;
-								
+
 								boolean existing = false;
 								for (int k = 0; k < tracks.size(); k++) {
-									PodcastTrack current = (PodcastTrack)tracks.get(k); 
-									if (current!=null && current.getUrl()!=null && enclosureUrl!=null && current.getUrl().equals(
-											enclosureUrl)) {
+									PodcastTrack current = (PodcastTrack) tracks.get(k);
+									if (current != null && current.getUrl() != null && enclosureUrl != null
+											&& current.getUrl().equals(enclosureUrl)) {
 										existing = true;
 										podcastTrack = current;
 										break;
 									}
 								}
-								
-								if (podcastTrack==null)
+
+								if (podcastTrack == null)
 									podcastTrack = new PodcastTrack();
-	
-								if (title!=null && title.length()>0)
+
+								if (title != null && title.length() > 0)
 									podcastTrack.setTitle(Tools.cleanHTML(title));
-								if (description!=null && description.length()>0)
+								if (description != null && description.length() > 0)
 									podcastTrack.setDescription(Tools.trim(Tools.cleanHTML(description), 4096));
-								if (link!=null && link.length()>0)
+								if (link != null && link.length() > 0)
 									podcastTrack.setLink(link);
-								if (pubDate!=null && pubDate.length()>0)
-								{
-									try
-									{
+								if (pubDate != null && pubDate.length() > 0) {
+									try {
 										podcastTrack.setPublicationDate(new Date(pubDate));
+									} catch (Exception ex) {
 									}
-									catch (Exception ex){}
 								}
-								if (guid!=null && guid.length()>0)
+								if (guid != null && guid.length() > 0)
 									podcastTrack.setGuid(guid);
-								if (category!=null && category.length()>0)
+								if (category != null && category.length() > 0)
 									podcastTrack.setCategory(Tools.cleanHTML(category));
-								if (explicit!=null && explicit.length()>0)
+								if (explicit != null && explicit.length() > 0)
 									podcastTrack.setExplicit(new Boolean(!explicit.toLowerCase().equals("no")));
 								else
 									podcastTrack.setExplicit(Boolean.FALSE);
-								if (author!=null && author.length()>0)
+								if (author != null && author.length() > 0)
 									podcastTrack.setAuthor(Tools.cleanHTML(author));
-								if (summary!=null && summary.length()>0)
+								if (summary != null && summary.length() > 0)
 									podcastTrack.setSummary(Tools.trim(Tools.cleanHTML(summary), 4096));
-								if (enclosureUrl!=null && enclosureUrl.length()>0)
+								if (enclosureUrl != null && enclosureUrl.length() > 0)
 									podcastTrack.setUrl(enclosureUrl);
-								if (enclosureLength!=null && enclosureLength.length()>0)
-								{
-									try
-									{
+								if (enclosureLength != null && enclosureLength.length() > 0) {
+									try {
 										podcastTrack.setSize(Long.parseLong(enclosureLength));
+									} catch (Exception ex) {
 									}
-									catch (Exception ex) {}
 								}
-								if (enclosureType!=null && enclosureType.length()>0)
-									podcastTrack.setMimeType(enclosureType);	
-								if (block!=null && block.length()>0)
+								if (enclosureType != null && enclosureType.length() > 0)
+									podcastTrack.setMimeType(enclosureType);
+								if (block != null && block.length() > 0)
 									podcastTrack.setBlock(new Boolean(!block.toLowerCase().equals("no")));
 								else
 									podcastTrack.setBlock(Boolean.FALSE);
-								if (duration!=null && duration.length()>0)
-								{
-									try
-									{
+								if (duration != null && duration.length() > 0) {
+									try {
 										SimpleDateFormat timeDateFormat = new SimpleDateFormat();
 										timeDateFormat.applyPattern("HH:mm:ss");
 										ParsePosition pos = new ParsePosition(0);
 										Date date = timeDateFormat.parse(duration, pos);
-										if (date==null)
-										{
+										if (date == null) {
 											timeDateFormat.applyPattern("mm:ss");
 											date = timeDateFormat.parse(duration, pos);
 										}
 										podcastTrack.setDuration(new Long(date.getTime()));
+									} catch (Exception ex) {
 									}
-									catch (Exception ex) {}
 								}
-								if (keywords!=null && keywords.length()>0)
+								if (keywords != null && keywords.length() > 0)
 									podcastTrack.setKeywords(Tools.cleanHTML(keywords));
-								if (subtitle!=null && subtitle.length()>0)
+								if (subtitle != null && subtitle.length() > 0)
 									podcastTrack.setSubtitle(Tools.trim(Tools.cleanHTML(subtitle), 4096));
-								
-								if (podcastTrack.getMimeType()==null)
+
+								if (podcastTrack.getMimeType() == null)
 									podcastTrack.setMimeType(Mp3File.DEFAULT_MIME_TYPE);
 								podcastTrack.setPodcast(podcast.getId());
 								if (!existing)
@@ -565,12 +558,11 @@ public class Podcasting extends DefaultApplication {
 						}
 						podcast.setTracks(tracks);
 					}
-				}
-				else
-				{
+				} else {
 					ChannelBuilderIF builder = new ChannelBuilder();
-					ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((content.getBytes("UTF-8"))));
-					
+					ChannelIF channel = FeedParser
+							.parse(builder, new ByteArrayInputStream((content.getBytes("UTF-8"))));
+
 					if (channel != null) {
 						podcast.setDescription(Tools.cleanHTML(channel.getDescription()));
 						podcast.setDateUpdated(channel.getLastBuildDate());
@@ -583,10 +575,12 @@ public class Podcasting extends DefaultApplication {
 								ItemIF item = (ItemIF) i.next();
 								String description = Tools.trim(item.getDescription(), 4096);
 
-								tracks.add(new PodcastTrack(Tools.cleanHTML(item.getTitle()), null, null, Tools.trim(Tools.cleanHTML(item.getDescription()), 4096), null, null,
-										null, null, Boolean.FALSE, Boolean.FALSE, null, item.getDate(), item
-												.getEnclosure().getLocation().toExternalForm(), "audio/mpeg", item.getEnclosure().getLength(), 0, new Long(0), new Integer(0),
-										0, 0, podcast.getId(), null));
+								tracks.add(new PodcastTrack(Tools.cleanHTML(item.getTitle()), null, null, Tools.trim(
+										Tools.cleanHTML(item.getDescription()), 4096), null, null, null, null,
+										Boolean.FALSE, Boolean.FALSE, null, item.getDate(), item.getEnclosure()
+												.getLocation().toExternalForm(), "audio/mpeg", item.getEnclosure()
+												.getLength(), 0, new Long(0), new Integer(0), 0, 0, podcast.getId(),
+										null));
 							}
 							podcast.setTracks(tracks);
 						}
@@ -596,7 +590,7 @@ public class Podcasting extends DefaultApplication {
 				}
 				document.clearContent();
 				document = null;
-				
+
 				if (PersistentValueManager.isAged(persistentValue)) {
 					int ttl = podcast.getTtl().intValue();
 					if (ttl < 10)
@@ -604,8 +598,8 @@ public class Podcasting extends DefaultApplication {
 					else
 						ttl = 60 * 6;
 
-					PersistentValueManager.savePersistentValue(Podcasting.class.getName() + "." + podcast.getPath(), content,
-							ttl * 60);
+					PersistentValueManager.savePersistentValue(Podcasting.class.getName() + "." + podcast.getPath(),
+							content, ttl * 60);
 				}
 			} catch (Exception ex) {
 				Tools.logException(Podcasting.class, ex, "Could not download listing: " + podcast.getPath());
@@ -644,7 +638,7 @@ public class Podcasting extends DefaultApplication {
 	public class PodcastingMenuScreen extends DefaultMenuScreen {
 		public PodcastingMenuScreen(Podcasting app) {
 			super(app, "Podcasting");
-			
+
 			getBelow().setResource(mMenuBackground);
 
 			mMenuList.add(new NameValue("Now Playing", "Now Playing"));
@@ -709,10 +703,10 @@ public class Podcasting extends DefaultApplication {
 
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d/yyyy hh:mm a");
-			
+
 			mDayFormat = new SimpleDateFormat();
 			mDayFormat.applyPattern("M/d/yy");
-			
+
 			getBelow().setResource(mMenuBackground);
 
 			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getContext()
@@ -797,33 +791,28 @@ public class Podcasting extends DefaultApplication {
 			PodcastTrack podcastTrack = (PodcastTrack) mMenuList.get(index);
 			icon.setResource(mFolderIcon);
 
-			if (podcastTrack.getTitle().length() == 0)
-			{
+			if (podcastTrack.getTitle().length() == 0) {
 				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
 				name.setShadow(true);
 				name.setFlags(RSRC_HALIGN_LEFT);
 				name.setValue(mDateFormat.format(podcastTrack.getPublicationDate()));
-			}
-			else
-			{
-				if (podcastTrack.getPublicationDate()!=null)
-	            {
+			} else {
+				if (podcastTrack.getPublicationDate() != null) {
 					BText name = new BText(parent, 50, 4, parent.getWidth() - 140, parent.getHeight() - 4);
 					name.setShadow(true);
 					name.setFlags(RSRC_HALIGN_LEFT);
 					name.setValue(Tools.trim(Tools.cleanHTML(podcastTrack.getTitle()), 30));
-					
-					BText ratedText = new BText(parent, parent.getWidth() - 100 - parent.getHeight(), 4, 100, parent.getHeight() - 4);
+
+					BText ratedText = new BText(parent, parent.getWidth() - 100 - parent.getHeight(), 4, 100, parent
+							.getHeight() - 4);
 					ratedText.setShadow(true);
 					ratedText.setFlags(RSRC_HALIGN_RIGHT);
-					ratedText.setValue(mDayFormat.format(podcastTrack.getPublicationDate()));			
-	            }
-				else
-				{
+					ratedText.setValue(mDayFormat.format(podcastTrack.getPublicationDate()));
+				} else {
 					BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
 					name.setShadow(true);
 					name.setFlags(RSRC_HALIGN_LEFT);
-					name.setValue(Tools.trim(Tools.cleanHTML(podcastTrack.getTitle()), 40));					
+					name.setValue(Tools.trim(Tools.cleanHTML(podcastTrack.getTitle()), 40));
 				}
 			}
 		}
@@ -840,9 +829,9 @@ public class Podcasting extends DefaultApplication {
 		List mList;
 
 		Tracker mTracker;
-		
+
 		private SimpleDateFormat mDateFormat;
-		
+
 		private SimpleDateFormat mDayFormat;
 	}
 
@@ -1244,15 +1233,15 @@ public class Podcasting extends DefaultApplication {
 			getBelow().setResource(mInfoBackground);
 
 			int start = TOP;
-			
-			mBack = new BView(getNormal(), BORDER_LEFT+BODY_WIDTH-50, start - 25, 50, 20);
+
+			mBack = new BView(getNormal(), BORDER_LEFT + BODY_WIDTH - 50, start - 25, 50, 20);
 			mBack.setResource(Color.BLACK);
 			mBack.setVisible(false);
 			mExplicitText = new BText(getNormal(), BORDER_LEFT, start - 25, BODY_WIDTH, 20);
 			mExplicitText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
 			mExplicitText.setFont("default-18.font");
 			mExplicitText.setColor(Color.WHITE);
-			mExplicitText.setShadow(true);			
+			mExplicitText.setShadow(true);
 
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d/yyyy hh:mm a");
@@ -1268,19 +1257,19 @@ public class Podcasting extends DefaultApplication {
 			mDateText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
 			mDateText.setFont("default-18.font");
 			mDateText.setShadow(true);
-			
+
 			mCategoryText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 20, BODY_WIDTH - 20, 20);
 			mCategoryText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
 			mCategoryText.setFont("default-16.font");
 			mCategoryText.setShadow(true);
-			
+
 			start += 20;
-			
+
 			mAuthorText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH - 200, 40);
 			mAuthorText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP);
 			mAuthorText.setFont("default-18.font");
 			mAuthorText.setShadow(true);
-			
+
 			mImage = new BView(getNormal(), BORDER_LEFT + BODY_WIDTH - 180, 220, 180, 180, false);
 			mImage.setResource(Color.BLACK);
 			mImage.setTransparency(0.75f);
@@ -1313,7 +1302,7 @@ public class Podcasting extends DefaultApplication {
 				setPainting(false);
 				final Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
 				if (podcast.getTracks() == null || podcast.getTracks().size() == 0) {
-					if (getPodcast(podcast)!=null) {
+					if (getPodcast(podcast) != null) {
 						try {
 							PodcastManager.updatePodcast(podcast);
 						} catch (Exception ex) {
@@ -1324,16 +1313,12 @@ public class Podcasting extends DefaultApplication {
 
 				setSmallTitle(podcast.getTitle());
 				String description = null;
-				if (podcast.getDescription()==null)
-				{
-					if (podcast.getSummary()==null)
-					{
+				if (podcast.getDescription() == null) {
+					if (podcast.getSummary() == null) {
 						description = podcast.getSubtitle();
-					}
-					else
+					} else
 						description = podcast.getSummary();
-				}
-				else
+				} else
 					description = podcast.getDescription();
 				mDescriptionText.setValue(description);
 				if (podcast.getDateUpdated() != null)
@@ -1342,18 +1327,15 @@ public class Podcasting extends DefaultApplication {
 					mDateText.setValue(mDateFormat.format(new Date()));
 				mCategoryText.setValue(podcast.getCategory());
 				mAuthorText.setValue(podcast.getAuthor());
-				if (podcast.getExplicit()!=null && podcast.getExplicit().booleanValue())
-				{
+				if (podcast.getExplicit() != null && podcast.getExplicit().booleanValue()) {
 					mExplicitText.setValue("Explicit");
 					mBack.setVisible(true);
-				}
-				else
-				{
+				} else {
 					mExplicitText.setValue("");
 					mBack.setVisible(false);
 				}
-				
-				if (podcast.getImage()!=null && podcast.getImage().length()>0) {
+
+				if (podcast.getImage() != null && podcast.getImage().length() > 0) {
 					clearImage();
 
 					mImageThread = new Thread() {
@@ -1363,11 +1345,11 @@ public class Podcasting extends DefaultApplication {
 
 							try {
 								Image image = Tools.retrieveCachedImage(new URL(podcast.getImage()));
-								if (image==null)
-								{
+								if (image == null) {
 									image = Tools.getImage(new URL(podcast.getImage()), -1, -1);
-									if (image!=null)
-										Tools.cacheImage(image, image.getWidth(null), image.getHeight(null), podcast.getImage());
+									if (image != null)
+										Tools.cacheImage(image, image.getWidth(null), image.getHeight(null), podcast
+												.getImage());
 								}
 								if (image != null) {
 									synchronized (this) {
@@ -1389,9 +1371,7 @@ public class Podcasting extends DefaultApplication {
 						}
 					};
 					mImageThread.start();
-				}
-				else
-				{
+				} else {
 					mImage.setVisible(false);
 					if (mImage.getResource() != null)
 						mImage.getResource().remove();
@@ -1414,7 +1394,7 @@ public class Podcasting extends DefaultApplication {
 			}
 			mBusy.setVisible(false);
 		}
-		
+
 		private void clearImage() {
 			try {
 				setPainting(false);
@@ -1561,26 +1541,26 @@ public class Podcasting extends DefaultApplication {
 		private BText mDescriptionText;
 
 		private BText mDateText;
-		
+
 		private BText mCategoryText;
-		
+
 		private BText mAuthorText;
-		
+
 		private BText mExplicitText;
-		
+
 		private BView mBack;
-		
+
 		private BView mImage;
-		
+
 		private Thread mImageThread;
-		
+
 		private Resource mAnim = getResource("*1000");
 	}
 
 	public class PodcastMenuScreen extends DefaultMenuScreen {
 		public PodcastMenuScreen(Podcasting app, Tracker tracker, Podcast podcast) {
 			super(app, "");
-			
+
 			setSmallTitle(podcast.getTitle());
 
 			mTracker = tracker;
@@ -1588,7 +1568,7 @@ public class Podcasting extends DefaultApplication {
 
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d/yyyy hh:mm a");
-			
+
 			mDayFormat = new SimpleDateFormat();
 			mDayFormat.applyPattern("M/d/yy");
 
@@ -1633,33 +1613,28 @@ public class Podcasting extends DefaultApplication {
 			PodcastTrack podcastTrack = (PodcastTrack) mMenuList.get(index);
 			icon.setResource(mItemIcon);
 
-			if (podcastTrack.getTitle().length() == 0)
-			{
+			if (podcastTrack.getTitle().length() == 0) {
 				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
 				name.setShadow(true);
 				name.setFlags(RSRC_HALIGN_LEFT);
 				name.setValue(mDateFormat.format(podcastTrack.getPublicationDate()));
-			}
-			else
-			{
-				if (podcastTrack.getPublicationDate()!=null)
-	            {
+			} else {
+				if (podcastTrack.getPublicationDate() != null) {
 					BText name = new BText(parent, 50, 4, parent.getWidth() - 140, parent.getHeight() - 4);
 					name.setShadow(true);
 					name.setFlags(RSRC_HALIGN_LEFT);
 					name.setValue(Tools.trim(Tools.cleanHTML(podcastTrack.getTitle()), 30));
-					
-					BText ratedText = new BText(parent, parent.getWidth() - 100 - parent.getHeight(), 4, 100, parent.getHeight() - 4);
+
+					BText ratedText = new BText(parent, parent.getWidth() - 100 - parent.getHeight(), 4, 100, parent
+							.getHeight() - 4);
 					ratedText.setShadow(true);
 					ratedText.setFlags(RSRC_HALIGN_RIGHT);
-					ratedText.setValue(mDayFormat.format(podcastTrack.getPublicationDate()));			
-	            }
-				else
-				{
+					ratedText.setValue(mDayFormat.format(podcastTrack.getPublicationDate()));
+				} else {
 					BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
 					name.setShadow(true);
 					name.setFlags(RSRC_HALIGN_LEFT);
-					name.setValue(Tools.trim(Tools.cleanHTML(podcastTrack.getTitle()), 40));					
+					name.setValue(Tools.trim(Tools.cleanHTML(podcastTrack.getTitle()), 40));
 				}
 			}
 		}
@@ -1678,7 +1653,7 @@ public class Podcasting extends DefaultApplication {
 		private Podcast mPodcast;
 
 		private SimpleDateFormat mDateFormat;
-		
+
 		private SimpleDateFormat mDayFormat;
 	}
 
@@ -1692,15 +1667,15 @@ public class Podcasting extends DefaultApplication {
 			getBelow().setResource(mInfoBackground);
 
 			int start = TOP;
-			
-			mBack = new BView(getNormal(), BORDER_LEFT+BODY_WIDTH-50, start - 25, 50, 20);
+
+			mBack = new BView(getNormal(), BORDER_LEFT + BODY_WIDTH - 50, start - 25, 50, 20);
 			mBack.setResource(Color.BLACK);
 			mBack.setVisible(false);
 			mExplicitText = new BText(getNormal(), BORDER_LEFT, start - 25, BODY_WIDTH, 20);
 			mExplicitText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
 			mExplicitText.setFont("default-18.font");
 			mExplicitText.setColor(Color.WHITE);
-			mExplicitText.setShadow(true);			
+			mExplicitText.setShadow(true);
 
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d/yyyy hh:mm a");
@@ -1709,25 +1684,25 @@ public class Podcasting extends DefaultApplication {
 			mDescriptionText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
 			mDescriptionText.setFont("default-18-bold.font");
 			mDescriptionText.setShadow(true);
-			
+
 			start += 100;
 
 			mDateText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
 			mDateText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
 			mDateText.setFont("default-18.font");
 			mDateText.setShadow(true);
-			
+
 			mCategoryText = new BText(getNormal(), BORDER_LEFT, getHeight() - SAFE_TITLE_V - 20, BODY_WIDTH - 20, 20);
 			mCategoryText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
 			mCategoryText.setFont("default-16.font");
 			mCategoryText.setShadow(true);
-			
+
 			start += 20;
-			
+
 			mAuthorText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH - 200, 40);
 			mAuthorText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP);
 			mAuthorText.setFont("default-18.font");
-			mAuthorText.setShadow(true);			
+			mAuthorText.setShadow(true);
 
 			start += 10;
 
@@ -1750,21 +1725,21 @@ public class Podcasting extends DefaultApplication {
 					BODY_WIDTH / 3 - 4, 30 - 4);
 			mStatusBar.setResource(Color.GREEN);
 			mStatusBar.setVisible(false);
-			
+
 			mImage = new BView(getNormal(), BORDER_LEFT + BODY_WIDTH - 180, 220, 180, 180, false);
 			mImage.setResource(Color.BLACK);
 			mImage.setTransparency(0.75f);
 
-			mListPlay = new DefaultOptionList(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80, (int) Math
-					.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.3), 90, 35);
+			mListPlay = new DefaultOptionList(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
+					(int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.3), 90, 35);
 			mListPlay.add("Play");
 			mListPlay.add("Don't do anything");
 			setFocus(mListPlay);
 
-			//setFocusDefault(mListPlay);
-			
-			mListDelete = new DefaultOptionList(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 115, (int) Math
-					.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.3), 120, 35);
+			// setFocusDefault(mListPlay);
+
+			mListDelete = new DefaultOptionList(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 115,
+					(int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.3), 120, 35);
 			mListDelete.add("Play");
 			mListDelete.add("Delete");
 			mListDelete.add("Don't do anything");
@@ -1781,7 +1756,7 @@ public class Podcasting extends DefaultApplication {
 			} finally {
 				setPainting(true);
 			}
-			
+
 			updateView(false);
 
 			mUpdateThread = new Thread() {
@@ -1796,7 +1771,7 @@ public class Podcasting extends DefaultApplication {
 
 							synchronized (this) {
 								updateView(true);
-							}							
+							}
 						} catch (InterruptedException ex) {
 							return;
 						} // handle silently for waking up
@@ -1826,55 +1801,47 @@ public class Podcasting extends DefaultApplication {
 
 				setSmallTitle(podcastTrack.getTitle());
 				String description = null;
-				if (podcastTrack.getDescription()==null)
-				{
-					if (podcastTrack.getSummary()==null)
-					{
+				if (podcastTrack.getDescription() == null) {
+					if (podcastTrack.getSummary() == null) {
 						description = podcastTrack.getSubtitle();
-					}
-					else
+					} else
 						description = podcastTrack.getSummary();
-				}
-				else
+				} else
 					description = podcastTrack.getDescription();
 				mDescriptionText.setValue(description);
 				if (podcastTrack.getPublicationDate() != null)
 					mDateText.setValue(mDateFormat.format(podcastTrack.getPublicationDate()));
 				else
 					mDateText.setValue(mDateFormat.format(new Date()));
-				
+
 				mCategoryText.setValue(podcastTrack.getCategory());
 				mAuthorText.setValue(podcastTrack.getAuthor());
-				
-				if (podcastTrack.getExplicit()!=null && podcastTrack.getExplicit().booleanValue())
-				{
+
+				if (podcastTrack.getExplicit() != null && podcastTrack.getExplicit().booleanValue()) {
 					mBack.setVisible(true);
 					mExplicitText.setValue("Explicit");
-				}
-				else
-				{
+				} else {
 					mExplicitText.setValue("");
 					mBack.setVisible(false);
 				}
-				
+
 				final Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-				
-				if (podcast!=null && podcast.getImage()!=null && podcast.getImage().length()>0) {
-					if (!isThread)
-					{
+
+				if (podcast != null && podcast.getImage() != null && podcast.getImage().length() > 0) {
+					if (!isThread) {
 						clearImage();
 						mImageThread = new Thread() {
 							public void run() {
 								int x = mImage.getX();
 								int y = mImage.getY();
-	
+
 								try {
 									Image image = Tools.retrieveCachedImage(new URL(podcast.getImage()));
-									if (image==null)
-									{
+									if (image == null) {
 										image = Tools.getImage(new URL(podcast.getImage()), -1, -1);
-										if (image!=null)
-											Tools.cacheImage(image, image.getWidth(null), image.getHeight(null), podcast.getImage());
+										if (image != null)
+											Tools.cacheImage(image, image.getWidth(null), image.getHeight(null),
+													podcast.getImage());
 									}
 									if (image != null) {
 										synchronized (this) {
@@ -1898,9 +1865,7 @@ public class Podcasting extends DefaultApplication {
 						mCurrentImage = podcast.getImage();
 						mImageThread.start();
 					}
-				}
-				else
-				{
+				} else {
 					try {
 						setPainting(false);
 						mImage.setVisible(false);
@@ -1912,8 +1877,9 @@ public class Podcasting extends DefaultApplication {
 					}
 				}
 
-				if (podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADING ) {
-						//|| podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADED) {
+				if (podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADING) {
+					// || podcastTrack.getStatus() ==
+					// PodcastTrack.STATUS_DOWNLOADED) {
 					mStatusBarBg.setVisible(true);
 					mStatusBar.setVisible(true);
 					mStatusBar.setSize(1, mStatusBar.getHeight());
@@ -1939,13 +1905,11 @@ public class Podcasting extends DefaultApplication {
 					} else if (podcastTrack.getStatus() != PodcastTrack.STATUS_DOWNLOADED) {
 						String progress = "";
 						/*
-						for (int i = 0; i < mCounter; i++)
-							progress = progress + ".";
-						mStatusText.setValue("Connecting" + progress);
-						// mSpeedText.setValue("0 KB/Sec");
-						mStatusBar.setVisible(false);
-						mCounter++;
-						*/
+						 * for (int i = 0; i < mCounter; i++) progress =
+						 * progress + "."; mStatusText.setValue("Connecting" +
+						 * progress); // mSpeedText.setValue("0 KB/Sec");
+						 * mStatusBar.setVisible(false); mCounter++;
+						 */
 					} else {
 						mStatusText.setValue(podcastTrack.getStatusString());
 						mStatusBar.setVisible(false);
@@ -1958,42 +1922,40 @@ public class Podcasting extends DefaultApplication {
 					mStatusText.setValue(" ");
 				}
 
-				if (podcastTrack.getStatus() == PodcastTrack.STATUS_PLAYED || podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADED) {
-					if (!mListDelete.getVisible())
-					{	
+				if (podcastTrack.getStatus() == PodcastTrack.STATUS_PLAYED
+						|| podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADED) {
+					if (!mListDelete.getVisible()) {
 						mListPlay.setVisible(false);
-						mListDelete.setFocus(0,false);
+						mListDelete.setFocus(0, false);
 						mListDelete.setVisible(true);
 						setFocus(mListDelete);
 					}
 				} else if (podcastTrack.getStatus() == PodcastTrack.STATUS_QUEUED
 						|| podcastTrack.getStatus() == PodcastTrack.STATUS_DOWNLOADING) {
-						mListPlay.set(0, "Cancel download");
-						mListPlay.set(1, "Don't do anything");
-						if (!mListPlay.getVisible())
-						{
-							mListPlay.setFocus(0,false);
-							mListPlay.setVisible(true);
-							mListDelete.setVisible(false);
-							setFocus(mListPlay);
-						}
+					mListPlay.set(0, "Cancel download");
+					mListPlay.set(1, "Don't do anything");
+					if (!mListPlay.getVisible()) {
+						mListPlay.setFocus(0, false);
+						mListPlay.setVisible(true);
+						mListDelete.setVisible(false);
+						setFocus(mListPlay);
+					}
 				} else {
-						mListPlay.set(0, "Download");
-						mListPlay.set(1, "Don't do anything");
-						if (!mListPlay.getVisible())
-						{
-							mListPlay.setFocus(0,false);
-							mListPlay.setVisible(true);
-							mListDelete.setVisible(false);
-							setFocus(mListPlay);
-						}
+					mListPlay.set(0, "Download");
+					mListPlay.set(1, "Don't do anything");
+					if (!mListPlay.getVisible()) {
+						mListPlay.setFocus(0, false);
+						mListPlay.setVisible(true);
+						mListDelete.setVisible(false);
+						setFocus(mListPlay);
+					}
 				}
 				getBApp().flush();
 			} catch (Exception ex) {
 				Tools.logException(Podcasting.class, ex);
 			}
 		}
-		
+
 		private void clearImage() {
 			try {
 				setPainting(false);
@@ -2022,9 +1984,8 @@ public class Podcasting extends DefaultApplication {
 			mUpdateThread = null;
 			return super.handleExit();
 		}
-		
-		private String getCommand()
-		{
+
+		private String getCommand() {
 			if (mListPlay.getVisible())
 				return (String) mListPlay.get(mListPlay.getFocus());
 			else
@@ -2046,9 +2007,9 @@ public class Podcasting extends DefaultApplication {
 						track.setDownloadSize(0);
 						track.setDownloadTime(0);
 						Audio audio = track.getTrack();
-						if (((DefaultApplication)getApp()).getCurrentAudio()!=null && ((DefaultApplication)getApp()).getCurrentAudio().getId().equals(audio.getId()))
-						{
-							((DefaultApplication)getApp()).getPlayer().stopTrack();
+						if (((DefaultApplication) getApp()).getCurrentAudio() != null
+								&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(audio.getId())) {
+							((DefaultApplication) getApp()).getPlayer().stopTrack();
 						}
 						track.setTrack(null);
 						PodcastManager.updatePodcast(podcast);
@@ -2059,7 +2020,7 @@ public class Podcasting extends DefaultApplication {
 						}
 						mListPlay.set(0, "Download");
 						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0,false);
+						mListPlay.setFocus(0, false);
 						mListPlay.setVisible(true);
 						mListDelete.setVisible(false);
 						setFocus(mListPlay);
@@ -2067,10 +2028,7 @@ public class Podcasting extends DefaultApplication {
 						Tools.logException(Podcasting.class, ex);
 					}
 					break;
-				}
-				else
-				if (command.equals("Play"))
-				{
+				} else if (command.equals("Play")) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
 				} else if (command.equals("Download")) {
@@ -2083,7 +2041,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastManager.updatePodcast(podcast);
 						mListPlay.set(0, "Cancel download");
 						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0,false);
+						mListPlay.setFocus(0, false);
 						mListPlay.setVisible(true);
 						mListDelete.setVisible(false);
 						setFocus(mListPlay);
@@ -2101,7 +2059,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastManager.updatePodcast(podcast);
 						mListPlay.set(0, "Download");
 						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0,false);
+						mListPlay.setFocus(0, false);
 						mListPlay.setVisible(true);
 						mListDelete.setVisible(false);
 						setFocus(mListPlay);
@@ -2210,13 +2168,13 @@ public class Podcasting extends DefaultApplication {
 		private BText mDescriptionText;
 
 		private BText mDateText;
-		
+
 		private BText mCategoryText;
-		
+
 		private BText mAuthorText;
-		
+
 		private BView mBack;
-		
+
 		private BText mExplicitText;
 
 		private Tracker mTracker;
@@ -2230,15 +2188,15 @@ public class Podcasting extends DefaultApplication {
 		private Thread mUpdateThread;
 
 		private BView mImage;
-		
+
 		private Thread mImageThread;
-		
+
 		private Resource mAnim = getResource("*1000");
-		
+
 		private BList mListPlay;
-		
+
 		private BList mListDelete;
-		
+
 		private String mCurrentImage;
 	}
 
@@ -2322,8 +2280,7 @@ public class Podcasting extends DefaultApplication {
 							player.updatePlayer();
 							player.setVisible(true);
 
-							if (podcast!=null && track!=null)
-							{
+							if (podcast != null && track != null) {
 								try {
 									track.setStatus(PodcastTrack.STATUS_PLAYED);
 									PodcastManager.updatePodcast(podcast);

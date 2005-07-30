@@ -26,8 +26,6 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.desktop.Desktop;
-import org.lnicholls.galleon.apps.photos.Photos.PGrid;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
@@ -351,7 +349,7 @@ public class Internet extends DefaultApplication {
                             sleep(1000);
                         }
                     } catch (Exception ex) {
-                        Tools.logException(Desktop.class, ex, "Could not retrieve internet image");
+                        Tools.logException(Internet.class, ex, "Could not retrieve internet image");
                     }
                 }
 

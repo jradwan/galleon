@@ -1,14 +1,7 @@
 package org.lnicholls.galleon.app;
 
 /*
- * Java based server for TiVo Home Media Option protocol
- * 
- * Based on version 1.5.1 of "TiVo Connect Automatic Machine; Discovery Protocol Specification" Based on version 1.1.0
- * of "TiVo Home Media Option; Music and Photos Server Protocol Specification"
- * 
- * Leon Nicholls, August 2003
- * 
- * Copyright (C) 2003 Leon Nicholls
+ * Copyright (C) 2005 Leon Nicholls
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
@@ -33,7 +26,7 @@ import org.lnicholls.galleon.util.NameValue;
  * GUI for configuring the app
  */
 
-public abstract class AppConfigurationPanel extends JPanel {
+public abstract class AppConfigurationPanel extends JPanel implements ConfigurationPanel {
     private static Logger log = Logger.getLogger(AppConfigurationPanel.class.getName());
 
     public static class ComboWrapper extends NameValue {

@@ -56,7 +56,8 @@ import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Playlists extends DefaultApplication {
 
@@ -76,7 +77,7 @@ public class Playlists extends DefaultApplication {
 
 	private Resource mItemIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -86,8 +87,7 @@ public class Playlists extends DefaultApplication {
 		mImagesBackground = getSkinImage("images", "background");
 		mItemIcon = getSkinImage("menu", "item");
 
-		PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) ((PlaylistsFactory) getContext()
-				.getFactory()).getAppContext().getConfiguration();
+		PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) ((PlaylistsFactory) getFactory()).getAppContext().getConfiguration();
 
 		ArrayList list = new ArrayList();
 		for (Iterator i = playlistsConfiguration.getPlaylists().iterator(); i.hasNext(); /* Nothing */) {
@@ -368,8 +368,6 @@ public class Playlists extends DefaultApplication {
 			Tracker currentTracker = defaultApplication.getTracker();
 			if (currentTracker != null && currentAudio != null) {
 				Item newItem = (Item) tracker.getList().get(tracker.getPos());
-				System.out.println(currentAudio.getPath());
-				System.out.println(newItem.getValue());
 				if (currentAudio.getPath().equals(newItem.getValue().toString())) {
 					mTracker = currentTracker;
 					sameTrack = true;
@@ -439,13 +437,13 @@ public class Playlists extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				player.stopPlayer();
 
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
 				}
 				if (player != null) {
+					player.stopPlayer();
 					player.setVisible(false);
 					player.remove();
 					player = null;
@@ -869,12 +867,7 @@ public class Playlists extends DefaultApplication {
 
 	public static class PlaylistsFactory extends AppFactory {
 
-		public PlaylistsFactory(AppContext appContext) {
-			super(appContext);
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) getAppContext().getConfiguration();
 
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();

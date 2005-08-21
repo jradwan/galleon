@@ -17,13 +17,15 @@ package org.lnicholls.galleon.togo;
  */
 
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -89,10 +91,10 @@ public class ToGo {
             Iterator tivosIterator = tivos.iterator();
             while (tivosIterator.hasNext()) {
                 TiVo tivo = (TiVo) tivosIterator.next();
+                HashMap shows = new HashMap();
                 try {
-                    Protocol protocol = new Protocol("https", new TiVoSSLProtocolSocketFactory(), 443);
+                	Protocol protocol = new Protocol("https", new TiVoSSLProtocolSocketFactory(), 443);
                     HttpClient client = new HttpClient();
-                    // TODO How to get TiVo address??
                     client.getHostConfiguration().setHost(tivo.getAddress(), 443, protocol);
                     Credentials credentials = new UsernamePasswordCredentials("tivo", Tools
                             .decrypt(serverConfiguration.getMediaAccessKey()));
@@ -101,150 +103,184 @@ public class ToGo {
                     int total = -1;
                     int counter = 0;
                     do {
-                        get = new GetMethod(QUERY_CONTAINER + RECURSE + ITEM_COUNT + MAX + ANCHOR_OFFSET + counter);
-                        client.executeMethod(get);
-
-                        //log.debug(get.getResponseBodyAsString());
-
-                        SAXReader saxReader = new SAXReader();
-                        Document document = saxReader.read(get.getResponseBodyAsStream());
-                        
-                        // Get the root element
-                        Element root = document.getRootElement(); //<TiVoContainer>
-
-                        Date lastChangedDate = new Date();
-                        Element detailsElement = root.element("Details");
-                        if (detailsElement!=null)
-                        {
-                            Element totalItemsElement = detailsElement.element("TotalItems");
-                            if (totalItemsElement!=null)
-                            {
-                                try {
-                                    total = Integer.parseInt(totalItemsElement.getText());
-                                } catch (NumberFormatException ex) {
-                                }   
-                            }
-                            Element lastChangeDateElement = detailsElement.element("LastChangeDate");
-                            if (lastChangeDateElement!=null)
-                            {
-                                try {
-                                    lastChangedDate = Tools.hexDate(lastChangeDateElement.getText());
-                                } catch (NumberFormatException ex) {
-                                }    
-                            }
-                        }
-                        
-                        log.debug("lastChangedDate=" + lastChangedDate);
-                        log.debug("tivo.getLastChangedDate()=" + tivo.getLastChangedDate());
-                        log.debug("total=" + total);
-                        log.debug("tivo.getNumShows()=" + tivo.getNumShows());
-                        if (lastChangedDate.after(tivo.getLastChangedDate()) || total != tivo.getNumShows()) {
-                            tivo.setLastChangedDate(lastChangedDate);
-                            tivo.setNumShows(0);
-                        } else {
-                            // Nothing changed
-                        	
-                        	synchronized(this)
-                        	{
-	                        	List recordings = VideoManager.listAll();
-	                        	Iterator iterator = recordings.listIterator();
-	                            while (iterator.hasNext()) {
-	                                Video video = (Video) iterator.next();
-	                                if (video.getUrl().indexOf(tivo.getAddress())!=-1)
-	                                	videos.add(video);
+                    	try
+                    	{
+	                        get = new GetMethod(QUERY_CONTAINER + RECURSE + ITEM_COUNT + MAX + ANCHOR_OFFSET + counter);
+	                        client.executeMethod(get);
+	
+	                        //log.debug(get.getResponseBodyAsString());
+	
+	                        SAXReader saxReader = new SAXReader();
+	                        Document document = saxReader.read(get.getResponseBodyAsStream());
+	                        
+	                        // Get the root element
+	                        Element root = document.getRootElement(); //<TiVoContainer>
+	
+	                        Date lastChangedDate = new Date();
+	                        Element detailsElement = root.element("Details");
+	                        if (detailsElement!=null)
+	                        {
+	                            Element totalItemsElement = detailsElement.element("TotalItems");
+	                            if (totalItemsElement!=null)
+	                            {
+	                                try {
+	                                    total = Integer.parseInt(totalItemsElement.getText());
+	                                } catch (NumberFormatException ex) {
+	                                }   
 	                            }
-                        	}
-                            break;
-                        }
-
-                        for (Iterator iterator = root.elementIterator(); iterator.hasNext();) {
-                            Element child = (Element) iterator.next();
-                            if (child.getName().equals("Item")) {
-                                Video video = new Video();
-                                video.setMimeType("mpeg");
-                                video.setDateModified(new Date());
-                                
-                                counter = counter + 1;
-                                if (progressIndicator != null) {
-                                    if (total > 0) {
-                                        progressIndicator.progress(counter + " of " + total);
-                                    } else
-                                        progressIndicator.progress(counter + "");
-                                }
-                                Element details = child.element("Details");
-                                if (details != null) {
-                                    String value = Tools.getAttribute(details, "Title");
-                                    if (value != null)
-                                        video.setTitle(value);
-                                    value = Tools.getAttribute(details, "SourceSize");
-                                    if (value != null)
-                                        video.setSize(Long.parseLong(value));
-                                    value = Tools.getAttribute(details, "Duration");
-                                    if (value != null)
-                                        try
-                                        {
-                                            video.setDuration(Integer.parseInt(value));
-                                        } catch (NumberFormatException ex) {
-                                            log.error("Could not set duration", ex);
-                                        }
-                                    value = Tools.getAttribute(details, "CaptureDate");
-                                    if (value != null)
-                                        video.setDateRecorded(Tools.hexDate(value));
-                                    value = Tools.getAttribute(details, "EpisodeTitle");
-                                    if (value != null)
-                                        video.setEpisodeTitle(value);
-                                    value = Tools.getAttribute(details, "Description");
-                                    if (value != null)
-                                        video.setDescription(value);
-                                    value = Tools.getAttribute(details, "SourceChannel");
-                                    if (value != null)
-                                        video.setChannel(value);
-                                    value = Tools.getAttribute(details, "SourceStation");
-                                    if (value != null)
-                                        video.setStation(value);
-                                    value = Tools.getAttribute(details, "InProgress");
-                                    if (value != null)
-                                        video.setStatus(Video.STATUS_RECORDING);
-
-                                    video.setSource(tivo.getAddress());
-                                }
-
-                                Element links = child.element("Links");
-                                if (links != null) {
-                                    Element element = links.element("Content");
-                                    if (element != null) {
-                                        String value = Tools.getAttribute(element, "Url");
-                                        if (value != null)
-                                            video.setUrl(value);
-                                    }
-
-                                    element = links.element("CustomIcon");
-                                    if (element != null) {
-                                        String value = Tools.getAttribute(element, "Url");
-                                        if (value != null) {
-                                            video.setIcon(value.substring(value.lastIndexOf(":") + 1));
-                                        }
-                                    }
-
-                                    element = links.element("TiVoVideoDetails");
-                                    if (element != null) {
-                                        String value = Tools.getAttribute(element, "Url");
-                                        if (element != null)
-                                            getvideoDetails(client, video, value);
-                                    }
-                                }
-                                videos.add(video);
-                                tivo.setNumShows(tivo.getNumShows() + 1);
-                            }
-                        }
+	                            Element lastChangeDateElement = detailsElement.element("LastChangeDate");
+	                            if (lastChangeDateElement!=null)
+	                            {
+	                                try {
+	                                    lastChangedDate = Tools.hexDate(lastChangeDateElement.getText());
+	                                } catch (NumberFormatException ex) {
+	                                }    
+	                            }
+	                        }
+	                        
+	                        log.debug("lastChangedDate=" + lastChangedDate);
+	                        log.debug("tivo.getLastChangedDate()=" + tivo.getLastChangedDate());
+	                        log.debug("total=" + total);
+	                        log.debug("tivo.getNumShows()=" + tivo.getNumShows());
+	                        if (lastChangedDate.after(tivo.getLastChangedDate()) || total != tivo.getNumShows()) {
+	                            tivo.setLastChangedDate(lastChangedDate);
+	                            tivo.setNumShows(0);
+	                        } else {
+	                            // Nothing changed
+	                        	
+	                        	synchronized(this)
+	                        	{
+		                        	List recordings = VideoManager.listAll();
+		                        	Iterator iterator = recordings.listIterator();
+		                            while (iterator.hasNext()) {
+		                                Video video = (Video) iterator.next();
+		                                if (video.getUrl().indexOf(tivo.getAddress())!=-1)
+		                                	videos.add(video);
+		                            }
+	                        	}
+	                            break;
+	                        }
+	
+	                        for (Iterator iterator = root.elementIterator(); iterator.hasNext();) {
+	                            Element child = (Element) iterator.next();
+	                            if (child.getName().equals("Item")) {
+	                            	Video video = new Video();
+	                                video.setMimeType("mpeg");
+	                                video.setDateModified(new Date());
+	                                
+	                                counter = counter + 1;
+	                                if (progressIndicator != null) {
+	                                    if (total > 0) {
+	                                        progressIndicator.progress(counter + " of " + total);
+	                                    } else
+	                                        progressIndicator.progress(counter + "");
+	                                }
+	                                Element details = child.element("Details");
+	                                if (details != null) {
+	                                	String value = Tools.getAttribute(details, "CopyProtected"); //<CopyProtected>Yes</CopyProtected>
+	                                    if (value != null)
+	                                    {
+	                                    	if (value.equalsIgnoreCase("yes"))
+	                                    		continue;
+	                                    }
+	                                	
+	                                	value = Tools.getAttribute(details, "Title");
+	                                    if (value != null)
+	                                        video.setTitle(value);
+	                                    value = Tools.getAttribute(details, "SourceSize");
+	                                    if (value != null)
+	                                        video.setSize(Long.parseLong(value));
+	                                    value = Tools.getAttribute(details, "Duration");
+	                                    if (value != null)
+	                                        try
+	                                        {
+	                                            video.setDuration(Integer.parseInt(value));
+	                                        } catch (NumberFormatException ex) {
+	                                            log.error("Could not set duration", ex);
+	                                        }
+	                                    value = Tools.getAttribute(details, "CaptureDate");
+	                                    if (value != null)
+	                                        video.setDateRecorded(Tools.hexDate(value));
+	                                    value = Tools.getAttribute(details, "EpisodeTitle");
+	                                    if (value != null)
+	                                        video.setEpisodeTitle(value);
+	                                    value = Tools.getAttribute(details, "Description");
+	                                    if (value != null)
+	                                        video.setDescription(value);
+	                                    value = Tools.getAttribute(details, "SourceChannel");
+	                                    if (value != null)
+	                                        video.setChannel(value);
+	                                    value = Tools.getAttribute(details, "SourceStation");
+	                                    if (value != null)
+	                                        video.setStation(value);
+	                                    value = Tools.getAttribute(details, "InProgress");
+	                                    if (value != null)
+	                                        video.setStatus(Video.STATUS_RECORDING);
+	
+	                                    video.setSource(tivo.getAddress());
+	                                }
+	
+	                                String detailsUrl = null;
+	                                Element links = child.element("Links");
+	                                if (links != null) {
+	                                    Element element = links.element("Content");
+	                                    if (element != null) {
+	                                        String value = Tools.getAttribute(element, "Url");
+	                                        if (value != null)
+	                                            video.setUrl(value);
+	                                    }
+	
+	                                    element = links.element("CustomIcon");
+	                                    if (element != null) {
+	                                        String value = Tools.getAttribute(element, "Url");
+	                                        if (value != null) {
+	                                            video.setIcon(value.substring(value.lastIndexOf(":") + 1));
+	                                        }
+	                                    }
+	
+	                                    element = links.element("TiVoVideoDetails");
+	                                    if (element != null) {
+	                                        String value = Tools.getAttribute(element, "Url");
+	                                        if (value != null)
+	                                        {
+	                                        	detailsUrl = value;
+	                                            //getvideoDetails(client, video, value);
+	                                        }
+	                                    }
+	                                }
+	                                if (detailsUrl!=null)
+	                                {
+	                                	shows.put(video, detailsUrl);
+	                                	tivo.setNumShows(tivo.getNumShows() + 1);
+	                                }
+	                            }
+	                        }
+	                        Thread.sleep(100); // give the CPU some breathing time
+                    	}
+                    	finally
+                    	{
+                    		if (get != null)
+                    		{
+                                get.releaseConnection();
+                                get = null;
+                    		}
+                    	}
                     } while (counter < total);
+                    
+                    
+                    // Get video details
+                    for (Iterator iterator = shows.keySet().iterator(); iterator.hasNext();) {
+                    	Video video = (Video)iterator.next();
+                    	String url = (String)shows.get(video);
+	                    getvideoDetails(client, video, url);
+	                    videos.add(video);
+                    	
+	                    Thread.sleep(500); // give the CPU some breathing time	                    
+                    }                    
                 } catch (MalformedURLException ex) {
                     Tools.logException(ToGo.class, ex);
                 } catch (Exception ex) {
                     Tools.logException(ToGo.class, ex);
-                } finally {
-                    if (get != null)
-                        get.releaseConnection();
                 }
             }
         }
@@ -252,9 +288,10 @@ public class ToGo {
     }
 
     public void getvideoDetails(HttpClient client, Video video, String url) {
-        try {
+    	GetMethod get = null;
+    	try {
             //System.out.println(httpget.getResponseBodyAsString());
-            GetMethod get = new GetMethod(url);
+            get = new GetMethod(url);
             client.executeMethod(get);
 
             SAXReader saxReader = new SAXReader();
@@ -428,6 +465,12 @@ public class ToGo {
             Tools.logException(ToGo.class, ex);
         } catch (Exception ex) {
             Tools.logException(ToGo.class, ex);
+        } finally {
+            if (get != null)
+            {
+                get.releaseConnection();
+                get = null;
+            }
         }
     }
 
@@ -472,22 +515,34 @@ public class ToGo {
             String name = getFilename(video);
             log.info("Downloading: " + name);
             File file = new File(path + File.separator + name);
-            FileOutputStream output = new FileOutputStream(file, false);
+            WritableByteChannel channel = new FileOutputStream(file, false).getChannel();
 
             long total = 0;
             double diff = 0.0;
-            byte[] buf = new byte[1024 * 4];
+            ByteBuffer buf = ByteBuffer.allocateDirect(1024 * 4);
+            byte[] bytes = new byte[1024 * 4];
             int amount = 0;
+            int index = 0;
             long target = video.getSize();
             long start = System.currentTimeMillis();
             long last = start;
             while (amount == 0 && total < target) {
-                while ((amount = input.read(buf)) > 0 && !cancelDownload.cancel()) {
-                    total = total + amount;
-                    try {
-                        output.write(buf, 0, amount);
-                        output.flush();
-                    } catch (IOException e) {
+            	while (amount >= 0 && !cancelDownload.cancel()) {
+            		if (index == amount) {
+                        amount = input.read(bytes);
+                        index = 0;
+                        total = total + amount;
+                    }
+                    
+                    while (index < amount && buf.hasRemaining()) {
+                        buf.put(bytes[index++]);
+                    }
+                    buf.flip();
+                    int numWritten = channel.write(buf);
+                    if (buf.hasRemaining()) {
+                        buf.compact();
+                    } else {
+                        buf.clear();
                     }
 
                     if ((System.currentTimeMillis()-last>10000) && (total>0))
@@ -509,15 +564,14 @@ public class ToGo {
                         }
                         last = System.currentTimeMillis();
                     }
-                    
                 }
                 if (cancelDownload.cancel()) {
-                    output.close();
+                	channel.close();
                     return false;
                 }
             }
             diff = (System.currentTimeMillis() - start) / 1000.0;
-            output.close();
+            channel.close();
             if (diff != 0)
                 log.info("Download rate=" + (total / 1024) / diff + " KBps");
             try {

@@ -31,7 +31,9 @@ import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -59,6 +61,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import javax.imageio.ImageIO;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.lob.BlobImpl;
@@ -101,7 +104,7 @@ public class Tools {
 				System.out.println(cause.getMessage());
 				System.out.println(cause.toString());
 				cause.printStackTrace();
-				cause = ex.getCause();
+				cause = cause.getCause();
 			}
 		}
 	}
@@ -884,4 +887,93 @@ public class Tools {
 		}
 		return StringEscapeUtils.unescapeHtml(result).trim();
 	}
+	
+    public static void copy(File src, File dst) {
+    	try {
+            FileChannel srcChannel = new FileInputStream(src).getChannel();
+            FileChannel dstChannel = new FileOutputStream(dst).getChannel();
+            dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+            srcChannel.close();
+            dstChannel.close();
+        } catch (IOException ex) {
+        	Tools.logException(Tools.class, ex, dst.getAbsolutePath());
+        }
+    }
+    
+    public static InputStream getInputStream(File file)
+    {
+    	try {
+            FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
+            final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int)roChannel.size());    		
+            return new InputStream() {
+                public synchronized int read() throws IOException {
+                    if (!buf.hasRemaining()) {
+                        return -1;
+                    }
+                    return buf.get();
+                }
+        
+                public synchronized int read(byte[] bytes, int off, int len) throws IOException {
+                	if (!buf.hasRemaining()) {
+                        return -1;
+                    }
+                	len = Math.min(len, buf.remaining());
+                    buf.get(bytes, off, len);
+                    return len;
+                }
+            };    		
+		} catch (Exception ex) {
+			Tools.logException(Tools.class, ex, file.getAbsolutePath());
+		}    	
+		return null;
+    }
+    
+    public static BufferedImage ImageIORead(File file)
+    {
+    	try {
+            FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
+            final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int)roChannel.size());    		
+            return ImageIO.read(new InputStream() {
+                public synchronized int read() throws IOException {
+                    if (!buf.hasRemaining()) {
+                        return -1;
+                    }
+                    return buf.get();
+                }
+        
+                public synchronized int read(byte[] bytes, int off, int len) throws IOException {
+                	if (!buf.hasRemaining()) {
+                        return -1;
+                    }
+                	len = Math.min(len, buf.remaining());
+                    buf.get(bytes, off, len);
+                    return len;
+                }
+            });    		
+		} catch (Exception ex) {
+			Tools.logException(Tools.class, ex, file.getAbsolutePath());
+		}
+		
+		try
+		{
+			return ImageIO.read(new FileInputStream(file));
+		} catch (Exception ex) {
+			Tools.logException(Tools.class, ex, file.getAbsolutePath());
+		}
+		return null;
+    }
+    
+    public static String getCause(Throwable ex)
+    {
+    	String message = ex.getMessage();
+    	Throwable cause = ex.getCause();
+		while (cause != null) {
+			message = cause.getMessage();
+			if (!(cause instanceof GalleonException))
+				cause = cause.getCause();
+			else
+				break;
+		}
+		return message;
+    }
 }

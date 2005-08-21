@@ -58,7 +58,8 @@ import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Music extends DefaultApplication {
 
@@ -82,7 +83,7 @@ public class Music extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -94,7 +95,7 @@ public class Music extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 
-		MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getContext().getFactory())
+		MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory())
 				.getAppContext().getConfiguration();
 
 		if (musicConfiguration.getPaths().size() == 1) {
@@ -120,7 +121,7 @@ public class Music extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getContext().getFactory())
+			MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory())
 					.getAppContext().getConfiguration();
 
 			for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
@@ -616,13 +617,12 @@ public class Music extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				player.stopPlayer();
-
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
 				}
 				if (player != null) {
+					player.stopPlayer();
 					player.setVisible(false);
 					player.remove();
 					player = null;
@@ -1058,12 +1058,7 @@ public class Music extends DefaultApplication {
 
 	public static class MusicFactory extends AppFactory {
 
-		public MusicFactory(AppContext appContext) {
-			super(appContext);
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			MusicConfiguration musicConfiguration = (MusicConfiguration) getAppContext().getConfiguration();
 
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();

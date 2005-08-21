@@ -20,40 +20,40 @@ import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
-import org.lnicholls.galleon.app.AppConfigurationPanel;
+import org.lnicholls.galleon.app.ConfigurationPanel;
 
 public class AppNode {
-    private static Logger log = Logger.getLogger(AppNode.class.getName());
+	private static Logger log = Logger.getLogger(AppNode.class.getName());
 
-    public AppNode(AppContext appContext, Icon icon, AppConfigurationPanel appConfigurationPanel) {
-        mAppContext = appContext;
-        mIcon = icon;
-        mAppConfigurationPanel = appConfigurationPanel;
-    }
+	public AppNode(AppContext appContext, Icon icon, ConfigurationPanel configurationPanel) {
+		mAppContext = appContext;
+		mIcon = icon;
+		mConfigurationPanel = configurationPanel;
+	}
 
-    public String getTitle() {
-        return mAppContext.getConfiguration().getName();
-    }
+	public String getTitle() {
+		return mAppContext.getTitle();
+	}
 
-    public Icon getIcon() {
-        return mIcon;
-    }
+	public Icon getIcon() {
+		return mIcon;
+	}
 
-    public String toString() {
-        return getTitle();
-    }
+	public String toString() {
+		return getTitle();
+	}
 
-    public AppContext getAppContext() {
-        return mAppContext;
-    }
-    
-    public AppConfigurationPanel getConfigurationPanel() {
-        return mAppConfigurationPanel;
-    }
+	public AppContext getAppContext() {
+		return mAppContext;
+	}
 
-    private AppContext mAppContext;
-    
-    private AppConfigurationPanel mAppConfigurationPanel;
+	public ConfigurationPanel getConfigurationPanel() {
+		return mConfigurationPanel;
+	}
 
-    private Icon mIcon;
+	private AppContext mAppContext;
+
+	private ConfigurationPanel mConfigurationPanel;
+
+	private Icon mIcon;
 }

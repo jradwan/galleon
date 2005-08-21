@@ -166,6 +166,15 @@ public class MusicPlayer extends DefaultPlayer {
             setPainting(true);
         }
     }
+    
+    public void rewindPlayer() {
+        try {
+            setPainting(false);
+            mPlayBar.rewind();
+        } finally {
+            setPainting(true);
+        }
+    }    
 
     public void pausePlayer() {
         if (mApplication.getPlayer().getState() != Player.STOP) {
@@ -199,7 +208,11 @@ public class MusicPlayer extends DefaultPlayer {
             pausePlayer();
             break;
         case KEY_PLAY:
+        case KEY_FORWARD:
             playPlayer();
+            break;        	
+        case KEY_REVERSE:
+            rewindPlayer();
             break;
         case KEY_CHANNELUP:
             break;
@@ -226,6 +239,8 @@ public class MusicPlayer extends DefaultPlayer {
         case KEY_PAUSE:
             break;
         case KEY_PLAY:
+        case KEY_FORWARD:
+        case KEY_REVERSE:
             break;
         case KEY_CHANNELUP:
             break;
@@ -258,7 +273,7 @@ public class MusicPlayer extends DefaultPlayer {
             } catch (Exception ex) {
                 Tools.logException(MusicPlayer.class, ex);
             }
-        } else if (action.equals("playing")) {
+        } else if (action.equals("playing") || action.equals("seeking")) {
             if (mPlaying) {
                 if (mApplication.getPlayer().getTotal() != 0) {
                     try {

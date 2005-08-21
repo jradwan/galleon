@@ -78,7 +78,8 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class MusicOrganizer extends DefaultApplication {
 
@@ -102,7 +103,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -123,8 +124,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) ((MusicOrganizerFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) ((MusicOrganizerFactory) getFactory()).getAppContext().getConfiguration();
 
 			mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, 20);
 			mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
@@ -740,13 +740,13 @@ public class MusicOrganizer extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				player.stopPlayer();
 
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
 				}
 				if (player != null) {
+					player.stopPlayer();
 					player.setVisible(false);
 					player.clearResource();
 					player.remove();
@@ -1949,19 +1949,15 @@ public class MusicOrganizer extends DefaultApplication {
 
 	public static class MusicOrganizerFactory extends AppFactory {
 
-		public MusicOrganizerFactory(AppContext appContext) {
-			super(appContext);
-
+		public void initialize() {
+			
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss"); // 2005-04-25
 																// 22:19:20
 			mDatabaseDateFormat = new SimpleDateFormat();
 			mDatabaseDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss.SSS"); // 2005-04-23
-																			// 13:38:15.078
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+																			// 13:38:15.078			
+			
 			MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) getAppContext()
 					.getConfiguration();
 
@@ -1971,7 +1967,7 @@ public class MusicOrganizer extends DefaultApplication {
 					try {
 						log.debug("Organizer");
 						if (mMediaRefreshThread == null || !mMediaRefreshThread.isAlive()) {
-							updatePaths();
+							updatePaths(false);
 						}
 					} catch (Exception ex) {
 						log.error("Could not download stations", ex);
@@ -1983,13 +1979,16 @@ public class MusicOrganizer extends DefaultApplication {
 		public void setAppContext(AppContext appContext) {
 			super.setAppContext(appContext);
 
-			updatePaths();
+			updatePaths(true);
 		}
 
-		private void updatePaths() {
+		private void updatePaths(boolean interrupt) {
 			try {
 				if (mMediaRefreshThread != null && mMediaRefreshThread.isAlive()) {
-					mMediaRefreshThread.interrupt();
+					if (interrupt)
+						mMediaRefreshThread.interrupt();
+					else
+						return;
 				}
 				mMediaRefreshThread = new MediaRefreshThread(MusicOrganizer.class.getName() + ".refresh");
 

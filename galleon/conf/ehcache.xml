@@ -63,5 +63,36 @@
         timeToLiveSeconds="600"
         overflowToDisk="true"
         />                 
+        
+    <cache name="org.lnicholls.galleon.database.Podcast"
+        maxElementsInMemory="100"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                         
+        
+    <cache name="org.lnicholls.galleon.database.Playlist"
+        maxElementsInMemory="100"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                                 
+        
+    <cache name="org.lnicholls.galleon.database.Movie"
+        maxElementsInMemory="100"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                                         
 
+    <cache name="org.lnicholls.galleon.database.Theater"
+        maxElementsInMemory="100"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                                 
 </ehcache>

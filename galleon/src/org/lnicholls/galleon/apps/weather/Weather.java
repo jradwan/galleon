@@ -46,10 +46,11 @@ import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.http.server.HttpRequest;
+import com.tivo.hme.interfaces.IHttpRequest;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Weather extends DefaultApplication {
 
@@ -71,7 +72,7 @@ public class Weather extends DefaultApplication {
 
     private Resource mNA;
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mMenuBackground = getSkinImage("menu", "background");
@@ -167,7 +168,7 @@ public class Weather extends DefaultApplication {
 
             getBelow().setResource(mMenuBackground);
 
-            WeatherData weatherData = ((WeatherFactory) getContext().getFactory()).getWeatherData();
+            WeatherData weatherData = ((WeatherFactory) getFactory()).getWeatherData();
 
             mMenuList.add("Current Conditions");
             mMenuList.add("Forecast");
@@ -181,7 +182,7 @@ public class Weather extends DefaultApplication {
             if (action.equals("push")) {
                 load();
 
-                WeatherData weatherData = ((WeatherFactory) getContext().getFactory()).getWeatherData();
+                WeatherData weatherData = ((WeatherFactory) getFactory()).getWeatherData();
                 if (mMenuList.getFocus() == 0)
                     getBApp().push(new CurrentConditionsScreen((Weather) getBApp(), weatherData), TRANSITION_LEFT);
                 else if (mMenuList.getFocus() == 1)
@@ -847,26 +848,24 @@ public class Weather extends DefaultApplication {
     public static class WeatherFactory extends AppFactory {
         WeatherData weatherData = null;
 
-        public WeatherFactory(AppContext appContext) {
-            super(appContext);
-        }
-
-        protected void init(ArgumentList args) {
-            super.init(args);
+        public void initialize() {
             WeatherConfiguration weatherConfiguration = (WeatherConfiguration) getAppContext().getConfiguration();
             weatherData = new WeatherData(weatherConfiguration.getId(), weatherConfiguration.getCity(),
                     weatherConfiguration.getState(), weatherConfiguration.getZip(), 512, 384); // TODO get real
             // dimensions
         }
 
-        public void handleHTTP(HttpRequest http, String uri) throws IOException {
-            if (uri.equals("icon.png")) {
+        public InputStream fetchAsset(IHttpRequest req) {
+        	// TODO Broken
+        /*
+        	if (uri.equals("icon.png")) {
                 if (weatherData.hasAlerts()) {
                     super.handleHTTP(http, "alerticon.png");
                     return;
                 }
             }
-            super.handleHTTP(http, uri);
+            */
+            return super.fetchAsset(req);
         }
 
         public InputStream getStream(String uri) throws IOException {

@@ -19,6 +19,7 @@ package org.lnicholls.galleon.server;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.awt.Image;
 
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
@@ -31,6 +32,10 @@ public interface ServerControl extends Remote {
     public ServerConfiguration getServerConfiguration() throws RemoteException;
     
     public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException;
+    
+    public DataConfiguration getDataConfiguration() throws RemoteException;
+    
+    public void updateDataConfiguration(DataConfiguration dataConfiguration) throws RemoteException;
 
     public List getRecordings() throws RemoteException;
 
@@ -67,4 +72,6 @@ public interface ServerControl extends Remote {
     public void setPodcasts(List list) throws RemoteException;
     
     public boolean isCurrentVersion() throws RemoteException;
+    
+    public Object getCodeImage() throws RemoteException;
 }

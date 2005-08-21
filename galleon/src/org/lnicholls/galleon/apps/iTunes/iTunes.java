@@ -69,7 +69,8 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class iTunes extends DefaultApplication {
 
@@ -93,7 +94,7 @@ public class iTunes extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -105,7 +106,7 @@ public class iTunes extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 
-		iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getContext().getFactory())
+		iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getFactory())
 				.getAppContext().getConfiguration();
 
 		List titles = null;
@@ -143,7 +144,7 @@ public class iTunes extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getContext().getFactory())
+			iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getFactory())
 					.getAppContext().getConfiguration();
 
 			mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, 20);
@@ -646,13 +647,12 @@ public class iTunes extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				player.stopPlayer();
-
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
 				}
 				if (player != null) {
+					player.stopPlayer();
 					player.setVisible(false);
 					player.remove();
 					player = null;
@@ -1088,12 +1088,7 @@ public class iTunes extends DefaultApplication {
 
 	public static class iTunesFactory extends AppFactory {
 
-		public iTunesFactory(AppContext appContext) {
-			super(appContext);
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			iTunesConfiguration iTunesConfiguration = (iTunesConfiguration) getAppContext().getConfiguration();
 
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
@@ -1102,11 +1097,9 @@ public class iTunes extends DefaultApplication {
 				public void reload() {
 					try {
 						log.debug("iTunes");
-						if (mThread == null || !mThread.isAlive()) {
-							reloadItunesLibrary();
-						}
+						reloadItunesLibrary(false);
 					} catch (Exception ex) {
-						log.error("Could not reload playlists", ex);
+						log.error("Could not reload iTunes playlists", ex);
 					}
 				}
 			}), 1);
@@ -1115,16 +1108,19 @@ public class iTunes extends DefaultApplication {
 		public void setAppContext(AppContext appContext) {
 			super.setAppContext(appContext);
 
-			reloadItunesLibrary();
+			reloadItunesLibrary(true);
 		}
 
-		private void reloadItunesLibrary() {
+		private void reloadItunesLibrary(boolean interrupt) {
 			final iTunesConfiguration iTunesConfiguration = (iTunesConfiguration) getAppContext().getConfiguration();
 
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
 
 			if (mThread != null && mThread.isAlive()) {
-				mThread.interrupt();
+				if (interrupt)
+					mThread.interrupt();
+				else
+					return;
 			}
 
 			mThread = new Thread() {
@@ -1132,8 +1128,7 @@ public class iTunes extends DefaultApplication {
 					try {
 						boolean reload = false;
 						Date fileDate = new Date();
-						PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(this.getClass()
-								.getName()
+						PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(iTunes.class.getName()
 								+ "." + "refresh");
 						if (persistentValue != null) {
 							Date date = new Date(persistentValue.getValue());
@@ -1150,9 +1145,23 @@ public class iTunes extends DefaultApplication {
 						// Library.xml");
 						if (reload) {
 							log.info("Reloading iTunes Library");
-							PlaylistParser PlaylistParser = new PlaylistParser(iTunesConfiguration.getPlaylistPath());
+							String location = iTunesConfiguration.getPlaylistPath(); 
+							File file = new File(iTunesConfiguration.getPlaylistPath());
+							if (file.exists()) {
+								String path = System.getProperty("data") + File.separator + "itunes";
+								File dir = new File(path);
+								if (!dir.exists()) {
+									dir.mkdirs();
+								}
+								File copy = new File(dir.getCanonicalPath()  + File.separator + "playlist.xml");
+								Tools.copy(file,copy);
+								if (copy.exists())
+									location = copy.getCanonicalPath();
+							}
+							
+							PlaylistParser PlaylistParser = new PlaylistParser(location);
 							PersistentValueManager.savePersistentValue(iTunes.class.getName() + ".refresh",
-									fileDate.toGMTString());
+									fileDate.toString());
 							log.info("Reloaded iTunes Library");
 						}
 					} catch (Throwable ex) {

@@ -20,8 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -32,220 +32,274 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 
 /**
- * App descriptor class extracts the manifest file from the app jar and determines the app properties
+ * App descriptor class extracts the manifest file from the app jar and
+ * determines the app properties
  */
 public class AppDescriptor implements Serializable {
-    private static Logger log = Logger.getLogger(AppDescriptor.class.getName());
+	private static Logger log = Logger.getLogger(AppDescriptor.class.getName());
 
-    private static final String TITLE = "Title";
+	private static final String TITLE = "Title";
 
-    private static final String RELEASE_DATE = "ReleaseDate";
+	private static final String RELEASE_DATE = "ReleaseDate";
 
-    private static final String DESCRIPTION = "Description";
+	private static final String DESCRIPTION = "Description";
 
-    private static final String DOCUMENTATION = "Documentation";
+	private static final String DOCUMENTATION = "Documentation";
 
-    private static final String AUTHOR_NAME = "AuthorName";
+	private static final String AUTHOR_NAME = "Author";
 
-    private static final String AUTHOR_EMAIL = "AuthorEmail";
+	private static final String AUTHOR_EMAIL = "Email";
 
-    private static final String AUTHOR_HOMEPAGE = "AuthorHomepage";
+	private static final String AUTHOR_HOMEPAGE = "Homepage";
 
-    private static final String VERSION = "Version";
+	private static final String VERSION = "Version";
 
-    private static final String CONFIGURATION_PANEL = "ConfigurationPanel";
+	private static final String CONFIGURATION_PANEL = "ConfigurationPanel";
 
-    private static final String CONFIGURATION = "Configuration";
+	private static final String CONFIGURATION = "Configuration";
 
-    public AppDescriptor(File jar) throws IOException, AppException {
-        mJar = jar;
+	private static final String TAGS = "Tags";
 
-        JarFile zipFile = new JarFile(jar);
-        Enumeration entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = (ZipEntry) entries.nextElement();
-            String name = entry.getName();
-            if (name.toUpperCase().equals(JarFile.MANIFEST_NAME)) {
-                InputStream in = null;
-                try {
-                    in = zipFile.getInputStream(entry);
-                    Manifest manifest = new Manifest(in);
-                    Attributes attributes = manifest.getMainAttributes();
-                    if (attributes.getValue("Main-Class") != null) {
-                        mClassName = (String) attributes.getValue("Main-Class");
-                        if (attributes.getValue("HME-Arguments") != null)
-                            mArguments = (String) attributes.getValue("HME-Arguments");
-                    }
+	public AppDescriptor(File jar) throws IOException, AppException {
+		mJar = jar;
 
-                    attributes = manifest.getAttributes("Galleon");
-                    if (attributes != null) {
-                        if (attributes.getValue(TITLE) != null)
-                            mTitle = (String) attributes.getValue(TITLE);
-                        if (attributes.getValue(RELEASE_DATE) != null)
-                            mReleaseDate = (String) attributes.getValue(RELEASE_DATE);
-                        if (attributes.getValue(DESCRIPTION) != null)
-                            mDescription = (String) attributes.getValue(DESCRIPTION);
-                        if (attributes.getValue(DOCUMENTATION) != null)
-                            mDocumentation = (String) attributes.getValue(DOCUMENTATION);
-                        if (attributes.getValue(AUTHOR_NAME) != null)
-                            mAuthorName = (String) attributes.getValue(AUTHOR_NAME);
-                        if (attributes.getValue(AUTHOR_EMAIL) != null)
-                            mAuthorEmail = (String) attributes.getValue(AUTHOR_EMAIL);
-                        if (attributes.getValue(AUTHOR_HOMEPAGE) != null)
-                            mAuthorHomepage = (String) attributes.getValue(AUTHOR_HOMEPAGE);
-                        if (attributes.getValue(VERSION) != null)
-                            mVersion = (String) attributes.getValue(VERSION);
-                        if (attributes.getValue(CONFIGURATION) != null)
-                            mConfiguration = (String) attributes.getValue(CONFIGURATION);
-                        if (attributes.getValue(CONFIGURATION_PANEL) != null)
-                            mConfigurationPanel = (String) attributes.getValue(CONFIGURATION_PANEL);
-                    }
-                } catch (Exception ex) {
-                    Tools.logException(AppDescriptor.class, ex, "Cannot get descriptor: " + jar.getAbsolutePath());
-                } finally {
-                    if (in != null) {
-                        try {
-                            in.close();
-                            in = null;
-                        } catch (Exception ex) {
-                        }
-                    }
-                }
-                break;
-            }
-        }
-        zipFile.close();
-    }
+		JarFile zipFile = new JarFile(jar);
+		Enumeration entries = zipFile.entries();
+		while (entries.hasMoreElements()) {
+			ZipEntry entry = (ZipEntry) entries.nextElement();
+			String name = entry.getName();
+			if (name.toUpperCase().equals(JarFile.MANIFEST_NAME)) {
+				InputStream in = null;
+				try {
+					in = zipFile.getInputStream(entry);
+					Manifest manifest = new Manifest(in);
+					Attributes attributes = manifest.getMainAttributes();
+					if (attributes.getValue("Main-Class") != null) {
+						mClassName = (String) attributes.getValue("Main-Class");
+						if (attributes.getValue("HME-Arguments") != null)
+							mArguments = (String) attributes.getValue("HME-Arguments");
+						if (attributes.getValue(TITLE) != null)
+							mTitle = (String) attributes.getValue(TITLE);
+						if (attributes.getValue(RELEASE_DATE) != null)
+							mReleaseDate = (String) attributes.getValue(RELEASE_DATE);
+						if (attributes.getValue(DESCRIPTION) != null)
+							mDescription = (String) attributes.getValue(DESCRIPTION);
+						if (attributes.getValue(DOCUMENTATION) != null)
+							mDocumentation = (String) attributes.getValue(DOCUMENTATION);
+						if (attributes.getValue(AUTHOR_NAME) != null)
+							mAuthorName = (String) attributes.getValue(AUTHOR_NAME);
+						if (attributes.getValue(AUTHOR_EMAIL) != null)
+							mAuthorEmail = (String) attributes.getValue(AUTHOR_EMAIL);
+						if (attributes.getValue(AUTHOR_HOMEPAGE) != null)
+							mAuthorHomepage = (String) attributes.getValue(AUTHOR_HOMEPAGE);
+						if (attributes.getValue(VERSION) != null)
+							mVersion = (String) attributes.getValue(VERSION);
+						if (attributes.getValue(CONFIGURATION) != null)
+							mConfiguration = (String) attributes.getValue(CONFIGURATION);
+						if (attributes.getValue(CONFIGURATION_PANEL) != null)
+							mConfigurationPanel = (String) attributes.getValue(CONFIGURATION_PANEL);
+						if (attributes.getValue(TAGS) != null)
+							mTags = (String) attributes.getValue(TAGS);
+					}
 
-    public void setTitle(String value) {
-        mTitle = value;
-    }
+					if (mTitle == null) {
+						mTitle = jar.getName().substring(0, jar.getName().indexOf('.'));
+					}
+				} catch (Exception ex) {
+					Tools.logException(AppDescriptor.class, ex, "Cannot get descriptor: " + jar.getAbsolutePath());
+				} finally {
+					if (in != null) {
+						try {
+							in.close();
+							in = null;
+						} catch (Exception ex) {
+						}
+					}
+				}
+				break;
+			}
+		}
+		zipFile.close();
+	}
 
-    public String getTitle() {
-        return mTitle;
-    }
+	public void setTitle(String value) {
+		mTitle = value;
+	}
 
-    public void setClassName(String value) {
-        mClassName = value;
-    }
+	public String getTitle() {
+		if (mTitle == null) {
+			StringTokenizer tokenizer = new StringTokenizer(mClassName, ".");
+			if (tokenizer.countTokens() > 0) {
+				String lastToken = null;
+				while (tokenizer.hasMoreTokens())
+					lastToken = tokenizer.nextToken();
+				if (lastToken != null) {
+					return lastToken;
+				}
+			}
+		}
+		return mTitle;
+	}
 
-    public String getClassName() {
-        return mClassName;
-    }
+	public void setClassName(String value) {
+		mClassName = value;
+	}
 
-    public void setArguments(String value) {
-        mArguments = value;
-    }
+	public String getClassName() {
+		return mClassName;
+	}
 
-    public String getArguments() {
-        return mArguments;
-    }
+	public void setArguments(String value) {
+		mArguments = value;
+	}
 
-    public void setVersion(String value) {
-        mVersion = value;
-    }
+	public String getArguments() {
+		return mArguments;
+	}
 
-    public String getVersion() {
-        return mVersion;
-    }
+	public void setVersion(String value) {
+		mVersion = value;
+	}
 
-    public void setReleaseDate(String value) {
-        mReleaseDate = value;
-    }
+	public String getVersion() {
+		return mVersion;
+	}
 
-    public String getReleaseDate() {
-        return mReleaseDate;
-    }
+	public void setReleaseDate(String value) {
+		mReleaseDate = value;
+	}
 
-    public void setDescription(String value) {
-        mDescription = value;
-    }
+	public String getReleaseDate() {
+		return mReleaseDate;
+	}
 
-    public String getDescription() {
-        return mDescription;
-    }
+	public void setDescription(String value) {
+		mDescription = value;
+	}
 
-    public void setDocumentation(String value) {
-        mDocumentation = value;
-    }
+	public String getDescription() {
+		return mDescription;
+	}
 
-    public String getDocumentation() {
-        return mDocumentation;
-    }
+	public void setDocumentation(String value) {
+		mDocumentation = value;
+	}
 
-    public void setAuthorName(String value) {
-        mAuthorName = value;
-    }
+	public String getDocumentation() {
+		return mDocumentation;
+	}
 
-    public String getAuthorName() {
-        return mAuthorName;
-    }
+	public void setAuthorName(String value) {
+		mAuthorName = value;
+	}
 
-    public void setAuthorEmail(String value) {
-        mAuthorEmail = value;
-    }
+	public String getAuthorName() {
+		return mAuthorName;
+	}
 
-    public String getAuthorEmail() {
-        return mAuthorEmail;
-    }
+	public void setAuthorEmail(String value) {
+		mAuthorEmail = value;
+	}
 
-    public void setAuthorHomepage(String value) {
-        mAuthorHomepage = value;
-    }
+	public String getAuthorEmail() {
+		return mAuthorEmail;
+	}
 
-    public String getAuthorHomepage() {
-        return mAuthorHomepage;
-    }
+	public void setAuthorHomepage(String value) {
+		mAuthorHomepage = value;
+	}
 
-    public void setConfiguration(String value) {
-        mConfiguration = value;
-    }
+	public String getAuthorHomepage() {
+		return mAuthorHomepage;
+	}
 
-    public String getConfiguration() {
-        if (mConfiguration==null)
-            return mClassName + "Configuration";
-        else
-            return mConfiguration;
-    }
+	public void setConfiguration(String value) {
+		mConfiguration = value;
+	}
 
-    public void setConfigurationPanel(String value) {
-        mConfigurationPanel = value;
-    }
+	public String getConfiguration() {
+		if (mConfiguration == null) {
+			StringTokenizer tokenizer = new StringTokenizer(mClassName, ".");
+			if (tokenizer.countTokens() > 0) {
+				String lastToken = null;
+				while (tokenizer.hasMoreTokens())
+					lastToken = tokenizer.nextToken();
+				if (lastToken != null) {
+					return mClassName + "$" + lastToken + "Configuration";
+				}
+			}
+			return mClassName + "$Configuration";
+		} else
+			return mConfiguration;
+	}
 
-    public String getConfigurationPanel() {
-        if (mConfigurationPanel==null)
-            return mClassName + "ConfigurationPanel";
-        else        
-            return mConfigurationPanel;
-    }
+	public void setConfigurationPanel(String value) {
+		mConfigurationPanel = value;
+	}
 
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	public String getConfigurationPanel() {
+		if (mConfigurationPanel == null) {
+			StringTokenizer tokenizer = new StringTokenizer(mClassName, ".");
+			if (tokenizer.countTokens() > 0) {
+				String lastToken = null;
+				while (tokenizer.hasMoreTokens())
+					lastToken = tokenizer.nextToken();
+				if (lastToken != null) {
+					return mClassName + "$" + lastToken + "ConfigurationPanel";
+				}
+			}
+			return mClassName + "$ConfigurationPanel";
+		} else
+			return mConfigurationPanel;
+	}
 
-    private File mJar;
+	public void setHME(boolean value) {
+		mIsHME = value;
+	}
 
-    private String mTitle;
+	public boolean isHME() {
+		return mIsHME;
+	}
 
-    private String mClassName;
+	public void setTags(String value) {
+		mTags = value;
+	}
 
-    private String mArguments;
+	public String getTags() {
+		return mTags;
+	}
 
-    private String mVersion;
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 
-    private String mReleaseDate;
+	private File mJar;
 
-    private String mDescription;
+	private String mTitle;
 
-    private String mDocumentation;
+	private String mClassName;
 
-    private String mAuthorName;
+	private String mArguments;
 
-    private String mAuthorEmail;
+	private String mVersion;
 
-    private String mAuthorHomepage;
+	private String mReleaseDate;
 
-    private String mConfiguration;
+	private String mDescription;
 
-    private String mConfigurationPanel;
+	private String mDocumentation;
+
+	private String mAuthorName;
+
+	private String mAuthorEmail;
+
+	private String mAuthorHomepage;
+
+	private String mConfiguration;
+
+	private String mConfigurationPanel;
+
+	private String mTags;
+
+	private boolean mIsHME;
 }

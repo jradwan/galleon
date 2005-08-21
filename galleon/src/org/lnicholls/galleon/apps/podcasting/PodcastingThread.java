@@ -16,7 +16,9 @@ package org.lnicholls.galleon.apps.podcasting;
  * See the file "COPYING" for more details.
  */
 
-import java.io.File;
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +76,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 					for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
 						Podcast podcast = (Podcast) i.next();
 						
-						Thread.sleep(50); // give the CPU some breathing time
+						Thread.sleep(100); // give the CPU some breathing time
 
 						if (podcast.getStatus()==podcast.STATUS_ERROR)
 						{
@@ -86,6 +88,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 							}
 						}
 						else
+						if (podcast.getStatus()==podcast.STATUS_SUBSCRIBED)							
 						{
 							synchronized (this) {
 								try {
@@ -280,23 +283,34 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 										String name = clean(track.getTitle() + ".mp3");
 										log.info("Downloading: " + track.getTitle());
 										File file = new File(path + File.separator + name);
-										FileOutputStream output = new FileOutputStream(file, false);
+										WritableByteChannel channel = new FileOutputStream(file, false).getChannel();
 
 										long total = 0;
 										double diff = 0.0;
-										byte[] buf = new byte[1024 * 4];
+										ByteBuffer buf = ByteBuffer.allocateDirect(1024 * 4);
+										byte[] bytes = new byte[1024 * 4];
 										int amount = 0;
+										int index = 0;
 										long start = System.currentTimeMillis();
 										long last = start;
-										while ((amount = input.read(buf)) > 0
-												&& track.getStatus() == PodcastTrack.STATUS_DOWNLOADING) {
-											total = total + amount;
-											try {
-												output.write(buf, 0, amount);
-												output.flush();
-											} catch (Exception e) {
-											}
-
+										while (amount >= 0 && track.getStatus() == PodcastTrack.STATUS_DOWNLOADING) {
+											if (index == amount) {
+								                amount = input.read(bytes);
+								                index = 0;
+								                total = total + amount;
+								            }
+								            while (index < amount && buf.hasRemaining()) {
+								                buf.put(bytes[index++]);
+								            }
+								    
+								            buf.flip();
+								            int numWritten = channel.write(buf);
+								            if (buf.hasRemaining()) {
+								                buf.compact();
+								            } else {
+								                buf.clear();
+								            }
+											
 											if ((System.currentTimeMillis() - last > 10000) && (total > 0)) {
 												synchronized (this) {
 													try {
@@ -319,10 +333,10 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 												}
 												last = System.currentTimeMillis();
 											}
-											Thread.sleep(10); // give the CPU some breathing time
+											Thread.sleep(200); // give the CPU some breathing time
 										}
 										diff = (System.currentTimeMillis() - start) / 1000.0;
-										output.close();
+										 channel.close();
 
 										if (track.getStatus() != PodcastTrack.STATUS_DOWNLOADING)
 											continue;
@@ -342,7 +356,12 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 														AudioManager.updateAudio(audio);
 													}
 												} else {
-													audio = Mp3File.getAudio(file.getCanonicalPath());
+													try
+													{
+														audio = Mp3File.getAudio(file.getCanonicalPath());
+													} catch (Exception ex) {
+														Tools.logException(PodcastingThread.class, ex, "Track tags failed");
+													}
 													if (audio != null) {
 														audio.setOrigen("Podcast");
 														if (track.getDuration()!=null)
@@ -369,9 +388,16 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 								}
 							}
 						}
+						else
+						{
+							PodcastManager.deletePodcast(podcast);
+						}
 					}
 				}
-				sleep(1000 * 60);
+				synchronized(this)
+            	{
+            		wait(1000 * 60 * 60);
+            	}
 			} catch (InterruptedException ex) {
 				Tools.logException(PodcastingThread.class, ex);
 			} // handle silently for waking up
@@ -434,6 +460,13 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 		synchronized (this) {
 			super.interrupt();
 		}
+	}
+	
+	public void update()
+	{
+		synchronized (this) {
+            notifyAll();
+        }
 	}
 
 	PodcastingConfiguration mPodcastingConfiguration;

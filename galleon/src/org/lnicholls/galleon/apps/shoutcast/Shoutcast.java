@@ -57,13 +57,14 @@ import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Shoutcast extends DefaultApplication {
 
 	private static Logger log = Logger.getLogger(Shoutcast.class.getName());
 
-	public final static String TITLE = "Music";
+	public final static String TITLE = "Shoutcast";
 
 	private Resource mMenuBackground;
 
@@ -81,7 +82,7 @@ public class Shoutcast extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -93,8 +94,7 @@ public class Shoutcast extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 
-		ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext()
-				.getFactory()).getAppContext().getConfiguration();
+		ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
 
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
 	}
@@ -105,8 +105,7 @@ public class Shoutcast extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
 
 			try {
 				List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
@@ -518,13 +517,13 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				player.stopPlayer();
 
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
 				}
 				if (player != null) {
+					player.stopPlayer();
 					player.setVisible(false);
 					player.remove();
 					player = null;
@@ -930,12 +929,7 @@ public class Shoutcast extends DefaultApplication {
 
 	public static class ShoutcastFactory extends AppFactory {
 
-		public ShoutcastFactory(AppContext appContext) {
-			super(appContext);
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) getAppContext().getConfiguration();
 
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();

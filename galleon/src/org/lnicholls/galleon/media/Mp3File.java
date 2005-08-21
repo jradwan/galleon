@@ -925,7 +925,7 @@ public final class Mp3File {
             });
             for (int i = 0; i < files.length; i++) {
                 try {
-                    BufferedImage image = ImageIO.read(new FileInputStream(files[i]));
+                	BufferedImage image = Tools.ImageIORead(files[i]);
                     if (image != null) {
                         createCover(new FileInputStream(files[i]), audio, "image/jpg");
 

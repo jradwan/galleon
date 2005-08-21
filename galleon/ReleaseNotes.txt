@@ -1,6 +1,21 @@
 Galleon
 -------
 
+Version 1.3.0:
+----------------------
+Fixed ToGo delete bug
+Fixed photos slideshow music to support subdirectories
+Fixed iTunes playlist delete operations
+Added label to internet app images
+ToGo performance improvements
+Fixed iTunes ratings import
+Fixed iTunes import mechanism
+Improved podcasting app performance
+HME SDK 1.3 beta
+Handle TiVo timeouts
+Music fast forward, rewind, advance support
+
+
 Version 1.2.0:
 ----------------------
 Fixed iTunes reload logic
@@ -197,6 +212,8 @@ Known issues:
 15. Port 7288 required for accessing the apps from your TiVo.
 16. Only one weather app at a time is supported.
 17. Port 1527 needed for database.
+18. Rewind icon not correct on first press
+19. Dynamic icons broken
 
 
 How to install Galleon:

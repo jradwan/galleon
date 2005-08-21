@@ -26,6 +26,8 @@ import com.tivo.hme.sdk.View;
 public class ScreenSaver extends Thread {
     public ScreenSaver(DefaultScreen defaultScreen) {
         mDefaultScreen = defaultScreen;
+        
+        ((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(true);
     }
 
     public void run() {
@@ -55,6 +57,8 @@ public class ScreenSaver extends Thread {
         synchronized (this) {
             super.interrupt();
         }
+        
+        ((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(false);
     }
 
     public void restore() {
@@ -62,6 +66,7 @@ public class ScreenSaver extends Thread {
             mShades.setVisible(false);
             mShades.remove();
             mShades = null;
+            ((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(false);
             mDefaultScreen.flush();
         }
     }

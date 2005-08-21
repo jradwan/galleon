@@ -35,12 +35,17 @@ public class MusicPlayerConfiguration implements Serializable {
     }
 
     public void setSkin(String value) {
-        if (mSkin != null && !mSkin.equals(value))
+    	if (mSkin == null)
+    		mModified = true;
+    	else
+    	if (mSkin != null && !mSkin.equals(value))
             mModified = true;
         mSkin = value;
     }
 
     public void setUseFile(boolean value) {
+    	if (mUseFile!=value)
+            mModified = true;
         mUseFile = value;
     }
 
@@ -49,6 +54,8 @@ public class MusicPlayerConfiguration implements Serializable {
     }
 
     public void setUseAmazon(boolean value) {
+    	if (mUseAmazon!=value)
+            mModified = true;
         mUseAmazon = value;
     }
 
@@ -57,6 +64,8 @@ public class MusicPlayerConfiguration implements Serializable {
     }
 
     public void setShowImages(boolean value) {
+    	if (mShowImages!=value)
+            mModified = true;
         mShowImages = value;
     }
 
@@ -65,6 +74,8 @@ public class MusicPlayerConfiguration implements Serializable {
     }
     
     public void setScreensaver(boolean value) {
+    	if (mScreensaver!=value)
+            mModified = true;
         mScreensaver = value;
     }
 
@@ -85,12 +96,17 @@ public class MusicPlayerConfiguration implements Serializable {
     }
 
     public void setPlayer(String value) {
-        if (mPlayer != null && !mPlayer.equals(value))
+    	if (mPlayer == null)
+    		mModified = true;
+    	else
+    	if (!mPlayer.equals(value))
             mModified = true;
         mPlayer = value;
     }
     
     public void setRandomPlayFolders(boolean value) {
+    	if (mRandomPlayFolders!=value)
+            mModified = true;
         mRandomPlayFolders = value;
     }
 

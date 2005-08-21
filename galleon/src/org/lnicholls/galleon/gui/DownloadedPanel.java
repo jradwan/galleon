@@ -201,26 +201,19 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     JOptionPane.WARNING_MESSAGE | JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 mUpdating = true;
                 try {
-                    //TODO Handle remove
-                    ArrayList downloaded = new ArrayList();///
                     ShowTableData model = (ShowTableData) mTable.getModel();
                     int[] selectedRows = mTable.getSelectedRows();
                     if (selectedRows.length > 0) {
                         for (int i = 0; i < selectedRows.length; i++) {
                             Video video = (Video) mShows.get(selectedRows[i]);
-                            for (int j = 0; j < downloaded.size(); j++) {
-                                Video shown = (Video) downloaded.get(j);
-                                if (shown.equals(video)) {
-                                    File file = new File(video.getPath());
-                                    if (file.exists())
-                                        file.delete();
-                                    downloaded.remove(shown);
-                                    // TODO When should these records be removed from database?
-                                    video.setStatus(Video.STATUS_DELETED);
-                                    Galleon.updateVideo(video);
-                                    break;
-                                }
-                            }
+                            File file = new File(video.getPath());
+                            if (file.exists())
+                                file.delete();
+                            video.setPath(null);
+                            video.setDownloadSize(0);
+                            video.setDownloadTime(0);
+                            video.setStatus(Video.STATUS_DELETED);
+                            Galleon.updateVideo(video);
                             model.removeRow(selectedRows[i]);
                         }
                     }
@@ -228,6 +221,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     Tools.logException(RulesPanel.class, ex);
                 }
                 mUpdating = false;
+                activate();
             }
         }
     }
@@ -445,7 +439,11 @@ public class DownloadedPanel extends JPanel implements ActionListener {
         {
             Video video = (Video)iterator.next();
             if (video.getStatus()==Video.STATUS_DOWNLOADED)
-                mShows.add(video);
+            {
+            	File file = new File(video.getPath());
+                if (file.exists())
+                	mShows.add(video);
+            }
         }
         ShowTableData model = (ShowTableData) mTable.getModel();
         model.fireTableDataChanged();

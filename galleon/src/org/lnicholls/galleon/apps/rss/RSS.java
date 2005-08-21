@@ -51,7 +51,8 @@ import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
@@ -75,7 +76,7 @@ public class RSS extends DefaultApplication {
 
     private Resource mItemIcon;
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mMenuBackground = getSkinImage("menu", "background");
@@ -93,7 +94,7 @@ public class RSS extends DefaultApplication {
 
             getBelow().setResource(mMenuBackground);
 
-            RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getContext().getFactory())
+            RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory())
                     .getAppContext().getConfiguration();
             List feeds = rssConfiguration.getFeeds();
             NameValue[] feedArray = (NameValue[]) feeds.toArray(new NameValue[0]);
@@ -108,7 +109,7 @@ public class RSS extends DefaultApplication {
 
             for (int i = 0; i < feedArray.length; i++) {
                 NameValue nameValue = (NameValue) feedArray[i];
-                List stories = (List) ((RSSFactory) getContext().getFactory()).mChannels.get(nameValue.getValue());
+                List stories = (List) ((RSSFactory) getFactory()).mChannels.get(nameValue.getValue());
                 if (stories != null)
                     mMenuList.add(nameValue);
             }
@@ -120,7 +121,7 @@ public class RSS extends DefaultApplication {
                     load();
                     NameValue nameValue = (NameValue) mMenuList.get(mMenuList.getFocus());
 
-                    List stories = (List) ((RSSFactory) getContext().getFactory()).mChannels.get(nameValue.getValue());
+                    List stories = (List) ((RSSFactory) getFactory()).mChannels.get(nameValue.getValue());
                     RSSFeedMenuScreen rssFeedMenuScreen = new RSSFeedMenuScreen((RSS) getBApp(), nameValue, stories);
                     getBApp().push(rssFeedMenuScreen, TRANSITION_LEFT);
                     getBApp().flush();
@@ -290,21 +291,6 @@ public class RSS extends DefaultApplication {
 
     public static class RSSFactory extends AppFactory {
 
-        public RSSFactory(AppContext appContext) {
-            super(appContext);
-
-            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-                public void reload() {
-                    try {
-                    	log.debug("RSS");
-                        updateChannels();
-                    } catch (Exception ex) {
-                        log.error("Could not download stations", ex);
-                    }
-                }
-            }), 5);
-        }
-
         public void setAppContext(AppContext appContext) {
             super.setAppContext(appContext);
 
@@ -375,8 +361,18 @@ public class RSS extends DefaultApplication {
             }.start();
         }
 
-        protected void init(ArgumentList args) {
-            super.init(args);
+        public void initialize() {
+            
+            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+                public void reload() {
+                    try {
+                    	log.debug("RSS");
+                        updateChannels();
+                    } catch (Exception ex) {
+                        log.error("Could not download stations", ex);
+                    }
+                }
+            }), 5);
         }
 
         private static Hashtable mChannels = new Hashtable();

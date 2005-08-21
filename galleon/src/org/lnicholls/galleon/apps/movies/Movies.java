@@ -75,13 +75,14 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Movies extends DefaultApplication {
 
 	private static Logger log = Logger.getLogger(Movies.class.getName());
 
-	public final static String TITLE = "Music";
+	public final static String TITLE = "Movies";
 
 	private Resource mMenuBackground;
 
@@ -99,7 +100,7 @@ public class Movies extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -111,7 +112,7 @@ public class Movies extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 
-		MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getContext().getFactory())
+		MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
 				.getAppContext().getConfiguration();
 
 		push(new TheaterMenuScreen(this), TRANSITION_NONE);
@@ -123,7 +124,7 @@ public class Movies extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getContext().getFactory())
+			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
 					.getAppContext().getConfiguration();
 
 			try {
@@ -185,7 +186,7 @@ public class Movies extends DefaultApplication {
 
 			mTracker = tracker;
 
-			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getContext().getFactory())
+			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
 					.getAppContext().getConfiguration();
 
 			int start = TOP - 25;
@@ -883,12 +884,7 @@ public class Movies extends DefaultApplication {
 
 	public static class MoviesFactory extends AppFactory {
 
-		public MoviesFactory(AppContext appContext) {
-			super(appContext);
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			final MoviesConfiguration moviesConfiguration = (MoviesConfiguration) getAppContext().getConfiguration();
 
 			Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {

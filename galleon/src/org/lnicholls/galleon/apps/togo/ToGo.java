@@ -49,7 +49,8 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class ToGo extends DefaultApplication {
 
@@ -75,7 +76,7 @@ public class ToGo extends DefaultApplication {
 
     private Resource mEmptyIcon;
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mMenuBackground = getSkinImage("menu", "background");
@@ -103,7 +104,7 @@ public class ToGo extends DefaultApplication {
 
             int start = TOP - 25;
 
-            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getContext().getFactory())
+            ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory())
                     .getAppContext().getConfiguration();
             BText countText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
             countText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
@@ -412,7 +413,7 @@ public class ToGo extends DefaultApplication {
 
                 videoText.setLabel("Video:");
                 String txt = video.getRecordingQuality();
-                if (txt.equalsIgnoreCase("good"))
+                if (txt==null || txt.equalsIgnoreCase("good"))
                 	txt = "Basic";
                 videoText.setValue(txt);
 
@@ -658,12 +659,7 @@ public class ToGo extends DefaultApplication {
 
     public static class ToGoFactory extends AppFactory {
 
-        public ToGoFactory(AppContext appContext) {
-            super(appContext);
-        }
-
-        protected void init(ArgumentList args) {
-            super.init(args);
+    	public void initialize() {
         }
     }
 }

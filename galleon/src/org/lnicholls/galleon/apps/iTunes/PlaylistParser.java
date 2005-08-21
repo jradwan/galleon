@@ -16,7 +16,7 @@ package org.lnicholls.galleon.apps.iTunes;
  * See the file "COPYING" for more details.
  */
 
-import java.io.File;
+import java.io.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -62,9 +62,9 @@ public class PlaylistParser extends DefaultHandler {
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             File file = new File(path);
             if (file.exists()) {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                xmlReader.parse(new InputSource(fileInputStream));
-                fileInputStream.close();
+                InputStream inputStream = Tools.getInputStream(file);
+                xmlReader.parse(new InputSource(inputStream));
+                inputStream.close();
             }
             
             // Remove old playlists
@@ -89,6 +89,7 @@ public class PlaylistParser extends DefaultHandler {
 	                
 	                if (!found)
 	                {
+	                	playlist.setTracks(null);
 	                	PlaylistManager.deletePlaylist(playlist);
 	                	log.debug("Removed playlist: "+playlist.getTitle());
 	                }
@@ -125,18 +126,19 @@ public class PlaylistParser extends DefaultHandler {
 
     public void startElement(String namespaceURI, String localName, String qName, Attributes attributes)
             throws SAXException {
-        if (localName.equalsIgnoreCase(DICT)) {
+    	String localNameLower = localName.toLowerCase();
+        if (localNameLower.equals(DICT)) {
             mDictLevel = mDictLevel + 1;
-        } else if (localName.equalsIgnoreCase(KEY)) {
+        } else if (localNameLower.equals(KEY)) {
             mInKey = true;
             mKey = null;
         }
 
-        if (mLastTag != null && mLastTag.endsWith(KEY) && !localName.equals(KEY) && !localName.equals(DICT)) {
+        if (mLastTag != null && mLastTag.endsWith(KEY) && !localNameLower.equals(KEY) && !localNameLower.equals(DICT)) {
             mInValue = true;
             mValue = null;
             mType = localName;
-        } else if (mFoundTracks && mDictLevel == 3 && localName.equalsIgnoreCase(DICT)) {
+        } else if (mFoundTracks && mDictLevel == 3 && localNameLower.equals(DICT)) {
             mTracks = new HashMap();
         }
     }
@@ -170,15 +172,16 @@ public class PlaylistParser extends DefaultHandler {
      */
 
     public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-        mLastTag = localName;
+    	String localNameLower = localName.toLowerCase();
+    	mLastTag = localName;
 
-        if (mDictLevel == 1 && localName.equalsIgnoreCase(KEY) && mKey != null && mKey.equals("Tracks")) {
+        if (mDictLevel == 1 && localNameLower.equals(KEY) && mKey != null && mKey.equals("Tracks")) {
             mFoundTracks = true;
             mFoundPlaylists = false;
-        } else if (mDictLevel == 1 && localName.equalsIgnoreCase(KEY) && mKey != null && mKey.equals("Playlists")) {
+        } else if (mDictLevel == 1 && localNameLower.equals(KEY) && mKey != null && mKey.equals("Playlists")) {
             mFoundTracks = false;
             mFoundPlaylists = true;
-        } else if (mFoundTracks && mDictLevel == 3 && localName.equalsIgnoreCase(DICT)) {
+        } else if (mFoundTracks && mDictLevel == 3 && localNameLower.equals(DICT)) {
             if (mTracks != null) {
                 processTrack(mTracks);
                 mTracks.clear();
@@ -189,7 +192,7 @@ public class PlaylistParser extends DefaultHandler {
                 } catch (Exception ex) {
                 }
             }
-        } else if (mFoundPlaylists && mDictLevel == 2 && localName.equalsIgnoreCase(DICT)) {
+        } else if (mFoundPlaylists && mDictLevel == 2 && localNameLower.equals(DICT)) {
             if (mPlaylist != null && mPlaylistTracks != null) {
                 try {
                     mPlaylist.getTracks().clear();
@@ -205,11 +208,11 @@ public class PlaylistParser extends DefaultHandler {
             }
         }
 
-        if (localName.equalsIgnoreCase(DICT)) {
+        if (localNameLower.equals(DICT)) {
             mDictLevel = mDictLevel - 1;
-        } else if (localName.equalsIgnoreCase(KEY)) {
+        } else if (localNameLower.equals(KEY)) {
             mInKey = false;
-        } else if (mType != null && localName.equalsIgnoreCase(mType)) {
+        } else if (mType != null && localNameLower.equals(mType)) {
             if (mFoundTracks) {
                 if (mKey != null) {
                     mTracks.put(mKey, mValue);
@@ -253,9 +256,20 @@ public class PlaylistParser extends DefaultHandler {
                                     	}
                                     }
                                 	
-                                    //mPlaylist.getTracks().add(new PlaylistTrack(audio));
-                                    mPlaylistTracks.add(new PlaylistTrack(audio));
-                                    try {
+                                    boolean found = false;
+                                    for (Iterator trackIterator = mPlaylistTracks.iterator();trackIterator.hasNext();)
+                                    {
+                                    	PlaylistTrack playlistTrack = (PlaylistTrack)trackIterator.next();
+                                    	if (playlistTrack.getTrack().getId().equals(audio.getId()))
+                                    	{
+                                    		found = true;
+                                    		break;
+                                    	}
+                                    }
+                                	if (!found)
+                                		mPlaylistTracks.add(new PlaylistTrack(audio));
+                                    
+                                	try {
                                         Thread.sleep(50); // give the CPU some breathing time
                                     } catch (Exception ex) {
                                     }
@@ -428,7 +442,7 @@ public class PlaylistParser extends DefaultHandler {
             try {
 
                 if (track.containsKey("Rating")) {
-                    audio.setRating(new Integer((String) track.get("Rating")).intValue());
+                    audio.setRating(new Integer((String) track.get("Rating")).intValue()/20);
                 }
             } catch (Exception ex) {
                 Tools.logException(PlaylistParser.class, ex);

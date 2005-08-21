@@ -69,7 +69,8 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Photos extends DefaultApplication {
 
@@ -89,7 +90,7 @@ public class Photos extends DefaultApplication {
 
 	private Resource mCameraIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -97,16 +98,20 @@ public class Photos extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mLargeFolderIcon = getSkinImage("menu", "gridFolder");
 		mCameraIcon = getSkinImage("menu", "item");
+		
+		PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory)getFactory()).getAppContext().getConfiguration();
 
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
 		if (persistentValue != null) {
 			String trackerContext = persistentValue.getValue();
 			File file = new File(trackerContext);
 			if (file.exists()) {
-				FileSystemContainer fileSystemContainer = new FileSystemContainer(trackerContext);
+				FileSystemContainer fileSystemContainer = new FileSystemContainer(trackerContext, true);
 				Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
+				tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
 				setTracker(tracker);
 			} else {
+				// Organizer
 				List files = new ArrayList();
 				try {
 					Transaction tx = null;
@@ -137,12 +142,10 @@ public class Photos extends DefaultApplication {
 				}
 
 				Tracker tracker = new Tracker(files, 0);
+				tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
 				setTracker(tracker);
 			}
 		}
-
-		PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext().getFactory())
-				.getAppContext().getConfiguration();
 
 		if (imagesConfiguration.getPaths().size() == 1) {
 			try {
@@ -168,7 +171,7 @@ public class Photos extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext().getFactory())
+			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 					.getAppContext().getConfiguration();
 
 			for (Iterator i = imagesConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
@@ -213,8 +216,7 @@ public class Photos extends DefaultApplication {
 							Tracker tracker = new Tracker(fileSystemContainer
 									.getItemsSorted(FileFilters.imageDirectoryFilter), 0);
 
-							PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
-									.getFactory()).getAppContext().getConfiguration();
+							PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory()).getAppContext().getConfiguration();
 							tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
 							getBApp().push(new SlideshowScreen((Photos) getBApp(), tracker), TRANSITION_LEFT);
 							getBApp().flush();
@@ -462,8 +464,7 @@ public class Photos extends DefaultApplication {
 										.getCanonicalPath(), true);
 								Tracker tracker = new Tracker(fileSystemContainer
 										.getItems(FileFilters.imageDirectoryFilter), 0);
-								PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
-										.getFactory()).getAppContext().getConfiguration();
+								PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory()).getAppContext().getConfiguration();
 								tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
 								getBApp().push(new SlideshowScreen((Photos) getBApp(), tracker), TRANSITION_LEFT);
 								getBApp().flush();
@@ -644,8 +645,7 @@ public class Photos extends DefaultApplication {
 
 					updateHints();
 
-					final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
-							.getFactory()).getAppContext().getConfiguration();
+					final PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory()).getAppContext().getConfiguration();
 					if (mThumbnailThread != null && mThumbnailThread.isAlive())
 						mThumbnailThread.interrupt();
 					mThumbnailThread = new Thread() {
@@ -916,7 +916,7 @@ public class Photos extends DefaultApplication {
 
 			setTitle(" ");
 
-			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext().getFactory())
+			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 					.getAppContext().getConfiguration();
 			if (imagesConfiguration.isUseSafe())
 				mPhoto = new View(getBelow(), SAFE_ACTION_H, SAFE_ACTION_V, getWidth() - 2 * SAFE_ACTION_H, getHeight()
@@ -940,21 +940,21 @@ public class Photos extends DefaultApplication {
 					new Thread() {
 						public void run() {
 							try {
-								FileInputStream is = new FileInputStream(file);
-								if (is != null) {
-									BufferedImage photo = ImageIO.read(is);
+								BufferedImage photo = Tools.ImageIORead(file);
 
-									if (photo != null) {
-										photo = (BufferedImage) Tools.getImage(photo);
+								if (photo != null) {
+									photo = (BufferedImage) Tools.getImage(photo);
 
-										BufferedImage scaled = ImageManipulator.getScaledImage(photo,
-												mPhoto.getWidth(), mPhoto.getHeight());
+									BufferedImage scaled = ImageManipulator.getScaledImage(photo,
+											mPhoto.getWidth(), mPhoto.getHeight());
 
-										if (image.getRotation() != null && image.getRotation().intValue() != 0) {
-											scaled = ImageManipulator.rotate(scaled, mPhoto.getWidth(), mPhoto
-													.getHeight(), image.getRotation().intValue());
-										}
+									if (image.getRotation() != null && image.getRotation().intValue() != 0) {
+										scaled = ImageManipulator.rotate(scaled, mPhoto.getWidth(), mPhoto
+												.getHeight(), image.getRotation().intValue());
+									}
 
+									if (scaled!=null)
+									{
 										mPhoto.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
 										mPhoto.setVisible(true);
 										// mPhoto.setTransparency(1);
@@ -1045,7 +1045,7 @@ public class Photos extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder()) {
@@ -1056,7 +1056,7 @@ public class Photos extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder()) {
@@ -1067,7 +1067,7 @@ public class Photos extends DefaultApplication {
 		}
 
 		private Image currentImage() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				try {
 					FileItem nameFile = (FileItem) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null) {
@@ -1121,11 +1121,12 @@ public class Photos extends DefaultApplication {
 	private class Slideshow extends Thread {
 		public Slideshow(SlideshowScreen slideshowScreen) {
 			mSlideshowScreen = slideshowScreen;
+			
+			((DefaultApplication)getApp()).setHandleTimeout(true);
 		}
 
 		public void run() {
-			final PhotosConfiguration photosConfiguration = (PhotosConfiguration) ((PhotosFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			final PhotosConfiguration photosConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory()).getAppContext().getConfiguration();
 
 			Effect[] effects = new Effect[0];
 
@@ -1157,7 +1158,7 @@ public class Photos extends DefaultApplication {
 			else if (photosConfiguration.getEffect().equals(Effects.RANDOM)) {
 				currentEffect = random.nextInt(effects.length);
 			}
-
+			
 			while (true) {
 				try {
 					sleep(1000 * photosConfiguration.getDisplayTime());
@@ -1166,32 +1167,27 @@ public class Photos extends DefaultApplication {
 					if (image != null) {
 						File file = new File(image.getPath());
 						try {
-							is = new FileInputStream(file);
-							if (is != null) {
-								photo = ImageIO.read(is);
-								is.close();
-								is = null;
+							photo = Tools.ImageIORead(file);
 
-								if (photo != null) {
-									long startTime = System.currentTimeMillis();
-									photo = (BufferedImage) Tools.getImage(photo);
-									long estimatedTime = System.currentTimeMillis() - startTime;
-									BufferedImage scaled = ImageManipulator.getScaledImage(photo,
-											mSlideshowScreen.mPhoto.getWidth(), mSlideshowScreen.mPhoto.getHeight());
-									if (image.getRotation() != null && image.getRotation().intValue() != 0) {
-										scaled = ImageManipulator.rotate(scaled, mSlideshowScreen.getWidth(),
-												mSlideshowScreen.getHeight(), image.getRotation().intValue());
-									}
-									estimatedTime = System.currentTimeMillis() - startTime;
-									if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
-										currentEffect = (currentEffect + 1) % effects.length;
-									else if (photosConfiguration.getEffect().equals(Effects.RANDOM)) {
-										currentEffect = random.nextInt(effects.length);
-									}
-									Effect effect = (Effect) effects[currentEffect];
-									effect.setDelay(photosConfiguration.getTransitionTime() * 1000);
-									effect.apply(mSlideshowScreen.mPhoto, scaled);
+							if (photo != null) {
+								long startTime = System.currentTimeMillis();
+								photo = (BufferedImage) Tools.getImage(photo);
+								long estimatedTime = System.currentTimeMillis() - startTime;
+								BufferedImage scaled = ImageManipulator.getScaledImage(photo,
+										mSlideshowScreen.mPhoto.getWidth(), mSlideshowScreen.mPhoto.getHeight());
+								if (image.getRotation() != null && image.getRotation().intValue() != 0) {
+									scaled = ImageManipulator.rotate(scaled, mSlideshowScreen.getWidth(),
+											mSlideshowScreen.getHeight(), image.getRotation().intValue());
 								}
+								estimatedTime = System.currentTimeMillis() - startTime;
+								if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
+									currentEffect = (currentEffect + 1) % effects.length;
+								else if (photosConfiguration.getEffect().equals(Effects.RANDOM)) {
+									currentEffect = random.nextInt(effects.length);
+								}
+								Effect effect = (Effect) effects[currentEffect];
+								effect.setDelay(photosConfiguration.getTransitionTime() * 1000);
+								effect.apply(mSlideshowScreen.mPhoto, scaled);
 							}
 						} catch (Exception ex) {
 							Tools.logException(Photos.class, ex, "Could retrieve image");
@@ -1214,6 +1210,8 @@ public class Photos extends DefaultApplication {
 			synchronized (this) {
 				super.interrupt();
 			}
+			
+			((DefaultApplication)getApp()).setHandleTimeout(false);
 		}
 
 		private SlideshowScreen mSlideshowScreen;
@@ -1221,12 +1219,7 @@ public class Photos extends DefaultApplication {
 
 	public static class PhotosFactory extends AppFactory {
 
-		public PhotosFactory(AppContext appContext) {
-			super(appContext);
-		}
-
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) getAppContext().getConfiguration();
 		}
 	}

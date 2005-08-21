@@ -37,164 +37,167 @@ import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.app.*;
 
-
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
 public final class OptionsPanelManager extends InternalFrame implements ActionListener {
-    private static Logger log = Logger.getLogger(OptionsPanelManager.class.getName());
+	private static Logger log = Logger.getLogger(OptionsPanelManager.class.getName());
 
-    public OptionsPanelManager(MainFrame mainFrame) {
-        super("Options");
-        mMainFrame = mainFrame;
-        JPanel content = new JPanel();
-        content.setLayout(new BorderLayout());
+	public OptionsPanelManager(MainFrame mainFrame) {
+		super("Options");
+		mMainFrame = mainFrame;
+		JPanel content = new JPanel();
+		content.setLayout(new BorderLayout());
 
-        JPanel defaultPanel = new JPanel();
-        defaultPanel.setLayout(new GridLayout(0, 1));
-        defaultPanel.add(new JLabel("Use the File/Properies menu to configure Galleon. Use the File/New App menu to add new apps.", SwingConstants.CENTER));
-        mScrollPane = MainFrame.createScrollPane(defaultPanel);
+		JPanel defaultPanel = new JPanel();
+		defaultPanel.setLayout(new GridLayout(0, 1));
+		defaultPanel.add(new JLabel(
+				"Use the File/Properies menu to configure Galleon. Use the File/New App menu to add new apps.",
+				SwingConstants.CENTER));
+		mScrollPane = MainFrame.createScrollPane(defaultPanel);
 
-        content.add(mScrollPane, "Center");
+		content.add(mScrollPane, "Center");
 
-        JButton[] array = new JButton[3];
-        mApplyButton = new JButton("Apply");
-        array[0] = mApplyButton;
-        array[0].setActionCommand("apply");
-        array[0].addActionListener(this);
-        mDeleteButton = new JButton("Delete");
-        array[1] = mDeleteButton;
-        array[1].setActionCommand("delete");
-        array[1].addActionListener(this);
-        mHelpButton = new JButton("Help");
-        array[2] = mHelpButton;
-        array[2].setActionCommand("help");
-        array[2].addActionListener(this);
-        JPanel buttons = ButtonBarFactory.buildRightAlignedBar(array);
-        mApplyButton.setVisible(false);
-        mDeleteButton.setVisible(false);
-        mHelpButton.setVisible(false);
+		JButton[] array = new JButton[3];
+		mApplyButton = new JButton("Apply");
+		array[0] = mApplyButton;
+		array[0].setActionCommand("apply");
+		array[0].addActionListener(this);
+		mDeleteButton = new JButton("Delete");
+		array[1] = mDeleteButton;
+		array[1].setActionCommand("delete");
+		array[1].addActionListener(this);
+		mHelpButton = new JButton("Help");
+		array[2] = mHelpButton;
+		array[2].setActionCommand("help");
+		array[2].addActionListener(this);
+		JPanel buttons = ButtonBarFactory.buildRightAlignedBar(array);
+		mApplyButton.setVisible(false);
+		mDeleteButton.setVisible(false);
+		mHelpButton.setVisible(false);
 
-        buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        content.add(buttons, "South");
+		buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		content.add(buttons, "South");
 
-        setContent(content);
-    }
+		setContent(content);
+	}
 
-    static class EmptyOptionsPanel extends AppConfigurationPanel {
-        public EmptyOptionsPanel(AppConfiguration appConfiguration) {
-            super(appConfiguration);
-        }
+	static class EmptyOptionsPanel extends JPanel implements ConfigurationPanel {
+		public EmptyOptionsPanel() {
+		}
 
-        public void load() {
-        };
+		public boolean valid() {
+			return true;
+		}
 
-        public void save() {
-        };
-    }
+		public void load() {
+		};
 
-    public void setSelectedOptionsPanel(AppNode appNode) {
-        mAppNode = appNode;
+		public void save() {
+		};
+	}
 
-        AppConfigurationPanel options = null;
-        try {
-            options = appNode.getConfigurationPanel();
-        } catch (Exception ex) {
-            Tools.logException(OptionsPanelManager.class, ex, "Could not create app options panel: "
-                    + mAppNode.getAppContext().getDescriptor());
-        }
-        if (options == null) {
-            log.info("No options panel found for: " + mAppNode.getAppContext().getDescriptor());
+	public void setSelectedOptionsPanel(AppNode appNode) {
+		mAppNode = appNode;
 
-            options = new EmptyOptionsPanel(appNode.getAppContext().getConfiguration());
-            mApplyButton.setVisible(false);
-            mDeleteButton.setVisible(false);
-            mHelpButton.setVisible(false);
-        } else {
-            mApplyButton.setVisible(true);
-            mDeleteButton.setVisible(true);
-            mHelpButton.setVisible(true);
-        }
-        setFrameIcon(appNode.getIcon());
-        setTitle(appNode.getAppContext().getDescriptor().getTitle() + " App ("
-                + appNode.getAppContext().getDescriptor().getVersion() + ")");
-        mScrollPane.setViewportView((Component) options);
-    }
+		ConfigurationPanel options = null;
+		try {
+			options = appNode.getConfigurationPanel();
+		} catch (Exception ex) {
+			Tools.logException(OptionsPanelManager.class, ex, "Could not create app options panel: "
+					+ mAppNode.getAppContext().getDescriptor());
+		}
+		if (options == null) {
+			log.info("No options panel found for: " + mAppNode.getAppContext().getDescriptor());
 
-    public void actionPerformed(ActionEvent e) {
-        if (mAppNode != null) {
-            if ("apply".equals(e.getActionCommand())) {
-                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                try {
-                    if (mAppNode.getConfigurationPanel().valid())
-                        mAppNode.getConfigurationPanel().save();
-                    else
-                    {
-                        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                        return;
-                    }
-                } catch (Exception ex) {
-                    Tools.logException(OptionsPanelManager.class, ex, "Could not save app : "
-                            + mAppNode.getAppContext().getConfiguration());
-                }
-                Galleon.updateApp(mAppNode.getAppContext());
-                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            } else if ("help".equals(e.getActionCommand())) {
-                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                try {
-                    String path = mAppNode.getAppContext().getDescriptor().getClassName();
-                    path = path.substring(0, path.lastIndexOf("."));
-                    path = path.replaceAll("\\.","/");
-                    URL url = mAppNode.getConfigurationPanel().getClass().getClassLoader().getResource(
-                            path+"/"+mAppNode.getAppContext().getDescriptor().getDocumentation());
-                    mMainFrame.displayHelp(url);
-                } catch (Exception ex) {
-                    Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
-                            + mAppNode.getAppContext().getDescriptor().getDocumentation());
-                    JOptionPane.showMessageDialog(mMainFrame, "No help available for this app.", "Help",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            } else if ("delete".equals(e.getActionCommand())) {
-                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                boolean deleted = false;
-                try {
-                    Object[] options = { "Yes", "No" };
-                    int n = JOptionPane.showOptionDialog(mMainFrame, "Are you sure you want to delete this app?",
-                            "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, //don't
-                            // use a
-                            // custom
-                            // Icon
-                            options, //the titles of buttons
-                            options[1]); //default button title
-                    if (n == JOptionPane.YES_OPTION) {
-                        // TODO ??
-                        mMainFrame.removeApp(mAppNode.getAppContext());
-                        deleted = true;
-                    }
-                } catch (Exception ex) {
-                    Tools.logException(OptionsPanelManager.class, ex, "Could not delete app : "
-                            + mAppNode.getAppContext().getConfiguration());
-                }
-                if (deleted && false) {
-                    mAppNode = null;
-                    mScrollPane.setViewportView((Component) new EmptyOptionsPanel(null));
-                    setFrameIcon(null);
-                    setTitle("Options");
-                }
-                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        }
-    }
+			options = new EmptyOptionsPanel();
+			mApplyButton.setVisible(false);
+			mDeleteButton.setVisible(false);
+			mHelpButton.setVisible(false);
+		} else {
+			mApplyButton.setVisible(true);
+			mDeleteButton.setVisible(true);
+			mHelpButton.setVisible(true);
+		}
+		setFrameIcon(appNode.getIcon());
+		setTitle(appNode.getAppContext().getDescriptor().getTitle() + " App ("
+				+ appNode.getAppContext().getDescriptor().getVersion() + ")");
+		mScrollPane.setViewportView((Component) options);
+	}
 
-    private MainFrame mMainFrame;
+	public void actionPerformed(ActionEvent e) {
+		if (mAppNode != null) {
+			if ("apply".equals(e.getActionCommand())) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				try {
+					if (mAppNode.getConfigurationPanel().valid())
+						mAppNode.getConfigurationPanel().save();
+					else {
+						this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						return;
+					}
+				} catch (Exception ex) {
+					Tools.logException(OptionsPanelManager.class, ex, "Could not save app : "
+							+ mAppNode.getAppContext().getConfiguration());
+				}
+				Galleon.updateApp(mAppNode.getAppContext());
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			} else if ("help".equals(e.getActionCommand())) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				try {
+					String path = mAppNode.getAppContext().getDescriptor().getClassName();
+					path = path.substring(0, path.lastIndexOf("."));
+					path = path.replaceAll("\\.", "/");
+					URL url = mAppNode.getConfigurationPanel().getClass().getClassLoader().getResource(
+							path + "/" + mAppNode.getAppContext().getDescriptor().getDocumentation());
+					mMainFrame.displayHelp(url);
+				} catch (Exception ex) {
+					Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
+							+ mAppNode.getAppContext().getDescriptor().getDocumentation());
+					JOptionPane.showMessageDialog(mMainFrame, "No help available for this app.", "Help",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			} else if ("delete".equals(e.getActionCommand())) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				boolean deleted = false;
+				try {
+					Object[] options = { "Yes", "No" };
+					int n = JOptionPane.showOptionDialog(mMainFrame, "Are you sure you want to delete this app?",
+							"Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, // don't
+							// use a
+							// custom
+							// Icon
+							options, // the titles of buttons
+							options[1]); // default button title
+					if (n == JOptionPane.YES_OPTION) {
+						// TODO ??
+						mMainFrame.removeApp(mAppNode.getAppContext());
+						deleted = true;
+					}
+				} catch (Exception ex) {
+					Tools.logException(OptionsPanelManager.class, ex, "Could not delete app : "
+							+ mAppNode.getAppContext().getConfiguration());
+				}
+				if (deleted && false) {
+					mAppNode = null;
+					mScrollPane.setViewportView((Component) new EmptyOptionsPanel());
+					setFrameIcon(null);
+					setTitle("Options");
+				}
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+		}
+	}
 
-    private JScrollPane mScrollPane;
+	private MainFrame mMainFrame;
 
-    private AppNode mAppNode;
+	private JScrollPane mScrollPane;
 
-    private JButton mApplyButton;
+	private AppNode mAppNode;
 
-    private JButton mDeleteButton;
+	private JButton mApplyButton;
 
-    private JButton mHelpButton;
+	private JButton mDeleteButton;
+
+	private JButton mHelpButton;
 }

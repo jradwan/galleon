@@ -37,9 +37,11 @@ import org.lnicholls.galleon.widget.Grid;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
+import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Internet extends DefaultApplication {
 
@@ -59,7 +61,7 @@ public class Internet extends DefaultApplication {
 
     private Resource mItemIcon;
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mMenuBackground = getSkinImage("menu", "background");
@@ -68,8 +70,7 @@ public class Internet extends DefaultApplication {
         mLargeFolderIcon = getSkinImage("menu", "gridFolder");
         mItemIcon = getSkinImage("menu", "item");
 
-        InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getContext()
-                .getFactory()).getAppContext().getConfiguration();
+        InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
 
         Tracker tracker = new Tracker(internetConfiguration.getUrls(), 0);
 
@@ -87,13 +88,21 @@ public class Internet extends DefaultApplication {
             if (column < photos.size()) {
                 final NameValue nameValue = (NameValue) photos.get(column);
                 // TODO Handle: Photos[#1,uri=null] handleApplicationError(4,view 1402 not found)
+                final BView imageView = new BView(parent, 0, 0, parent.getWidth(), parent.getHeight()-20);
+                
+                BText nameText = new BText(parent, 0, parent.getHeight() - 20, parent.getWidth(), 20);
+				nameText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_BOTTOM);
+				nameText.setFont("default-18-bold.font");
+				nameText.setShadow(true);
+				nameText.setValue(nameValue.getName());
+				parent.flush();
                 Thread thread = new Thread() {
                     public void run() {
                         try {
                             synchronized (this) {
-                                parent.setResource(Color.GRAY);
-                                parent.setTransparency(0.5f);
-                                parent.flush();
+                            	imageView.setResource(Color.GRAY);
+                            	imageView.setTransparency(0.5f);
+                            	imageView.flush();
                             }
 
                             Image image = null;
@@ -103,9 +112,9 @@ public class Internet extends DefaultApplication {
 
                             if (image != null) {
                                 synchronized (this) {
-                                    parent.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-                                    parent.setTransparency(0.0f);
-                                    parent.flush();
+                                	imageView.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                                	imageView.setTransparency(0.0f);
+                                	imageView.flush();
                                 }
                             }
                         } catch (Throwable ex) {
@@ -459,12 +468,7 @@ public class Internet extends DefaultApplication {
 
     public static class InternetFactory extends AppFactory {
 
-        public InternetFactory(AppContext appContext) {
-            super(appContext);
-        }
-
-        protected void init(ArgumentList args) {
-            super.init(args);
+    	public void initialize() {
             InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext().getConfiguration();
 
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {

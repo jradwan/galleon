@@ -24,7 +24,7 @@ import org.lnicholls.galleon.app.AppConfiguration;
 
 public class MusicOrganizerConfiguration implements AppConfiguration {
 
-    private static final ArrayList mDefaultCategories = new ArrayList(20);
+    private static final ArrayList mDefaultCategories = new ArrayList(21);
 
     /*
      * Rough guide on the category syntax: Each category expression describes the format of the menu hierarchy. The ID3
@@ -43,10 +43,11 @@ public class MusicOrganizerConfiguration implements AppConfiguration {
         //mDefaultCategories.add("Rating, Decade\\Rating{Rating}\\Year{Decade}\\Song [Artist]");
         mDefaultCategories.add("Play Count\\PlayCount{PlayCount}\\Song [Artist]");
         mDefaultCategories.add("Recently Played\\DatePlayed{RecentlyPlayed}\\Song [Artist]");
+        mDefaultCategories.add("Album (Grouped)\\Album{ABC-XYZ}\\Album{A-Z}\\Album\\Song [Artist]");
         mDefaultCategories.add("Album\\Album [Artist]\\Track. Song");
         mDefaultCategories.add("Artist\\Artist{A-Z}\\Artist\\Song [Album]");
         mDefaultCategories.add("Artist (Grouped)\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Song [Album]");
-        mDefaultCategories.add("Artist, Album\\Artist{A-Z}\\Artist\\Album [Year]\\Track. Song");
+        mDefaultCategories.add("Artist, Album\\Artist{A-Z}\\Artist\\Album\\Track. Song");
         mDefaultCategories.add("Artist, Year\\Artist{A-Z}\\Artist\\Year\\Song [Album]");
         mDefaultCategories.add("Artist (Grouped), Album\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Album [Year]\\Track. Song");
         mDefaultCategories.add("Artist (Grouped), Year\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Year\\Song [Album]");

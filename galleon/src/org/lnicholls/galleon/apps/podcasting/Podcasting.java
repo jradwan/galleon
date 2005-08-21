@@ -37,6 +37,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -69,7 +70,8 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
@@ -97,7 +99,7 @@ public class Podcasting extends DefaultApplication {
 
 	private Resource mItemIcon;
 
-	protected void init(Context context) {
+	public void init(IContext context) throws Exception {
 		super.init(context);
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -108,8 +110,7 @@ public class Podcasting extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mItemIcon = getSkinImage("menu", "item");
 
-		PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) context
-				.getFactory()).getAppContext().getConfiguration();
+		PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
 
 		push(new PodcastingMenuScreen(this), TRANSITION_NONE);
 	}
@@ -125,7 +126,9 @@ public class Podcasting extends DefaultApplication {
 				try {
 					String page = Tools.getPage(new URL(location));
 					if (page != null && page.length() > 0)
+					{
 						content = page;
+					}
 				} catch (Exception ex) {
 					Tools.logException(Podcasting.class, ex, "Could not cache document: " + location);
 				}
@@ -141,7 +144,6 @@ public class Podcasting extends DefaultApplication {
 					} else {
 						StringReader stringReader = new StringReader(content);
 						document = saxReader.read(stringReader);
-
 						if (PersistentValueManager.isAged(persistentValue)) {
 							PersistentValueManager.savePersistentValue(Podcasting.class.getName() + "." + location,
 									content, 60 * 60 * 6);
@@ -178,6 +180,11 @@ public class Podcasting extends DefaultApplication {
 		try {
 			if (element.getName().equals("outline") || element.getName().equals("body")) // OPML
 			{
+				List outlines = element.elements("outline");
+				if (outlines.size()==1)
+				{
+					element = (Element)outlines.get(0);
+				}
 				for (Iterator i = element.elementIterator("outline"); i.hasNext();) {
 					Element outline = (Element) i.next();
 					list.add(outline);
@@ -709,8 +716,7 @@ public class Podcasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
 
 			List list = null;
 			try {
@@ -841,8 +847,7 @@ public class Podcasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
 
 			try {
 				mList = PodcastManager.listAllSubscribed();
@@ -911,8 +916,7 @@ public class Podcasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
 
 			for (Iterator i = podcastingConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
 				NameValue nameValue = (NameValue) i.next();
@@ -1437,6 +1441,7 @@ public class Podcasting extends DefaultApplication {
 
 							try {
 								PodcastManager.updatePodcast(podcast);
+								((PodcastingFactory) getApp().getFactory()).update();
 							} catch (Exception ex) {
 								Tools.logException(Podcasting.class, ex);
 							}
@@ -1464,6 +1469,7 @@ public class Podcasting extends DefaultApplication {
 
 							try {
 								PodcastManager.updatePodcast(podcast);
+								((PodcastingFactory) getApp().getFactory()).update();
 							} catch (Exception ex) {
 								Tools.logException(Podcasting.class, ex);
 							}
@@ -1519,7 +1525,25 @@ public class Podcasting extends DefaultApplication {
 					public void run() {
 						Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
 
-						Tracker tracker = new Tracker(podcast.getTracks(), 0);
+						PodcastTrack[] podcastTrackArray = (PodcastTrack[]) podcast.getTracks().toArray(new PodcastTrack[0]);
+			            Arrays.sort(podcastTrackArray, new Comparator() {
+			                public int compare(Object o1, Object o2) {
+			                	PodcastTrack podcastTrack1 = (PodcastTrack) o1;
+			                	PodcastTrack podcastTrack2 = (PodcastTrack) o2;
+			                	
+			                	if (podcastTrack1.getPublicationDate()!=null && podcastTrack2.getPublicationDate()!=null)
+			                		return -podcastTrack1.getPublicationDate().compareTo(podcastTrack2.getPublicationDate());
+			                	else
+			                		return 0;
+			                }
+			            });
+
+			            ArrayList list = new ArrayList();
+			            for (int i = 0; i < podcastTrackArray.length; i++) {
+			                list.add(podcastTrackArray[i]);
+			            }
+						
+						Tracker tracker = new Tracker(list, 0);
 
 						getBApp()
 								.push(new PodcastMenuScreen((Podcasting) getBApp(), tracker, podcast), TRANSITION_LEFT);
@@ -1574,8 +1598,7 @@ public class Podcasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getContext()
-					.getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
 
 			for (Iterator i = mTracker.getList().iterator(); i.hasNext(); /* Nothing */) {
 				PodcastTrack podcastTrack = (PodcastTrack) i.next();
@@ -2018,6 +2041,7 @@ public class Podcasting extends DefaultApplication {
 						if (file.exists()) {
 							file.delete();
 						}
+						((PodcastingFactory) getApp().getFactory()).update();
 						mListPlay.set(0, "Download");
 						mListPlay.set(1, "Don't do anything");
 						mListPlay.setFocus(0, false);
@@ -2039,6 +2063,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
 						track.setStatus(PodcastTrack.STATUS_QUEUED);
 						PodcastManager.updatePodcast(podcast);
+						((PodcastingFactory) getApp().getFactory()).update();
 						mListPlay.set(0, "Cancel download");
 						mListPlay.set(1, "Don't do anything");
 						mListPlay.setFocus(0, false);
@@ -2057,6 +2082,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
 						track.setStatus(PodcastTrack.STATUS_DOWNLOAD_CANCELLED);
 						PodcastManager.updatePodcast(podcast);
+						((PodcastingFactory) getApp().getFactory()).update();
 						mListPlay.set(0, "Download");
 						mListPlay.set(1, "Don't do anything");
 						mListPlay.setFocus(0, false);
@@ -2318,13 +2344,13 @@ public class Podcasting extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				player.stopPlayer();
 
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
 				}
 				if (player != null) {
+					player.stopPlayer();
 					player.setVisible(false);
 					player.remove();
 					player = null;
@@ -2375,17 +2401,28 @@ public class Podcasting extends DefaultApplication {
 
 	public static class PodcastingFactory extends AppFactory {
 
-		public PodcastingFactory(AppContext appContext) {
-			super(appContext);
+		public void setAppContext(AppContext appContext) {
+			super.setAppContext(appContext);
+
+			update();
+		}
+		
+		public void update()
+		{
+			if (mPodcastingThread!=null)
+			{
+				mPodcastingThread.update();
+			}
 		}
 
-		protected void init(ArgumentList args) {
-			super.init(args);
+		public void initialize() {
 			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) getAppContext()
 					.getConfiguration();
 
-			PodcastingThread podcastingThread = new PodcastingThread(podcastingConfiguration);
-			podcastingThread.start();
+			mPodcastingThread = new PodcastingThread(podcastingConfiguration);
+			mPodcastingThread.start();
 		}
+		
+		PodcastingThread mPodcastingThread;
 	}
 }

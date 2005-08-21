@@ -112,9 +112,9 @@ public class ImageFile {
 			if (thumbnailImage == null) {
 				mLock.writeLock().acquire();
 				try {
-					FileInputStream is = new FileInputStream(image.getPath());
-					if (is != null) {
-						BufferedImage photo = ImageIO.read(is);
+					File file = new File(image.getPath());
+					if (file.exists()) {
+						BufferedImage photo = Tools.ImageIORead(file);
 
 						if (photo != null) {
 							photo = (BufferedImage) Tools.getImage(photo);

@@ -76,6 +76,14 @@ public final class MediaManager {
         {               
         	return ImageFile.getImage(filename);
         }    
+        else if (filename.toLowerCase().endsWith(".avi") || filename.toLowerCase().endsWith(".asf")
+                || filename.toLowerCase().endsWith(".mov") || filename.toLowerCase().endsWith(".mpg")
+                || filename.toLowerCase().endsWith(".mp4") || filename.toLowerCase().endsWith(".mkv")
+                || filename.toLowerCase().endsWith(".ogm") || filename.toLowerCase().endsWith(".wmv")
+                || filename.toLowerCase().endsWith(".mpeg") )
+        {               
+        	return VideoFile.getVideo(filename);
+        }
         return null;    
     }
     

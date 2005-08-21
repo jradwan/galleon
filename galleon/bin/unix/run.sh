@@ -55,6 +55,7 @@ CLASSPATH=$CLASSPATH:../lib/commons-codec.jar
 CLASSPATH=$CLASSPATH:../lib/mp3dings.jar
 CLASSPATH=$CLASSPATH:../lib/yahoo_search.jar
 CLASSPATH=$CLASSPATH:../lib/javazoom.jar
+CLASSPATH=$CLASSPATH:../lib/mediamanager.jar
 OPTION=""
 if [ -f "$JAVA_HOME/bin/server" ]; then
 OPTION=-server

@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.image.MemoryImageSource;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,7 +30,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
+import java.awt.event.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -39,6 +40,8 @@ import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +62,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
+import javax.swing.JPasswordField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -76,6 +80,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.text.MaskFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.event.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -84,14 +89,16 @@ import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
+import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 
-import com.jgoodies.forms.builder.PanelBuilder;
+import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.*;
+import com.jgoodies.forms.debug.*;
 import com.jgoodies.plaf.BorderStyle;
 import com.jgoodies.plaf.HeaderStyle;
 
@@ -102,6 +109,7 @@ public class MainFrame extends JFrame {
 
 	public MainFrame(String version) {
 		super("Galleon " + version);
+
 		setDefaultCloseOperation(0);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -119,6 +127,15 @@ public class MainFrame extends JFrame {
 
 		});
 		fileMenu.addSeparator();
+		/*
+		fileMenu.add(new MenuAction("Data sharing...", null, "", new Integer(KeyEvent.VK_P)) {
+
+			public void actionPerformed(ActionEvent event) {
+				new DataDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
+			}
+
+		});
+		*/		
 		fileMenu.add(new MenuAction("Properties...", null, "", new Integer(KeyEvent.VK_P)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -151,15 +168,91 @@ public class MainFrame extends JFrame {
 
 		menuBar.add(fileMenu);
 
+		JMenu tutorialMenu = new JMenu("Tutorials");
+		tutorialMenu.setMnemonic('T');
+		tutorialMenu.putClientProperty("jgoodies.noIcons", Boolean.TRUE);
+		tutorialMenu.add(new MenuAction("Properties", null, "", new Integer(KeyEvent.VK_P)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/server.htm");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		tutorialMenu.add(new MenuAction("Music Player", null, "", new Integer(KeyEvent.VK_M)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/player.htm");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		tutorialMenu.addSeparator();
+		tutorialMenu.add(new MenuAction("Email", null, "", new Integer(KeyEvent.VK_E)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/email.htm");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		tutorialMenu.add(new MenuAction("Music", null, "", new Integer(KeyEvent.VK_U)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/music.htm");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		tutorialMenu.add(new MenuAction("Podcasting", null, "", new Integer(KeyEvent.VK_O)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/podcasting.htm");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		tutorialMenu.add(new MenuAction("ToGo", null, "", new Integer(KeyEvent.VK_T)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/togo.htm");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		
+		menuBar.add(tutorialMenu);
+
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic('H');
 		helpMenu.putClientProperty("jgoodies.noIcons", Boolean.TRUE);
+		helpMenu.add(new MenuAction("Homepage", null, "", new Integer(KeyEvent.VK_H)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.sourceforge.net");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
 		helpMenu.add(new MenuAction("Configuration", null, "", new Integer(KeyEvent.VK_C)) {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher
-							.openURL("http://galleon.sourceforge.net/phpwiki/index.php/Configure");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/phpwiki/index.php/Configure");
 				} catch (Exception ex) {
 				}
 			}
@@ -169,8 +262,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher
-							.openURL("http://galleon.sourceforge.net/phpwiki/index.php/FAQ");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/phpwiki/index.php/FAQ");
 				} catch (Exception ex) {
 				}
 			}
@@ -180,14 +272,13 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher
-							.openURL("http://www.tivocommunity.com/tivo-vb/forumdisplay.php?f=35");
+					BrowserLauncher.openURL("http://www.tivocommunity.com/tivo-vb/forumdisplay.php?f=35");
 				} catch (Exception ex) {
 				}
 			}
 
-		});		
-		helpMenu.addSeparator();		
+		});
+		helpMenu.addSeparator();
 		helpMenu.add(new MenuAction("About...", null, "", new Integer(KeyEvent.VK_A)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -295,23 +386,6 @@ public class MainFrame extends JFrame {
 		AppDescriptor appDescriptor = app.getDescriptor();
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-		AppConfigurationPanel appConfigurationPanel = null;
-		try {
-			Class configurationPanel = classLoader.loadClass(appDescriptor.getConfigurationPanel());
-
-			Class[] parameters = new Class[1];
-			parameters[0] = AppConfiguration.class;
-			Constructor constructor = configurationPanel.getConstructor(parameters);
-			AppConfiguration[] values = new AppConfiguration[1];
-			values[0] = app.getConfiguration();
-
-			appConfigurationPanel = (AppConfigurationPanel) constructor.newInstance((Object[]) values);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel "
-					+ appDescriptor.getConfigurationPanel() + " for app " + appDescriptor.getClassName());
-		}
-
 		ImageIcon icon = null;
 		try {
 			String pkg = Tools.getPackage(appDescriptor.getClassName());
@@ -324,9 +398,29 @@ public class MainFrame extends JFrame {
 					+ appDescriptor.getClassName());
 		}
 
-		AppNode appNode = new AppNode(app, icon, appConfigurationPanel);
+		if (!appDescriptor.isHME()) {
+			AppConfigurationPanel appConfigurationPanel = null;
+			try {
+				Class configurationPanel = classLoader.loadClass(appDescriptor.getConfigurationPanel());
 
-		return appNode;
+				Class[] parameters = new Class[1];
+				parameters[0] = AppConfiguration.class;
+				Constructor constructor = configurationPanel.getConstructor(parameters);
+				AppConfiguration[] values = new AppConfiguration[1];
+				values[0] = (AppConfiguration) app.getConfiguration();
+
+				appConfigurationPanel = (AppConfigurationPanel) constructor.newInstance((Object[]) values);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				Tools.logException(OptionsPanelManager.class, ex, "Could not load configuration panel "
+						+ appDescriptor.getConfigurationPanel() + " for app " + appDescriptor.getClassName());
+			}
+
+			AppNode appNode = new AppNode(app, icon, appConfigurationPanel);
+			return appNode;
+		} else {
+			return new AppNode(app, icon, new HMEConfigurationPanel(app.getConfiguration()));
+		}
 	}
 
 	public void addApp(AppContext app) {
@@ -387,6 +481,17 @@ public class MainFrame extends JFrame {
 			mAuthorEmailField.setEditable(false);
 			mAuthorHomeField = new JTextField();
 			mAuthorHomeField.setEditable(false);
+			mAuthorHomeField.setToolTipText("Open site in web browser");
+			mAuthorHomeField.setForeground(Color.blue);
+			mAuthorHomeField.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			mAuthorHomeField.addMouseListener(new MouseAdapter() {
+				public void mousePressed(MouseEvent e) {
+					try {
+						BrowserLauncher.openURL(mAuthorHomeField.getText());
+					} catch (Exception ex) {
+					}
+				}
+			});
 			mDocumentationField = new JTextPane();
 			mDocumentationField.setEditable(false);
 			mAppsCombo = new JComboBox();
@@ -397,16 +502,23 @@ public class MainFrame extends JFrame {
 			paneScrollPane.setPreferredSize(new Dimension(250, 150));
 			paneScrollPane.setMinimumSize(new Dimension(10, 10));
 
-			Iterator iterator = Galleon.getAppDescriptors().iterator();
-			String items[] = new String[0];
-			while (iterator.hasNext()) {
-				AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
+			AppDescriptor[] appDescriptors = (AppDescriptor[]) Galleon.getAppDescriptors()
+					.toArray(new AppDescriptor[0]);
+			Arrays.sort(appDescriptors, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					AppDescriptor appDescriptor1 = (AppDescriptor) o1;
+					AppDescriptor appDescriptor2 = (AppDescriptor) o2;
+
+					return appDescriptor1.getTitle().toLowerCase().compareTo(appDescriptor2.getTitle().toLowerCase());
+				}
+			});
+			for (int i = 0; i < appDescriptors.length; i++) {
+				AppDescriptor appDescriptor = appDescriptors[i];
 				mAppsCombo.addItem(new AppDescriptorWrapper(appDescriptor));
 			}
-
 			getContentPane().setLayout(new BorderLayout());
 
-			FormLayout layout = new FormLayout("right:pref, 3dlu, 150dlu:g, 3dlu, right:pref:grow", "pref, " + // name
+			FormLayout layout = new FormLayout("right:pref, 3dlu, 220dlu:g, 3dlu, right:pref:grow", "pref, " + // name
 					"9dlu, " + "pref, " + // apps
 					"3dlu, " + "pref, " + // type
 					"9dlu, " + "pref, " + // description
@@ -472,7 +584,7 @@ public class MainFrame extends JFrame {
 				try {
 					// AppContext app = new AppContext(appDescriptor);
 					AppContext app = Galleon.createAppContext(appDescriptor);
-					app.getConfiguration().setName(mNameField.getText());
+					app.setTitle(mNameField.getText());
 					addApp(app);
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -523,7 +635,7 @@ public class MainFrame extends JFrame {
 					Iterator iterator = Galleon.getApps().iterator();
 					while (iterator.hasNext()) {
 						AppContext app = (AppContext) iterator.next();
-						if (app.getConfiguration().getName().equals(name)) {
+						if (app.getTitle()!=null && app.getTitle().equals(name)) {
 							mOKButton.setEnabled(false);
 							return;
 						}
@@ -612,6 +724,8 @@ public class MainFrame extends JFrame {
 			mShuffleItems.setSelected(serverConfiguration.getShuffleItems());
 			mDebug = new JCheckBox("Debug logging");
 			mDebug.setSelected(serverConfiguration.isDebug());
+			mHandleTimeout = new JCheckBox("Handle TiVo Timeout");
+			mHandleTimeout.setSelected(serverConfiguration.isHandleTimeout());
 			mPort = new JFormattedTextField();
 			try {
 				MaskFormatter formatter = new MaskFormatter("####");
@@ -650,8 +764,9 @@ public class MainFrame extends JFrame {
 					"3dlu, " + "pref, " + // reload
 					"3dlu, " + "pref, " + // reload
 					"3dlu, " + "pref, " + // generatethumbnails,
-											// streamingproxy
+					// streamingproxy
 					"3dlu, " + "pref, " + // debug
+					"3dlu, " + "pref, " + // timeout
 					"3dlu, " + "pref, " + // recordings path
 					"3dlu, " + "pref, " + // media access key
 					"9dlu, " + "pref, " + // network
@@ -676,27 +791,28 @@ public class MainFrame extends JFrame {
 			// TODO Only show for Windows
 			builder.add(mGenerateThumbnails, cc.xy(3, 11));
 			builder.add(mDebug, cc.xy(3, 13));
+			builder.add(mHandleTimeout, cc.xy(3, 15));
 			JButton button = new JButton("...");
 			button.setActionCommand("pick");
 			button.addActionListener(this);
-			builder.addLabel("Recordings Path", cc.xy(1, 15));
-			builder.add(mRecordingsPath, cc.xyw(3, 15, 2));
-			builder.add(button, cc.xyw(6, 15, 1));
-			builder.addLabel("Media Access Key", cc.xy(1, 17));
-			builder.add(mMediaAccessKey, cc.xyw(3, 17, 2));
+			builder.addLabel("Recordings Path", cc.xy(1, 17));
+			builder.add(mRecordingsPath, cc.xyw(3, 17, 2));
+			builder.add(button, cc.xyw(6, 17, 1));
+			builder.addLabel("Media Access Key", cc.xy(1, 19));
+			builder.add(mMediaAccessKey, cc.xyw(3, 19, 2));
 
-			builder.addSeparator("Network", cc.xyw(1, 19, 6));
-			builder.addLabel("PC Port", cc.xy(1, 21));
-			builder.add(mPort, cc.xy(3, 21));
+			builder.addSeparator("Network", cc.xyw(1, 21, 6));
+			builder.addLabel("PC Port", cc.xy(1, 23));
+			builder.add(mPort, cc.xy(3, 23));
 			if (serverConfiguration.getPort() != Galleon.getPort()) {
 				builder.addLabel("(" + Galleon.getPort() + ")", cc.xy(4, 21));
 			}
-			builder.addLabel("PC IP Address", cc.xy(1, 23));
-			builder.add(mIPAddress, cc.xy(3, 23));
+			builder.addLabel("PC IP Address", cc.xy(1, 25));
+			builder.add(mIPAddress, cc.xy(3, 25));
 			button = new JButton("<< Test...");
 			button.setActionCommand("network");
 			button.addActionListener(this);
-			builder.add(button, cc.xyw(5, 23, 2));
+			builder.add(button, cc.xyw(5, 25, 2));
 
 			getContentPane().add(builder.getPanel(), "Center");
 
@@ -746,10 +862,14 @@ public class MainFrame extends JFrame {
 					mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
 					mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText().trim()));
 					mServerConfiguration.setDebug(mDebug.isSelected());
+					mServerConfiguration.setHandleTimeout(mHandleTimeout.isSelected());
 
 					Galleon.updateServerConfiguration(mServerConfiguration);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not configure server");
+					
+					JOptionPane.showMessageDialog(this, "Could not connect to server.", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 				// JOptionPane.showMessageDialog(this,
 				// "You need to restart Galleon for any changes in the server
@@ -814,6 +934,8 @@ public class MainFrame extends JFrame {
 		private JCheckBox mShuffleItems;
 
 		private JCheckBox mDebug;
+		
+		private JCheckBox mHandleTimeout;
 
 		private JFormattedTextField mPort;
 
@@ -990,6 +1112,9 @@ public class MainFrame extends JFrame {
 					Galleon.updateServerConfiguration(mServerConfiguration);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not configure server");
+					
+					JOptionPane.showMessageDialog(this, "Could not connect to server.", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			} else if ("help".equals(e.getActionCommand())) {
@@ -1226,6 +1351,205 @@ public class MainFrame extends JFrame {
 
 		private boolean mFound;
 	}
+	
+	public class DataDialog extends JDialog implements ActionListener {
+
+		private DataDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+			super(frame, "Data sharing", true);
+			mServerConfiguration = serverConfiguration;
+			
+			final DataConfiguration dataConfiguration = mServerConfiguration.getDataConfiguration();
+			
+			JButton codeButton = null;
+			try
+			{
+				int [] pix = (int [])Galleon.getCodeImage();
+				Image image = createImage(new MemoryImageSource(150, 30, pix, 0, 150)); 
+				ImageIcon imageIcon = new ImageIcon(image);
+				codeButton = new JButton(imageIcon);
+			}
+			catch (Exception ex)
+			{
+				Tools.logException(MainFrame.class, ex, "Could get image");
+				codeButton = new JButton();
+			}
+			codeButton.setBorder(BorderFactory.createEmptyBorder());
+			codeButton.setPreferredSize(new Dimension(150,30));
+			
+			final JButton okButton = new JButton("OK");
+			okButton.setEnabled(false);
+
+			mUsernameField = new JTextField(20);
+			mUsernameField.setText(dataConfiguration.getUsername());
+			if (dataConfiguration.getUsername()!=null)
+				mUsernameField.setEditable(false);
+			mPasswordField = new JPasswordField(20);
+			mPasswordField.setText(Tools.decrypt(dataConfiguration.getPassword()));
+			mPassword2Field = new JPasswordField(20);
+			mPassword2Field.setText(Tools.decrypt(dataConfiguration.getPassword()));
+			mCodeField = new JTextField(20);
+			mAgree = new JCheckBox("I want to share my listening and viewing habits under the conditions in Help");
+			mAgree.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e)
+				{
+					if (mAgree.isSelected())
+						okButton.setEnabled(true);
+					else
+					if (dataConfiguration.isAgree())
+						okButton.setEnabled(true);
+					else
+						okButton.setEnabled(false);
+				}
+			});
+			mAgree.setSelected(dataConfiguration.isAgree());
+			mAnonymous = new JCheckBox("I want to stay anonymous");
+			mAnonymous.setSelected(dataConfiguration.isAnonymous());
+
+			getContentPane().setLayout(new BorderLayout());
+
+			FormLayout layout = new FormLayout("right:pref, 3dlu, left:pref, 3dlu, left:pref:grow", 
+					"pref, " + // settings
+					"6dlu, " + "pref, " + // username
+					"3dlu, " + "pref, " + // password
+					"3dlu, " + "pref, " + // password
+					"3dlu, " + "pref, " + // code
+					"3dlu, " + "pref, " + // agreements
+					"3dlu, " + "pref, " + // agree
+					"3dlu, " + "pref, " // anonymous
+			);
+
+			PanelBuilder builder = new PanelBuilder(layout);
+			//DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
+			builder.setDefaultDialogBorder();
+
+			CellConstraints cc = new CellConstraints();
+
+			builder.addSeparator("User", cc.xyw(1, 1, 5));
+			builder.addLabel("Username", cc.xy(1, 3));
+			builder.add(mUsernameField, cc.xy(3, 3));
+			builder.addLabel("Password", cc.xy(1, 5));
+			builder.add(mPasswordField, cc.xy(3, 5));
+			builder.addLabel("Confirm Password", cc.xy(1, 7));
+			builder.add(mPassword2Field, cc.xy(3, 7));
+			builder.addLabel("Confirmation Code", cc.xy(1, 9));
+			builder.add(mCodeField, cc.xy(3, 9));
+			builder.add(codeButton, cc.xy(5, 9));
+			builder.addSeparator("Agreement", cc.xyw(1, 11, 5));
+			builder.add(mAgree, cc.xyw(3, 13, 3));
+			builder.add(mAnonymous, cc.xyw(3, 15, 3));
+
+			getContentPane().add(builder.getPanel(), "Center");
+
+			JButton[] array = new JButton[3];
+			array[0] = okButton;
+			array[0].setActionCommand("ok");
+			array[0].addActionListener(this);
+			array[1] = new JButton("Cancel");
+			array[1].setActionCommand("cancel");
+			array[1].addActionListener(this);
+			array[2] = new JButton("Help");
+			array[2].setActionCommand("help");
+			array[2].addActionListener(this);
+			JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+
+			buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			getContentPane().add(buttons, "South");
+			pack();
+			setLocationRelativeTo(frame);
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if ("ok".equals(e.getActionCommand())) {
+				String username = mUsernameField.getText().trim();
+				if (username.length()<2)
+				{
+					JOptionPane.showMessageDialog(
+							this,
+							"Username must be at least 2 characters",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				String password = mPasswordField.getText().trim();
+				if (password.length()<5)
+				{
+					JOptionPane.showMessageDialog(
+							this,
+							"Password must be at least 5 characters",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				String password2 = mPassword2Field.getText().trim();
+				if (!password2.equals(password))
+				{
+					JOptionPane.showMessageDialog(
+							this,
+							"Passwords do not match",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				String code = mCodeField.getText().trim();
+				if (code.length()<6)
+				{
+					JOptionPane.showMessageDialog(
+							this,
+							"Confirmation Code must have a value",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				DataConfiguration dataConfiguration = new DataConfiguration();
+				try {
+					dataConfiguration.setUsername(username);
+					dataConfiguration.setPassword(Tools.encrypt(password));
+					dataConfiguration.setAgree(mAgree.isSelected());
+					dataConfiguration.setAnonymous(mAnonymous.isSelected());
+					dataConfiguration.storeCode(code);
+					Galleon.updateDataConfiguration(dataConfiguration);
+				} catch (Exception ex) {
+					Tools.logException(MainFrame.class, ex, "Could not configure data");
+					
+					JOptionPane.showMessageDialog(
+							this,
+							Tools.getCause(ex),
+							"Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				finally
+				{
+					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));	
+				}
+			} else if ("help".equals(e.getActionCommand())) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				try {
+					URL url = getClass().getClassLoader().getResource("data.html");
+					displayHelp(url);
+				} catch (Exception ex) {
+					Tools.logException(MainFrame.class, ex, "Could not find data help ");
+				}
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				return;
+			}
+			this.setVisible(false);
+		}
+
+		private JTextField mUsernameField;
+
+		private JPasswordField mPasswordField;
+		
+		private JPasswordField mPassword2Field;
+		
+		private JTextField mCodeField;
+
+		private JCheckBox mAgree;
+
+		private JCheckBox mAnonymous;
+
+		private ServerConfiguration mServerConfiguration;
+	}	
 
 	private AppTree mAppTree;
 

@@ -27,5 +27,7 @@
 #com.tivo.hme.samples.videobackground.VideoBackground
 #com.tivo.hme.samples.effects.Effects
 #com.tivo.hme.samples.tictactoe.TicTacToe
+#com.tivo.hme.samples.fontinfo.FontInfo
+#com.tivo.hme.samples.rss.RSS
 
 #com.tivo.hme.samples.bananas.BananasSample

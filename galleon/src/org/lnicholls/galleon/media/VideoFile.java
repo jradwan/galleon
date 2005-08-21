@@ -1,0 +1,254 @@
+package org.lnicholls.galleon.media;
+
+/*
+ * Copyright (C) 2005 Leon Nicholls
+ * 
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * See the file "COPYING" for more details.
+ */
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import mediaManager.video.FilePropertiesMovie;
+
+import org.apache.log4j.Logger;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.util.Tools;
+
+public final class VideoFile {
+	private static final Logger log = Logger.getLogger(VideoFile.class.getName());
+
+	public static final String DEFAULT_MIME_TYPE = "audio/mpeg";
+
+	private static final String DEFAULT_TITLE = "unknown";
+
+	private static final long DEFAULT_SIZE = 0;
+
+	private static final long DEFAULT_DURATION = 0;
+
+	private static final int DEFAULT_DATE = 0;
+
+	private static final int DEFAULT_TRACK = 0;
+
+	private static final int DEFAULT_BIT_RATE = 128;
+
+	private static final int DEFAULT_SAMPLE_RATE = 44100;
+
+	private static final String DEFAULT_COMMENTS = "";
+
+	private static final String DEFAULT_LYRICS = "";
+
+	private static final int DEFAULT_CHANNELS = 1;
+
+	private static final Boolean DEFAULT_VBR = Boolean.FALSE;
+
+	private static final int DEFAULT_TYPE = 0;
+
+	private static final String DEFAULT_PATH = "";
+
+	private static final int DEFAULT_PLAY_COUNT = 0;
+
+	private static final int DEFAULT_RATING = 0;
+
+	private static final String DEFAULT_TONE = "";
+
+	public static final String PC = "PC";
+
+	private static final String DEFAULT_VIDEO_RESOLUTION = "";
+
+	private static final String DEFAULT_VIDEO_CODEC = "";
+
+	private static final float DEFAULT_VIDEO_RATE = 0.0f;
+
+	private static final int DEFAULT_VIDEO_BIT_RATE = 0;
+
+	private static final String DEFAULT_AUDIO_CODEC = "";
+
+	private static final float DEFAULT_AUDIO_RATE = 0.0f;
+
+	private static final int DEFAULT_AUDIO_BIT_RATE = 0;
+
+	private static final int DEFAULT_AUDIO_CHANNELS = 0;
+
+	public static final Video getVideo(String filename) {
+		Video video = new Video();
+		defaultProperties(video);
+		return getVideo(video, filename);
+	}
+
+	public static final Video getVideo(Video video, String filename) {
+		File file = new File(filename);
+		try {
+			video.setPath(file.getCanonicalPath());
+		} catch (Exception ex) {
+			Tools.logException(VideoFile.class, ex, filename);
+		}
+
+		video.setSize(file.length());
+		video.setDateModified(new Date(file.lastModified()));
+		try {
+			pass(file, video);
+		} catch (Exception ex) {
+			Tools.logException(VideoFile.class, ex, filename);
+		}
+
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+			Pattern pattern = Pattern.compile("(.*) - (.*)");
+			Matcher matcher = pattern.matcher(value);
+			if (matcher != null && matcher.matches()) {
+				video.setTitle(matcher.group(2));
+			} else
+				video.setTitle(value);
+		}
+
+		return video;
+	}
+
+	public static final void defaultProperties(Video video) {
+		video.setTitle(DEFAULT_TITLE);
+		video.setMimeType(DEFAULT_MIME_TYPE);
+		video.setDateModified(new Date());
+		video.setDateRecorded(new Date());
+		video.setPath(DEFAULT_PATH);
+		video.setPlayCount(new Integer(DEFAULT_PLAY_COUNT));
+		// video.setRating(DEFAULT_RATING);
+		video.setTone(DEFAULT_TONE);
+		video.setOrigen(PC);
+		// TODO
+		video.setVideoResolution(DEFAULT_VIDEO_RESOLUTION);
+		video.setVideoCodec(DEFAULT_VIDEO_CODEC);
+		video.setVideoRate(new Float(DEFAULT_VIDEO_RATE));
+		video.setVideoBitRate(new Integer(DEFAULT_VIDEO_BIT_RATE));
+		video.setAudioCodec(DEFAULT_AUDIO_CODEC);
+		video.setAudioRate(new Float(DEFAULT_AUDIO_RATE));
+		video.setAudioBitRate(new Integer(DEFAULT_AUDIO_BIT_RATE));
+		video.setAudioChannels(new Integer(DEFAULT_AUDIO_CHANNELS));
+	}
+
+	private static final void pass(File file, Video video) throws Exception {
+		FilePropertiesMovie filePropertiesMovie = new FilePropertiesMovie(file.getAbsolutePath());
+
+		video.setSize(filePropertiesMovie.getFileSize());
+		video.setVideoResolution(filePropertiesMovie.getVideoResolution());
+		video.setVideoCodec(filePropertiesMovie.getVideoCodec());
+		try {
+			video.setVideoRate(new Float(filePropertiesMovie.getVideoRate()));
+		} catch (Exception ex) {
+		}
+
+		try {
+			video.setVideoBitRate(new Integer(filePropertiesMovie.getVideoBitRate()));
+		} catch (Exception ex) {
+		}
+
+		video.setDuration(filePropertiesMovie.getDuration());
+		video.setAudioCodec(filePropertiesMovie.getAudioCodec());
+
+		try {
+			video.setAudioBitRate(new Integer(filePropertiesMovie.getAudioBitRate()));
+		} catch (Exception ex) {
+		}
+
+		try {
+			Pattern pattern = Pattern.compile("(.*)KHz");
+			Matcher matcher = pattern.matcher(filePropertiesMovie.getAudioRate());
+			if (matcher != null && matcher.matches()) {
+				video.setAudioRate(new Float(matcher.group(1)));
+			} else
+				video.setAudioRate(new Float(filePropertiesMovie.getAudioRate()));
+		} catch (Exception ex) {
+		}
+
+		try {
+			video.setAudioChannels(new Integer(filePropertiesMovie.getAudioChannels()));
+		} catch (Exception ex) {
+		}
+
+		/*
+		 * System.out.println(filePropertiesMovie);
+		 * 
+		 * System.out.println(video.getVideoResolution());
+		 * System.out.println(video.getVideoCodec());
+		 * System.out.println(video.getVideoRate());
+		 * System.out.println(video.getVideoBitRate());
+		 * System.out.println(video.getDuration());
+		 * System.out.println(video.getAudioCodec());
+		 * System.out.println(video.getAudioRate());
+		 * System.out.println(video.getAudioBitRate());
+		 * System.out.println(video.getAudioChannels());
+		 */
+	}
+
+	static class StreamHandler extends Thread {
+		StreamHandler(InputStream is) {
+			mInputStream = is;
+			setPriority(Thread.MIN_PRIORITY);
+		}
+
+		public void run() {
+			try {
+				Pattern pattern = Pattern.compile("frame=(.*) q=(.*) size=(.*) time=(.*) bitrate=(.*)"); // frame=
+																											// 7499
+																											// q=0.0
+																											// size=
+																											// 110266kB
+																											// time=250.1
+																											// bitrate=3611.9kbits/s
+				InputStreamReader inputStreamReader = new InputStreamReader(mInputStream);
+				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+				String line = null;
+				while ((line = bufferedReader.readLine()) != null) {
+					Matcher matcher = pattern.matcher(line);
+					if (matcher.find()) {
+						// System.out.println(matcher.group(1));
+					}
+					Thread.sleep(200);
+				}
+			} catch (Exception ex) {
+				Tools.logException(VideoFile.class, ex);
+			}
+		}
+
+		InputStream mInputStream;
+	}
+
+	public static void convert(Video video) {
+		try {
+			Runtime rt = Runtime.getRuntime();
+			Process proc = rt
+					.exec("\""
+							+ System.getProperty("bin")
+							+ File.pathSeparator
+							+ "ffmpeg\" -i \""
+							+ video.getPath()
+							+ "\" -hq -vcodec mpeg2video -b 4000 -maxrate 8000 -minrate 1000 -bufsize 8000 -r 29.97 -aspect 4:3 -s 720x480 -acodec mp2 -ab 128 \"d:\\galleon\\video\\test.mpg\"");
+
+			StreamHandler errorHandler = new StreamHandler(proc.getErrorStream());
+			StreamHandler outputHandler = new StreamHandler(proc.getInputStream());
+
+			errorHandler.start();
+			outputHandler.start();
+
+			int exitVal = proc.waitFor();
+			log.debug(video.getPath() + " exit value=" + exitVal);
+		} catch (Throwable t) {
+			Tools.logException(VideoFile.class, t, video.getPath());
+		}
+	}
+}

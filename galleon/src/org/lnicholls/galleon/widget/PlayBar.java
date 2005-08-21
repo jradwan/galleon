@@ -102,6 +102,10 @@ public class PlayBar extends BView {
     public void play() {
         mShuttleIcon.setResource(createImage("org/lnicholls/galleon/widget/play.png"));
     }
+    
+    public void rewind() {
+        mShuttleIcon.setResource(createImage("org/lnicholls/galleon/widget/rewind.png"));
+    }
 
     public void setPosition(int seconds) {
         if (seconds == mPosition)

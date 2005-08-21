@@ -23,52 +23,81 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 
 public class AppContext implements Serializable {
-    private static Logger log = Logger.getLogger(AppContext.class.getName());
+	private static Logger log = Logger.getLogger(AppContext.class.getName());
 
-    public AppContext(AppDescriptor appDescriptor) {
-        mId = ++mCounter;
-        mAppDescriptor = appDescriptor;
+	public AppContext(AppDescriptor appDescriptor) {
+		mId = ++mCounter;
+		mAppDescriptor = appDescriptor;
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-        try {
-            Class configuration = classLoader.loadClass(appDescriptor.getConfiguration());
-            mAppConfiguration = (AppConfiguration) configuration.newInstance();
-        } catch (Exception ex) {
-            Tools.logException(AppContext.class, ex, "Could not create app configuration");
-        }
-    }
+		try {
+			Class configuration = classLoader.loadClass(appDescriptor.getConfiguration());
+			mAppConfiguration = configuration.newInstance();
+		} catch (Exception ex) {
+			Tools.logException(AppContext.class, ex, "Could not create app configuration");
+			mAppConfiguration = new AppConfiguration() {
+				public String getName() {
+					return mName;
+				}
 
-    public void setConfiguration(AppConfiguration appConfiguration) {
-        mAppConfiguration = appConfiguration;
-    }
+				public void setName(String value) {
+					mName = value;
+				}
 
-    public AppConfiguration getConfiguration() {
-        return mAppConfiguration;
-    }
+				private String mName;
+			};
+		}
+	}
 
-    public void setDescriptor(AppDescriptor appDescriptor) {
-        mAppDescriptor = appDescriptor;
-    }
+	public void setConfiguration(Object appConfiguration) {
+		mAppConfiguration = appConfiguration;
+	}
 
-    public AppDescriptor getDescriptor() {
-        return mAppDescriptor;
-    }
-    
-    public int getId()
-    {
-        return mId;
-    }
+	public Object getConfiguration() {
+		return mAppConfiguration;
+	}
 
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	public void setDescriptor(AppDescriptor appDescriptor) {
+		mAppDescriptor = appDescriptor;
+	}
 
-    private AppConfiguration mAppConfiguration;
+	public AppDescriptor getDescriptor() {
+		return mAppDescriptor;
+	}
 
-    private AppDescriptor mAppDescriptor;
-    
-    private int mId;
-    
-    private static int mCounter;
+	public int getId() {
+		return mId;
+	}
+
+	public String getTitle() {
+		if (mAppConfiguration instanceof AppConfiguration)
+			return ((AppConfiguration) mAppConfiguration).getName();
+		else
+		if (mTitle==null)
+			return mAppDescriptor.getTitle();
+		else
+			return mTitle;
+	}
+
+	public void setTitle(String value) {
+		if (mAppConfiguration instanceof AppConfiguration)
+			((AppConfiguration) mAppConfiguration).setName(value);
+		else
+			mTitle = value;
+	}
+
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+
+	private Object mAppConfiguration;
+
+	private AppDescriptor mAppDescriptor;
+
+	private int mId;
+
+	private static int mCounter;
+
+	private String mTitle;
 }

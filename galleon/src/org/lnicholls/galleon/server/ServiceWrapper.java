@@ -41,8 +41,15 @@ public class ServiceWrapper implements WrapperListener {
      *         problems then this method should return null.
      */
     public Integer start(String[] args) {
-        mServer = new Server();
-        return mServer.start();
+        try
+        {
+        	mServer = new Server();
+        	return mServer.start();
+        }
+        catch (Exception ex)
+        {
+        	return new Integer(1); 
+        }
     }
 
     /**

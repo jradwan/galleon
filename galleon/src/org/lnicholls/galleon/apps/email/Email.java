@@ -17,7 +17,7 @@ package org.lnicholls.galleon.apps.email;
  */
 
 import java.awt.Color;
-import java.io.IOException;
+import java.io.*;
 import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,10 +58,11 @@ import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.http.server.HttpRequest;
+import com.tivo.hme.interfaces.IHttpRequest;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 import de.nava.informa.core.ItemIF;
 
@@ -81,7 +82,7 @@ public class Email extends DefaultApplication {
 
     private Resource mItemIcon;
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mMenuBackground = getSkinImage("menu", "background");
@@ -90,12 +91,12 @@ public class Email extends DefaultApplication {
         mFolderIcon = getSkinImage("menu", "folder");
         mItemIcon = getSkinImage("menu", "item");
 
-        EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getContext().getFactory())
+        EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory())
                 .getAppContext().getConfiguration();
 
         if (emailConfiguration.getAccounts().size() == 1) {
             Account account = (Account) emailConfiguration.getAccounts().get(0);
-            List mail = (List) ((EmailFactory) getContext().getFactory()).mAccounts.get(account.getName());
+            List mail = (List) ((EmailFactory) getFactory()).mAccounts.get(account.getName());
             push(new EmailAccountMenuScreen(this, account, mail, true), TRANSITION_NONE);
         } else
             push(new EmailMenuScreen(this), TRANSITION_NONE);
@@ -107,7 +108,7 @@ public class Email extends DefaultApplication {
 
             getBelow().setResource(mMenuBackground);
 
-            EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getContext().getFactory())
+            EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory())
                     .getAppContext().getConfiguration();
             List accounts = emailConfiguration.getAccounts();
             Account[] feedArray = (Account[]) accounts.toArray(new Account[0]);
@@ -132,7 +133,7 @@ public class Email extends DefaultApplication {
                     load();
                     Account account = (Account) mMenuList.get(mMenuList.getFocus());
 
-                    List stories = (List) ((EmailFactory) getContext().getFactory()).mAccounts.get(account.getName());
+                    List stories = (List) ((EmailFactory) getFactory()).mAccounts.get(account.getName());
                     EmailAccountMenuScreen emailAccountMenuScreen = new EmailAccountMenuScreen((Email) getBApp(),
                             account, stories);
                     getBApp().push(emailAccountMenuScreen, TRANSITION_LEFT);
@@ -169,7 +170,7 @@ public class Email extends DefaultApplication {
 
             getBelow().setResource(mMenuBackground);
 
-            EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getContext().getFactory())
+            EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory())
                     .getAppContext().getConfiguration();
 
             setTitle(account.getName());
@@ -396,25 +397,6 @@ public class Email extends DefaultApplication {
 
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
 
-        public EmailFactory(AppContext appContext) {
-            super(appContext);
-
-            Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-            Security.setProperty("ssl.SocketFactory.provider", "org.lnicholls.galleon.util.DummySSLSocketFactory");
-
-            EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
-            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-                public void reload() {
-                    try {
-                    	log.debug("Email");
-                    	updateAccounts();
-                    } catch (Exception ex) {
-                        log.error("Could not download email", ex);
-                    }
-                }
-            }), emailConfiguration.getReload());
-        }
-
         public void setAppContext(AppContext appContext) {
             super.setAppContext(appContext);
 
@@ -532,12 +514,28 @@ public class Email extends DefaultApplication {
             }.start();
         }
 
-        protected void init(ArgumentList args) {
-            super.init(args);
+        public void initialize() {
+            Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+            Security.setProperty("ssl.SocketFactory.provider", "org.lnicholls.galleon.util.DummySSLSocketFactory");
+
+            EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
+            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+                public void reload() {
+                    try {
+                    	log.debug("Email");
+                    	updateAccounts();
+                    } catch (Exception ex) {
+                        log.error("Could not download email", ex);
+                    }
+                }
+            }), emailConfiguration.getReload());
         }
 
-        public void handleHTTP(HttpRequest http, String uri) throws IOException {
-            if (uri.equals("icon.png")) {
+        public InputStream fetchAsset(IHttpRequest req) {
+        	String uri = req.getURI();
+        	// TODO Broken
+        	/*
+        	if (uri.equals("icon.png")) {
                 EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
 
                 boolean hasMail = false;
@@ -552,11 +550,12 @@ public class Email extends DefaultApplication {
                 }
 
                 if (hasMail) {
-                    super.handleHTTP(http, "alerticon.png");
+                	super.handleHTTP(http, "alerticon.png");
                     return;
                 }
             }
-            super.handleHTTP(http, uri);
+            */
+            return super.fetchAsset(req);
         }
 
         private static Hashtable mAccounts = new Hashtable();

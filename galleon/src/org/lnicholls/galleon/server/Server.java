@@ -17,6 +17,7 @@ package org.lnicholls.galleon.server;
  */
 
 import java.awt.Font;
+import java.awt.Image;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.InetAddress;
@@ -48,12 +49,13 @@ import org.lnicholls.galleon.database.NetworkServerManager;
 import org.lnicholls.galleon.database.PodcastManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
-import org.lnicholls.galleon.skin.Skin;
+import org.lnicholls.galleon.skins.Skin;
 import org.lnicholls.galleon.togo.DownloadThread;
 import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.VersionCheck;
+import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.data.*;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.tanukisoftware.wrapper.WrapperManager;
 
@@ -62,8 +64,13 @@ import org.tanukisoftware.wrapper.WrapperManager;
  */
 
 public class Server {
-	public Server() {
+	public Server() throws Exception {
+		if (mServer!=null)
+			throw new IllegalAccessException();
+		
 		mServer = this;
+		
+		//System.setSecurityManager(new CustomSecurityManager());
 
 		mShortTermTasks = new ArrayList();
 		mLongTermTasks = new ArrayList();
@@ -117,6 +124,13 @@ public class Server {
 				errors.add("Invalid system propery: root=" + System.getProperty("root"));
 
 			System.setProperty("user.home", System.getProperty("root"));
+			
+			if (System.getProperty("bin") == null)
+				System.setProperty("bin", file.getAbsolutePath() + "/../bin");
+
+			check = new File(System.getProperty("bin"));
+			if (!check.exists() || !check.isDirectory())
+				errors.add("Invalid system propery: bin=" + System.getProperty("bin"));			
 
 			if (System.getProperty("conf") == null)
 				System.setProperty("conf", file.getAbsolutePath() + "/../conf");
@@ -490,10 +504,20 @@ public class Server {
 	// Singleton pattern
 	public static synchronized Server getServer() {
 		if (mServer == null) {
-			mServer = new Server();
-			mServer.start();
+			try
+			{
+				mServer = new Server();
+				mServer.start();
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 		}
-		return mServer;
+		if (true || System.getSecurityManager() instanceof CustomSecurityManager)
+			return mServer;
+		else
+			return null;
 	}
 
 	public void save() {
@@ -587,7 +611,7 @@ public class Server {
 		return mLastModified;
 	}
 
-	public AppManager getAppManager() {
+	public AppManager getk() {
 		return mAppManager;
 	}
 
@@ -603,32 +627,79 @@ public class Server {
 		return mServerConfiguration;
 	}
 
-	public void updateServerConfiguration(ServerConfiguration serverConfiguration) {
+	public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws Exception {
 		boolean needRestart = true;
-		/*
-		 * if (mServerConfiguration.getIPAddress() == null ||
-		 * serverConfiguration.getIPAddress() == null ||
-		 * !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress()) ||
-		 * mServerConfiguration.getPort() != serverConfiguration.getPort())
-		 * needRestart = true;
-		 */
-		mServerConfiguration = serverConfiguration;
-		setDebugLogging(mServerConfiguration.isDebug());
-		/*
-		 * try { PropertyUtils.copyProperties(mServerConfiguration,
-		 * serverConfiguration); } catch (Exception ex) { log.error("Server
-		 * configuration update failed", ex); }
-		 */
-		save();
-		// mToGoThread.interrupt();
-		if (!mStartMain && needRestart) {
-			log.info("Restarting for server configuration change");
-			new Thread() {
-				public void run() {
-					WrapperManager.restart();
-				}
-			}.start();
+		
+		try
+		{
+			/*
+			 * if (mServerConfiguration.getIPAddress() == null ||
+			 * serverConfiguration.getIPAddress() == null ||
+			 * !mServerConfiguration.getIPAddress().equals(serverConfiguration.getIPAddress()) ||
+			 * mServerConfiguration.getPort() != serverConfiguration.getPort())
+			 * needRestart = true;
+			 */
+			mServerConfiguration = serverConfiguration;
+			setDebugLogging(mServerConfiguration.isDebug());
+			/*
+			 * try { PropertyUtils.copyProperties(mServerConfiguration,
+			 * serverConfiguration); } catch (Exception ex) { log.error("Server
+			 * configuration update failed", ex); }
+			 */
+			
+			save();
+			// mToGoThread.interrupt();
+			if (!mStartMain && needRestart) {
+				log.info("Restarting for server configuration change");
+				new Thread() {
+					public void run() {
+						WrapperManager.restart();
+					}
+				}.start();
+			}
 		}
+		catch (Exception ex)
+		{
+			Tools.logException(Server.class, ex);
+			throw ex;
+		}
+	}
+	
+	public DataConfiguration getDataConfiguration() {
+		return mServerConfiguration.getDataConfiguration();
+	}
+
+	public void updateDataConfiguration(DataConfiguration dataConfiguration) throws Exception {
+		try
+		{
+			if (dataConfiguration.isModified())
+			{
+				if (getDataConfiguration().getUsername()!=null && getDataConfiguration().getUsername().equals(dataConfiguration.getUsername()))
+				{
+					if (getDataConfiguration().isAgree() && !dataConfiguration.isAgree()) {
+						Users.deleteUser(dataConfiguration);
+						mServerConfiguration.setDataConfiguration(new DataConfiguration());
+						save();
+						return;
+					}
+					Users.updateUser(dataConfiguration, mServerConfiguration);
+				}
+				else
+					Users.createUser(dataConfiguration);
+				
+				mServerConfiguration.setDataConfiguration(dataConfiguration);
+				save();
+			}
+		}
+		catch (Exception ex)
+		{
+			Tools.logException(Server.class, ex);
+			throw ex;
+		}
+	}	
+	
+	public Object getCodeImage() {
+		return Users.getCode();
 	}
 
 	public List getAppDescriptors() {
@@ -783,10 +854,17 @@ public class Server {
 	public MusicPlayerConfiguration getMusicPlayerConfiguration() {
 		return mServerConfiguration.getMusicPlayerConfiguration();
 	}
-
+	
 	public static void main(String args[]) {
 		mStartMain = true;
-		Server server = getServer();
+		try
+		{
+			Server server = getServer();
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 
 	private Logger log;

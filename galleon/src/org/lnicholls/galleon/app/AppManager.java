@@ -18,6 +18,7 @@ package org.lnicholls.galleon.app;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -27,6 +28,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.tivo.hme.sdk.Factory;
+import com.tivo.hme.host.sample.JarClassLoader;
+import com.tivo.hme.host.sample.Main;
+import com.tivo.hme.host.util.*;
+import com.tivo.hme.interfaces.IFactory;
+
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.*;
 
 /**
@@ -41,15 +50,43 @@ public final class AppManager {
         
         mJars = new ArrayList();
         mApps = new ArrayList();
+        mAppContexts = new ArrayList();
         mAppDescriptors = new ArrayList();
         getJars();
         mHMEApps = new ArrayList();
-        mAppFactory = new AppFactory(this);
+        //mAppFactory = new AppFactory(this);
         //loadAppDescriptors();
+        
+        String arguments = "";
+        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+        if (serverConfiguration.getIPAddress() != null
+                && serverConfiguration.getIPAddress().trim().length() > 0) {
+            arguments = "-intf " + serverConfiguration.getIPAddress();
+        }
+        if (serverConfiguration.getPort() != 0) {
+            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "-port "
+                    + Server.getServer().getPort();
+        }
+        ArgumentList argumentList = new ArgumentList(arguments);
+        
+        mAppHost = new AppHost(argumentList);
     }
     
     public void loadApps() {
-        mAppFactory.loadApps();
+        //mAppFactory.loadApps();
+    	File file = new File(System.getProperty("hme") + "/launcher.txt");
+        if (file.exists()) {
+        	try
+        	{
+        		mAppHost.loadLaunchFile(file.getAbsolutePath(), mAppClassLoader);
+        	}
+        	catch (Exception ex)
+        	{
+        		log.error("Could load HME launch file", ex);
+        	}
+        }
+    	
+    	mAppHost.listen();
     }
 
     private void getJars() {
@@ -84,43 +121,49 @@ public final class AppManager {
         });
         for (int i = 0; i < files.length; ++i) {
             try {
-                log.debug("Found HME app: " + files[i].getAbsolutePath());
-                File file = new File(files[i].getCanonicalPath());
-                mJars.add(file);
-                
-                AppDescriptor appDescriptor = new AppDescriptor(file);
-                log.debug("appDescriptor=" + appDescriptor);
-                if (appDescriptor.getClassName()!=null)
+            	File file = new File(files[i].getCanonicalPath());
+            	AppDescriptor appDescriptor = new AppDescriptor(file);
+            	if (appDescriptor.getClassName()!=null)
+            	{
+            		log.debug("Found HME app: " + file.getAbsolutePath());
+                    mJars.add(file);
+                    appDescriptor.setHME(true);
+	                log.debug("appDescriptor=" + appDescriptor);
                     mAppDescriptors.add(appDescriptor);
+            	}
             } catch (Exception ex) {
-                log.error("Could not create app descriptor", ex);
+                log.error("Could not create HME app descriptor", ex);
             }
-        } 
-        */       
+        }
+        */
     }
     
     public void addHMEApp(String launcher) {
-        mHMEApps.add(launcher);
+    	mHMEApps.add(launcher);
     }
 
     public ClassLoader getClassLoader() {
         return mAppClassLoader;
     }
 
-    public void addApp(AppFactory app) {
-        mApps.add(app);
-        Iterator iterator = mAppDescriptors.iterator();
-        while (iterator.hasNext()) {
-            AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
-            if (app.getClass().getName().startsWith(appDescriptor.getClassName()))
-            {
-                app.getAppContext().setDescriptor(appDescriptor);
-                break;
-            }
+    public void addApp(Factory app) {
+    	mApps.add(app);
+        if (app instanceof AppFactory)
+        {
+	        Iterator iterator = mAppDescriptors.iterator();
+	        while (iterator.hasNext()) {
+	            AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
+	            if (app.getClass().getName().startsWith(appDescriptor.getClassName()))
+	            {
+	                ((AppFactory)app).getAppContext().setDescriptor(appDescriptor);
+	                break;
+	            }
+	        }
         }
     }
 
-    public AppConfiguration getAppConfiguration(String className) {
+    /*
+    public Object getAppConfiguration(String className) {
         Iterator iterator = mApps.iterator();
         while (iterator.hasNext()) {
             AppContext app = (AppContext) iterator.next();
@@ -141,42 +184,120 @@ public final class AppManager {
             }
         }
     }
+    */
 
     public List getAppDescriptors() {
-        return mAppDescriptors;
+    	return mAppDescriptors;
     }
     
     public List getApps() {
-        List appContexts = new ArrayList();
+    	List appContexts = new ArrayList();
         Iterator iterator = mApps.iterator();
         while (iterator.hasNext()) {
-            AppFactory app = (AppFactory) iterator.next();
-            appContexts.add(app.getAppContext());
+            Factory app = (Factory) iterator.next();
+            if (app instanceof AppFactory)
+            {
+            	appContexts.add(((AppFactory)app).getAppContext());
+            }
+        }
+        iterator = mAppContexts.iterator();
+        while (iterator.hasNext()) {
+        	appContexts.add(iterator.next());
         }
         return appContexts; 
     }
     
-    public void createApp(AppContext appContext)
+    public IFactory createApp(AppContext appContext)
     {
-        log.debug("createApp: "+appContext);
-        try {
-            AppFactory appFactory = mAppFactory.addApp(appContext);
+    	IFactory appFactory = null;
+    	try {
+        	StringBuffer stringbuffer = new StringBuffer(64);
+        	AppHost.addArg(stringbuffer, "--class", appContext.getDescriptor().getClassName());
+        	//AppHost.addArg(stringbuffer, null, attributes.getValue("HME-Arguments"));
+            appFactory = mAppHost.createFactory(new ArgumentList(stringbuffer.toString()), mAppClassLoader);
+            if (!(appFactory instanceof AppFactory))
+            {
+            	try
+        		{
+        			Class[] parameters = new Class[1];
+    				parameters[0] = appContext.getConfiguration().getClass();
+        			Method method = appFactory.getClass().getMethod("setConfiguration",parameters);
+        			if (method!=null)
+        			{
+        				Object[] values = new Object[1];
+        				values[0] = appContext.getConfiguration();
+        				method.invoke(appFactory, values);
+        			}
+        			else
+        				log.error("App does not allow update of configuration");
+        		} catch (Exception ex) {
+                    log.error("Could not configure app", ex);
+                }
+            	mAppContexts.add(appContext);
+            }
+            else
+            {
+            	((AppFactory)appFactory).setAppContext(appContext);
+            	appFactory.setAppTitle(appContext.getTitle());
+            	appFactory.setAppName(clean(appContext.getTitle()));
+            	((AppFactory)appFactory).initialize();
+            	
+            	addApp(((AppFactory)appFactory));
+            }
         } catch (Exception ex) {
             log.error("Could not create app", ex);
         }
+        return appFactory;
     }    
+    
+    private static String clean(String value) {
+        StringBuffer buffer = new StringBuffer(value.length());
+        synchronized (buffer) {
+            for (int i = 0; i < value.length(); i++) {
+                if (Character.isLetter(value.charAt(i)) && value.charAt(i)!=' ')
+                    buffer.append(value.charAt(i));
+            }
+        }
+        return buffer.toString();
+    }
+    
     
     public void removeApp(AppContext appContext)
     {
     	try {
 	    	Iterator iterator = mApps.iterator();
 	        while (iterator.hasNext()) {
-	            AppFactory app = (AppFactory) iterator.next();
-	            if (appContext.getId()==app.getAppContext().getId())
+	            Factory app = (Factory) iterator.next();
+	            if (app instanceof AppFactory)
 	            {
-	                mAppFactory.getListener().remove(app);
-	                mApps.remove(app);
-	                return;
+	            	AppFactory appFactory = (AppFactory)app;
+		            if (appContext.getId()==appFactory.getAppContext().getId())
+		            {
+		            	mAppHost.remove(app);
+		                mApps.remove(app);
+		                return;
+		            }
+	            }
+	            else
+	            {
+	            	/*
+	            	if (app.getClassName().equals(appContext.getDescriptor().getClassName()))
+	            	{
+	            		mAppFactory.getListener().remove(app);
+		                mApps.remove(app);
+		                
+		                Iterator contextsIterator = mAppContexts.iterator();
+	                    while (contextsIterator.hasNext()) {
+	                    	AppContext currentContext = (AppContext)contextsIterator.next();
+	                    	if (currentContext.getDescriptor().getClassName().equals(appContext.getDescriptor().getClassName()))
+	                    	{
+	                    		mAppContexts.remove(currentContext);
+	                    		break;
+	                    	}
+	                    }
+		                return;
+	            	}
+	            	*/
 	            }
 	        }
     	} catch (Exception ex) {
@@ -186,23 +307,83 @@ public final class AppManager {
     
     public void updateApp(AppContext appContext)
     {
-        Iterator iterator = mApps.iterator();
+    	Iterator iterator = mApps.iterator();
         while (iterator.hasNext()) {
-            AppFactory app = (AppFactory) iterator.next();
-            if (appContext.getId()==app.getAppContext().getId())
+            Factory app = (Factory) iterator.next();
+            if (app instanceof AppFactory)
             {
-                app.setAppContext(appContext);
-                return;
+            	AppFactory appFactory = (AppFactory)app;
+	            if (appContext.getId()==appFactory.getAppContext().getId())
+	            {
+	            	appFactory.setAppContext(appContext);
+	                return;
+	            }
+            }
+            else
+            {
+            	/*
+            	if (app.getClassName().equals(appContext.getDescriptor().getClassName()))
+            	{
+            		try
+            		{
+            			Class[] parameters = new Class[1];
+        				parameters[0] = appContext.getConfiguration().getClass();
+            			Method method = app.getClass().getMethod("setConfiguration",parameters);
+            			if (method!=null)
+            			{
+            				Object[] values = new Object[1];
+            				values[0] = appContext.getConfiguration();
+            				method.invoke(app, values);
+            			}
+            			else
+            				log.error("App does not allow update of configuration");
+            		} catch (Exception ex) {
+                        log.error("Could not configure app", ex);
+                    }
+            		
+            		Iterator contextsIterator = mAppContexts.iterator();
+                    while (contextsIterator.hasNext()) {
+                    	AppContext currentContext = (AppContext)contextsIterator.next();
+                    	if (currentContext.getDescriptor().getClassName().equals(appContext.getDescriptor().getClassName()))
+                    	{
+                    		currentContext.setConfiguration(appContext.getConfiguration());
+                    		break;
+                    	}
+                    }
+	                return;
+            	}
+            	*/
             }
         }
-        
         try {
-            AppFactory appFactory = mAppFactory.addApp(appContext);
+            IFactory appFactory = createApp(appContext);
+            if (!(appFactory instanceof AppFactory))
+            {
+            	try
+        		{
+        			Class[] parameters = new Class[1];
+    				parameters[0] = appContext.getConfiguration().getClass();
+        			Method method = appFactory.getClass().getMethod("setConfiguration",parameters);
+        			if (method!=null)
+        			{
+        				Object[] values = new Object[1];
+        				values[0] = appContext.getConfiguration();
+        				method.invoke(appFactory, values);
+        			}
+        			else
+        				log.error("App does not allow update of configuration");
+        		} catch (Exception ex) {
+                    log.error("Could not configure app", ex);
+                }            	
+            	
+            	mAppContexts.add(appContext);
+            }
+            mAppHost.listen(appFactory);
         } catch (Exception ex) {
             log.error("Could not update app", ex);
         }
-    }    
-
+    }
+    
     private LinkedList mPluginListeners = new LinkedList();
 
     private LinkedList mPluginDescriptors = new LinkedList();
@@ -212,12 +393,16 @@ public final class AppManager {
     private ArrayList mJars;
 
     private ArrayList mApps;
+    
+    private ArrayList mAppContexts;
 
     private ArrayList mAppDescriptors;
 
-    private AppFactory mAppFactory;
+    //private AppFactory mAppFactory;
 
     private ArrayList mHMEApps;
 
     private URLClassLoader mAppClassLoader;
+    
+    private AppHost mAppHost;
 }

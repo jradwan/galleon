@@ -46,6 +46,8 @@ import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.StreamResource;
 import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class DefaultApplication extends BApplication {
 
@@ -57,7 +59,7 @@ public class DefaultApplication extends BApplication {
 
     protected Resource mStarIcon;
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mBusyIcon = getSkinImage(null, "busy");
@@ -156,13 +158,17 @@ public class DefaultApplication extends BApplication {
         case KEY_SLOW:
             mPlayer.stopTrack();
             break;
-        /*
+        case KEY_FORWARD: 
+        	mPlayer.fastForwardTrack();
+            break;
+        case KEY_REVERSE: 
+        	mPlayer.rewindTrack();
+            break;            
         case KEY_ADVANCE:
         	play("right.snd");
             flush();
         	mPlayer.jumpTrack();
             break;
-            */            
         case KEY_CLEAR:
             setActive(false);
             break;
@@ -185,23 +191,30 @@ public class DefaultApplication extends BApplication {
         }
 
         public int getNextPos() {
-            if (mRandom) {
-                mPos = getRandomPos();
-            } else if (++mPos > (mList.size() - 1))
-                mPos = 0;
+            if (mList.size()>0)
+            {
+	        	if (mRandom) {
+	                mPos = getRandomPos();
+	            } else if (++mPos > (mList.size() - 1))
+	                mPos = 0;
+            }
             return mPos;
         }
 
         public int getPrevPos() {
-            if (mRandom) {
-                mPos = getRandomPos();
-            } else if (--mPos < 0)
-                mPos = mList.size() - 1;
+        	if (mList.size()>0)
+        	{
+	        	if (mRandom) {
+	                mPos = getRandomPos();
+	            } else if (--mPos < 0)
+	                mPos = mList.size() - 1;
+        	}
             return mPos;
         }
 
         public void setList(List list) {
-            mList = list;
+            if (list!=null)
+            	mList = list;
         }
 
         public List getList() {
@@ -223,22 +236,26 @@ public class DefaultApplication extends BApplication {
         }
 
         private int getRandomPos() {
-            if (mList.size()>1)
-            {
-            	if (mRandomAvailable == null || mRandomAvailable.size()==0)
-            	{
-            		mRandomAvailable = new ArrayList(mList.size());
-            		for (int i=0;i<mList.size();i++)
-            			mRandomAvailable.add(new Integer(i));
-            	}
-            	
-            	int index = mRandomizer.nextInt(mRandomAvailable.size());
-            	int pos = ((Integer)mRandomAvailable.get(index)).intValue();
-            	mRandomAvailable.remove(index);
-                return pos;
-            }
-            else
-                return mRandomizer.nextInt(mList.size());
+        	if (mList.size()>0)
+        	{
+	        	if (mList.size()>1)
+	            {
+	            	if (mRandomAvailable == null || mRandomAvailable.size()==0)
+	            	{
+	            		mRandomAvailable = new ArrayList(mList.size());
+	            		for (int i=0;i<mList.size();i++)
+	            			mRandomAvailable.add(new Integer(i));
+	            	}
+	            	
+	            	int index = mRandomizer.nextInt(mRandomAvailable.size());
+	            	int pos = ((Integer)mRandomAvailable.get(index)).intValue();
+	            	mRandomAvailable.remove(index);
+	                return pos;
+	            }
+	            else
+	                return mRandomizer.nextInt(mList.size());
+        	}
+        	return 0;
         }
 
         private List mList = new ArrayList();
@@ -260,6 +277,8 @@ public class DefaultApplication extends BApplication {
         public static final int STOP = 2;
         
         public static final int FORWARD = 3;
+        
+        public static final int REWIND = 4;
 
         public Player(DefaultApplication defaultApplication) {
             mDefaultApplication = defaultApplication;
@@ -275,6 +294,7 @@ public class DefaultApplication extends BApplication {
                 mDefaultApplication.flush();
             }
             mPlayerState = PLAY;
+            mSpeedIndex = 3;
             mStreamResource = mDefaultApplication.createStream(url, "audio/mp3", true);
             log.debug("mStreamResource=" + mStreamResource.getID());
             mStreamResource.addHandler(this);
@@ -284,16 +304,9 @@ public class DefaultApplication extends BApplication {
             //System.out.println("playTrack:");
             if (mPlayerState != PLAY) {
                 if (mStreamResource != null) {
-                    if (mPlayerState == FORWARD)
-                    {
-                    	mPlayerState = PLAY;
-                    	mStreamResource.setSpeed(1);
-                    }
-                    else
-                    {
-                    	mPlayerState = PLAY;
-                    	mStreamResource.play();
-                    }
+                	mSpeedIndex = 3;
+                	mPlayerState = PLAY;
+                	mStreamResource.play();
                 } else
                     startTrack();
             }
@@ -301,7 +314,7 @@ public class DefaultApplication extends BApplication {
 
         public void startTrack() {
             //System.out.println("startTrack:");
-            if (mTracker != null) {
+            if (mTracker != null && mTracker.getList().size()>0) {
                 try {
                     if (mTracker.getPos() == -1)
                         getNextPos();
@@ -316,7 +329,7 @@ public class DefaultApplication extends BApplication {
                     if (audio != null) {
                         setTitle("");
                         stopTrack();
-                        String url = mDefaultApplication.getContext().getBase().toString();
+                        String url = mDefaultApplication.getContext().getBaseURI().toString();
                         try {
                             if (nameFile.isFile())
                                 url += URLEncoder.encode(mDefaultApplication.hashCode() + "/" + audio.getId() + ".mp3",
@@ -352,6 +365,7 @@ public class DefaultApplication extends BApplication {
                 } else {
                     if (mStreamResource != null) {
                         mPlayerState = PAUSE;
+                        mSpeedIndex = 3;
                         mStreamResource.pause();
                     }
                 }
@@ -365,6 +379,7 @@ public class DefaultApplication extends BApplication {
                     mPlayerState = STOP;
 
                     mStreamResource.removeHandler(this);
+                    mSpeedIndex = 3;
                     mStreamResource.setSpeed(0.0f);
                     //mStreamResource.remove();
                     //mStreamResource.close();
@@ -379,56 +394,106 @@ public class DefaultApplication extends BApplication {
             //System.out.println("stopTrack:");
             if (mPlayerState != STOP) {
                 if (mStreamResource != null) {
-                	mPlayerState = FORWARD;
+                	mPlayerState = PLAY;
                 	
                 	int skip = mTotal/4;
-                	System.out.println("skip="+skip);
-                	
-                	System.out.println("mCurrentPosition="+mCurrentPosition);
-                	
                 	if (mCurrentPosition < 1*skip)
                 	{
-                		System.out.println("new position="+1*skip);
                 		mStreamResource.setPosition(1*skip);
                 	}
                 	else
             		if (mCurrentPosition < 2*skip)
             		{
-            			System.out.println("new position="+2*skip);
             			mStreamResource.setPosition(2*skip);
             		}
             		else                		
             		if (mCurrentPosition < 3*skip)
             		{
-            			System.out.println("new position="+3*skip);
             			mStreamResource.setPosition(3*skip);
             		}
                 	else                		
             		if (mCurrentPosition < 4*skip)
             		{
-            			System.out.println("new position="+4*skip);
             			mStreamResource.setPosition(4*skip);
             		}
             		else
             		{
-            			System.out.println(0);
             			mStreamResource.setPosition(0);
             		}
                 	
-                	mStreamResource.setSpeed(3);
+                	mSpeedIndex = 3;
+                	mDefaultApplication.play("select.snd");
                 	mDefaultApplication.flush();
-                	System.out.println("flushed");
                 }
             }
         }
+        
+        void fastForwardTrack()
+        {
+            if (mStreamResource != null) 
+            {
+            	mPlayerState = FORWARD;
+                if (mSpeedIndex < 6)
+                {
+                    mSpeedIndex++;
+                    if (mSpeedIndex == 4) {
+                    	mDefaultApplication.play("speedup1.snd");
+                    } else if (mSpeedIndex == 5) {
+                    	mDefaultApplication.play("speedup2.snd");
+                    } else if (mSpeedIndex == 6) {
+                    	mDefaultApplication.play("speedup3.snd");
+                    } else {
+                    	mDefaultApplication.play("slowdown1.snd");
+                    }
+                                            
+                }
+                else
+                {
+                    // if currently going as fast as we can, drop back to play, to mimic video FF behavior
+                	mPlayerState = PLAY;
+                	mSpeedIndex = 3;
+                    mDefaultApplication.play("slowdown1.snd");
+                }
+                mStreamResource.setSpeed(mSpeeds[mSpeedIndex]);
+            }
+        }
 
+        void rewindTrack()
+        {
+            if (mStreamResource != null) 
+            {
+            	mPlayerState = REWIND;
+            	if (mSpeedIndex > 0)
+                {
+                    mSpeedIndex--;
+                    if (mSpeedIndex == 2) {
+                    	mDefaultApplication.play("speedup1.snd");
+                    } else if (mSpeedIndex == 1) {
+                    	mDefaultApplication.play("speedup2.snd");
+                    } else if (mSpeedIndex == 0) {
+                    	mDefaultApplication.play("speedup3.snd");
+                    } else {
+                    	mDefaultApplication.play("slowdown1.snd");
+                    }
+                }
+                else
+                {
+                    // if currently going as fast as we can, drop back to play, to mimic video REW behavior
+                	mPlayerState = PLAY;
+                	mSpeedIndex = 3;
+                    mDefaultApplication.play("slowdown1.snd");
+                }
+                mStreamResource.setSpeed(mSpeeds[mSpeedIndex]);
+            }
+        }
+        
         public void postEvent(HmeEvent event) {
             //System.out.println("postEvent:"+event);
             // TODO Implement listeners
             HmeEvent.ResourceInfo info = (HmeEvent.ResourceInfo) event;
             switch (event.getOpCode()) {
             case StreamResource.EVT_RSRC_INFO:
-                if (info.getStatus() == RSRC_STATUS_PLAYING) {
+            	if (info.getStatus() == RSRC_STATUS_PLAYING || info.getStatus() == RSRC_STATUS_SEEKING) {
                     String pos = (String) info.getMap().get("pos");
                     if (pos != null) {
                         try {
@@ -454,7 +519,7 @@ public class DefaultApplication extends BApplication {
                 fireEvent(new ApplicationEvent(info, ResourceInfo.statusToString(info.getStatus()), getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));                
                 break;
             case StreamResource.EVT_RSRC_STATUS:
-                if (info.getStatus() == RSRC_STATUS_PLAYING) {
+                if (info.getStatus() == RSRC_STATUS_PLAYING || info.getStatus() == RSRC_STATUS_SEEKING) {
                     if (mDefaultApplication.getCurrentScreen().getFocus() != null)
                         mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(mDefaultApplication
                                 .getCurrentScreen().getFocus(), "ready"));
@@ -569,6 +634,10 @@ public class DefaultApplication extends BApplication {
         private String mTitle = "";
 
         private Audio mCurrentAudio;
+        
+        private int mSpeedIndex = 3;
+        
+        private float[] mSpeeds = {-60.0f, -15.0f, -3.0f, 1.0f, 3.0f, 15.0f, 60.0f};
     }
 
     private static Audio getAudio(String path) {
@@ -621,7 +690,7 @@ public class DefaultApplication extends BApplication {
         List list = tracker.getList();
         if (list.size() > 0) {
             Item nameFile = (Item) list.get(0);
-            if (nameFile.isFile()) {
+            if (nameFile!=null && nameFile.isFile()) {
                 File file = (File) nameFile.getValue();
                 //Tools.savePersistentValue(DefaultApplication.TRACKER, file.getParent());
             }
@@ -727,7 +796,34 @@ public class DefaultApplication extends BApplication {
          {
              ((ApplicationEventListener)listeners.get(i)).handleApplicationEvent(appEvent);
          }
-    }    
+         
+    }
+    
+    public boolean handleActive(boolean active)
+    {
+    	return super.handleActive(active);
+    }
+    
+    public boolean handleIdle( boolean isIdle )
+    {
+    	if (isIdle && Server.getServer().getServerConfiguration().isHandleTimeout() && mHandleTimeout)
+    	{
+    		acknowledgeIdle(true);	
+    		return true;
+    	}
+    	else
+    		return super.handleIdle(isIdle);
+    }
+    
+    public void setHandleTimeout(boolean value)
+    {
+    	mHandleTimeout = value;
+    }
+    
+    public boolean getHandleTimeout()
+    {
+    	return mHandleTimeout;
+    }
 
     // TODO Need to handle multiple apps
     private Player mPlayer;
@@ -741,4 +837,6 @@ public class DefaultApplication extends BApplication {
     private Resource mLastResource;
     
     private static Vector mApplicationEventListeners = new Vector();
+    
+    private boolean mHandleTimeout;
 }

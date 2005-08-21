@@ -19,6 +19,7 @@ package org.lnicholls.galleon.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -52,6 +53,7 @@ import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.server.Constants;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
+import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.ServerControl;
 import org.lnicholls.galleon.util.Tools;
 
@@ -159,6 +161,24 @@ public final class Galleon implements Constants {
 					log.debug(url);
 				} catch (Exception ex) {
 					// should never happen
+				}
+			}
+			
+			directory = new File(System.getProperty("hme"));
+			if (directory.exists()) {
+				files = directory.listFiles(new FileFilter() {
+					public final boolean accept(File file) {
+						return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
+					}
+				});
+				for (int i = 0; i < files.length; ++i) {
+					try {
+						URL url = files[i].toURI().toURL();
+						urls.add(url);
+						log.debug(url);
+					} catch (Exception ex) {
+						// should never happen
+					}
 				}
 			}
 
@@ -362,18 +382,29 @@ public final class Galleon implements Constants {
 		}
 		return null;
 	}
+	
+	public static void updateServerConfiguration(ServerConfiguration serverConfiguration) throws Exception {
+		ServerControl serverControl = getServerControl();
+		serverControl.updateServerConfiguration(serverConfiguration);
+	}	
 
-	public static void updateServerConfiguration(ServerConfiguration serverConfiguration) {
+	public static void updateDataConfiguration(DataConfiguration dataConfiguration) throws Exception {
+		ServerControl serverControl = getServerControl();
+		serverControl.updateDataConfiguration(dataConfiguration);
+	}
+	
+	public static DataConfiguration getDataConfiguration() {
 		try {
 			ServerControl serverControl = getServerControl();
-			serverControl.updateServerConfiguration(serverConfiguration);
+			return serverControl.getDataConfiguration();
 		} catch (Exception ex) {
-			Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: "
+			Tools.logException(Galleon.class, ex, "Could not get app server data configuration from server: "
 					+ mServerAddress);
 
 			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
+		return null;
 	}
 
 	public static void updateVideo(Video video) {
@@ -501,6 +532,19 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return true;
+	}
+	
+	public static Object getCodeImage() throws RemoteException {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getCodeImage();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not update podcasts to server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
 	}
 
 	public static class ConnectionDialog extends JDialog {

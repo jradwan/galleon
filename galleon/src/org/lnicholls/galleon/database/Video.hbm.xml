@@ -139,6 +139,29 @@ See the file "COPYING" for more details.
       <meta attribute="field-description">Download size in bytes</meta>
     </property>     
     <property name="origen" type="string" length="30"/>            
+    
+    <property name="playCount" type="int"/>    
+    
+    <property name="tone" type="string">
+      <meta attribute="field-description">The mood of the track</meta>
+      <column name="tone" index="VIDEO_TONE" length="50"/>
+    </property>        
+    
+    <property name="videoResolution" type="string" length="20"/>        
+    
+    <property name="videoCodec" type="string" length="20"/>            
+    
+    <property name="videoRate" type="float"/>                
+    
+    <property name="videoBitRate" type="int"/>                        
+    
+    <property name="audioCodec" type="string" length="20"/>                
+    
+    <property name="audioRate" type="float"/>                    
+    
+    <property name="audioBitRate" type="int"/>                            
+    
+    <property name="audioChannels" type="int"/>
   </class>
 
 </hibernate-mapping>

@@ -39,7 +39,8 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 
 import sun.awt.ComponentFactory;
 
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 public class Desktop extends DefaultApplication {
 
@@ -47,7 +48,7 @@ public class Desktop extends DefaultApplication {
 
     public final static String TITLE = "Desktop";
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         push(new DesktopScreen(this), TRANSITION_NONE);
@@ -108,7 +109,7 @@ public class Desktop extends DefaultApplication {
 
             try {
                 setPainting(false);
-                if (image != null) {
+                if (image != null && getApp().getContext()!=null) {
                     if (image.getWidth() > 640 || image.getHeight() > 480) {
                         BufferedImage scaled = ImageManipulator.getScaledImage(image, 640, 480);
                         image.flush();
@@ -173,12 +174,8 @@ public class Desktop extends DefaultApplication {
 
     public static class DesktopFactory extends AppFactory {
 
-        public DesktopFactory(AppContext appContext) {
-            super(appContext);
-        }
-
-        protected void init(ArgumentList args) {
-            super.init(args);
+    	public void initialize() {
+            
         }
     }
 }

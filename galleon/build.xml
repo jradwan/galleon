@@ -211,6 +211,7 @@
             <fileset dir="./doc" includes="togo.html" />            
             <fileset dir="./doc" includes="newapp.html" />            
             <fileset dir="./doc" includes="musicplayer.html" />                        
+            <fileset dir="./doc" includes="data.html" />            
             <fileset dir="./media/images" includes="galleon.png" />                        
             <fileset dir="./media/images" includes="guiicon.png" />                                    
             <fileset dir="./media/images" includes="guiicon.gif" />                                                
@@ -236,6 +237,7 @@
         <copy file="./media/images/widget/pause.png" tofile="${build}/org/lnicholls/galleon/widget/pause.png" />
         <copy file="./media/images/widget/stop.png" tofile="${build}/org/lnicholls/galleon/widget/stop.png" />        
         <copy file="./media/images/widget/play.png" tofile="${build}/org/lnicholls/galleon/widget/play.png" />        
+        <copy file="./media/images/widget/rewind.png" tofile="${build}/org/lnicholls/galleon/widget/rewind.png" />        
         <copy file="./media/images/widget/playbar.png" tofile="${build}/org/lnicholls/galleon/widget/playbar.png" />                
         <copy file="./media/images/widget/playbar_shuttle_bottom.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_shuttle_bottom.png" />
         
@@ -254,18 +256,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.togo.ToGo"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="ToGo"/>
-            <attribute name="ReleaseDate" value="04/03/05"/>          
-            <attribute name="Description" value="The ToGo app allows a user to control the ToGo feature directly from the TiVo recorder instead of using the TiVo desktop software on the PC."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.togo.ToGoOptionsPanel"/>            
-            <attribute name="Categories" value="Video"/>            
-          </section>
+          <attribute name="Title" value="ToGo"/>
+          <attribute name="ReleaseDate" value="04/03/05"/>          
+          <attribute name="Description" value="The ToGo app allows a user to control the ToGo feature directly from the TiVo recorder instead of using the TiVo desktop software on the PC."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/ToGo"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.togo.ToGoOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.togo.ToGoConfiguration"/>                      
+          <attribute name="Tags" value="Video"/>            
         </manifest>        
         <jar jarfile="${build}/apps/togo.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/togo/**"/>
@@ -280,18 +281,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Weather"/>
-            <attribute name="ReleaseDate" value="03/03/05"/>          
-            <attribute name="Description" value="The weather app displays the current weather conditions, 5 day forecast, local radar image, national radar image and any weather alerts."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
-            <attribute name="Categories" value="Weather"/>                        
-          </section>
+          <attribute name="Title" value="Weather"/>
+          <attribute name="ReleaseDate" value="03/03/05"/>          
+          <attribute name="Description" value="The weather app displays the current weather conditions, 5 day forecast, local radar image, national radar image and any weather alerts."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Weather"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.weather.WeatherConfiguration"/>                      
+          <attribute name="Tags" value="Weather"/>                        
         </manifest>        
         <jar jarfile="${build}/apps/weather.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/weather/**"/>
@@ -311,18 +311,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.music.Music"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Music"/>
-            <attribute name="ReleaseDate" value="03/03/05"/>          
-            <attribute name="Description" value="The music app allows a user to browse MP3 files using the file system folders."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.music.MusicOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>                                    
-          </section>
+          <attribute name="Title" value="Music"/>
+          <attribute name="ReleaseDate" value="03/03/05"/>          
+          <attribute name="Description" value="The music app allows a user to browse MP3 files using the file system folders."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Music"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.music.MusicOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.music.MusicConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>                                    
         </manifest>        
         <jar jarfile="${build}/apps/music.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/music/**"/>
@@ -337,18 +336,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.photos.Photos"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Photos"/>
-            <attribute name="ReleaseDate" value="03/03/05"/>          
-            <attribute name="Description" value="The photos app allows you to browse JPEG, BMP, PNG and GIF files using the file system folders."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
-            <attribute name="Categories" value="Photos"/>                                                
-          </section>
+          <attribute name="Title" value="Photos"/>
+          <attribute name="ReleaseDate" value="03/03/05"/>          
+          <attribute name="Description" value="The photos app allows you to browse JPEG, BMP, PNG and GIF files using the file system folders."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Photos"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.photos.PhotosConfiguration"/>                      
+          <attribute name="Tags" value="Photos"/>                                                
         </manifest>        
         <jar jarfile="${build}/apps/photos.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/photos/**"/>
@@ -362,18 +360,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.shoutcast.Shoutcast"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Shoutcast"/>
-            <attribute name="ReleaseDate" value="04/16/05"/>          
-            <attribute name="Description" value="The Shoutcast app allows you to listen to online radio streams based on your favorite genres."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>                                                            
-          </section>
+          <attribute name="Title" value="Shoutcast"/>
+          <attribute name="ReleaseDate" value="04/16/05"/>          
+          <attribute name="Description" value="The Shoutcast app allows you to listen to online radio streams based on your favorite genres."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Shoutcast"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>                                                            
         </manifest>        
         <jar jarfile="${build}/apps/shoutcast.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/shoutcast/**"/>
@@ -388,18 +385,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizer"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Music Organizer"/>
-            <attribute name="ReleaseDate" value="04/22/05"/>          
-            <attribute name="Description" value="The organizer imports MP3 files from a list of directories, reads their tags and then creates a record for each file in an embedded database. These records are then used to categorize all of the MP3 files based on their tag information."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>                                                                        
-          </section>
+          <attribute name="Title" value="Music Organizer"/>
+          <attribute name="ReleaseDate" value="04/22/05"/>          
+          <attribute name="Description" value="The organizer imports MP3 files from a list of directories, reads their tags and then creates a record for each file in an embedded database. These records are then used to categorize all of the MP3 files based on their tag information."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/MusicOrganizer"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>                                                                        
         </manifest>        
         <jar jarfile="${build}/apps/musicOrganizer.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/musicOrganizer/**"/>
@@ -413,18 +409,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.rss.RSS"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="RSS"/>
-            <attribute name="ReleaseDate" value="04/23/05"/>          
-            <attribute name="Description" value="The RSS app allows you to view their favorite RSS feeds."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.rss.RSSOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>                                                                        
-          </section>
+          <attribute name="Title" value="RSS"/>
+          <attribute name="ReleaseDate" value="04/23/05"/>          
+          <attribute name="Description" value="The RSS app allows you to view their favorite RSS feeds."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/RSS"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.rss.RSSOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.rss.RSSConfiguration"/>            
+          <attribute name="Tags" value="Music"/>                                                                        
         </manifest>        
         <jar jarfile="${build}/apps/rss.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/rss/**"/>
@@ -438,18 +433,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.desktop.Desktop"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Desktop"/>
-            <attribute name="ReleaseDate" value="05/04/05"/>          
-            <attribute name="Description" value="The Desktop app provides a live view of the desktop of the PC running Galleon."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.desktop.DesktopOptionsPanel"/>            
-            <attribute name="Categories" value="PC, Photos"/>                                                                        
-          </section>
+          <attribute name="Title" value="Desktop"/>
+          <attribute name="ReleaseDate" value="05/04/05"/>          
+          <attribute name="Description" value="The Desktop app provides a live view of the desktop of the PC running Galleon."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Desktop"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.desktop.DesktopOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.desktop.DesktopConfiguration"/>                      
+          <attribute name="Tags" value="PC, Photos"/>                                                                        
         </manifest>        
         <jar jarfile="${build}/apps/desktop.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/desktop/**"/>
@@ -464,18 +458,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.email.Email"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Email"/>
-            <attribute name="ReleaseDate" value="05/09/05"/>          
-            <attribute name="Description" value="The Email app allows you to view your new incoming email on your TiVo."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.email.EmailOptionsPanel"/>            
-            <attribute name="Categories" value="Internet"/>                                                                                                            
-          </section>
+          <attribute name="Title" value="Email"/>
+          <attribute name="ReleaseDate" value="05/09/05"/>          
+          <attribute name="Description" value="The Email app allows you to view your new incoming email on your TiVo."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Email"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.email.EmailOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.email.EmailConfiguration"/>                      
+          <attribute name="Tags" value="Internet"/>                                                                                                            
         </manifest>        
         <jar jarfile="${build}/apps/email.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/email/**"/>
@@ -489,18 +482,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.internet.Internet"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Internet Images"/>
-            <attribute name="ReleaseDate" value="05/14/05"/>          
-            <attribute name="Description" value="The Internet app allows you to view Internet images such as webcams."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internet.InternetOptionsPanel"/>            
-            <attribute name="Categories" value="Internet"/>                                                                                                            
-          </section>
+          <attribute name="Title" value="Internet Images"/>
+          <attribute name="ReleaseDate" value="05/14/05"/>          
+          <attribute name="Description" value="The Internet app allows you to view Internet images such as webcams."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Internet"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internet.InternetOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.internet.InternetConfiguration"/>                      
+          <attribute name="Tags" value="Internet"/>                                                                                                            
         </manifest>        
         <jar jarfile="${build}/apps/internet.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/internet/**"/>
@@ -514,18 +506,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.playlists.Playlists"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Playlists"/>
-            <attribute name="ReleaseDate" value="05/14/05"/>          
-            <attribute name="Description" value="The Playlists app allows you to play your favorite .m3u and .pls playlists."/>                    
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.playlists.PlaylistsOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>
-          </section>
+          <attribute name="Title" value="Playlists"/>
+          <attribute name="ReleaseDate" value="05/14/05"/>          
+          <attribute name="Description" value="The Playlists app allows you to play your favorite .m3u and .pls playlists."/>                    
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Playlists"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.playlists.PlaylistsOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.playlists.PlaylistsConfiguration"/>
+          <attribute name="Tags" value="Music"/>
         </manifest>        
         <jar jarfile="${build}/apps/playlists.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/playlists/**"/>
@@ -540,18 +531,16 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobbler"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Audio Scrobbler"/>
-            <attribute name="ReleaseDate" value="05/16/05"/>          
-            <attribute name="Description" value="Audio Scrobbler"/>
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobblerOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>            
-          </section>
+          <attribute name="Title" value="Audio Scrobbler"/>
+          <attribute name="ReleaseDate" value="05/16/05"/>          
+          <attribute name="Description" value="Audio Scrobbler"/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobblerOptionsPanel"/>            
+          <attribute name="Tags" value="Music"/>            
         </manifest>        
         <jar jarfile="${build}/apps/audioScrobbler.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/audioScrobbler/**"/>
@@ -565,18 +554,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.podcasting.Podcasting"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Podcasting"/>
-            <attribute name="ReleaseDate" value="05/20/05"/>          
-            <attribute name="Description" value="The Podcasting app allows you to subscribe and listen to your favorite podcasts."/>
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.podcasting.PodcastingOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>            
-          </section>
+          <attribute name="Title" value="Podcasting"/>
+          <attribute name="ReleaseDate" value="05/20/05"/>          
+          <attribute name="Description" value="The Podcasting app allows you to subscribe and listen to your favorite podcasts."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Podcasting"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.podcasting.PodcastingOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.podcasting.PodcastingConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>            
         </manifest>        
         <jar jarfile="${build}/apps/podcasting.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/podcasting/**"/>
@@ -590,18 +578,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.iTunes.iTunes"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="iTunes"/>
-            <attribute name="ReleaseDate" value="06/04/05"/>          
-            <attribute name="Description" value="The iTunes app allows you to play your iTunes playlists on your TiVo. Only MP3 files are supported."/>
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.iTunes.iTunesOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>            
-          </section>
+          <attribute name="Title" value="iTunes"/>
+          <attribute name="ReleaseDate" value="06/04/05"/>          
+          <attribute name="Description" value="The iTunes app allows you to play your iTunes playlists on your TiVo. Only MP3 files are supported."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/iTunes"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.iTunes.iTunesOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.iTunes.iTunesConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>            
         </manifest>        
         <jar jarfile="${build}/apps/iTunes.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/iTunes/**"/>
@@ -616,18 +603,17 @@
           <attribute name="Built-By" value="${user.name}"/>
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.movies.Movies"/>
           <attribute name="HME-Arguments" value=""/>
-          <section name="Galleon">
-            <attribute name="Title" value="Movies"/>
-            <attribute name="ReleaseDate" value="07/09/05"/>          
-            <attribute name="Description" value="The Movies app allows you view local movie theater listings."/>
-            <attribute name="Documentation" value="help.html"/>                              
-            <attribute name="AuthorName" value="Leon Nicholls"/>                                        
-            <attribute name="AuthorEmail" value="javahmo@users.sourceforge.net"/>                                                  
-            <attribute name="AuthorHomepage" value="http://galleon.sourceforge.net"/>                                                            
-            <attribute name="Version" value="1.0"/>
-            <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.movies.MoviesOptionsPanel"/>            
-            <attribute name="Categories" value="Music"/>            
-          </section>
+          <attribute name="Title" value="Movies"/>
+          <attribute name="ReleaseDate" value="07/09/05"/>          
+          <attribute name="Description" value="The Movies app allows you view local movie theater listings."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Music"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.movies.MoviesOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.movies.MoviesConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>            
         </manifest>        
         <jar jarfile="${build}/apps/movies.jar" compress="yes" manifest="${build}/MANIFEST.MF">
             <fileset dir="${build}" includes="org/lnicholls/galleon/apps/movies/**"/>
@@ -949,6 +935,7 @@
         <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" />
         <copy file="./bin/win32/run.cmd" tofile="${build}/bin/run.cmd" />
         <copy file="./bin/win32/gui.cmd" tofile="${build}/bin/gui.cmd" />        
+        <copy file="./bin/win32/ffmpeg.exe" tofile="${build}/bin/ffmpeg.exe" />                
     </target>
 
     <target name="package-misc-win32">

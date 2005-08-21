@@ -16,6 +16,7 @@ package org.lnicholls.galleon.server;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Image;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
@@ -45,8 +46,32 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     
     public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException
     {
-        Server.getServer().updateServerConfiguration(serverConfiguration);
+        try
+        {
+        	Server.getServer().updateServerConfiguration(serverConfiguration);
+        }
+        catch (Exception ex)
+        {
+        	throw new RemoteException(ex.getMessage(), ex);
+        }
     }
+    
+    public DataConfiguration getDataConfiguration()  throws RemoteException
+    {
+        return Server.getServer().getDataConfiguration();
+    }
+    
+    public void updateDataConfiguration(DataConfiguration dataConfiguration) throws RemoteException
+    {
+        try
+        {
+        	Server.getServer().updateDataConfiguration(dataConfiguration);
+        }
+        catch (Exception ex)
+        {
+        	throw new RemoteException(ex.getMessage(), ex);
+        }
+    }    
 
     public void reset() throws RemoteException {
         Server.getServer().reconfigure();
@@ -140,5 +165,10 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     public boolean isCurrentVersion() throws RemoteException
     {
     	return Server.getServer().isCurrentVersion();
+    }
+    
+    public Object getCodeImage() throws RemoteException
+    {
+    	return Server.getServer().getCodeImage();
     }
 }

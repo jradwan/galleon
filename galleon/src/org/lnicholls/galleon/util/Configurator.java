@@ -76,6 +76,8 @@ public class Configurator implements Constants {
     private static String TAG_RULE = "rule";
     
     private static String TAG_MUSIC_PLAYER_CONFIGURATION = "musicPlayerConfiguration";
+    
+    private static String TAG_DATA_CONFIGURATION = "dataConfiguration";
 
     private static String ATTRIBUTE_VERSION = "version";
 
@@ -335,9 +337,12 @@ public class Configurator implements Constants {
                             } else
                                 log.error("Missing required " + ATTRIBUTE_CLASS + " attribute for " + TAG_APP);
 
-                            if (title != null && className != null) {
-                                className = className.substring(0,className.length()-"Configuration".length());
-                                AppConfiguration appConfiguration = null;
+                            if (className != null) {
+                                if (className.indexOf('$')!=-1)
+                                	className = className.substring(0,className.indexOf('$'));
+                                else
+                                	className = className.substring(0,className.length()-"Configuration".length());
+                                Object appConfiguration = null;
                                 Iterator appDescriptorIterator = appManager.getAppDescriptors().iterator();
                                 while (appDescriptorIterator.hasNext()) {
                                     AppDescriptor appDescriptor = (AppDescriptor) appDescriptorIterator.next();
@@ -358,7 +363,7 @@ public class Configurator implements Constants {
                                                 StringReader xmlReader = new StringReader(bos.toString());
                                                 bos.close();
 
-                                                appConfiguration = (AppConfiguration) beanReader.parse(xmlReader);
+                                                appConfiguration = beanReader.parse(xmlReader);
                                                 appContext.setConfiguration(appConfiguration);
 
                                                 appManager.createApp(appContext);
@@ -456,6 +461,32 @@ public class Configurator implements Constants {
                         } catch (IntrospectionException ex) {
                             log.error("Could not load Music Player Configuration");
                         }
+                    } else if (node.getNodeName().equals(TAG_DATA_CONFIGURATION)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Found Data Configuration");
+                        try {
+                            BeanReader beanReader = new BeanReader();
+                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.registerBeanClass("dataConfiguration", DataConfiguration.class);
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            OutputFormat of = new OutputFormat("XML", ENCODING, true);
+                            XMLSerializer serializer = new XMLSerializer(bos, of);
+                            serializer.asDOMSerializer();
+                            serializer.serialize((Element) node);
+
+                            StringReader xmlReader = new StringReader(bos.toString());
+                            bos.close();
+
+                            DataConfiguration dataConfiguration = (DataConfiguration) beanReader.parse(xmlReader);
+
+                            serverConfiguration.setDataConfiguration(dataConfiguration);
+
+                            if (log.isDebugEnabled())
+                                log.debug("DataConfiguration=" + dataConfiguration);
+                        } catch (IntrospectionException ex) {
+                            log.error("Could not load Data Configuration");
+                        }
                     }
                 }
             }
@@ -517,6 +548,7 @@ public class Configurator implements Constants {
                         || beanProperty.getPropertyName().equals("url")
                         || beanProperty.getPropertyName().equals("modified")
                         || beanProperty.getPropertyName().equals("musicPlayerConfiguration")
+                        || beanProperty.getPropertyName().equals("dataPlayerConfiguration")
                         || beanProperty.getPropertyName().equals("items"))
                     return null;
 
@@ -668,6 +700,29 @@ public class Configurator implements Constants {
                 } catch (Exception ex) {
                     Tools.logException(Configurator.class, ex, "Could not save music player configuration: " + musicPlayerConfiguration);
                 }
+                
+                // Data Configuration
+                DataConfiguration dataConfiguration = null;
+                try {
+                    dataConfiguration = serverConfiguration.getDataConfiguration();
+                    log.debug("DataConfiguration: " + dataConfiguration);
+                    StringWriter outputWriter = new StringWriter();
+
+                    // Create a BeanWriter which writes to our prepared stream
+                    BeanWriter beanWriter = new BeanWriter(outputWriter);
+
+                    AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    beanWriter.setXMLIntrospector(appXMLIntrospector);
+
+                    beanWriter.enablePrettyPrint();
+
+                    beanWriter.write("dataConfiguration", dataConfiguration);
+
+                    buffer.append(outputWriter.toString());
+                } catch (Exception ex) {
+                    Tools.logException(Configurator.class, ex, "Could not save data configuration: " + dataConfiguration);
+                }                
 
                 buffer.append("</").append(TAG_CONFIGURATION).append(">\n");
             }
@@ -677,6 +732,4 @@ public class Configurator implements Constants {
             Tools.logException(Configurator.class, ex);
         }
     }
-
-    //private ServerConfiguration mServerConfiguration;
 }

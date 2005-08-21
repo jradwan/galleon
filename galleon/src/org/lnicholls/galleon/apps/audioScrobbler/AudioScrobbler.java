@@ -45,7 +45,8 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.util.ArgumentList;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.interfaces.IArgumentList;
 
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
@@ -67,14 +68,13 @@ public class AudioScrobbler extends DefaultApplication {
     // Get your own ID from http://www.audioscrobbler.com/development/protocol.php
     private static String CLIENT_ID = "tst";
 
-    protected void init(Context context) {
+    public void init(IContext context) throws Exception {
         super.init(context);
 
         mMenuBackground = getSkinImage("menu", "background");
         mItemIcon = getSkinImage(null, "icon");
 
-        AudioScrobblerConfiguration audioScrobblerConfiguration = (AudioScrobblerConfiguration) ((AudioScrobblerFactory) getContext()
-                .getFactory()).getAppContext().getConfiguration();
+        AudioScrobblerConfiguration audioScrobblerConfiguration = (AudioScrobblerConfiguration) ((AudioScrobblerFactory)getFactory()).getAppContext().getConfiguration();
 
         push(new AudioScrobblerScreen(this), TRANSITION_NONE);
     }
@@ -118,23 +118,6 @@ public class AudioScrobbler extends DefaultApplication {
     }
 
     public static class AudioScrobblerFactory extends AppFactory implements ApplicationEventListener {
-
-        public AudioScrobblerFactory(AppContext appContext) {
-            super(appContext);
-
-            DefaultApplication.addApplicationEventListener(this);
-
-            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
-                public void reload() {
-                    try {
-                        log.debug("Audioscrobbler");
-                    	updateData();
-                    } catch (Exception ex) {
-                        log.error("Could not download data", ex);
-                    }
-                }
-            }), 4);
-        }
 
         public void setAppContext(AppContext appContext) {
             super.setAppContext(appContext);
@@ -329,8 +312,20 @@ public class AudioScrobbler extends DefaultApplication {
             }
         }
 
-        protected void init(ArgumentList args) {
-            super.init(args);
+        public void initialize()
+        {
+            DefaultApplication.addApplicationEventListener(this);
+
+            Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
+                public void reload() {
+                    try {
+                        log.debug("Audioscrobbler");
+                    	updateData();
+                    } catch (Exception ex) {
+                        log.error("Could not download data", ex);
+                    }
+                }
+            }), 4);            
 
             AudioScrobblerConfiguration audioScrobblerConfiguration = (AudioScrobblerConfiguration) getAppContext()
                     .getConfiguration();

@@ -216,6 +216,36 @@ public class ScrollText extends BView {
             screen.setPainting(true);
         }
     }
+    
+    public void setVisible(boolean visible)
+    {
+    	super.setVisible(visible);
+		if (visible)
+    	{
+    		BHighlights h = getHighlights();
+    		BHighlight pageup = h.get(H_PAGEUP);
+            BHighlight pagedown = h.get(H_PAGEDOWN);
+            if (pageup != null && pagedown != null) {
+            	pageup.setVisible((mTop > 0) ? H_VIS_TRUE : H_VIS_FALSE);
+                pagedown.setVisible((mTop + mVisibleRows < mTextLineViews.size()) ? H_VIS_TRUE : H_VIS_FALSE);
+                h.refresh();
+                flush();
+            }
+    	}
+		else
+    	{
+    		BHighlights h = getHighlights();
+    		BHighlight pageup = h.get(H_PAGEUP);
+            BHighlight pagedown = h.get(H_PAGEDOWN);
+            if (pageup != null && pagedown != null) {
+            	pageup.setVisible(H_VIS_FALSE);
+                pagedown.setVisible(H_VIS_FALSE);
+                h.refresh();
+                flush();
+            }
+    	}			
+			
+    }
 
     public boolean handleKeyPress(int code, long rawcode) {
         final int pagesize = mVisibleRows - 1;

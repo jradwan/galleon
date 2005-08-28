@@ -304,9 +304,25 @@ public class ToGo {
             if (showing != null) {
                 Element element = showing.element("element");
                 if (element != null) {
+                	Element node = element.element("partCount");
+                    if (node != null)
+                    	try
+                    {
+                        video.setPartCount(new Integer(node.getText()));
+                    } catch (Exception ex) {
+                        log.error("Could not set part count", ex);
+                    }
+                    node = element.element("partIndex");
+                    if (node != null)
+                    	try
+                    {
+                        video.setPartIndex(new Integer(node.getText()));
+                    } catch (Exception ex) {
+                        log.error("Could not set part index", ex);
+                    }
                     Element program = element.element("program");
                     if (program != null) {
-                        Element node = program.element("vActor");
+                        node = program.element("vActor");
                         if (node != null)
                             video.setActors(getElements(node));
                         node = program.element("vAdvisory");
@@ -320,12 +336,15 @@ public class ToGo {
                             video.setChoreographers(getElements(node));
                         node = program.element("colorCode");
                         if (node != null)
-                            try
+                        {
+                        	video.setColor(node.getText());
+                        	try
                             {
                                 video.setColorCode(Integer.parseInt(node.attribute("value").getText()));
-                            } catch (NumberFormatException ex) {
+                            } catch (Exception ex) {
                                 log.error("Could not set color code", ex);
                             }
+                        }
                         node = program.element("description");
                         if (node != null)
                             video.setDescription(node.getTextTrim());
@@ -337,7 +356,7 @@ public class ToGo {
                             try
                             {
                                 video.setEpisodeNumber(Integer.parseInt(node.getTextTrim()));
-                            } catch (NumberFormatException ex) {
+                            } catch (Exception ex) {
                                 log.error("Could not episode number", ex);
                             }
                         node = program.element("episodeTitle");
@@ -382,7 +401,15 @@ public class ToGo {
 
                         node = program.element("showType");
                         if (node != null)
+                        {
                             video.setShowType(node.getTextTrim());
+                            try
+                            {
+                                video.setShowTypeValue(new Integer(node.attribute("value").getText()));
+                            } catch (Exception ex) {
+                                log.error("Could not set showtype value", ex);
+                            }
+                        }
                         node = program.element("title");
                         if (node != null)
                             video.setTitle(node.getTextTrim());
@@ -392,12 +419,12 @@ public class ToGo {
                     }
                     Element channel = element.element("channel");
                     if (channel != null) {
-                        Element node = channel.element("displayMajorNumber");
+                        node = channel.element("displayMajorNumber");
                         if (node != null)
                             try
                             {
                                 video.setChannelMajorNumber(Integer.parseInt(node.getTextTrim()));
-                            } catch (NumberFormatException ex) {
+                            } catch (Exception ex) {
                                 log.error("Could not set channel major number", ex);
                             }
                         node = channel.element("displayMinorNumber");
@@ -405,7 +432,7 @@ public class ToGo {
                             try
                             {
                                 video.setChannelMinorNumber(Integer.parseInt(node.getTextTrim()));
-                            } catch (NumberFormatException ex) {
+                            } catch (Exception ex) {
                                 log.error("Could not set channel minor number", ex);
                             }
                         node = channel.element("callsign");
@@ -414,7 +441,15 @@ public class ToGo {
                     }
                     Element rating = element.element("tvRating");
                     if (rating!= null)
+                    {
                         video.setRating(rating.getTextTrim());
+                        try
+                        {
+                            video.setRatingValue(new Integer(rating.attribute("value").getText()));
+                        } catch (Exception ex) {
+                            log.error("Could not set rating value", ex);
+                        }
+                    }
                 }
             }
             Element node = root.element("vBookmark");
@@ -435,7 +470,15 @@ public class ToGo {
             }            
             Element quality = root.element("recordingQuality");
             if (quality != null)
+            {
                 video.setRecordingQuality(quality.getTextTrim());
+                try
+                {
+                    video.setRecordingQualityValue(new Integer(quality.attribute("value").getText()));
+                } catch (Exception ex) {
+                    log.error("Could not set rating value", ex);
+                }
+            }
 
             Element time = root.element("startTime");
             if (time != null) {
@@ -564,6 +607,7 @@ public class ToGo {
                         }
                         last = System.currentTimeMillis();
                     }
+                    wait(100);
                 }
                 if (cancelDownload.cancel()) {
                 	channel.close();
@@ -575,7 +619,7 @@ public class ToGo {
             if (diff != 0)
                 log.info("Download rate=" + (total / 1024) / diff + " KBps");
             try {
-                video.setPath(file.getAbsolutePath());
+                video.setPath(file.getCanonicalPath());
                 VideoManager.updateVideo(video);
             } catch (HibernateException ex) {
                 log.error("Video update failed", ex);

@@ -26,8 +26,6 @@ import com.tivo.hme.sdk.View;
 public class ScreenSaver extends Thread {
     public ScreenSaver(DefaultScreen defaultScreen) {
         mDefaultScreen = defaultScreen;
-        
-        ((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(true);
     }
 
     public void run() {
@@ -35,7 +33,8 @@ public class ScreenSaver extends Thread {
             try {
                 sleep(1000 * 5 * 60);
                 synchronized (this) {
-                    if (mShades == null) {
+                	((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(true);
+                	if (mShades == null) {
                         Resource resource = mDefaultScreen.getResource("*30000");
                         mShades = new View(mDefaultScreen, 0, 0, mDefaultScreen.getWidth(), mDefaultScreen.getHeight());
                         mShades.setResource(Color.BLACK);
@@ -51,6 +50,8 @@ public class ScreenSaver extends Thread {
                 break;
             }
         }
+    	if (mDefaultScreen.getApp().getContext()!=null)
+    		((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(false);
     }
 
     public void interrupt() {

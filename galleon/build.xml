@@ -919,13 +919,10 @@
     <target name="package-lib-win32">
         <copy file="./lib/win32/jshortcut.dll" tofile="${build}/lib/jshortcut.dll" />
         <copy file="./lib/win32/Wrapper.dll" tofile="${build}/lib/Wrapper.dll" />
-        <!--copy file="./lib/jawin.jar" tofile="${build}/lib/jawin.jar" />
+        <copy file="./lib/jawin.jar" tofile="${build}/lib/jawin.jar" />
         <copy file="./lib/win32/jawin.dll" tofile="${build}/lib/jawin.dll" />
         <copy file="./lib/win32/TiVoBeacon.exe" tofile="${build}/lib/TiVoBeacon.exe" />
         <copy file="./lib/win32/TiVoBeaconApi.dll" tofile="${build}/lib/TiVoBeaconApi.dll" />
-        <copy file="./lib/imageloader.jar" tofile="${build}/lib/imageloader.jar" />
-        <copy file="./lib/win32/image_decode.dll" tofile="${build}/lib/image_decode.dll" />
-        <copy file="./lib/win32/silib.dll" tofile="${build}/lib/silib.dll" /-->
     </target>
 
     <target name="package-bin-win32">
@@ -935,7 +932,7 @@
         <copy file="./bin/win32/uninstall.cmd" tofile="${build}/bin/uninstall.cmd" />
         <copy file="./bin/win32/run.cmd" tofile="${build}/bin/run.cmd" />
         <copy file="./bin/win32/gui.cmd" tofile="${build}/bin/gui.cmd" />        
-        <copy file="./bin/win32/ffmpeg.exe" tofile="${build}/bin/ffmpeg.exe" />                
+        <!--copy file="./bin/win32/ffmpeg.exe" tofile="${build}/bin/ffmpeg.exe" /-->                
     </target>
 
     <target name="package-misc-win32">
@@ -1074,7 +1071,7 @@
         <echo>Copying images</echo>
         <mkdir dir="${build}/media/images" />
         <copy todir="${build}/media/images">
-            <fileset dir="./media/images" includes="**/*.mp3,**/*.jpg,**/*.png,**/*.gif,**/*.ico" />
+            <fileset dir="./media/images" includes="**/*.mp3,**/*.jpg,**/*.png,**/*.gif,**/*.ico,**/*.mpg" />
         </copy>        
         
         <echo>Copying fonts</echo>
@@ -1092,6 +1089,7 @@
         <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
         
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />                                        
+        <copy file="./skins/tivoskin.xml" tofile="${build}/skins/tivoskin.xml" />
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                                                
 
     </target>

@@ -202,6 +202,7 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         log.debug("save()");
 
         ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) mAppConfiguration;
+        boolean first = shoutcastConfiguration.getGenres().size() == 0;
         shoutcastConfiguration.setName(mTitleField.getText());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
@@ -210,6 +211,11 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
             newItems.add((String) rows.get(0));
         }
         shoutcastConfiguration.setGenres(newItems);
+        
+        if (first)
+            JOptionPane.showMessageDialog(this,
+                            "Shoutcast.com limits the number of stations that can be retrieved per day. Therefore, as explained in the FAQ,\nit might take some time for all your selected genres to be filled with stations.",
+                            "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JTextComponent mTitleField;

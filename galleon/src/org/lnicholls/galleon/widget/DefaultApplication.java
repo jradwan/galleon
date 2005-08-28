@@ -433,7 +433,7 @@ public class DefaultApplication extends BApplication {
             if (mStreamResource != null) 
             {
             	mPlayerState = FORWARD;
-                if (mSpeedIndex < 6)
+                if (mSpeedIndex < 6 && mSpeedIndex >= 3)
                 {
                     mSpeedIndex++;
                     if (mSpeedIndex == 4) {
@@ -449,7 +449,6 @@ public class DefaultApplication extends BApplication {
                 }
                 else
                 {
-                    // if currently going as fast as we can, drop back to play, to mimic video FF behavior
                 	mPlayerState = PLAY;
                 	mSpeedIndex = 3;
                     mDefaultApplication.play("slowdown1.snd");
@@ -463,7 +462,7 @@ public class DefaultApplication extends BApplication {
             if (mStreamResource != null) 
             {
             	mPlayerState = REWIND;
-            	if (mSpeedIndex > 0)
+            	if (mSpeedIndex > 0 && mSpeedIndex <= 3)
                 {
                     mSpeedIndex--;
                     if (mSpeedIndex == 2) {
@@ -478,7 +477,6 @@ public class DefaultApplication extends BApplication {
                 }
                 else
                 {
-                    // if currently going as fast as we can, drop back to play, to mimic video REW behavior
                 	mPlayerState = PLAY;
                 	mSpeedIndex = 3;
                     mDefaultApplication.play("slowdown1.snd");
@@ -806,6 +804,9 @@ public class DefaultApplication extends BApplication {
     
     public boolean handleIdle( boolean isIdle )
     {
+    	System.out.println("handleIdle="+isIdle);
+    	System.out.println("handleIdle="+Server.getServer().getServerConfiguration().isHandleTimeout());
+    	System.out.println("handleIdle="+mHandleTimeout);
     	if (isIdle && Server.getServer().getServerConfiguration().isHandleTimeout() && mHandleTimeout)
     	{
     		acknowledgeIdle(true);	

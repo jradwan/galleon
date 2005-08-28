@@ -59,6 +59,8 @@ import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
+import com.tivo.hme.sdk.util.Mp3Helper;
+
 public final class Mp3File {
     private static final Logger log = Logger.getLogger(Mp3File.class.getName());
 
@@ -457,7 +459,8 @@ public final class Mp3File {
                 try {
                     InputStream frames = (InputStream) properties.get("mp3.id3tag.v2");
                     parseID3v2Frames(frames, audio);
-                } catch (Exception e1) {
+                } catch (Exception ex) {
+                	Tools.logException(Mp3File.class, ex, "Cannot parse ID3v2: "+audio.getPath());
                 }
             }
 
@@ -785,19 +788,14 @@ public final class Mp3File {
                 }
             }
         } catch (Throwable ex) {
-            Tools.logException(Mp3File.class, ex, "Cannot parse ID3v2");
+            Tools.logException(Mp3File.class, ex, "Cannot parse ID3v2: "+audio.getPath());
         }
     }
 
-    protected static String parseText(byte[] bframes, int offset, int size, int skip) {
+    private static String parseText(byte[] bframes, int offset, int size, int skip) throws Exception {
         String value = null;
-        try {
-            String[] ENC_TYPES = { "ISO-8859-1", "UTF16", "UTF-16BE", "UTF-8" };
-            value = new String(bframes, offset + skip, size - skip, ENC_TYPES[bframes[offset]]);
-        } catch (Throwable ex) { //UnsupportedEncodingException
-            Tools.logException(Mp3File.class, ex, "ID3v2 Encoding error");
-        }
-        return value;
+        String[] ENC_TYPES = { "ISO-8859-1", "UTF16", "UTF-16BE", "UTF-8" };
+        return new String(bframes, offset + skip, size - skip, ENC_TYPES[bframes[offset]]);
     }
 
     private static void createCover(InputStream input, Audio audio, String mimeType) {
@@ -874,7 +872,7 @@ public final class Mp3File {
         // 2. Amazon image lookup.
         // 3. File system image file.
 
-        if (audio.getCover() != null) {
+        if (audio.getCover() != null && !audio.getAlbum().equals(DEFAULT_ALBUM) && !audio.getArtist().equals(DEFAULT_ARTIST)) {
             try {
                 java.awt.Image image = ThumbnailManager.findImageById(audio.getCover());
                 if (image != null)
@@ -884,13 +882,15 @@ public final class Mp3File {
             }
         }
 
-        try {
-            java.awt.Image image = ThumbnailManager.findImageByKey(Mp3File.getKey(audio));
-            if (image != null)
-                return image;
-        } catch (Exception ex) {
-            Tools.logException(Mp3File.class, ex, "Cannot create cover from key: " + audio.getPath());
-        }
+        if (!audio.getAlbum().equals(DEFAULT_ALBUM) && !audio.getArtist().equals(DEFAULT_ARTIST)) {
+	        try {
+	            java.awt.Image image = ThumbnailManager.findImageByKey(Mp3File.getKey(audio));
+	            if (image != null)
+	                return image;
+	        } catch (Exception ex) {
+	            Tools.logException(Mp3File.class, ex, "Cannot create cover from key: " + audio.getPath());
+	        }
+       	}
 
         if (useAmazon) {
             if (!audio.getAlbum().equals(DEFAULT_ALBUM) && !audio.getArtist().equals(DEFAULT_ARTIST)) {
@@ -972,4 +972,14 @@ public final class Mp3File {
         }
         return Mp3File.class.getResourceAsStream("/couldnotconnect.mp3");
     }
+    
+    /* 
+    InputStream tmp = getStream(baseUri);
+    try {
+        Mp3Helper mp3Helper = new Mp3Helper(tmp, tmp.available());
+        http.addHeader(IHmeConstants.TIVO_DURATION, "" + mp3Helper.getMp3Duration());
+    } finally {
+        tmp.close();
+    }
+    */
 }

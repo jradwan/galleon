@@ -899,201 +899,185 @@ public class Movies extends DefaultApplication {
 									+ moviesConfiguration.getZip() + "&q=movie:+theaters+today");
 
 							NodeFilter filter = null;
-							NodeList list = new NodeList();
-
-							filter = new NodeClassFilter(TableTag.class);
-							list = parser.extractAllNodesThatMatch(filter);
-							if (list != null && list.size() > 0) {
-								// System.out.println("tables="+list.size());
-								for (int i = 8; i < list.size(); i++) {
-									TableTag table = (TableTag) list.elementAt(i);
-									filter = new NodeClassFilter(TableColumn.class);
-									NodeList tdList = new NodeList();
-									table.collectInto(tdList, filter);
-									// System.out.println("columns="+tdList.size());
-									Theater theater = null;
-									for (int j = 0; j < tdList.size(); j++) {
-										TableColumn td = (TableColumn) tdList.elementAt(j);
-										boolean found = false;
-										filter = new NodeClassFilter(LinkTag.class);
-										NodeList linkList = new NodeList();
-										td.collectInto(linkList, filter);
-										// System.out.println("links="+linkList.size());
-										for (int k = 0; k < linkList.size(); k++) {
-											LinkTag linkTag = (LinkTag) linkList.elementAt(k);
-											if (linkTag.getLink().indexOf(
-													"http://www.movietickets.com/house_detail.asp") != -1) {
-												theater = new Theater();
-												theater.setName(clean(linkTag.getLinkText()));
-
-												int position = td.findPositionOf(linkTag);
-												for (int l = position + 1; l < td.getChildCount(); l++) {
-													Node value = td.childAt(l);
-													if (!(value instanceof Tag)) {
-														String address = clean(value.getText());
-														String REGEX = "(.*)- \\((.*)\\)([^,]*) -$";
-														Pattern p = Pattern.compile(REGEX);
-														Matcher m = p.matcher(address);
-														if (m.find() && m.groupCount() == 3) {
-															theater.setAddress(m.group(1).trim());
-															theater.setTelephone("(" + m.group(2).trim() + ") "
-																	+ m.group(3).trim());
-															break;
-														}
-													}
-												}
-												theater = createTheater(theater);
-												found = true;
-												if (!currentTheaters.containsKey(theater.getName()))
-													currentTheaters.put(theater.getName(), theater);
-												break;
-											}
-										}
-										if (!found) {
-											if (td.getAttribute("colspan") != null
-													&& td.getAttribute("colspan").equals("4")
-													&& td.getAttribute("width") == null) {
-												boolean foundName = false;
-												for (int k = 0; k < td.getChildCount(); k++) {
-													Node value = td.childAt(k);
-													if (!(value instanceof Tag)) {
-														if (!foundName) {
-															theater = new Theater();
-															theater.setName(clean(value.getText()));
-															foundName = true;
-														} else {
-															String address = clean(value.getText());
-															String REGEX = "(.*)- \\((.*)\\)([^,]*) -$";
-															Pattern p = Pattern.compile(REGEX);
-															Matcher m = p.matcher(address);
-															if (m.find() && m.groupCount() == 3) {
-																theater.setAddress(m.group(1).trim());
-																theater.setTelephone("(" + m.group(2).trim() + ") "
-																		+ m.group(3).trim());
-																break;
-															}
-														}
-													}
-												}
-
-												theater = createTheater(theater);
-												found = true;
-												if (!currentTheaters.containsKey(theater.getName()))
-													currentTheaters.put(theater.getName(), theater);
-											}
-
-											ArrayList showtimes = new ArrayList();
-											String title = null;
-											String imdb = null;
-											String genre = null;
-											if (!found && theater != null) {
-												if (td.toPlainTextString().replaceAll("&nbsp;", "").trim().length() > 0) {
-													for (int k = 0; k < linkList.size(); k++) {
-														LinkTag linkTag = (LinkTag) linkList.elementAt(k);
-														if (linkTag.getLink().indexOf("/search") != -1) {
-															title = clean(linkTag.getLinkText()); // title
-
-															int position = td.findPositionOf(linkTag);
-															for (int l = position + 1; l < td.getChildCount(); l++) {
-																Node value = td.childAt(l);
-																if (!(value instanceof Tag)) {
-																	String text = value.getText().replaceAll("&nbsp;",
-																			"").trim(); // 2hr&nbsp;20min
-																	// -
-																	// Action/Adventure/SciFi/Fantasy
-																	// -
-																	String REGEX = "([^-]*)-(.*)-";
-																	Pattern p = Pattern.compile(REGEX);
-																	Matcher m = p.matcher(text);
-																	if (m.find() && m.groupCount() == 2) {
-																		// System.out.println(m.group(1).trim());
-																		// //
-																		// length
-																		genre = clean(m.group(2).trim());
+					           NodeList list = new NodeList ();
+					           
+					           Theater theater = null;           
+					           
+					           filter = new NodeClassFilter (TableTag.class);           
+					           list = parser.extractAllNodesThatMatch (filter);
+					           if (list!=null && list.size()>0)
+					           {
+					        	   //System.out.println("tables="+list.size());
+					        	   for (int i = 7; i < list.size (); i++)
+					               {
+					        		   TableTag table = (TableTag)list.elementAt (i);
+					        		   filter = new NodeClassFilter (TableColumn.class);
+					    	           NodeList tdList = new NodeList();
+					    	           table.collectInto(tdList, filter);
+					    	           //System.out.println("columns="+tdList.size());
+					    	           for (int j = 0; j < tdList.size (); j++)
+							           {
+							        	   TableColumn td = (TableColumn)tdList.elementAt (j);
+							        	   filter = new NodeClassFilter (LinkTag.class);
+							        	   NodeList linkList = new NodeList();
+						    	           td.collectInto(linkList, filter);
+						    	           String title = null;
+						    	           String duration = null;
+						    	           String imdb = null;
+						    	           String genre = null;
+						    	           String rating = null;
+						    	           String times = null;
+						    	           
+						    	           if (td.getAttribute("colspan")!=null && td.getAttribute("colspan").equals("6"))
+							        	   {
+							    	           //System.out.println("links="+linkList.size());
+									           for (int k = 0; k < linkList.size (); k++)
+									           {
+									               LinkTag linkTag = (LinkTag)linkList.elementAt (k);
+									               if (linkTag.getLink().indexOf("http://www.google.com/movies")!=-1)
+									               {
+									            	   theater = new Theater();
+													   theater.setName(clean(linkTag.getLinkText()));
+									            	   
+									            	   int position = td.findPositionOf(linkTag);
+									        		   for (int l=position+1;l<td.getChildCount();l++)
+									        		   {
+									        			   Node value = td.childAt(l);
+									        			   if (!(value instanceof Tag))
+									        			   {
+								        					   String address = value.getText().replaceAll("&nbsp;"," ").replaceAll("&amp;","&").replaceAll("&#39;","'").trim();
+								        					   String REGEX = "(.*)- \\((.*)\\)([^,]*) -$";
+												               Pattern p = Pattern.compile(REGEX);
+											                   Matcher m = p.matcher(address);
+											                   if (m.find() && m.groupCount()==3) {
+											                	    theater.setAddress(m.group(1).trim());
+																	theater.setTelephone("(" + m.group(2).trim() + ") "
+																			+ m.group(3).trim());
+											                       break;
+											                   }	   
+									        			   }
+									        		   }
+									        		   theater = createTheater(theater);
+													   if (!currentTheaters.containsKey(theater.getName()))
+													   {
+															currentTheaters.put(theater.getName(), theater);
+													   }
+									            	   break;
+									               }
+									           }
+							        	   }
+							        	   else
+								           {
+								        		   if (td.toPlainTextString().replaceAll("&nbsp;","").trim().length()>0 && td.getAttribute("width")!=null && td.getAttribute("width").equals("45%"))
+								        		   {
+								        			   for (int k = 0; k < linkList.size (); k++)
+											           {
+											               LinkTag linkTag = (LinkTag)linkList.elementAt (k);
+									        			   if (k==0)
+										        		   {
+										        			   title = Tools.unEscapeXMLChars(linkTag.getLinkText());  // title
+										        			   
+										        			   int position = td.findPositionOf(linkTag);
+											        		   for (int l=position+1;l<td.getChildCount();l++)
+											        		   {
+											        			   Node value = td.childAt(l);
+											        			   if (!(value instanceof Tag))
+											        			   {
+											        				   String text = value.getText().replaceAll("&nbsp;","").trim();  //2hr&nbsp;20min - Action/Adventure/SciFi/Fantasy -
+											        				   String REGEX = "([^-]*) - Rated(.*) - (.*) -"; //1hr56min - RatedR - Comedy -
+														               Pattern p = Pattern.compile(REGEX);
+													                   Matcher m = p.matcher(text);
+													                   if (m.find() && m.groupCount()==3) {
+													                	   duration = m.group(1).trim();  // duration
+													                	   rating = m.group(2).trim();  // rating
+													                	   genre = m.group(3).trim();  // genre
+													                	   break;
+													                   }	   
+											        				   
+											        				   break;
+											        			   }
+											        		   }
+										        		   }
+									        			   else
+								        				   if (linkTag.getLinkText().toLowerCase().trim().indexOf("imdb")!=-1)
+										        		   {
+								        					   String REGEX = ".*/title/tt(.*)/";
+												               Pattern p = Pattern.compile(REGEX);
+											                   Matcher m = p.matcher(linkTag.getLink());
+											                   if (m.find()) {
+											                	   imdb = m.group(1).trim();  // imdb
+											                   }	   
+								        					   
+											                   int position = td.findPositionOf(linkTag);
+											        		   for (int l=position+1;l<td.getChildCount();l++)
+											        		   {
+											        			   Node value = td.childAt(l);
+											        			   if (value.toPlainTextString().trim().length()>0)
+											        			   {
+											        				   if (times == null)
+											        					   times = value.toPlainTextString().replaceAll("&nbsp;",",").trim();   // times
+											        				   else 
+											        					   times = times + value.toPlainTextString().replaceAll("&nbsp;",",").trim();   // times
+											        			   }
+											        		   }
+											        		   
+											        		   //System.out.println("title="+title);
+											        		   //System.out.println("duration="+duration);
+											        		   //System.out.println("imdb="+imdb);
+											        		   //System.out.println("genre="+genre);
+											        		   //System.out.println("rating="+rating);
+											        		   
+											        		   try {
+																	Movie movie = null;
+																	List movies = MovieManager.findByTitle(title);
+																	if (movies.size() > 0) {
+																		movie = (Movie) movies.get(0);
+																	} else {
+																		movie = new Movie();
+																		MovieFile.defaultProperties(movie);
+																		movie.setTitle(title);
+																		movie.setGenre(genre);
+																		movie.setRated(rating);
+																		movie.setIMDB(imdb);
+																		IMDB.getMovie(movie);
+																		String poster = Amazon.getMoviePoster(movie.getTitle());
+																		if (poster != null) {
+																			movie.setThumbUrl(poster);
+																			Tools.cacheImage(new URL(poster), movie.getTitle());
+																		}
+																		MovieManager.createMovie(movie);
 																	}
-																	break;
+
+																	if (movie != null) {
+																		List currentShowtimes = theater.getShowtimes();
+																		if (currentShowtimes == null) {
+																			currentShowtimes = new ArrayList();
+																			theater.setShowtimes(currentShowtimes);
+																		}
+																		TheaterShowtimes theaterShowtimes = new TheaterShowtimes();
+																	    theaterShowtimes.setTimes(times);
+																		theaterShowtimes.setMovie(movie);
+																		theaterShowtimes.setDay(new Date());
+																		currentShowtimes.add(theaterShowtimes);
+																		if (!currentMovies.containsKey(title))
+																		{
+																			currentMovies.put(movie.getTitle(), movie);
+																		}
+																		TheaterManager.updateTheater(theater);
+																	}
+																} catch (Exception ex) {
+																	log.error("Could not create theater: " + theater.getName(), ex);
 																}
-															}
-														} else if (linkTag.getLinkText().toLowerCase().trim().indexOf(
-																"imdb") != -1) {
-															String REGEX = ".*/title/tt(.*)/";
-															Pattern p = Pattern.compile(REGEX);
-															Matcher m = p.matcher(linkTag.getLink());
-															if (m.find()) {
-																imdb = m.group(1).trim();
-															}
-
-															String times = null;
-															int position = td.findPositionOf(linkTag);
-															for (int l = position + 1; l < td.getChildCount(); l++) {
-																Node value = td.childAt(l);
-																if (value.toPlainTextString().trim().length() > 0) {
-																	if (times == null)
-																		times = value.toPlainTextString().replaceAll(
-																				"&nbsp;", ",").trim(); // times
-																	else
-																		times = times
-																				+ value.toPlainTextString().replaceAll(
-																						"&nbsp;", ",").trim(); // times
-																}
-															}
-															TheaterShowtimes theaterShowtimes = new TheaterShowtimes();
-															theaterShowtimes.setTimes(times);
-															showtimes.add(theaterShowtimes);
-															break;
-														}
-													}
-												}
-
-												if (imdb != null) {
-													try {
-														Movie movie = null;
-														List movies = MovieManager.findByTitle(title);
-														if (movies.size() > 0) {
-															movie = (Movie) movies.get(0);
-														} else {
-															movie = new Movie();
-															MovieFile.defaultProperties(movie);
-															movie.setTitle(title);
-															movie.setGenre(genre);
-															movie.setIMDB(imdb);
-															IMDB.getMovie(movie);
-															String poster = Amazon.getMoviePoster(movie.getTitle());
-															if (poster != null) {
-																movie.setThumbUrl(poster);
-																Tools.cacheImage(new URL(poster), movie.getTitle());
-															}
-															MovieManager.createMovie(movie);
-														}
-
-														if (movie != null) {
-															List currentShowtimes = theater.getShowtimes();
-															if (currentShowtimes == null) {
-																currentShowtimes = new ArrayList();
-																theater.setShowtimes(currentShowtimes);
-															}
-															Iterator iterator = showtimes.iterator();
-															while (iterator.hasNext()) {
-																TheaterShowtimes theaterShowtimes = (TheaterShowtimes) iterator
-																		.next();
-																theaterShowtimes.setMovie(movie);
-																theaterShowtimes.setDay(new Date());
-																currentShowtimes.add(theaterShowtimes);
-
-																if (!currentMovies.containsKey(movie.getTitle()))
-																	currentMovies.put(movie.getTitle(), movie);
-															}
-															TheaterManager.updateTheater(theater);
-														}
-													} catch (Exception ex) {
-														log.error("Could not create theater: " + theater.getName(), ex);
-													}
-												}
-											}
-										}
-									}
-								}
-							}
+											        		   
+											        		   break;
+										        		   }
+											           }
+								        		   }
+								           }
+							           }
+					               }
+					                
+					           }
 							parser = null;
 						} catch (Exception ex) {
 							Tools.logException(Movies.class, ex);
@@ -1312,6 +1296,25 @@ public class Movies extends DefaultApplication {
 							} catch (Exception ex) {
 								Tools.logException(Movies.class, ex);
 							}
+						}
+						
+						// remove theaters with no movies
+						try {
+							List theaters = TheaterManager.listAll();
+
+							if (theaters != null && theaters.size() > 0) {
+								for (Iterator i = theaters.iterator(); i.hasNext(); /* Nothing */) {
+									Theater theater = (Theater) i.next();
+									
+									List showTimes = theater.getShowtimes(); 
+									if (showTimes == null || showTimes.size()==0)
+									{
+										TheaterManager.deleteTheater(theater);
+									}
+								}
+							}
+						} catch (Exception ex) {
+							Tools.logException(Movies.class, ex);
 						}
 					} catch (Exception ex) {
 						log.error("Could not download theaters", ex);

@@ -34,6 +34,8 @@ set classpath=%classpath%;..\lib\activation.jar
 set classpath=%classpath%;..\lib\mail.jar
 set classpath=%classpath%;..\lib\htmlparser.jar
 set classpath=%classpath%;..\lib\mediamanager.jar
+set classpath=%classpath%;..\lib\jawin.jar
+set classpath=%classpath%;..\lib\MHS.jar
 set option=
 if exist "%JAVA_HOME%/bin/server" set option=-server
 java %option% -Xms64m -Xmx64m org.lnicholls.galleon.server.Server

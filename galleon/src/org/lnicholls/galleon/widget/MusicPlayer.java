@@ -61,7 +61,8 @@ public class MusicPlayer extends DefaultPlayer {
         final Audio audio = currentAudio();
         if (audio != null) {
             mMusicInfo.setAudio(audio);
-            playPlayer();
+            if (!mPlaying)
+            	playPlayer();
 
             mPlaying = true;
         }
@@ -159,7 +160,7 @@ public class MusicPlayer extends DefaultPlayer {
     }
 
     public void playPlayer() {
-        try {
+    	try {
             setPainting(false);
             mPlayBar.play();
         } finally {
@@ -168,7 +169,7 @@ public class MusicPlayer extends DefaultPlayer {
     }
     
     public void rewindPlayer() {
-        try {
+    	try {
             setPainting(false);
             mPlayBar.rewind();
         } finally {
@@ -257,9 +258,11 @@ public class MusicPlayer extends DefaultPlayer {
     public boolean handleAction(BView view, Object action) {
         Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
         if (action.equals("ready")) {
-            if (mPlaying) {
+            /*
+        	if (mPlaying) {
                 playPlayer();
             }
+            */
             try {
                 Audio audio = null;
                 if (nameFile.isFile()) {
@@ -275,7 +278,9 @@ public class MusicPlayer extends DefaultPlayer {
             }
         } else if (action.equals("playing") || action.equals("seeking")) {
             if (mPlaying) {
-                if (mApplication.getPlayer().getTotal() != 0) {
+            	if (action.equals("playing"))
+            			playPlayer();
+            	if (mApplication.getPlayer().getTotal() != 0) {
                     try {
                         Audio audio = null;
                         if (nameFile.isFile())

@@ -31,6 +31,8 @@ import net.sf.hibernate.Transaction;
 import net.sf.hibernate.cfg.Configuration;
 import net.sf.hibernate.tool.hbm2ddl.SchemaExport;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class AudioManager {
 
     private static Logger log = Logger.getLogger(AudioManager.class.getName());
@@ -68,6 +70,8 @@ public class AudioManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
+            audio.setComments(Tools.trim(audio.getComments(),4096));
+            audio.setLyrics(Tools.trim(audio.getLyrics(),4096));
             session.save(audio);
             tx.commit();
         } catch (HibernateException he) {
@@ -86,6 +90,8 @@ public class AudioManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
+            audio.setComments(Tools.trim(audio.getComments(),4096));
+            audio.setLyrics(Tools.trim(audio.getLyrics(),4096));
             session.update(audio);
             tx.commit();
         } catch (HibernateException he) {

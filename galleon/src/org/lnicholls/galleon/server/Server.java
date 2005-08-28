@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileFilter;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
@@ -56,8 +58,12 @@ import org.lnicholls.galleon.util.Configurator;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.data.*;
+import org.lnicholls.galleon.goback.*;
 import org.lnicholls.galleon.widget.ScrollText;
+
 import org.tanukisoftware.wrapper.WrapperManager;
+
+import com.tivo.hme.host.util.Config;
 
 /*
  * Main class. Called by service wrapper to initialise and start Galleon.
@@ -290,6 +296,49 @@ public class Server {
 			}
 
 			mRegistry.bind("serverControl", new ServerControlImpl());
+			
+			
+			mHMOPort = Tools.findAvailablePort(8081);
+			if (mHMOPort != 8081) {
+				log.info("Changed HMO port to " + mHMOPort);
+			}
+			
+			Config config = new Config();
+	        config.put("http.ports", ""+mHMOPort);
+	        mVideoServer = new VideoServer(config);
+			
+			// TiVo Beacon API
+            publishTiVoBeacon();
+
+            if (!mPublished) {
+                int port = Constants.TIVO_PORT;
+                while (true) {
+                    try {
+                        if (log.isDebugEnabled())
+                            log.debug("Using beacon port=" + port);
+                        mBroadcastThread = new BroadcastThread(this, port);
+                        mBroadcastThread.start();
+                        break;
+                    } catch (BindException ex) {
+                        Tools.logException(Server.class, ex);
+
+                        if (mBroadcastThread != null)
+                            mBroadcastThread.interrupt();
+
+                        mBroadcastThread = null;
+                        port = port + 1;
+                    }
+                }
+
+                log.info("Broadcast port=" + port);
+
+                mListenThread = new ListenThread(this);
+                mListenThread.start();
+
+                mConnectionThread = new ConnectionThread(this);
+                mConnectionThread.start();
+            }			
+			
 
 			System.out.println("Galleon is ready.");
 			mReady = true;
@@ -324,6 +373,29 @@ public class Server {
 			 */
 
 			mRegistry.unbind("serverControl");
+			
+			if (mTiVoBeacon != null) {
+                mTiVoBeacon.RevokeMediaServer(getPort());
+                mTiVoBeacon.Release();
+                mTiVoBeacon = null;
+            }
+
+            if (mConnectionThread != null) {
+                mConnectionThread.interrupt();
+                mConnectionThread = null;
+            }
+
+            if (mListenThread != null) {
+                mListenThread.interrupt();
+                mListenThread = null;
+            }
+
+            if (mBroadcastThread != null) {
+                mBroadcastThread.interrupt();
+                mBroadcastThread.sendPackets(true);
+
+                mBroadcastThread = null;
+            }			
 
 			if (mToGoThread != null) {
 				mToGoThread.interrupt();
@@ -334,11 +406,20 @@ public class Server {
 				mDownloadThread.interrupt();
 				mDownloadThread = null;
 			}
-
+			
+			if (mVideoServer != null) {
+				mVideoServer.drain();
+				mVideoServer = null;
+			}
+			
 			NetworkServerManager.shutdown();
 		} catch (Exception ex) {
 			mToGoThread = null;
 			mDownloadThread = null;
+			mBroadcastThread = null;
+            mListenThread = null;
+            mConnectionThread = null;
+            mTiVoBeacon = null;
 
 			System.runFinalization();
 			Tools.logException(Server.class, ex);
@@ -464,6 +545,11 @@ public class Server {
 			}
 		}
 		return mPort;
+	}
+	
+	public int getHMOPort()
+	{
+		return mHMOPort;
 	}
 
 	public void setName(String name) {
@@ -855,6 +941,75 @@ public class Server {
 		return mServerConfiguration.getMusicPlayerConfiguration();
 	}
 	
+    public BroadcastThread getBroadcastThread() {
+        return mBroadcastThread;
+    }
+
+    public ListenThread getListenThread() {
+        return mListenThread;
+    }
+
+    public ConnectionThread getConnectionThread() {
+        return mConnectionThread;
+    }
+
+    public void addTCM(TCM tcm) {
+        mTCMs.add(tcm);
+        if (!tcm.getBeacon().getIdentity().equals(Beacon.guid)
+                && mServerConfiguration.addTiVo(new TiVo(tcm.getBeacon().getMachine(), tcm.getAddress()
+                        .getHostAddress())))
+            save();
+    }
+
+    public void removeTCM(TCM tcm) {
+        mTCMs.remove(tcm);
+    }
+
+    public TCM getTCM(Beacon beacon) {
+        Iterator iterator = mTCMs.iterator();
+        while (iterator.hasNext()) {
+            TCM tcm = (TCM) iterator.next();
+            try {
+                if (tcm.getBeacon().getIdentity().equals(beacon.getIdentity()))
+                    return tcm;
+            } catch (Exception ex) {
+                Tools.logException(Server.class, ex);
+            }
+        }
+        return null;
+    }
+
+    public TCM getTCM(InetAddress address) {
+        Iterator iterator = mTCMs.iterator();
+        while (iterator.hasNext()) {
+            TCM tcm = (TCM) iterator.next();
+            if (tcm.getAddress().equals(address))
+                return tcm;
+        }
+        return null;
+    }
+
+    public Iterator getTCMIterator() {
+        return mTCMs.iterator();
+    }
+    
+    private void publishTiVoBeacon() {
+        // TiVo Beacon API
+        mPublished = false;
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            try {
+            	mTiVoBeacon = new TiVoBeacon(TiVoBeacon.CLSID);
+                mTiVoBeacon.PublishMediaServer(mHMOPort);
+                mPublished = true;
+                log.info("Using TiVo Beacon service");
+            } catch (Exception ex) {
+                Tools.logException(Server.class, ex);
+                mTiVoBeacon = null;
+                log.info("Could not find TiVo Beacon service");
+            }
+        }
+    }    
+	
 	public static void main(String args[]) {
 		mStartMain = true;
 		try
@@ -900,8 +1055,24 @@ public class Server {
 	private static boolean mReady;
 
 	private int mPort = -1;
+	
+	private int mHMOPort = -1;
 
 	private ArrayList mShortTermTasks;
 
 	private ArrayList mLongTermTasks;
+	
+	private BroadcastThread mBroadcastThread;
+
+    private TiVoBeacon mTiVoBeacon;
+
+    private ListenThread mListenThread;
+
+    private ConnectionThread mConnectionThread;
+    
+    private LinkedList mTCMs;
+    
+    private boolean mPublished;
+    
+    private VideoServer mVideoServer;
 }

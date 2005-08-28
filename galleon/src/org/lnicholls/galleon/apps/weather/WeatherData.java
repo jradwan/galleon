@@ -17,7 +17,7 @@ package org.lnicholls.galleon.apps.weather;
  */
 
 import java.io.Serializable;
-import java.io.StringReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;

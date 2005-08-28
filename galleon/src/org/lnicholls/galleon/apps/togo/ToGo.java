@@ -397,8 +397,15 @@ public class ToGo extends DefaultApplication {
                 mCalendar.set(GregorianCalendar.SECOND, 0);
 
                 dateText.setLabel("Date:");
-                dateText.setValue(mDateFormat.format(mCalendar.getTime()) + " - " + video.getChannelMajorNumber() + " "
-                        + video.getStation());
+                String channel = String.valueOf(video.getChannelMajorNumber());
+                if (channel.equals("0") && video.getChannel()!=null)
+                	channel = video.getChannel();
+                String value = mDateFormat.format(mCalendar.getTime());
+                if (!channel.equals("0"))
+                	value = value + " - " + channel;
+                if (video.getStation()!=null)
+                	value = value + " " + video.getStation();
+                dateText.setValue(value);
 
                 int duration = (int) Math.rint(video.getDuration() / 1000 / 60.0);
                 mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
@@ -413,12 +420,16 @@ public class ToGo extends DefaultApplication {
 
                 videoText.setLabel("Video:");
                 String txt = video.getRecordingQuality();
-                if (txt==null || txt.equalsIgnoreCase("good"))
+                if (txt==null || txt.length()==0 || txt.equalsIgnoreCase("good"))
                 	txt = "Basic";
                 videoText.setValue(txt);
 
                 genreText.setLabel("Genre:");
-                genreText.setValue(Tools.trim(video.getProgramGenre(), 40));
+                if (video.getProgramGenre()!=null && video.getProgramGenre().length()>0)
+                	value = Tools.trim(video.getProgramGenre(), 40);
+                else
+                	value = "Unknown";
+                genreText.setValue(value);
 
                 sizeText.setLabel("Size:");
                 sizeText.setValue(mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");

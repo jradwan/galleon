@@ -20,9 +20,87 @@ import org.lnicholls.galleon.database.Version;
 
 public interface Constants {
     
-    public static final Version CURRENT_VERSION = new Version(1, 3, 0, 0);
+    public static final Version CURRENT_VERSION = new Version(1, 4, 0, 0);
 
     public static String ENCODING = "UTF-8";
     
     public static String LOG_FILE = "log.txt";
+    
+    public static int TIVO_PORT = 2190;
+
+    public static String BROADCAST_ADDRESS = "255.255.255.255";
+
+    public static String NETWORK_MASK = "255.255.255.0";
+
+    public static int HIGH_FREQUENCY_PERIOD = 30 * 1000;
+
+    public static int HIGH_FREQUENCY_DELAY = 5 * 1000;
+
+    public static int LOW_FREQUENCY_DELAY = 60 * 1000;
+
+    public static String NAME_TIVOCONNECT = "tivoconnect";
+
+    public static String NAME_METHOD = "method";
+
+    public static String NAME_PLATFORM = "platform";
+
+    public static String NAME_MACHINE = "machine";
+
+    public static String NAME_IDENTIFY = "identity";
+
+    public static String NAME_SERVICES = "services";
+
+    public static String NAME_SWVERSION = "swversion";
+
+    public static String METHOD_BROADCAST = "broadcast";
+
+    public static String METHOD_CONNECTED = "connected";
+
+    public static String METHOD_UNICAST = "unicast";
+
+    public static String PLATFORM_TCD = "tcd";
+
+    public static String PLATFORM_PC = "pc";
+    
+    public static final String COMMAND = "Command";
+
+    public static final String COMMAND_QUERY_SERVER = "QueryServer";
+
+    public static final String COMMAND_RESET_SERVER = "ResetServer";
+
+    public static final String COMMAND_QUERY_CONTAINER = "QueryContainer";
+
+    public static final String COMMAND_QUERY_ITEM = "QueryItem";
+
+    public static final String COMMAND_QUERY_FORMATS = "QueryFormats";
+
+    public static final String URL_PREFIX = "/TiVoConnect";
+
+    public static final String PARAMETER_CONTAINER = "Container";
+
+    public static final String PARAMETER_RECURSE = "Recurse";
+
+    public static final String PARAMETER_SORT_ORDER = "SortOrder";
+
+    public static final String PARAMETER_SORT_TYPE = "Type";
+
+    public static final String PARAMETER_SORT_TITLE = "Title";
+
+    public static final String PARAMETER_SORT_CREATION_DATE = "CreationDate";
+
+    public static final String PARAMETER_SORT_LAST_CHANGE_DATE = "LastChangeDate";
+
+    public static final String PARAMETER_SORT_RANDOM = "Random";
+
+    public static final String PARAMETER_RANDOM_SEED = "RandomSeed";
+
+    public static final String PARAMETER_RANDOM_START = "RandomStart";
+
+    public static final String PARAMETER_ITEM_COUNT = "ItemCount";
+
+    public static final String PARAMETER_ANCHOR_ITEM = "AnchorItem";
+
+    public static final String PARAMETER_ANCHOR_OFFSET = "AnchorOffset";
+    
+
 }

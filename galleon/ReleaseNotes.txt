@@ -1,6 +1,17 @@
 Galleon
 -------
 
+Version 1.4.0:
+----------------------
+Fixed ToGo channel support
+Fixed timeout bug
+Support paging between weather screens
+Support TiVo ToGo Back
+Fixed fast forward, rewind bugs
+Fixed dymamic icons
+Fixed movie app bugs
+
+
 Version 1.3.0:
 ----------------------
 Fixed ToGo delete bug
@@ -213,7 +224,6 @@ Known issues:
 16. Only one weather app at a time is supported.
 17. Port 1527 needed for database.
 18. Rewind icon not correct on first press
-19. Dynamic icons broken
 
 
 How to install Galleon:

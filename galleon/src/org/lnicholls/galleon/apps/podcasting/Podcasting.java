@@ -2303,8 +2303,11 @@ public class Podcasting extends DefaultApplication {
 							else
 								player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
 										PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
-							player.updatePlayer();
-							player.setVisible(true);
+							if (player!=null)
+							{
+								player.updatePlayer();
+								player.setVisible(true);
+							}
 
 							if (podcast != null && track != null) {
 								try {
@@ -2318,8 +2321,11 @@ public class Podcasting extends DefaultApplication {
 							setPainting(true);
 						}
 					}
-					setFocusDefault(player);
-					setFocus(player);
+					if (player!=null)
+					{
+						setFocusDefault(player);
+						setFocus(player);
+					}
 					mBusy.setVisible(false);
 
 					MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()

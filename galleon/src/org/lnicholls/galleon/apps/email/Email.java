@@ -531,14 +531,10 @@ public class Email extends DefaultApplication {
             }), emailConfiguration.getReload());
         }
 
-        public InputStream fetchAsset(IHttpRequest req) {
-        	String uri = req.getURI();
-        	// TODO Broken
-        	/*
-        	if (uri.equals("icon.png")) {
-                EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
-
-                boolean hasMail = false;
+        public InputStream getStream(String uri) throws IOException {
+        	if (uri.toLowerCase().equals("icon.png")) {
+        		EmailConfiguration emailConfiguration = (EmailConfiguration) getAppContext().getConfiguration();
+        		boolean hasMail = false;
                 Iterator iterator = emailConfiguration.getAccounts().iterator();
                 while (iterator.hasNext()) {
                     Account account = (Account) iterator.next();
@@ -549,13 +545,11 @@ public class Email extends DefaultApplication {
                     }
                 }
 
-                if (hasMail) {
-                	super.handleHTTP(http, "alerticon.png");
-                    return;
-                }
+                if (hasMail)  
+        			return super.getStream("alerticon.png");
             }
-            */
-            return super.fetchAsset(req);
+
+            return super.getStream(uri);
         }
 
         private static Hashtable mAccounts = new Hashtable();

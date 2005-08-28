@@ -162,6 +162,18 @@ See the file "COPYING" for more details.
     <property name="audioBitRate" type="int"/>                            
     
     <property name="audioChannels" type="int"/>
+    
+    <property name="color" type="string" length="20"/>                    
+    
+    <property name="showTypeValue" type="int"/>                                
+    
+    <property name="ratingValue" type="int"/>                                    
+    
+    <property name="recordingQualityValue" type="int"/>                                        
+    
+    <property name="partCount" type="int"/>                                            
+    
+    <property name="partIndex" type="int"/>                                                
   </class>
 
 </hibernate-mapping>

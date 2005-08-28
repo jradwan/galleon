@@ -59,7 +59,7 @@ public class PodcastingConfiguration implements AppConfiguration {
 					.add(new NameValue("Podcast Alley Top 50", "http://www.podcastalley.com/PodcastAlleyTop50.opml"));
 			mDirectories.add(new NameValue("Podcast Alley 10 Newest",
 					"http://www.podcastalley.com/PodcastAlley10Newest.opml"));
-			mDirectories.add(new NameValue("PodcastDirectory.com Top 10", "http://www.podcastdirectory.com/popular/pmon.opml"));
+			mDirectories.add(new NameValue("PodcastDirectory.com", "http://www.podcastdirectory.com/popular/pmon.opml"));
 			mDirectories.add(new NameValue("DigitalPodcast.com", "http://www.digitalpodcast.com/opml/digitalpodcast.opml"));
 			mDirectories.add(new NameValue("Podfeeder.com", "http://podfeeder.com/allshows.opml"));
 			mDirectories.add(new NameValue("TechPodcasts.com", "http://www.techpodcasts.com/dir/tech.opml"));

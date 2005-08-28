@@ -213,6 +213,8 @@ public class FileFilters {
 	private static final String[] playlistSuffixes = { ".m3u", ".pls" };
 
 	private static final String[] linkSuffixes = { ".lnk" };
+	
+	private static final String[] videoSuffixes = { ".tivo", ".mpg", "mpeg" };
 
 	// Static instances of the various file filters for general use.
 	public static final SuffixFilter audioFilter = new SuffixFilter(
@@ -222,6 +224,9 @@ public class FileFilters {
 
 	public static final SuffixFilter playlistFilter = new SuffixFilter(
 			playlistSuffixes);
+	
+	public static final SuffixFilter videoFilter = new SuffixFilter(
+			videoSuffixes);
 
 	public static final SuffixFilter imageFilter = new SuffixFilter(
 			imageSuffixes);
@@ -245,6 +250,13 @@ public class FileFilters {
 		audioDirectoryFilter.addFilter(audioFilter);
 		audioDirectoryFilter.addFilter(playlistFilter);
 		audioDirectoryFilter.addFilter(directoryFilter);
+	}
+	
+	public static final PositiveFilter videoDirectoryFilter = new PositiveFilter();
+
+	static {
+		videoDirectoryFilter.addFilter(videoFilter);
+		videoDirectoryFilter.addFilter(directoryFilter);
 	}
 
 	public static final PositiveFilter audioFileDirectoryFilter = new PositiveFilter();

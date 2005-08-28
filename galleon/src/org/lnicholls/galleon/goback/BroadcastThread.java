@@ -123,7 +123,7 @@ public class BroadcastThread extends Thread implements Constants {
 
         try {
             // Send a unicast beacon to each known manually connected TCM
-            Beacon beacon = new Beacon(true, mServer.getPort(), clear);
+            Beacon beacon = new Beacon(true, mServer.getBeaconPort(), mServer.getHMOPort(), clear);
             byte[] buf = beacon.toString().getBytes();
             Iterator iterator = mServer.getTCMIterator();
             while (iterator.hasNext()) {
@@ -139,7 +139,7 @@ public class BroadcastThread extends Thread implements Constants {
 
             // Send a broadcast beacon
             InetAddress address = InetAddress.getByName(broadCastAddress);
-            beacon = new Beacon(false, mServer.getPort(), clear);
+            beacon = new Beacon(false, mServer.getBeaconPort(), mServer.getHMOPort(), clear);
             buf = beacon.toString().getBytes();
             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, mPort);
             mSocket.send(packet);
@@ -155,7 +155,7 @@ public class BroadcastThread extends Thread implements Constants {
 
     public void sendPacket(TCM tcm) {
         try {
-            Beacon beacon = new Beacon(true, mServer.getPort());
+            Beacon beacon = new Beacon(true, mServer.getBeaconPort(), mServer.getHMOPort());
             byte[] buf = beacon.toString().getBytes();
             DatagramPacket packet = new DatagramPacket(buf, buf.length, tcm.getAddress(), mPort);
             mSocket.send(packet);

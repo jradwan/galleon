@@ -1,6 +1,12 @@
 Galleon
 -------
 
+Version 1.4.1:
+----------------------
+Fix ToGoBack bug
+Fix ToGo connection bug
+
+
 Version 1.4.0:
 ----------------------
 Fixed ToGo channel support

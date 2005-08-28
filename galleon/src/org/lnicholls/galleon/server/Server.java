@@ -297,7 +297,7 @@ public class Server {
 
 			mRegistry.bind("serverControl", new ServerControlImpl());
 			
-			
+			mTCMs = new LinkedList();
 			mHMOPort = Tools.findAvailablePort(8081);
 			if (mHMOPort != 8081) {
 				log.info("Changed HMO port to " + mHMOPort);
@@ -311,12 +311,12 @@ public class Server {
             publishTiVoBeacon();
 
             if (!mPublished) {
-                int port = Constants.TIVO_PORT;
+                mBeaconPort = Constants.TIVO_PORT;
                 while (true) {
                     try {
                         if (log.isDebugEnabled())
-                            log.debug("Using beacon port=" + port);
-                        mBroadcastThread = new BroadcastThread(this, port);
+                            log.debug("Using beacon port=" + mBeaconPort);
+                        mBroadcastThread = new BroadcastThread(this, mBeaconPort);
                         mBroadcastThread.start();
                         break;
                     } catch (BindException ex) {
@@ -326,11 +326,11 @@ public class Server {
                             mBroadcastThread.interrupt();
 
                         mBroadcastThread = null;
-                        port = port + 1;
+                        mBeaconPort = mBeaconPort + 1;
                     }
                 }
 
-                log.info("Broadcast port=" + port);
+                log.info("Broadcast port=" + mBeaconPort);
 
                 mListenThread = new ListenThread(this);
                 mListenThread.start();
@@ -550,6 +550,11 @@ public class Server {
 	public int getHMOPort()
 	{
 		return mHMOPort;
+	}
+	
+	public int getBeaconPort()
+	{
+		return mBeaconPort;
 	}
 
 	public void setName(String name) {
@@ -1057,6 +1062,8 @@ public class Server {
 	private int mPort = -1;
 	
 	private int mHMOPort = -1;
+	
+	private int mBeaconPort = -1;
 
 	private ArrayList mShortTermTasks;
 

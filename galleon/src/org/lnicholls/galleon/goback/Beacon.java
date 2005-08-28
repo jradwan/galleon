@@ -16,6 +16,7 @@ package org.lnicholls.galleon.goback;
  * See the file "COPYING" for more details.
  */
 
+import java.net.InetAddress;
 import java.rmi.dgc.VMID;
 
 import org.apache.log4j.Logger;
@@ -68,29 +69,41 @@ public class Beacon implements Constants {
         }
     }
 
-    public Beacon(int port) {
-        this(false, port, false);
+    public Beacon(int port, int hmoPort) {
+        this(false, port, hmoPort, false);
     }
 
-    public Beacon(boolean connected, int port) {
-        this(false, port, false);
+    public Beacon(boolean connected, int port, int hmoPort) {
+        this(false, port, hmoPort, false);
     }
 
-    public Beacon(boolean connected, int port, boolean clear) {
+    public Beacon(boolean connected, int port, int hmoPort, boolean clear) {
         mPort = port;
+        mHMOPort = hmoPort;
         mTivoConnect = "1";
         if (connected)
             mMethod = METHOD_UNICAST;
         else
             mMethod = METHOD_BROADCAST;
-        mMachine = System.getProperty("host");
+        try
+        {
+        	InetAddress inetAddress = InetAddress.getLocalHost();
+        	mMachine = inetAddress.getHostName();
+        }
+        catch (Exception ex)
+        {
+        	
+        }
         mIdentity = guid;
         mPlatform = PLATFORM_PC + '/' + System.getProperty("os.name");
         // Tell TiVo we dont provide any services; used on shutdown
+        
+        //services=TiVo-ServeTcdVideo-1:2191/tvbus_v3,TiVoMediaServer:80/http
         if (clear)
             mServices = "";
         else
-            mServices = "TiVoMediaServer:" + mPort + "/http";
+            //mServices = "TiVo-ServeTcdVideo-1:"+mPort+"/tvbus_v3,TiVoMediaServer:" + mHMOPort + "/http";
+        	mServices = "TiVoMediaServer:" + mHMOPort + "/http";
 
         mSWVersion = Tools.getVersion();
     }
@@ -231,6 +244,8 @@ public class Beacon implements Constants {
     }
 
     private int mPort;
+    
+    private int mHMOPort;
 
     private String mTivoConnect;
 

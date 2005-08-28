@@ -607,7 +607,6 @@ public class ToGo {
                         }
                         last = System.currentTimeMillis();
                     }
-                    wait(100);
                 }
                 if (cancelDownload.cancel()) {
                 	channel.close();

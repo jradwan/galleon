@@ -67,7 +67,7 @@ public class ConnectionThread extends Thread implements Constants {
 
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(TIVO_PORT);
+            serverSocket = new ServerSocket(mServer.getBeaconPort());
             if (log.isDebugEnabled())
                 log.debug("Server waiting for client on port " + serverSocket.getLocalPort());
 

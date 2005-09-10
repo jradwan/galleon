@@ -25,6 +25,7 @@ import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.Resource;
 
 public class DefaultScreen extends BScreen {
 
@@ -173,6 +174,14 @@ public class DefaultScreen extends BScreen {
 
             mTitle.setValue(value);
         }
+    }
+    
+    public void setFooter(String value, Resource anim) {
+    	if (mFooter!=null)
+    		mFooter.setVisible(true);
+    	setFooter(value);
+    	if (mFooter!=null)
+    		mFooter.setVisible(false, anim);
     }
 
     public void setFooter(String value) {

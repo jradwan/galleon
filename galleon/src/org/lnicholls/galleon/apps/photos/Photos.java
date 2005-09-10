@@ -1159,7 +1159,7 @@ public class Photos extends DefaultApplication {
 				currentEffect = random.nextInt(effects.length);
 			}
 			
-			while (true) {
+			while (getApp().getContext()!=null) {
 				try {
 					sleep(1000 * photosConfiguration.getDisplayTime());
 					mSlideshowScreen.getNextPos();

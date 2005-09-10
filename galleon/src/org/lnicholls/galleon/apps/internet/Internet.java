@@ -351,7 +351,7 @@ public class Internet extends DefaultApplication {
             mImageThread = new Thread() {
                 public void run() {
                     try {
-                        while (true) {
+                        while (getApp().getContext()!=null) {
                             synchronized (this) {
                                 updateView(true);
                             }

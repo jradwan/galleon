@@ -57,6 +57,7 @@ CLASSPATH=$CLASSPATH:../lib/yahoo_search.jar
 CLASSPATH=$CLASSPATH:../lib/javazoom.jar
 CLASSPATH=$CLASSPATH:../lib/mediamanager.jar
 CLASSPATH=$CLASSPATH:../lib/MHS.jar
+CLASSPATH=$CLASSPATH:../lib/hme-host-sample.jar
 OPTION=""
 if [ -f "$JAVA_HOME/bin/server" ]; then
 OPTION=-server

@@ -19,7 +19,6 @@ package org.lnicholls.galleon.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -50,10 +49,13 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.downloads.Download;
 import org.lnicholls.galleon.server.Constants;
+import org.lnicholls.galleon.server.DataConfiguration;
+import org.lnicholls.galleon.server.GoBackConfiguration;
+import org.lnicholls.galleon.server.DownloadConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
-import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.ServerControl;
 import org.lnicholls.galleon.util.Tools;
 
@@ -406,6 +408,45 @@ public final class Galleon implements Constants {
 		}
 		return null;
 	}
+	
+	public static void updateGoBackConfiguration(GoBackConfiguration goBackConfiguration) throws Exception {
+		ServerControl serverControl = getServerControl();
+		serverControl.updateGoBackConfiguration(goBackConfiguration);
+	}
+	
+	public static GoBackConfiguration getGoBackConfiguration() {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getGoBackConfiguration();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get app server goback configuration from server: "
+					+ mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}	
+	
+	
+	public static void updateDownloadConfiguration(DownloadConfiguration downloadConfiguration) throws Exception {
+		ServerControl serverControl = getServerControl();
+		serverControl.updateDownloadConfiguration(downloadConfiguration);
+	}
+	
+	public static DownloadConfiguration getDownloadConfiguration() {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getDownloadConfiguration();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get app server download configuration from server: "
+					+ mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}	
 
 	public static void updateVideo(Video video) {
 		try {
@@ -520,6 +561,31 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	
+	public static List getVideocasts() throws RemoteException {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getVideocasts();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get videocasts from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}
+
+	public static void setVideocasts(List list) throws RemoteException {
+		try {
+			ServerControl serverControl = getServerControl();
+			serverControl.setVideocasts(list);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not update videocasts to server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
 
 	public static boolean isCurrentVersion() throws RemoteException {
 		try {
@@ -545,6 +611,45 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
+	}
+	
+	public static List getDownloads() throws RemoteException {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getDownloads();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get downloads from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}	
+	
+	public static void pauseDownload(Download download) throws RemoteException
+    {
+    	try {
+			ServerControl serverControl = getServerControl();
+			serverControl.pauseDownload(download);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get downloads from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+    }
+
+	public static void resumeDownload(Download download) throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			serverControl.resumeDownload(download);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get downloads from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	public static class ConnectionDialog extends JDialog {

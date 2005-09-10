@@ -173,13 +173,13 @@ public class ServerConfiguration implements Serializable {
         return mDebug;
     }    
     
-    public void setHandleTimeout(boolean value) {
-        mHandleTimeout = value;
+    public void setDisableTimeout(boolean value) {
+        mDisableTimeout = value;
     }
 
-    public boolean isHandleTimeout() {
-        return mHandleTimeout;
-    }    
+    public boolean isDisableTimeout() {
+        return mDisableTimeout;
+    }
     
     public void setMusicPlayerConfiguration(MusicPlayerConfiguration value) {
         mMusicPlayerConfiguration = value;
@@ -195,6 +195,22 @@ public class ServerConfiguration implements Serializable {
 
     public DataConfiguration getDataConfiguration() {
         return mDataConfiguration;
+    }
+    
+    public void setGoBackConfiguration(GoBackConfiguration value) {
+        mGoBackConfiguration = value;
+    }
+
+    public GoBackConfiguration getGoBackConfiguration() {
+        return mGoBackConfiguration;
+    }
+    
+    public void setDownloadConfiguration(DownloadConfiguration value) {
+        mDownloadConfiguration = value;
+    }
+
+    public DownloadConfiguration getDownloadConfiguration() {
+        return mDownloadConfiguration;
     }
     
     private String mVersion = Tools.getVersion();
@@ -223,9 +239,13 @@ public class ServerConfiguration implements Serializable {
     
     private boolean mDebug;
     
-    private boolean mHandleTimeout = true;
+    private boolean mDisableTimeout;
     
     private MusicPlayerConfiguration mMusicPlayerConfiguration = new MusicPlayerConfiguration();
     
     private DataConfiguration mDataConfiguration = new DataConfiguration();
+    
+    private GoBackConfiguration mGoBackConfiguration = new GoBackConfiguration();
+    
+    private DownloadConfiguration mDownloadConfiguration = new DownloadConfiguration();
 }

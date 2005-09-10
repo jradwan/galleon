@@ -216,16 +216,16 @@ public class Rule implements Serializable {
 	                return (video.getProgramGenre().toLowerCase().indexOf(mValue) != -1);
             }
         } else if (mCriteria.equals(CRITERIA_TYPE)) {
-            if (video.getProgramGenre()!=null)
+            if (video.getShowType()!=null)
             {
 	        	if (mComparison.equals(COMPARISON_CONTAINS))
-	                return (video.getProgramGenre().toLowerCase().indexOf(mValue) != -1);
+	                return (video.getShowType().toLowerCase().indexOf(mValue) != -1);
 	            else if (mComparison.equals(COMPARISON_EQUALS))
-	                return (video.getProgramGenre().toLowerCase().equals(mValue));
+	                return (video.getShowType().toLowerCase().equals(mValue));
 	            else if (mComparison.equals(COMPARISON_STARTS_WITH))
-	                return (video.getProgramGenre().toLowerCase().startsWith(mValue));
+	                return (video.getShowType().toLowerCase().startsWith(mValue));
 	            else if (mComparison.equals(COMPARISON_ENDS_WITH))
-	                return (video.getProgramGenre().toLowerCase().endsWith(mValue));
+	                return (video.getShowType().toLowerCase().endsWith(mValue));
             }
         } else if (mCriteria.equals(CRITERIA_DATE)) {
         	if (video.getDateRecorded()!=null)

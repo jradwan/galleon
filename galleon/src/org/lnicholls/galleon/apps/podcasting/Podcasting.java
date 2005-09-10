@@ -37,7 +37,6 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -46,6 +45,8 @@ import org.lnicholls.galleon.database.Podcast;
 import org.lnicholls.galleon.database.PodcastManager;
 import org.lnicholls.galleon.database.PodcastTrack;
 import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.database.Videocast;
+import org.lnicholls.galleon.database.VideocastManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
@@ -62,7 +63,9 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
+import org.lnicholls.galleon.downloads.*;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -217,7 +220,16 @@ public class Podcasting extends DefaultApplication {
 		if (element.getName().equals("outline") || element.getName().equals("body")) // OPML
 		{
 			String type = Tools.getAttribute(element, "type");
-			return (type == null || !type.equals("link"));
+			if (type == null)
+				return true;
+			else
+			if (type.equals("link"))
+				return false;
+			else
+			if (type.equals("rss"))
+				return false;
+			
+			return true;
 		}
 		return false;
 	}
@@ -943,6 +955,34 @@ public class Podcasting extends DefaultApplication {
 											tracker);
 									getBApp().push(directoryScreen, TRANSITION_LEFT);
 									getBApp().flush();
+								}
+								else
+								{
+									ArrayList list = new ArrayList();
+									Podcast podcast = null;
+									try {
+										List podcasts = PodcastManager.findByPath(location);
+										if (podcasts != null && podcasts.size() > 0) {
+											podcast = (Podcast) podcasts.get(0);
+										} else {
+											podcast = new Podcast(nameValue.getName(), 0, location, 0,
+													new ArrayList());
+											PodcastManager.createPodcast(podcast);
+										}
+									} catch (Exception ex) {
+										Tools.logException(Podcasting.class, ex);
+									}
+									
+									if (podcast!=null)
+									{
+										list.add(podcast);
+	
+										Tracker tracker = new Tracker(list, 0);
+	
+										getBApp().push(new PodcastScreen((Podcasting) getBApp(), tracker),
+												TRANSITION_LEFT);
+										getBApp().flush();
+									}
 								}
 							} catch (Exception ex) {
 								Tools.logException(Podcasting.class, ex);
@@ -1907,9 +1947,27 @@ public class Podcasting extends DefaultApplication {
 					mStatusBar.setVisible(true);
 					mStatusBar.setSize(1, mStatusBar.getHeight());
 					// speedText.setVisible(true);
+					
+					float barFraction = 0;
+					if (podcastTrack.getSize()>0)
+						barFraction = podcastTrack.getDownloadSize() / (float) podcastTrack.getSize();
+					int downloadTime = podcastTrack.getDownloadTime();
+					
+					List downloads = Server.getServer().getDownloads();
+					Iterator iterator = downloads.iterator();
+					while (iterator.hasNext())
+					{
+						Download download = (Download)iterator.next();
+						if (download.getURL().toString().equals(podcastTrack.getUrl()))
+						{
+							barFraction = download.getBytesCompleted() / (float) podcastTrack.getSize();
+							downloadTime = download.getElapsedTime();
+							break;
+						}
+					}
 
-					if (podcastTrack.getDownloadTime() > 0) {
-						long rate = (podcastTrack.getDownloadSize() / 1024) / podcastTrack.getDownloadTime();
+					if (downloadTime > 0) {
+						long rate = (podcastTrack.getDownloadSize() / 1024) / downloadTime;
 						mStatusText.setValue(podcastTrack.getStatusString() + ": " + rate + " KB/Sec");
 						// speedText.setValue(rate+" KB/Sec");
 						if (podcastTrack.getStatus() == Video.STATUS_DOWNLOADED) {
@@ -1918,7 +1976,6 @@ public class Podcasting extends DefaultApplication {
 							mStatusBar.setVisible(false);
 							mStatusBarBg.setVisible(false);
 						} else {
-							float barFraction = podcastTrack.getDownloadSize() / (float) podcastTrack.getSize();
 							if ((mStatusBarBg.getWidth() - 4) * barFraction < 1)
 								mStatusBar.setSize(1, mStatusBar.getHeight());
 							else

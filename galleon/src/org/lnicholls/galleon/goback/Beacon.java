@@ -120,19 +120,19 @@ public class Beacon implements Constants {
                     if (nameValue.indexOf("=") > 0) {
                         String name = nameValue.substring(0, nameValue.indexOf("=")).toLowerCase();
                         String value = nameValue.substring(nameValue.indexOf("=") + 1);
-                        if (name.equals(NAME_TIVOCONNECT))
+                        if (name.equals(NAME_TIVOCONNECT.toLowerCase()))
                             mTivoConnect = value;
-                        else if (name.equals(NAME_METHOD))
+                        else if (name.equals(NAME_METHOD.toLowerCase()))
                             mMethod = value;
-                        else if (name.equals(NAME_PLATFORM))
+                        else if (name.equals(NAME_PLATFORM.toLowerCase()))
                             mPlatform = value;
-                        else if (name.equals(NAME_MACHINE))
+                        else if (name.equals(NAME_MACHINE.toLowerCase()))
                             mMachine = value;
-                        else if (name.equals(NAME_IDENTIFY))
+                        else if (name.equals(NAME_IDENTIFY.toLowerCase()))
                             mIdentity = value;
-                        else if (name.equals(NAME_SERVICES))
+                        else if (name.equals(NAME_SERVICES.toLowerCase()))
                             mServices = value;
-                        else if (name.equals(NAME_SWVERSION))
+                        else if (name.equals(NAME_SWVERSION.toLowerCase()))
                             mSWVersion = value;
                     }
 

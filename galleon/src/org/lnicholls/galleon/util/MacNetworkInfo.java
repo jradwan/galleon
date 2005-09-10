@@ -6,64 +6,59 @@ package org.lnicholls.galleon.util;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class MacNetworkInfo extends NetworkInfo {
+import org.apache.log4j.Logger;
+
+public class MacNetworkInfo extends NetInfo {
+	private static final Logger log = Logger.getLogger(MacNetworkInfo.class.getName());
+	
     public static final String IPCONFIG_COMMAND = "ifconfig";
+    
+    public MacNetworkInfo(String address)
+    {
+    	super(address);
+    }
 
-    public String parseMacAddress() throws ParseException {
+    public void parse() {
         String ipConfigResponse = null;
         try {
             ipConfigResponse = runConsoleCommand(IPCONFIG_COMMAND);
         } catch (IOException e) {
-            //e.printStackTrace();
-            throw new ParseException(e.getMessage(), 0);
         }
-        String localHost = null;
-        try {
-            localHost = java.net.InetAddress.getLocalHost().getHostAddress();
-        } catch (java.net.UnknownHostException ex) {
-            //ex.printStackTrace();
-            throw new ParseException(ex.getMessage(), 0);
-        }
-
+        
         java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(ipConfigResponse, "\n");
-        String lastMacAddress = null;
-
+        String address = null;
+        
+		Pattern macPattern = Pattern.compile("HWaddr (.*)");
+		Pattern subnetPattern = Pattern.compile("inet addr (.*) Bcast (.*) Mask (.*)");
         while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken().trim();
-            boolean containsLocalHost = line.indexOf(localHost) >= 0;
-
-            // see if line contains IP address
-            if (containsLocalHost && lastMacAddress != null) {
-                return lastMacAddress;
+            
+            Matcher m = macPattern.matcher(line);
+    		if (m.find() && m.groupCount() == 1) {
+    			mPhysicalAddress = m.group(1).trim();
+    		}            
+    		else
+    		{
+	    		m = subnetPattern.matcher(line);
+	    		if (m.find() && m.groupCount() == 3) {
+	    			if (m.group(1).trim().equals(getAddress()))
+	    			{
+	    				address = m.group(1).trim();
+	    				mSubnetMask = m.group(3).trim();
+	    			}
+	    		}
+    		}
+            
+            if (address!=null && mPhysicalAddress!=null && mSubnetMask!=null)
+            {
+            	if (address.equals(getAddress()))
+                {
+                	break;
+                }
             }
-
-            // see if line contains MAC address
-            int macAddressPosition = line.indexOf("ether");
-            if (macAddressPosition <= 0) {
-                continue;
-            }
-
-            String macAddressCandidate = line.substring(macAddressPosition + 6).trim();
-            if (isMacAddress(macAddressCandidate)) {
-                lastMacAddress = macAddressCandidate;
-                continue;
-            }
-        }
-
-        ParseException ex = new ParseException("cannot read MAC address for " + localHost + " from ["
-                + ipConfigResponse + "]", 0);
-        //ex.printStackTrace();
-        throw ex;
-    }
-
-    public String parseDomain(String hostname) throws ParseException {
-        return "";
-    }
-
-    private final boolean isMacAddress(String macAddressCandidate) {
-        if (macAddressCandidate.length() != 17)
-            return false;
-        return true;
+        }        
     }
 }

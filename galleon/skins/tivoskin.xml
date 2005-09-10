@@ -200,5 +200,19 @@
   	<image source="movies/folder.png" id="folder"/>	
     <image source="movies/background.mpg" id="background"/>
   </app>                    
+  
+  <app id="org.lnicholls.galleon.apps.videocasting.Videocasting">  
+    <image source="videocasting/icon.png" id="icon"/>  
+  	<image source="videocasting/item.png" id="item"/>
+  	<image source="videocasting/folder.png" id="folder"/>	
+    <image source="videocasting/background.mpg" id="background"/>
+  </app>                    
+  
+  <app id="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshows">  
+    <image source="internetSlideshows/icon.png" id="icon"/>  
+  	<image source="internetSlideshows/item.png" id="item"/>
+  	<image source="internetSlideshows/folder.png" id="folder"/>	
+    <image source="internetSlideshows/background.mpg" id="background"/>
+  </app>                      
 
 </skin>

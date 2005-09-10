@@ -78,6 +78,10 @@ public class Configurator implements Constants {
     private static String TAG_MUSIC_PLAYER_CONFIGURATION = "musicPlayerConfiguration";
     
     private static String TAG_DATA_CONFIGURATION = "dataConfiguration";
+    
+    private static String TAG_GOBACK_CONFIGURATION = "goBackConfiguration";
+    
+    private static String TAG_DOWNLOAD_CONFIGURATION = "downloadConfiguration";
 
     private static String ATTRIBUTE_VERSION = "version";
 
@@ -487,6 +491,58 @@ public class Configurator implements Constants {
                         } catch (IntrospectionException ex) {
                             log.error("Could not load Data Configuration");
                         }
+                    } else if (node.getNodeName().equals(TAG_GOBACK_CONFIGURATION)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Found GoBack Configuration");
+                        try {
+                            BeanReader beanReader = new BeanReader();
+                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.registerBeanClass("goBackConfiguration", GoBackConfiguration.class);
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            OutputFormat of = new OutputFormat("XML", ENCODING, true);
+                            XMLSerializer serializer = new XMLSerializer(bos, of);
+                            serializer.asDOMSerializer();
+                            serializer.serialize((Element) node);
+
+                            StringReader xmlReader = new StringReader(bos.toString());
+                            bos.close();
+
+                            GoBackConfiguration goBackConfiguration = (GoBackConfiguration) beanReader.parse(xmlReader);
+
+                            serverConfiguration.setGoBackConfiguration(goBackConfiguration);
+
+                            if (log.isDebugEnabled())
+                                log.debug("GoBackConfiguration=" + goBackConfiguration);
+                        } catch (IntrospectionException ex) {
+                            log.error("Could not load GoBack Configuration");
+                        }
+                    } else if (node.getNodeName().equals(TAG_DOWNLOAD_CONFIGURATION)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Found Download Configuration");
+                        try {
+                            BeanReader beanReader = new BeanReader();
+                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.registerBeanClass("downloadConfiguration", DownloadConfiguration.class);
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            OutputFormat of = new OutputFormat("XML", ENCODING, true);
+                            XMLSerializer serializer = new XMLSerializer(bos, of);
+                            serializer.asDOMSerializer();
+                            serializer.serialize((Element) node);
+
+                            StringReader xmlReader = new StringReader(bos.toString());
+                            bos.close();
+
+                            DownloadConfiguration downloadConfiguration = (DownloadConfiguration) beanReader.parse(xmlReader);
+
+                            serverConfiguration.setDownloadConfiguration(downloadConfiguration);
+
+                            if (log.isDebugEnabled())
+                                log.debug("DownloadConfiguration=" + downloadConfiguration);
+                        } catch (IntrospectionException ex) {
+                            log.error("Could not load Download Configuration");
+                        }
                     }
                 }
             }
@@ -723,6 +779,52 @@ public class Configurator implements Constants {
                 } catch (Exception ex) {
                     Tools.logException(Configurator.class, ex, "Could not save data configuration: " + dataConfiguration);
                 }                
+                
+                // GoBack Configuration
+                GoBackConfiguration goBackConfiguration = null;
+                try {
+                    goBackConfiguration = serverConfiguration.getGoBackConfiguration();
+                    log.debug("GoBackConfiguration: " + goBackConfiguration);
+                    StringWriter outputWriter = new StringWriter();
+
+                    // Create a BeanWriter which writes to our prepared stream
+                    BeanWriter beanWriter = new BeanWriter(outputWriter);
+
+                    AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    beanWriter.setXMLIntrospector(appXMLIntrospector);
+
+                    beanWriter.enablePrettyPrint();
+
+                    beanWriter.write("goBackConfiguration", goBackConfiguration);
+
+                    buffer.append(outputWriter.toString());
+                } catch (Exception ex) {
+                    Tools.logException(Configurator.class, ex, "Could not save goback configuration: " + goBackConfiguration);
+                }
+                
+                // Download Configuration
+                DownloadConfiguration downloadConfiguration = null;
+                try {
+                    downloadConfiguration = serverConfiguration.getDownloadConfiguration();
+                    log.debug("DownloadConfiguration: " + downloadConfiguration);
+                    StringWriter outputWriter = new StringWriter();
+
+                    // Create a BeanWriter which writes to our prepared stream
+                    BeanWriter beanWriter = new BeanWriter(outputWriter);
+
+                    AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
+                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    beanWriter.setXMLIntrospector(appXMLIntrospector);
+
+                    beanWriter.enablePrettyPrint();
+
+                    beanWriter.write("downloadConfiguration", downloadConfiguration);
+
+                    buffer.append(outputWriter.toString());
+                } catch (Exception ex) {
+                    Tools.logException(Configurator.class, ex, "Could not save download configuration: " + downloadConfiguration);
+                }
 
                 buffer.append("</").append(TAG_CONFIGURATION).append(">\n");
             }

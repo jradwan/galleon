@@ -20,7 +20,7 @@ import org.lnicholls.galleon.database.Version;
 
 public interface Constants {
     
-    public static final Version CURRENT_VERSION = new Version(1, 4, 1, 0);
+    public static final Version CURRENT_VERSION = new Version(1, 5, 0, 0);
 
     public static String ENCODING = "UTF-8";
     
@@ -38,25 +38,25 @@ public interface Constants {
 
     public static int LOW_FREQUENCY_DELAY = 60 * 1000;
 
-    public static String NAME_TIVOCONNECT = "tivoconnect";
+    public static String NAME_TIVOCONNECT = "TiVoConnect";
 
-    public static String NAME_METHOD = "method";
+    public static String NAME_METHOD = "Method";
 
-    public static String NAME_PLATFORM = "platform";
+    public static String NAME_PLATFORM = "Platform";
 
-    public static String NAME_MACHINE = "machine";
+    public static String NAME_MACHINE = "Machine";
 
-    public static String NAME_IDENTIFY = "identity";
+    public static String NAME_IDENTIFY = "Identity";
 
-    public static String NAME_SERVICES = "services";
+    public static String NAME_SERVICES = "Services";
 
     public static String NAME_SWVERSION = "swversion";
 
-    public static String METHOD_BROADCAST = "broadcast";
+    public static String METHOD_BROADCAST = "Broadcast";
 
     public static String METHOD_CONNECTED = "connected";
 
-    public static String METHOD_UNICAST = "unicast";
+    public static String METHOD_UNICAST = "Unicast";
 
     public static String PLATFORM_TCD = "tcd";
 
@@ -89,6 +89,8 @@ public interface Constants {
     public static final String PARAMETER_SORT_CREATION_DATE = "CreationDate";
 
     public static final String PARAMETER_SORT_LAST_CHANGE_DATE = "LastChangeDate";
+    
+    public static final String PARAMETER_SORT_CAPTURE_DATE = "CaptureDate";
 
     public static final String PARAMETER_SORT_RANDOM = "Random";
 

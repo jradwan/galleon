@@ -212,6 +212,8 @@
             <fileset dir="./doc" includes="newapp.html" />            
             <fileset dir="./doc" includes="musicplayer.html" />                        
             <fileset dir="./doc" includes="data.html" />            
+            <fileset dir="./doc" includes="goback.html" />                        
+            <fileset dir="./doc" includes="downloadmanager.html" />                                    
             <fileset dir="./media/images" includes="galleon.png" />                        
             <fileset dir="./media/images" includes="guiicon.png" />                                    
             <fileset dir="./media/images" includes="guiicon.gif" />                                                
@@ -620,6 +622,54 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/movies" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/movies.jar" tofile="./apps/movies.jar" />                
+        
+        <copy file="./media/images/videocasting/icon.png" tofile="${build}/org/lnicholls/galleon/apps/videocasting/icon.png" />        
+        <copy file="./doc/videocastingapp.html" tofile="${build}/org/lnicholls/galleon/apps/videocasting/help.html" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.videocasting.Videocasting"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="Videocasting"/>
+          <attribute name="ReleaseDate" value="08/28/05"/>          
+          <attribute name="Description" value="The Videocasting app allows you to subscribe and listen to your favorite videocasts."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Videocasting"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.videocasting.VideocastingOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.videocasting.VideocastingConfiguration"/>                      
+          <attribute name="Tags" value="Video"/>            
+        </manifest>        
+        <jar jarfile="${build}/apps/videocasting.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/videocasting/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/videocasting" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/videocasting.jar" tofile="./apps/videocasting.jar" />        
+        
+        <copy file="./media/images/internetSlideshows/icon.png" tofile="${build}/org/lnicholls/galleon/apps/internetSlideshows/icon.png" />        
+        <copy file="./doc/internetslideshowsapp.html" tofile="${build}/org/lnicholls/galleon/apps/internetSlideshows/help.html" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshows"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="Internet Slideshows"/>
+          <attribute name="ReleaseDate" value="09/08/05"/>          
+          <attribute name="Description" value="The Internet Slideshows app displays photos from RSS feeds."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/InternetSlideshows"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsConfiguration"/>                      
+          <attribute name="Tags" value="Photos"/>            
+        </manifest>        
+        <jar jarfile="${build}/apps/internetSlideshows.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/internetSlideshows/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/internetSlideshows" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/internetSlideshows.jar" tofile="./apps/internetSlideshows.jar" />                
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
@@ -705,6 +755,16 @@
         <copy file="./media/images/movies/folder.png" tofile="${build}/skins/movies/folder.png" />                
         <copy file="./media/images/movies/item.png" tofile="${build}/skins/movies/item.png" />                
         <copy file="./media/images/movies/background.jpg" tofile="${build}/skins/movies/background.jpg" />                        
+        
+        <copy file="./media/images/videocasting/icon.png" tofile="${build}/skins/videocasting/icon.png" />        
+        <copy file="./media/images/videocasting/folder.png" tofile="${build}/skins/videocasting/folder.png" />                
+        <copy file="./media/images/videocasting/item.png" tofile="${build}/skins/videocasting/item.png" />                
+        <copy file="./media/images/videocasting/background.jpg" tofile="${build}/skins/videocasting/background.jpg" />                
+        
+        <copy file="./media/images/internetSlideshows/icon.png" tofile="${build}/skins/internetSlideshows/icon.png" />        
+        <copy file="./media/images/internetSlideshows/folder.png" tofile="${build}/skins/internetSlideshows/folder.png" />                
+        <copy file="./media/images/internetSlideshows/item.png" tofile="${build}/skins/internetSlideshows/item.png" />                
+        <copy file="./media/images/internetSlideshows/background.jpg" tofile="${build}/skins/internetSlideshows/background.jpg" />                        
 
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -729,6 +789,8 @@
         <delete dir="${build}/skins/podcasting" />
         <delete dir="${build}/skins/iTunes" />
         <delete dir="${build}/skins/movies" />        
+        <delete dir="${build}/skins/videocasting" />        
+        <delete dir="${build}/skins/internetSlideshows" />                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
         
@@ -811,6 +873,16 @@
         <copy file="./media/images/movies/folder.png" tofile="${build}/skins/movies/folder.png" />                
         <copy file="./media/images/movies/item.png" tofile="${build}/skins/movies/item.png" />                
         <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/movies/background.mpg" />        
+        
+        <copy file="./media/images/videocasting/icon.png" tofile="${build}/skins/videocasting/icon.png" />        
+        <copy file="./media/images/videocasting/folder.png" tofile="${build}/skins/videocasting/folder.png" />                
+        <copy file="./media/images/videocasting/item.png" tofile="${build}/skins/videocasting/item.png" />                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/videocasting/background.mpg" />        
+
+        <copy file="./media/images/internetSlideshows/icon.png" tofile="${build}/skins/internetSlideshows/icon.png" />        
+        <copy file="./media/images/internetSlideshows/folder.png" tofile="${build}/skins/internetSlideshows/folder.png" />                
+        <copy file="./media/images/internetSlideshows/item.png" tofile="${build}/skins/internetSlideshows/item.png" />                
+        <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/internetSlideshows/background.mpg" />        
 
         <copy file="./skins/tivoskin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -835,6 +907,8 @@
         <delete dir="${build}/skins/podcasting" />
         <delete dir="${build}/skins/iTunes" />
         <delete dir="${build}/skins/movies" />        
+        <delete dir="${build}/skins/videocasting" />        
+        <delete dir="${build}/skins/internetSlideshows" />                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                        
     </target>

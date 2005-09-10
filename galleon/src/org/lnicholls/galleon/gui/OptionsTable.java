@@ -25,6 +25,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.awt.Container;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -53,7 +54,7 @@ import com.jgoodies.forms.layout.FormLayout;
 public class OptionsTable extends JPanel implements ActionListener, KeyListener, ItemListener {
     private static Logger log = Logger.getLogger(OptionsTable.class.getName());
 
-    public OptionsTable(AppConfigurationPanel optionsPanel, ArrayList columnNames, ArrayList columnValues, ArrayList fields) {
+    public OptionsTable(JPanel optionsPanel, ArrayList columnNames, ArrayList columnValues, ArrayList fields) {
         super();
 
         mFields = fields;

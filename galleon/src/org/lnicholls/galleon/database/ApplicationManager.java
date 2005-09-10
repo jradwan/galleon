@@ -159,7 +159,7 @@ public class ApplicationManager {
 		else
 		{
 			Application application = (Application)list.get(0);
-			application.setCount(application.getCount()+1);
+			application.setTotal(application.getTotal()+1);
 		}
 	}
 }

@@ -28,6 +28,7 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
+import org.lnicholls.galleon.downloads.Download;
 
 import org.apache.log4j.Logger;
 
@@ -66,6 +67,40 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
         try
         {
         	Server.getServer().updateDataConfiguration(dataConfiguration);
+        }
+        catch (Exception ex)
+        {
+        	throw new RemoteException(ex.getMessage(), ex);
+        }
+    }    
+    
+    public GoBackConfiguration getGoBackConfiguration()  throws RemoteException
+    {
+        return Server.getServer().getGoBackConfiguration();
+    }
+    
+    public void updateGoBackConfiguration(GoBackConfiguration goBackConfiguration) throws RemoteException
+    {
+        try
+        {
+        	Server.getServer().updateGoBackConfiguration(goBackConfiguration);
+        }
+        catch (Exception ex)
+        {
+        	throw new RemoteException(ex.getMessage(), ex);
+        }
+    }    
+    
+    public DownloadConfiguration getDownloadConfiguration()  throws RemoteException
+    {
+        return Server.getServer().getDownloadConfiguration();
+    }
+    
+    public void updateDownloadConfiguration(DownloadConfiguration downloadConfiguration) throws RemoteException
+    {
+        try
+        {
+        	Server.getServer().updateDownloadConfiguration(downloadConfiguration);
         }
         catch (Exception ex)
         {
@@ -162,6 +197,16 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
         Server.getServer().setPodcasts(list);
     }
     
+    public List getVideocasts() throws RemoteException
+    {
+        return Server.getServer().getVideocasts();
+    }    
+    
+    public void setVideocasts(List list) throws RemoteException
+    {
+        Server.getServer().setVideocasts(list);
+    }
+    
     public boolean isCurrentVersion() throws RemoteException
     {
     	return Server.getServer().isCurrentVersion();
@@ -171,4 +216,19 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
     {
     	return Server.getServer().getCodeImage();
     }
+    
+    public List getDownloads()  throws RemoteException
+    {
+        return Server.getServer().getDownloads();
+    }
+    
+    public void pauseDownload(Download download) throws RemoteException
+    {
+    	Server.getServer().pauseDownload(download);
+    }
+
+	public void resumeDownload(Download download) throws RemoteException
+	{
+		Server.getServer().resumeDownload(download);
+	}
 }

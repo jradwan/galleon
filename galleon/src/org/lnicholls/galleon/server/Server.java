@@ -49,6 +49,7 @@ import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
 import org.lnicholls.galleon.database.PodcastManager;
+import org.lnicholls.galleon.database.VideocastManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.skins.Skin;
@@ -59,6 +60,7 @@ import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.data.*;
 import org.lnicholls.galleon.goback.*;
+import org.lnicholls.galleon.downloads.*;
 import org.lnicholls.galleon.widget.ScrollText;
 
 import org.tanukisoftware.wrapper.WrapperManager;
@@ -249,6 +251,8 @@ public class Server {
 			// Start time task for period operations such as internet downloads
 			mLongTermTimer = new Timer();
 			mShortTermTimer = new Timer();
+			
+			mDownloadManager = new DownloadManager();
 
 			// Load apps
 			mAppManager = new AppManager(mAppClassLoader);
@@ -355,6 +359,12 @@ public class Server {
 				scheduleLongTerm(taskInfo.task, 0, taskInfo.time);
 			}
 			mLongTermTasks.clear();
+			
+			iterator = mPublishedVideos.iterator();
+			while (iterator.hasNext()) {
+				publishVideo((NameValue)iterator.next());
+			}
+			mPublishedVideos.clear();
 		} catch (Exception ex) {
 			Tools.logException(Server.class, ex);
 			return new Integer(1);
@@ -789,6 +799,48 @@ public class Server {
 		}
 	}	
 	
+	public GoBackConfiguration getGoBackConfiguration() {
+		return mServerConfiguration.getGoBackConfiguration();
+	}
+
+	public void updateGoBackConfiguration(GoBackConfiguration goBackConfiguration) throws Exception {
+		try
+		{
+			if (goBackConfiguration.isModified())
+			{
+				mServerConfiguration.setGoBackConfiguration(goBackConfiguration);
+				save();
+				if (mBroadcastThread!=null)
+					mBroadcastThread.enableHighFrequency();
+			}
+		}
+		catch (Exception ex)
+		{
+			Tools.logException(Server.class, ex);
+			throw ex;
+		}
+	}	
+	
+	public DownloadConfiguration getDownloadConfiguration() {
+		return mServerConfiguration.getDownloadConfiguration();
+	}
+
+	public void updateDownloadConfiguration(DownloadConfiguration downloadConfiguration) throws Exception {
+		try
+		{
+			if (downloadConfiguration.isModified())
+			{
+				mServerConfiguration.setDownloadConfiguration(downloadConfiguration);
+				save();
+			}
+		}
+		catch (Exception ex)
+		{
+			Tools.logException(Server.class, ex);
+			throw ex;
+		}
+	}	
+	
 	public Object getCodeImage() {
 		return Users.getCode();
 	}
@@ -893,6 +945,23 @@ public class Server {
 	public void setPodcasts(List list) throws RemoteException {
 		try {
 			PodcastManager.setPodcasts(list);
+		} catch (Exception ex) {
+			Tools.logException(Server.class, ex);
+		}
+	}
+	
+	public List getVideocasts() throws RemoteException {
+		try {
+			return VideocastManager.getVideocasts();
+		} catch (Exception ex) {
+			Tools.logException(Server.class, ex);
+		}
+		return null;
+	}
+
+	public void setVideocasts(List list) throws RemoteException {
+		try {
+			VideocastManager.setVideocasts(list);
 		} catch (Exception ex) {
 			Tools.logException(Server.class, ex);
 		}
@@ -1013,7 +1082,43 @@ public class Server {
                 log.info("Could not find TiVo Beacon service");
             }
         }
-    }    
+    }
+    
+    public void publishVideo(NameValue nameValue)
+    {
+    	if (mVideoServer!=null)
+    	{
+    		mVideoServer.publish(nameValue);
+    	}
+    	else
+    	{
+    		mPublishedVideos.add(nameValue);
+    	}
+    }
+    
+    public void addDownload(Download download, StatusListener statusListener)
+    {
+    	mDownloadManager.addDownload(download, statusListener);
+    }
+    
+    public List getDownloads() throws RemoteException {
+		try {
+			return mDownloadManager.getDownloads();
+		} catch (Exception ex) {
+			Tools.logException(Server.class, ex);
+		}
+		return null;
+	}
+    
+    public void pauseDownload(Download download) throws RemoteException
+    {
+    	mDownloadManager.pauseDownload(download);
+    }
+
+	public void resumeDownload(Download download) throws RemoteException
+	{
+		mDownloadManager.resumeDownload(download);
+	}    
 	
 	public static void main(String args[]) {
 		mStartMain = true;
@@ -1082,4 +1187,8 @@ public class Server {
     private boolean mPublished;
     
     private VideoServer mVideoServer;
+    
+    private List mPublishedVideos = new ArrayList();
+    
+    private DownloadManager mDownloadManager;
 }

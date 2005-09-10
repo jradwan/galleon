@@ -29,6 +29,7 @@ import mediaManager.video.FilePropertiesMovie;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.server.*;
 
 public final class VideoFile {
 	private static final Logger log = Logger.getLogger(VideoFile.class.getName());
@@ -157,7 +158,8 @@ public final class VideoFile {
 		} catch (Exception ex) {
 		}
 
-		video.setDuration(filePropertiesMovie.getDuration());
+		if (filePropertiesMovie.getDuration()>0)
+			video.setDuration(filePropertiesMovie.getDuration());
 		video.setAudioCodec(filePropertiesMovie.getAudioCodec());
 
 		try {
@@ -216,10 +218,13 @@ public final class VideoFile {
 				while ((line = bufferedReader.readLine()) != null) {
 					Matcher matcher = pattern.matcher(line);
 					if (matcher.find()) {
-						// System.out.println(matcher.group(1));
+						System.out.println(matcher.group(1));
 					}
 					Thread.sleep(200);
 				}
+			}
+			catch (InterruptedException ex)
+			{
 			} catch (Exception ex) {
 				Tools.logException(VideoFile.class, ex);
 			}
@@ -227,17 +232,58 @@ public final class VideoFile {
 
 		InputStream mInputStream;
 	}
+	
+	public static boolean convert(Video video, String path) {
+		try {
+			GoBackConfiguration goBackConfiguration = Server.getServer().getGoBackConfiguration();
+			if (goBackConfiguration.getConversionTool()!=null)
+			{
+				String exec = goBackConfiguration.getConversionTool().replaceAll("\\{\\%1\\}",video.getPath().replaceAll("\\\\","\\\\\\\\")).replaceAll("\\{\\%2\\}",path.replaceAll("\\\\","\\\\\\\\"));
+				
+				Runtime rt = Runtime.getRuntime();
+				//String exec = "\"c:/program files/videolan/vlc/vlc\""
+				//	//+ " -vvv "
+				//	+ " \"" + video.getPath() + "\""
+				//	+ " -I telnet --sout #transcode{vcodec=mp2v,vb=4096,width=720,height=480,fps=29.97,scale=1,acodec=mpga,ab=128,channels=2}:duplicate{dst=std{access=file,mux=ps,url="  //dummy
+				//	+ "\""+path+"\"}} vlc:quit";
+				log.debug(exec);
+				Process proc = rt.exec(exec);
+	
+				StreamHandler errorHandler = new StreamHandler(proc.getErrorStream());
+				StreamHandler outputHandler = new StreamHandler(proc.getInputStream());
+	
+				errorHandler.start();
+				outputHandler.start();
+	
+				int exitVal = proc.waitFor();
+				if (exitVal!=0)
+	           {
+	        	   if (errorHandler.isAlive())
+	        		   errorHandler.interrupt();
+	        	   if (outputHandler.isAlive())
+	        		   outputHandler.interrupt();
+	        	   log.error("Could not convert: "+video.getPath() + " ("+exitVal+")");
+	        	   return false;
+	           }
+				return true;
+			}
+		} catch (Throwable t) {
+			Tools.logException(VideoFile.class, t, "Could not convert: "+video.getPath());
+		}
+		return false;
+	}
 
-	public static void convert(Video video) {
+	public static boolean convertffmpeg(Video video, String path) {
 		try {
 			Runtime rt = Runtime.getRuntime();
 			Process proc = rt
 					.exec("\""
 							+ System.getProperty("bin")
-							+ File.pathSeparator
+							+ File.separatorChar
 							+ "ffmpeg\" -i \""
 							+ video.getPath()
-							+ "\" -hq -vcodec mpeg2video -b 4000 -maxrate 8000 -minrate 1000 -bufsize 8000 -r 29.97 -aspect 4:3 -s 720x480 -acodec mp2 -ab 128 \"d:\\galleon\\video\\test.mpg\"");
+							+ "\" -y -hq -target ntsc-dvd -r ntsc -aspect 4:3 -s 720x480 -acodec mp2 -ab 128 "
+							+ "\""+path+"\"");
 
 			StreamHandler errorHandler = new StreamHandler(proc.getErrorStream());
 			StreamHandler outputHandler = new StreamHandler(proc.getInputStream());
@@ -246,9 +292,34 @@ public final class VideoFile {
 			outputHandler.start();
 
 			int exitVal = proc.waitFor();
-			log.debug(video.getPath() + " exit value=" + exitVal);
+			if (exitVal!=0)
+           {
+        	   if (errorHandler.isAlive())
+        		   errorHandler.interrupt();
+        	   if (outputHandler.isAlive())
+        		   outputHandler.interrupt();
+        	   log.debug("Could not convert: "+video.getPath() + " ("+exitVal+")");
+        	   return false;
+           }
+			return true;
 		} catch (Throwable t) {
-			Tools.logException(VideoFile.class, t, video.getPath());
+			Tools.logException(VideoFile.class, t, "Could not convert: "+video.getPath());
 		}
+		return false;
+	}
+	
+	public static boolean isTiVoFormat(Video video)
+	{
+		try
+		{
+			return video.getVideoResolution().equals("720x480") &&
+				video.getVideoCodec().equals("MPEG") &&
+				video.getVideoRate().equals("29.97") &&
+				video.getAudioCodec().equals("MPEG");
+		}
+		catch (Exception ex)
+		{
+		}
+		return false;
 	}
 }

@@ -29,7 +29,10 @@ See the file "COPYING" for more details.
     public boolean equals(Object object)
     {
         Video video = (Video)object;
-        return url.equals(video.url);
+        if (url!=null &amp;&amp; video.url!=null)
+	        return url.equals(video.url);
+		else
+			return false;	        
     }
     
     public String getStatusString() {
@@ -174,6 +177,10 @@ See the file "COPYING" for more details.
     <property name="partCount" type="int"/>                                            
     
     <property name="partIndex" type="int"/>                                                
+    
+    <property name="datePlayed" type="timestamp">
+      <meta attribute="field-description">When the track was last played</meta>
+    </property>                
   </class>
 
 </hibernate-mapping>

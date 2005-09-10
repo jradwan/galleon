@@ -95,4 +95,12 @@
         timeToLiveSeconds="600"
         overflowToDisk="true"
         />                                 
+        
+    <cache name="org.lnicholls.galleon.database.Videocast"
+        maxElementsInMemory="100"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                                         
 </ehcache>

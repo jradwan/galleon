@@ -9,55 +9,65 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WindowsNetworkInfo extends NetworkInfo {
-    public static final String IPCONFIG_COMMAND = "ipconfig /all";
+import org.apache.log4j.Logger;
 
-    public String parseMacAddress() throws ParseException {
-        // run command
+public class WindowsNetworkInfo extends NetInfo {
+	private static final Logger log = Logger.getLogger(WindowsNetworkInfo.class.getName());
+	
+	public static final String IPCONFIG_COMMAND = "ipconfig /all";
+    
+    public WindowsNetworkInfo(String address)
+    {
+    	super(address);
+    }
+
+    public void parse() {
         String ipConfigResponse = null;
         try {
             ipConfigResponse = runConsoleCommand(IPCONFIG_COMMAND);
-        } catch (IOException e) {
-            //e.printStackTrace();
-            throw new ParseException(e.getMessage(), 0);
+        } catch (IOException ex) {
+        	Tools.logException(WindowsNetworkInfo.class, ex);
         }
 
-        // get localhost address
-        String localHost = getLocalHost();
         java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(ipConfigResponse, "\n");
-        String lastMacAddress = null;
+        String address = null;
         while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken().trim();
-            // see if line contains IP address, this means stop if we've already seen a MAC address
-            if (line.endsWith(localHost) && lastMacAddress != null) {
-                return lastMacAddress;
 
+            if (line.startsWith("Physical Address"))
+            {
+            	int pos = line.indexOf(":");
+                if (pos <= 0) {
+                    continue;
+                }
+            	mPhysicalAddress = line.substring(pos + 1).trim();            	
             }
-
-            // see if line might contain a MAC address
-            int macAddressPosition = line.indexOf(":");
-            if (macAddressPosition <= 0) {
-                continue;
+            else
+        	if (line.startsWith("Subnet Mask"))
+            {
+            	int pos = line.indexOf(":");
+                if (pos <= 0) {
+                    continue;
+                }
+            	mSubnetMask = line.substring(pos + 1).trim();            	
+            }            	
+        	else
+        	if (line.startsWith("IP Address"))
+            {
+            	int pos = line.indexOf(":");
+                if (pos <= 0) {
+                    continue;
+                }
+            	address = line.substring(pos + 1).trim();
             }
-
-            // trim the line and see if it matches the pattern
-
-            String macAddressCandidate = line.substring(macAddressPosition + 1).trim();
-            if (isMacAddress(macAddressCandidate)) {
-                lastMacAddress = macAddressCandidate;
-                continue;
+            
+            if (address!=null && mPhysicalAddress!=null && mSubnetMask!=null)
+            {
+            	if (address.equals(getAddress()))
+                {
+                	break;
+                }
             }
         }
-
-        ParseException ex = new ParseException("Cannot read MAC address from [" + ipConfigResponse + "]", 0);
-        //ex.printStackTrace();
-        throw ex;
-    }
-
-    private static boolean isMacAddress(String macAddressCandidate) {
-        Pattern macPattern = Pattern
-                .compile("[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}");
-        Matcher m = macPattern.matcher(macAddressCandidate);
-        return m.matches();
     }
 }

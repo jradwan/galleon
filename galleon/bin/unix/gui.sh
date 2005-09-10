@@ -53,5 +53,6 @@ CLASSPATH=$CLASSPATH:../lib/commons-httpclient.jar
 CLASSPATH=$CLASSPATH:../lib/forms.jar
 CLASSPATH=$CLASSPATH:../lib/looks.jar
 CLASSPATH=$CLASSPATH:../lib/browserlauncher.jar
+CLASSPATH=$CLASSPATH:../lib/hme-host-sample.jar
 nohup java -Xms32m -Xmx32m org.lnicholls.galleon.gui.Galleon &
 CLASSPATH=$OLDCLASSPATH

@@ -918,28 +918,34 @@ public final class Mp3File {
         if (useFile) {
             File file = new File(audio.getPath());
             File directory = new File(file.getParent());
-            File[] files = directory.listFiles(new FileFilter() {
-                public boolean accept(File pathname) {
-                    return pathname.getName().toLowerCase().equals("folder.jpg");
-                }
-            });
-            for (int i = 0; i < files.length; i++) {
-                try {
-                	BufferedImage image = Tools.ImageIORead(files[i]);
-                    if (image != null) {
-                        createCover(new FileInputStream(files[i]), audio, "image/jpg");
-
-                        try {
-                            AudioManager.updateAudio(audio);
-                        } catch (HibernateException ex) {
-                            log.error("Cover create failed", ex);
-                        }
-                        return image;
-                    }
-                } catch (Exception ex) {
-                    Tools.logException(Mp3File.class, ex, "Cannot create cover from: " + files[i].getAbsolutePath());
-                }
-                break;
+            if (directory.exists())
+            {
+	            File[] files = directory.listFiles(new FileFilter() {
+	                public boolean accept(File pathname) {
+	                    return pathname.getName().toLowerCase().equals("folder.jpg");
+	                }
+	            });
+	            if (files!=null)
+	            {
+		            for (int i = 0; i < files.length; i++) {
+		                try {
+		                	BufferedImage image = Tools.ImageIORead(files[i]);
+		                    if (image != null) {
+		                        createCover(new FileInputStream(files[i]), audio, "image/jpg");
+		
+		                        try {
+		                            AudioManager.updateAudio(audio);
+		                        } catch (HibernateException ex) {
+		                            log.error("Cover create failed", ex);
+		                        }
+		                        return image;
+		                    }
+		                } catch (Exception ex) {
+		                    Tools.logException(Mp3File.class, ex, "Cannot create cover from: " + files[i].getAbsolutePath());
+		                }
+		                break;
+		            }
+	            }
             }
         }
         return null;

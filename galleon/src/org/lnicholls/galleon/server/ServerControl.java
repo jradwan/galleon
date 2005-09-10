@@ -19,59 +19,77 @@ package org.lnicholls.galleon.server;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.awt.Image;
 
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.downloads.Download;
 
 public interface ServerControl extends Remote {
 
-    public void reset() throws RemoteException;
+	public void reset() throws RemoteException;
 
-    public ServerConfiguration getServerConfiguration() throws RemoteException;
-    
-    public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException;
-    
-    public DataConfiguration getDataConfiguration() throws RemoteException;
-    
-    public void updateDataConfiguration(DataConfiguration dataConfiguration) throws RemoteException;
+	public ServerConfiguration getServerConfiguration() throws RemoteException;
 
-    public List getRecordings() throws RemoteException;
+	public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException;
 
-    public List getAppDescriptors() throws RemoteException;
+	public DataConfiguration getDataConfiguration() throws RemoteException;
 
-    public List getApps() throws RemoteException;
+	public void updateDataConfiguration(DataConfiguration dataConfiguration) throws RemoteException;
 
-    public List getTiVos() throws RemoteException;
-    
-    public void updateTiVos(List tivos) throws RemoteException;
+	public GoBackConfiguration getGoBackConfiguration() throws RemoteException;
 
-    public void updateApp(AppContext app) throws RemoteException;
+	public void updateGoBackConfiguration(GoBackConfiguration goBackConfiguration) throws RemoteException;
 
-    public void removeApp(AppContext app) throws RemoteException;
+	public DownloadConfiguration getDownloadConfiguration() throws RemoteException;
 
-    public void updateVideo(Video video) throws RemoteException;
-    
-    public void removeVideo(Video video) throws RemoteException;
-    
-    public AppContext createAppContext(AppDescriptor appDescriptor) throws RemoteException;
-    
-    public List getRules() throws RemoteException;
-    
-    public void updateRules(List rules) throws RemoteException;
-    
-    public List getWinampSkins() throws RemoteException;
-    
-    public List getSkins() throws RemoteException;
-    
-    public int getPort() throws RemoteException;
-    
-    public List getPodcasts() throws RemoteException;
-    
-    public void setPodcasts(List list) throws RemoteException;
-    
-    public boolean isCurrentVersion() throws RemoteException;
-    
-    public Object getCodeImage() throws RemoteException;
+	public void updateDownloadConfiguration(DownloadConfiguration downloadConfiguration) throws RemoteException;
+
+	public List getRecordings() throws RemoteException;
+
+	public List getAppDescriptors() throws RemoteException;
+
+	public List getApps() throws RemoteException;
+
+	public List getTiVos() throws RemoteException;
+
+	public void updateTiVos(List tivos) throws RemoteException;
+
+	public void updateApp(AppContext app) throws RemoteException;
+
+	public void removeApp(AppContext app) throws RemoteException;
+
+	public void updateVideo(Video video) throws RemoteException;
+
+	public void removeVideo(Video video) throws RemoteException;
+
+	public AppContext createAppContext(AppDescriptor appDescriptor) throws RemoteException;
+
+	public List getRules() throws RemoteException;
+
+	public void updateRules(List rules) throws RemoteException;
+
+	public List getWinampSkins() throws RemoteException;
+
+	public List getSkins() throws RemoteException;
+
+	public int getPort() throws RemoteException;
+
+	public List getPodcasts() throws RemoteException;
+
+	public void setPodcasts(List list) throws RemoteException;
+
+	public List getVideocasts() throws RemoteException;
+
+	public void setVideocasts(List list) throws RemoteException;
+
+	public boolean isCurrentVersion() throws RemoteException;
+
+	public Object getCodeImage() throws RemoteException;
+
+	public List getDownloads() throws RemoteException;
+
+	public void pauseDownload(Download download) throws RemoteException;
+
+	public void resumeDownload(Download download) throws RemoteException;
 }

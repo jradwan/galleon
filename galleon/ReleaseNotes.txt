@@ -1,10 +1,25 @@
 Galleon
 -------
 
+Version 1.5.0:
+----------------------
+Added videocasting app
+Added option to disable TiVo timeouts to live TV
+Added option to disable GoBack feature
+Fixed podcasting tag parsing
+Made GoBack configurable
+Added support for multiple GoBack directories
+Fixed ToGo details download URL
+Fixed GoBack broadcasts
+Added internet slideshow app
+Added download manager
+
+
+
 Version 1.4.1:
 ----------------------
-Fix ToGoBack bug
-Fix ToGo connection bug
+Fixed ToGoBack bug
+Fixed ToGo connection bug
 
 
 Version 1.4.0:
@@ -229,7 +244,9 @@ Known issues:
 15. Port 7288 required for accessing the apps from your TiVo.
 16. Only one weather app at a time is supported.
 17. Port 1527 needed for database.
-18. Rewind icon not correct on first press
+18. Removing an app does not delete the associated data in the database.
+19. Depending on the bitrate of the original stream and of the options chosen, transcoding can be a very CPU intensive task.
+
 
 
 How to install Galleon:

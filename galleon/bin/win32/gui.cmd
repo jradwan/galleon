@@ -31,5 +31,6 @@ set classpath=%classpath%;..\lib\mp3dings.jar
 set classpath=%classpath%;..\lib\bananas.jar
 set classpath=%classpath%;..\lib\forms.jar
 set classpath=%classpath%;..\lib\browserlauncher.jar
+set classpath=%classpath%;..\lib\hme-host-sample.jar
 java -Xms32m -Xmx32m org.lnicholls.galleon.gui.Galleon
 set classpath=%oldclasspath%

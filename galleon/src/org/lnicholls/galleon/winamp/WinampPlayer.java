@@ -337,7 +337,7 @@ public class WinampPlayer extends DefaultPlayer {
                 setTitleText(title);
             } else
                 mLastTitle = title;
-        } else if (action.equals("playing")) {
+        } else if (action.equals("playing") || action.equals("seeking")) {
             if (mPlaying) {
                 if (mApplication.getPlayer().getTotal() != 0) {
                     int value = (int) Math.round(mApplication.getPlayer().getCurrentPosition()

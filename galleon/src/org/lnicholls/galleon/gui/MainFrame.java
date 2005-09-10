@@ -40,6 +40,7 @@ import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -88,11 +89,14 @@ import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
+import org.lnicholls.galleon.app.ConfigurationPanel;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.DataConfiguration;
+import org.lnicholls.galleon.server.GoBackConfiguration;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.gui.FileOptionsTable;
 
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -128,7 +132,7 @@ public class MainFrame extends JFrame {
 		});
 		fileMenu.addSeparator();
 		/*
-		fileMenu.add(new MenuAction("Data sharing...", null, "", new Integer(KeyEvent.VK_P)) {
+		fileMenu.add(new MenuAction("Account...", null, "", new Integer(KeyEvent.VK_A)) {
 
 			public void actionPerformed(ActionEvent event) {
 				new DataDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
@@ -143,6 +147,20 @@ public class MainFrame extends JFrame {
 			}
 
 		});
+		fileMenu.add(new MenuAction("Download Manager...", null, "", new Integer(KeyEvent.VK_D)) {
+
+			public void actionPerformed(ActionEvent event) {
+				new DownloadManagerDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
+			}
+
+		});		
+		fileMenu.add(new MenuAction("GoBack...", null, "", new Integer(KeyEvent.VK_G)) {
+
+			public void actionPerformed(ActionEvent event) {
+				new GoBackDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
+			}
+
+		});		
 		fileMenu.add(new MenuAction("Music Player...", null, "", new Integer(KeyEvent.VK_M)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -724,8 +742,8 @@ public class MainFrame extends JFrame {
 			mShuffleItems.setSelected(serverConfiguration.getShuffleItems());
 			mDebug = new JCheckBox("Debug logging");
 			mDebug.setSelected(serverConfiguration.isDebug());
-			mHandleTimeout = new JCheckBox("Handle TiVo Timeout");
-			mHandleTimeout.setSelected(serverConfiguration.isHandleTimeout());
+			mDisableTimeout = new JCheckBox("Disable Timeout");
+			mDisableTimeout.setSelected(serverConfiguration.isDisableTimeout());
 			mPort = new JFormattedTextField();
 			try {
 				MaskFormatter formatter = new MaskFormatter("####");
@@ -791,7 +809,7 @@ public class MainFrame extends JFrame {
 			// TODO Only show for Windows
 			builder.add(mGenerateThumbnails, cc.xy(3, 11));
 			builder.add(mDebug, cc.xy(3, 13));
-			builder.add(mHandleTimeout, cc.xy(3, 15));
+			builder.add(mDisableTimeout, cc.xy(3, 15));
 			JButton button = new JButton("...");
 			button.setActionCommand("pick");
 			button.addActionListener(this);
@@ -862,7 +880,7 @@ public class MainFrame extends JFrame {
 					mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
 					mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText().trim()));
 					mServerConfiguration.setDebug(mDebug.isSelected());
-					mServerConfiguration.setHandleTimeout(mHandleTimeout.isSelected());
+					mServerConfiguration.setDisableTimeout(mDisableTimeout.isSelected());
 
 					Galleon.updateServerConfiguration(mServerConfiguration);
 				} catch (Exception ex) {
@@ -935,7 +953,7 @@ public class MainFrame extends JFrame {
 
 		private JCheckBox mDebug;
 		
-		private JCheckBox mHandleTimeout;
+		private JCheckBox mDisableTimeout;
 
 		private JFormattedTextField mPort;
 
@@ -1352,6 +1370,160 @@ public class MainFrame extends JFrame {
 		private boolean mFound;
 	}
 	
+	public class GoBackDialog extends JDialog implements ActionListener {
+
+		private GoBackDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+			super(frame, "GoBack", true);
+			mServerConfiguration = serverConfiguration;
+			
+			final GoBackConfiguration goBackConfiguration = mServerConfiguration.getGoBackConfiguration();
+			
+			mEnabled = new JCheckBox("Enabled");
+			mEnabled.setSelected(goBackConfiguration.isEnabled());
+			mPublishTiVoRecordings = new JCheckBox("Publish TiVo Recordings");
+			mPublishTiVoRecordings.setSelected(goBackConfiguration.isPublishTiVoRecordings());
+			mConvertVideo = new JCheckBox("Convert Video");
+			mConvertVideo.setSelected(goBackConfiguration.isConvertVideo());
+			mConvertVideo.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent e) {
+					if (mConvertVideo.isSelected()) {
+						JOptionPane
+								.showMessageDialog(
+										MainFrame.this,
+										"Converting video is a CPU intensive operation which can last for an extended period of time.",
+										"Warning", JOptionPane.WARNING_MESSAGE);
+					}
+				}
+			});
+			mConversionTool = new JTextField(50);
+			mConversionTool.setText(goBackConfiguration.getConversionTool());
+
+			getContentPane().setLayout(new BorderLayout());
+
+			FormLayout layout = new FormLayout("right:pref, 3dlu, left:pref, 3dlu, left:pref:grow", 
+					"pref, " + // general
+					"6dlu, " + "pref, " + // enabled
+					"3dlu, " + "pref, " + // publish
+					"3dlu, " + "pref, " + // convert
+					"3dlu, " + "pref, " + // tool
+					"3dlu, " + "pref, " + // directories
+					"3dlu, " + "pref " 
+			);
+
+			PanelBuilder builder = new PanelBuilder(layout);
+			//DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
+			builder.setDefaultDialogBorder();
+
+			CellConstraints cc = new CellConstraints();
+
+			builder.addSeparator("General", cc.xyw(1, 1, 5));
+			builder.add(mEnabled, cc.xyw(3, 3, 3));
+			builder.add(mPublishTiVoRecordings, cc.xyw(3, 5, 3));
+			builder.add(mConvertVideo, cc.xyw(3, 7, 3));
+			builder.addLabel("Conversion Tool", cc.xy(1, 9));
+			builder.add(mConversionTool, cc.xy(3, 9));
+			
+			builder.addSeparator("Directories", cc.xyw(1, 11, 5));
+
+	        mColumnValues = new ArrayList();
+	        int counter = 0;
+	        for (Iterator i = goBackConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
+	            NameValue value = (NameValue) i.next();
+	            ArrayList values = new ArrayList();
+	            values.add(0, value.getName());
+	            values.add(1, value.getValue());
+	            mColumnValues.add(counter++, values);
+	        }
+
+	        JPanel panel = builder.getPanel();
+	        mFileOptionsTable = new FileOptionsTable(true, panel, mColumnValues);
+	        ArrayList columnNames = new ArrayList();
+	        columnNames.add(0, "Name");
+	        columnNames.add(1, "Path");
+	        builder.add(mFileOptionsTable, cc.xyw(3, 13, 3));			
+
+			getContentPane().add(panel, "Center");
+
+			JButton[] array = new JButton[3];
+			array[0] = new JButton("OK");
+			array[0].setActionCommand("ok");
+			array[0].addActionListener(this);
+			array[1] = new JButton("Cancel");
+			array[1].setActionCommand("cancel");
+			array[1].addActionListener(this);
+			array[2] = new JButton("Help");
+			array[2].setActionCommand("help");
+			array[2].addActionListener(this);
+			JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+
+			buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			getContentPane().add(buttons, "South");
+			pack();
+			setLocationRelativeTo(frame);
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if ("ok".equals(e.getActionCommand())) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				GoBackConfiguration goBackConfiguration = new GoBackConfiguration();
+				try {
+					goBackConfiguration.setEnabled(mEnabled.isSelected());
+					goBackConfiguration.setPublishTiVoRecordings(mPublishTiVoRecordings.isSelected());
+					goBackConfiguration.setConvertVideo(mConvertVideo.isSelected());
+					goBackConfiguration.setConversionTool(mConversionTool.getText());
+					
+					ArrayList newItems = new ArrayList();
+			        Iterator iterator = mColumnValues.iterator();
+			        while (iterator.hasNext()) {
+			            ArrayList rows = (ArrayList) iterator.next();
+			            log.debug("Path=" + rows.get(0));
+			            newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
+			        }
+			        goBackConfiguration.setPaths(newItems);
+					
+					Galleon.updateGoBackConfiguration(goBackConfiguration);
+				} catch (Exception ex) {
+					Tools.logException(MainFrame.class, ex, "Could not configure goback");
+					
+					JOptionPane.showMessageDialog(
+							this,
+							Tools.getCause(ex),
+							"Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				finally
+				{
+					this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));	
+				}
+			} else if ("help".equals(e.getActionCommand())) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				try {
+					URL url = getClass().getClassLoader().getResource("goback.html");
+					displayHelp(url);
+				} catch (Exception ex) {
+					Tools.logException(MainFrame.class, ex, "Could not find goback help ");
+				}
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				return;
+			}
+			this.setVisible(false);
+		}
+		
+		private JCheckBox mEnabled;
+
+		private JCheckBox mPublishTiVoRecordings;
+		
+		private JCheckBox mConvertVideo;
+		
+		private JTextField mConversionTool;
+		
+		private FileOptionsTable mFileOptionsTable;
+
+	    private ArrayList mColumnValues;		
+
+		private ServerConfiguration mServerConfiguration;
+	}	
+	
 	public class DataDialog extends JDialog implements ActionListener {
 
 		private DataDialog(JFrame frame, ServerConfiguration serverConfiguration) {
@@ -1415,7 +1587,7 @@ public class MainFrame extends JFrame {
 					"3dlu, " + "pref, " + // code
 					"3dlu, " + "pref, " + // agreements
 					"3dlu, " + "pref, " + // agree
-					"3dlu, " + "pref, " // anonymous
+					"3dlu, " + "pref " // anonymous
 			);
 
 			PanelBuilder builder = new PanelBuilder(layout);

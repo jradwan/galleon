@@ -219,7 +219,7 @@ public class PlaylistParser extends DefaultHandler {
                 }
             } else if (mFoundPlaylists) {
                 if (mDictLevel == 2 && mKey != null && mKey.equals("Name")) {
-                    if (mValue != null) {
+                	if (mValue != null) {
                         try {
                             List list = PlaylistManager.findByTitle(mValue);
                             if (list != null && list.size() > 0) {
@@ -366,7 +366,7 @@ public class PlaylistParser extends DefaultHandler {
                 if (SystemUtils.IS_OS_MAC_OSX)
                     location = location.substring("file://localhost".length(), location.length());
                 else
-                    location = location.substring("file://localhost/".length(), location.length() - 1);
+                    location = location.substring("file://localhost/".length(), location.length());
                 try {
                     File file = new File(location);
                     if (file.exists() && file.getName().toLowerCase().endsWith(".mp3")) {

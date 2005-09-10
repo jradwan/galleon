@@ -126,7 +126,7 @@ public class FileOptionsTable extends JPanel implements ActionListener {
         private OptionsTable mOptionsTable;
     }
 
-    public FileOptionsTable(boolean directories, AppConfigurationPanel optionsPanel, ArrayList paths) {
+    public FileOptionsTable(boolean directories, JPanel optionsPanel, ArrayList paths) {
         super();
         setLayout(new GridLayout(0, 1));
 

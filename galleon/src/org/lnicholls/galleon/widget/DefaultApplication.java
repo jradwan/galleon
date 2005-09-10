@@ -804,16 +804,21 @@ public class DefaultApplication extends BApplication {
     
     public boolean handleIdle( boolean isIdle )
     {
-    	System.out.println("handleIdle="+isIdle);
-    	System.out.println("handleIdle="+Server.getServer().getServerConfiguration().isHandleTimeout());
-    	System.out.println("handleIdle="+mHandleTimeout);
-    	if (isIdle && Server.getServer().getServerConfiguration().isHandleTimeout() && mHandleTimeout)
+    	if (isIdle)
     	{
-    		acknowledgeIdle(true);	
-    		return true;
+    		if (Server.getServer().getServerConfiguration().isDisableTimeout())
+    		{
+    			acknowledgeIdle(true);	
+        		return true;
+    		}
+    		else
+   			if (mHandleTimeout)
+   			{
+    			acknowledgeIdle(true);	
+        		return true;
+    		}
     	}
-    	else
-    		return super.handleIdle(isIdle);
+   		return super.handleIdle(isIdle);
     }
     
     public void setHandleTimeout(boolean value)

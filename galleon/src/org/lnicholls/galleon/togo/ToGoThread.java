@@ -82,7 +82,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                     break;
                                 }
                             }
-                            if (!found) {
+                            if (!found && next.getOrigen()==null) {
                                 synchronized(mToGo)
                                 {
                                     try {

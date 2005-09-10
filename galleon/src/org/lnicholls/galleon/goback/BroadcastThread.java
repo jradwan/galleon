@@ -83,24 +83,12 @@ public class BroadcastThread extends Thread implements Constants {
         if (mServer.getIPAddress() != null && mServer.getIPAddress().length() > 0) {
             try {
                 IpAddress ip = new IpAddress(mServer.getIPAddress());
-                // TODO
-                //ip = ip.getBroadcastAddress(mServer.getNetMask());
-                ip = ip.getBroadcastAddress(Constants.BROADCAST_ADDRESS);
+                ip = ip.getBroadcastAddress(NetworkInfo.getSubnetMask(mServer.getIPAddress()));
                 return ip.toString();
             } catch (Exception ex) {
                 //log.error("IP Address=" + mServer.getIPAddress() + " Subnet Mask=" + mServer.getNetMask() + " invalid");
             }
         }
-        /*
-         * ToDo: How to get the netmask from Java 1.4? try { for (Enumeration e =
-         * NetworkInterface.getNetworkInterfaces(); e.hasMoreElements() ;) { NetworkInterface networkInterface =
-         * (NetworkInterface)e.nextElement(); System.out.println("DisplayName="+networkInterface.getDisplayName());
-         * System.out.println("Name="+networkInterface.getName());
-         *
-         * for (Enumeration i = networkInterface.getInetAddresses(); i.hasMoreElements() ;) { InetAddress inetAddress =
-         * (InetAddress)i.nextElement(); System.out.println("InetAddress="+inetAddress.getHostAddress()); } } } catch
-         * (SocketException ex) {}
-         */
 
         // Try Linux /sbin/ifconfig
         if (System.getProperty("os.name").equals("Linux")) {

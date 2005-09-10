@@ -269,13 +269,19 @@ public class Tools {
 		if (cdata == null)
 			return "";
 		if (cdata.indexOf('&') != -1) {
-			cdata = cdata.replaceAll("&", "&amp;");
+			cdata = cdata.replaceAll("&", "&amp;");  //&#38;#38; 
 		}
 		if (cdata.indexOf('<') != -1) {
-			cdata = cdata.replaceAll("<", "&lt;");
+			cdata = cdata.replaceAll("<", "&lt;");  //&#38;#60;
 		}
 		if (cdata.indexOf('>') != -1) {
-			cdata = cdata.replaceAll(">", "&gt;");
+			cdata = cdata.replaceAll(">", "&gt;"); //&#62;
+		}
+		if (cdata.indexOf('\'') != -1) {
+			cdata = cdata.replaceAll("'", "&apos;"); //&#39;
+		}
+		if (cdata.indexOf('"') != -1) {
+			cdata = cdata.replaceAll("\"", "&quot;"); //&#34;
 		}
 		return cdata;
 	}
@@ -731,7 +737,7 @@ public class Tools {
 				Image internetImage = null;
 				if (log.isDebugEnabled())
 					log.debug("Downloading internet image=" + url.toExternalForm());
-
+				
 				class TimedThread implements Callable {
 					private URL mUrl;
 

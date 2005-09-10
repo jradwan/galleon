@@ -36,7 +36,7 @@ See the file "COPYING" for more details.
     
     <property name="version" type="string" not-null="true"/>
 
-    <property name="count" type="int" not-null="true"/>
+    <property name="total" type="int" not-null="true"/>
 
   </class>
   

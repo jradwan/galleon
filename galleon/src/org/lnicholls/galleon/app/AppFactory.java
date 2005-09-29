@@ -48,6 +48,11 @@ public class AppFactory extends Factory {
 		
 	}
 	
+	public void remove()
+	{
+		
+	}
+	
 	public void setConfiguration(AppConfiguration appConfiguration) {
 		getAppContext().setConfiguration(appConfiguration);
 	}

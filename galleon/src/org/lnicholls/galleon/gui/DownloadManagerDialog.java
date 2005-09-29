@@ -108,8 +108,10 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 		}
 	}    
 
-	public DownloadManagerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+	public DownloadManagerDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
 		super(frame, "Download Manager", true);
+		mMainFrame = frame;
+		
 		mServerConfiguration = serverConfiguration;
 		
 		final DownloadConfiguration downloadConfiguration = mServerConfiguration.getDownloadConfiguration();
@@ -266,7 +268,7 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try {
                 URL url = getClass().getClassLoader().getResource("downloadmanager.html");
-                displayHelp(url);
+                mMainFrame.displayHelp(mMainFrame, url);
             } catch (Exception ex) {
                 //HMOTools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
             }
@@ -587,16 +589,8 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
         };
         mRefreshThread.start();
     }
-    
-    public void displayHelp(URL url) {
-        if (mHelpDialog != null) {
-            mHelpDialog.setVisible(false);
-            mHelpDialog.dispose();
-        }
 
-        mHelpDialog = new HelpDialog(DownloadManagerDialog.this, url);
-        mHelpDialog.setVisible(true);
-    }
+    private MainFrame mMainFrame;
     
     private JComboBox mCPUCombo;
     

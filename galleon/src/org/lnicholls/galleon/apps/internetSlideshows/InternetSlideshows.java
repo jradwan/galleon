@@ -17,7 +17,6 @@ package org.lnicholls.galleon.apps.internetSlideshows;
  */
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.awt.image.*;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -43,15 +42,14 @@ import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.podcasting.Podcasting;
-import org.lnicholls.galleon.apps.rss.RSS;
-import org.lnicholls.galleon.apps.rss.RSS.RSSFactory;
+import org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsOptionsPanel.ImagesWrapper;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -62,6 +60,10 @@ import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.media.JpgFile;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.Mp3File;
+import org.lnicholls.galleon.server.MusicPlayerConfiguration;
+import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.Effect;
+import org.lnicholls.galleon.util.Effects;
 import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
@@ -72,9 +74,12 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.Grid;
 import org.lnicholls.galleon.widget.LabelText;
+import org.lnicholls.galleon.widget.MusicOptionsScreen;
+import org.lnicholls.galleon.widget.OptionsButton;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -167,12 +172,135 @@ public class InternetSlideshows extends DefaultApplication {
 
 		push(new PhotosMenuScreen(this), TRANSITION_NONE);
 	}
+	
+	public class OptionsScreen extends DefaultOptionsScreen {
+
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+			
+			getBelow().setResource(mInfoBackground);
+
+			InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
+
+			int start = TOP;
+			int width = 270;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Use safe viewing area");
+			
+			NameValue[] nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
+			mUseSafeButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
+					nameValues, String.valueOf(imagesConfiguration.isUseSafe()));
+			setFocusDefault(mUseSafeButton);
+
+			start = start + increment;
+
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Slideshow Effects");
+			
+			String names[] = new String[0];
+			names = (String[]) Effects.getEffectNames().toArray(names);
+			Arrays.sort(names);
+			List nameValuesList = new ArrayList();
+			for (int i = 0; i < names.length; i++) {
+				String name = names[i];
+				nameValuesList.add(new NameValue(name, name));
+			}
+			nameValuesList.add(new NameValue(Effects.RANDOM, Effects.RANDOM));
+			nameValuesList.add(new NameValue(Effects.SEQUENTIAL, Effects.SEQUENTIAL));
+			nameValues = (NameValue[]) nameValuesList.toArray(new NameValue[0]);
+			mEffectButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
+					nameValues, imagesConfiguration.getEffect());
+
+			start = start + increment;
+
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Display Time");
+			
+			nameValues = new NameValue[] { 
+			new NameValue("2 seconds", "2"), 
+			new NameValue("3 seconds", "3"), 
+			new NameValue("4 seconds", "4"), 
+			new NameValue("5 seconds", "5"), 
+			new NameValue("6 seconds", "6"), 
+			new NameValue("7 seconds", "7"), 
+			new NameValue("8 seconds", "8"), 
+			new NameValue("9 seconds", "9"), 
+			new NameValue("10 seconds", "10"), 
+			new NameValue("11 seconds", "11"), 
+			new NameValue("12 seconds", "12"), 
+			new NameValue("13 seconds", "13"), 
+			new NameValue("14 seconds", "14"), 
+			new NameValue("15 seconds", "15"), 
+			new NameValue("16 seconds", "16"), 
+			new NameValue("17 seconds", "17"), 
+			new NameValue("18 seconds", "18"), 
+			new NameValue("19 seconds", "19"), 
+			new NameValue("20 seconds", "20")};
+			
+			mDisplayTimeButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(imagesConfiguration.getDisplayTime()));
+
+			start = start + increment;
+
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Transition Time");
+			
+			mTransitionTimeButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(imagesConfiguration.getTransitionTime()));
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+
+			try {
+				InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
+				imagesConfiguration.setUseSafe(Boolean.valueOf(mUseSafeButton.getValue()).booleanValue());
+				imagesConfiguration.setEffect(mEffectButton.getValue());
+				imagesConfiguration.setDisplayTime(Integer.parseInt(mDisplayTimeButton.getValue()));
+				imagesConfiguration.setTransitionTime(Integer.parseInt(mTransitionTimeButton.getValue()));
+
+				Server.getServer().updateApp(((InternetSlideshowsFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(MusicOptionsScreen.class, ex, "Could not configure music player");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mUseSafeButton;
+
+		private OptionsButton mEffectButton;
+
+		private OptionsButton mDisplayTimeButton;
+
+		private OptionsButton mTransitionTimeButton;
+	}	
 
 	public class PhotosMenuScreen extends DefaultMenuScreen {
 		public PhotosMenuScreen(InternetSlideshows app) {
 			super(app, "Internet Slideshows");
 			
 			getBelow().setResource(mMenuBackground);
+			
+			setFooter("Press ENTER for options");
 			
 			InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory) getFactory())
 					.getAppContext().getConfiguration();
@@ -226,6 +354,8 @@ public class InternetSlideshows extends DefaultApplication {
 			case KEY_PLAY:
 				postEvent(new BEvent.Action(this, "play"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((InternetSlideshows) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -358,6 +488,7 @@ public class InternetSlideshows extends DefaultApplication {
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
 			case KEY_INFO:
+			case KEY_NUM0:
 				mShowDescription = !mShowDescription;
 				showDescription();
 				return true;				
@@ -600,7 +731,7 @@ public class InternetSlideshows extends DefaultApplication {
 				if (page != null && page.length() > 0)
 					content = page;
 			} catch (Exception ex) {
-				Tools.logException(Podcasting.class, ex, "Could not cache listing: " + url);
+				Tools.logException(InternetSlideshows.class, ex, "Could not cache listing: " + url);
 			}
 		}
 

@@ -94,7 +94,8 @@ public class FileGatherer {
     public static final void gatherDirectory(File directory, FileFilter suffixFilter, boolean recursive,
             GathererCallback callback) {
 
-        gatherDirectoryFromFileSystem(directory, suffixFilter, recursive, 0, callback);
+    	if (directory!=null && directory.exists())
+    		gatherDirectoryFromFileSystem(directory, suffixFilter, recursive, 0, callback);
     }
 
     // Gather all files in a directory. If recursive==true, recursively scan

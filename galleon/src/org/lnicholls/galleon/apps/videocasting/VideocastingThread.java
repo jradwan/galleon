@@ -302,7 +302,15 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 				}
 				if (!mDownloadNext) {
 					synchronized (this) {
-						wait(1000 * 60 * 60);
+						if (mTrack!=null && mTrack.getStatus()==VideocastTrack.STATUS_DOWNLOAD_CANCELLED)
+						{
+							if (mDownload!=null)
+							{
+								mDownload.interrupt();
+							}
+						}
+						else
+							wait(1000 * 60 * 60);
 					}
 				}
 				mDownloadNext = false;
@@ -383,6 +391,30 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 
 	public void statusChanged(StatusEvent se) {
 		log.debug("statusChanged=" + se);
+		if (se.getNewStatus() == StatusEvent.ERROR) {
+			synchronized (this) {
+				try {
+					mTrack = mVideocast.getTrack(mTrack.getUrl());
+				} catch (Exception ex) {
+					Tools.logException(VideocastingThread.class, ex, "Track update failed");
+				}
+			}
+
+			synchronized (this) {
+				try {
+					mTrack.setStatus(VideocastTrack.STATUS_DOWNLOAD_ERROR);
+					VideocastManager.updateVideocast(mVideocast);
+					mTrack = mVideocast.getTrack(mTrack.getUrl());
+				} catch (HibernateException ex) {
+					Tools.logException(VideocastingThread.class, ex, "Track update failed");
+				}
+			}
+			
+			mDownloadNext = true;
+			mWaiting = false;
+			interrupt();
+		}
+		else
 		if (se.getNewStatus() == StatusEvent.IN_PROGRESS) {
 			synchronized (this) {
 				try {

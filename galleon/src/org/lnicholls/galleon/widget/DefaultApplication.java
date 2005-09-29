@@ -124,7 +124,7 @@ public class DefaultApplication extends BApplication {
 
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
-        case KEY_ENTER:
+        case KEY_NUM1:
             if (mCurrentTrackerContext != null) {
                 play("thumbsup.snd");
                 PersistentValueManager.savePersistentValue(TRACKER, mCurrentTrackerContext);

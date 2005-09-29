@@ -933,7 +933,44 @@ public class Shoutcast extends DefaultApplication {
 			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) getAppContext().getConfiguration();
 
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-			mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
+			if (mShoutcastStations==null)
+				mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
+		}
+		
+		public void remove()
+		{
+			mShoutcastStations.remove();
+		}
+		
+		public void setAppContext(AppContext appContext) {
+			super.setAppContext(appContext);
+
+			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) appContext.getConfiguration();
+			try {
+				List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
+				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+					String current = (String) i.next();
+					
+					boolean found = false;
+					List genres = shoutcastConfiguration.getGenres();
+					for (Iterator j = genres.iterator(); j.hasNext(); /* Nothing */) {
+						String genre = (String) j.next();
+						if (genre.equals(current))
+						{
+							found = true;
+							break;
+						}
+					}
+					if (!found)
+						mShoutcastStations.remove(current);		
+				}
+	    	} catch (Exception ex) {
+	    		Tools.logException(ShoutcastStations.class, ex);
+	        }
+	    	
+	    	if (mShoutcastStations==null)
+				mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
+	    	mShoutcastStations.getPlaylists();
 		}
 	}
 

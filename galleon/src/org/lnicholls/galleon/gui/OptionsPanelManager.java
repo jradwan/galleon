@@ -149,7 +149,7 @@ public final class OptionsPanelManager extends InternalFrame implements ActionLi
 					path = path.replaceAll("\\.", "/");
 					URL url = mAppNode.getConfigurationPanel().getClass().getClassLoader().getResource(
 							path + "/" + mAppNode.getAppContext().getDescriptor().getDocumentation());
-					mMainFrame.displayHelp(url);
+					mMainFrame.displayHelp(mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
 							+ mAppNode.getAppContext().getDescriptor().getDocumentation());

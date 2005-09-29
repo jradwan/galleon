@@ -61,10 +61,10 @@ public final class AppManager {
         ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         if (serverConfiguration.getIPAddress() != null
                 && serverConfiguration.getIPAddress().trim().length() > 0) {
-            arguments = "-intf " + serverConfiguration.getIPAddress();
+            arguments = "--intf " + serverConfiguration.getIPAddress();
         }
         if (serverConfiguration.getPort() != 0) {
-            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "-port "
+            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "--port "
                     + Server.getServer().getPort();
         }
         ArgumentList argumentList = new ArgumentList(arguments);
@@ -91,7 +91,7 @@ public final class AppManager {
 
     private void getJars() {
         // TODO Handle reloading; what if list changes?
-        File directory = new File(System.getProperty("apps"));
+    	File directory = new File(System.getProperty("apps"));
         File[] files = directory.listFiles(new FileFilter() {
             public final boolean accept(File file) {
                 return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
@@ -273,6 +273,7 @@ public final class AppManager {
 	            	AppFactory appFactory = (AppFactory)app;
 		            if (appContext.getId()==appFactory.getAppContext().getId())
 		            {
+		            	appFactory.remove();
 		            	mAppHost.remove(app);
 		                mApps.remove(app);
 		                return;

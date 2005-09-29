@@ -766,6 +766,39 @@ public class Server {
 		}
 	}
 	
+	public void setDisableTimeout(boolean value)
+	{
+		try
+		{
+			mServerConfiguration.setDisableTimeout(value);
+			save();
+		}
+		catch (Exception ex)
+		{
+			Tools.logException(Server.class, ex);
+		}		
+	}
+	
+	public MusicPlayerConfiguration getMusicPlayerConfiguration() {
+		return mServerConfiguration.getMusicPlayerConfiguration();
+	}
+
+	public void updateMusicPlayerConfiguration(MusicPlayerConfiguration musicPlayerConfiguration) throws Exception {
+		try
+		{
+			if (musicPlayerConfiguration.isModified())
+			{
+				mServerConfiguration.setMusicPlayerConfiguration(musicPlayerConfiguration);
+				save();
+			}
+		}
+		catch (Exception ex)
+		{
+			Tools.logException(Server.class, ex);
+			throw ex;
+		}
+	}	
+	
 	public DataConfiguration getDataConfiguration() {
 		return mServerConfiguration.getDataConfiguration();
 	}
@@ -1011,10 +1044,6 @@ public class Server {
 		mAppClassLoader = new URLClassLoader((URL[]) urls.toArray(new URL[0]));
 	}
 
-	public MusicPlayerConfiguration getMusicPlayerConfiguration() {
-		return mServerConfiguration.getMusicPlayerConfiguration();
-	}
-	
     public BroadcastThread getBroadcastThread() {
         return mBroadcastThread;
     }

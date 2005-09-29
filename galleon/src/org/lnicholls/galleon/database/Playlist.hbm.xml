@@ -53,7 +53,7 @@ See the file "COPYING" for more details.
     <property name="origen" type="string" length="30"/>        
     
     <property name="externalId" type="string">            
-          <column name="externalId" index="PLAYLIST_EXTERNALID"/>
+          <column name="externalId" index="PLAYLIST_EXTERNAL"/>
     </property>    
     
     <list name="tracks" table="PLAYLIST_TRACKS" cascade="all">

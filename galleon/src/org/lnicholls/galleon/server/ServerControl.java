@@ -32,6 +32,10 @@ public interface ServerControl extends Remote {
 	public ServerConfiguration getServerConfiguration() throws RemoteException;
 
 	public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws RemoteException;
+	
+	public MusicPlayerConfiguration getMusicPlayerConfiguration() throws RemoteException;
+
+	public void updateMusicPlayerConfiguration(MusicPlayerConfiguration musicPlayerConfiguration) throws RemoteException;
 
 	public DataConfiguration getDataConfiguration() throws RemoteException;
 
@@ -92,4 +96,6 @@ public interface ServerControl extends Remote {
 	public void pauseDownload(Download download) throws RemoteException;
 
 	public void resumeDownload(Download download) throws RemoteException;
+	
+	public void setDisableTimeout(boolean value) throws RemoteException;
 }

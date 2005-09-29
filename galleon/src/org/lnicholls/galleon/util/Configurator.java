@@ -104,6 +104,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_SHUFFLE_ITEMS = "shuffleItems";
     
     private static String ATTRIBUTE_DEBUG = "debug";
+    
+    private static String ATTRIBUTE_TIMEOUT = "disableTimeout";
 
     private static String ATTRIBUTE_GENERATE_THUMBNAILS = "generateThumbnails";
 
@@ -312,6 +314,15 @@ public class Configurator implements Constants {
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
                                 serverConfiguration.setDebug(Boolean.valueOf(attribute.getNodeValue())
+                                        .booleanValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_TIMEOUT);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue());
+                                serverConfiguration.setDisableTimeout(Boolean.valueOf(attribute.getNodeValue())
                                         .booleanValue());
                             }
                         }
@@ -652,6 +663,8 @@ public class Configurator implements Constants {
                         serverConfiguration.getSkin()).append("\"");                
                 buffer.append(" ").append(ATTRIBUTE_DEBUG).append("=\"").append(
                         serverConfiguration.isDebug()).append("\"");                
+                buffer.append(" ").append(ATTRIBUTE_TIMEOUT).append("=\"").append(
+                        serverConfiguration.isDisableTimeout()).append("\"");
                 buffer.append("/>\n");
 
                 // Apps

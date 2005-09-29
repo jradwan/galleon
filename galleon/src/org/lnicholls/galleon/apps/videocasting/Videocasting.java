@@ -37,21 +37,19 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
-import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.database.Videocast;
 import org.lnicholls.galleon.database.VideocastManager;
 import org.lnicholls.galleon.database.VideocastTrack;
-import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.media.MediaManager;
-import org.lnicholls.galleon.media.*;
+import org.lnicholls.galleon.media.VideoFile;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
-import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
@@ -59,10 +57,12 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
@@ -70,10 +70,9 @@ import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.interfaces.IArgumentList;
 
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
@@ -112,7 +111,8 @@ public class Videocasting extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mItemIcon = getSkinImage("menu", "item");
 
-		VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory()).getAppContext().getConfiguration();
+		VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+				.getAppContext().getConfiguration();
 
 		push(new VideocastingMenuScreen(this), TRANSITION_NONE);
 	}
@@ -124,12 +124,11 @@ public class Videocasting extends DefaultApplication {
 			PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(Videocasting.class.getName()
 					+ "." + location);
 			String content = persistentValue == null ? null : persistentValue.getValue();
-			//log.debug("content1="+content);
+			// log.debug("content1="+content);
 			if (PersistentValueManager.isAged(persistentValue) && !location.equals("local")) {
 				try {
 					String page = Tools.getPage(new URL(location));
-					if (page != null && page.length() > 0)
-					{
+					if (page != null && page.length() > 0) {
 						content = page;
 					}
 				} catch (Exception ex) {
@@ -139,7 +138,7 @@ public class Videocasting extends DefaultApplication {
 				if (location.equals("local"))
 					content = "";
 			}
-			//log.debug("content2="+content);
+			// log.debug("content2="+content);
 			if (content != null) {
 				SAXReader saxReader = new SAXReader();
 				try {
@@ -185,9 +184,8 @@ public class Videocasting extends DefaultApplication {
 			if (element.getName().equals("outline") || element.getName().equals("body")) // OPML
 			{
 				List outlines = element.elements("outline");
-				if (outlines.size()==1)
-				{
-					element = (Element)outlines.get(0);
+				if (outlines.size() == 1) {
+					element = (Element) outlines.get(0);
 				}
 				for (Iterator i = element.elementIterator("outline"); i.hasNext();) {
 					Element outline = (Element) i.next();
@@ -224,16 +222,13 @@ public class Videocasting extends DefaultApplication {
 			String xmlUrl = Tools.getAttribute(element, "xmlUrl");
 			if (xmlUrl != null)
 				return false;
-			else
-			if (type == null)
+			else if (type == null)
 				return true;
-			else
-			if (type.equalsIgnoreCase("link"))
+			else if (type.equalsIgnoreCase("link"))
 				return false;
-			else
-			if (type.equalsIgnoreCase("rss"))
+			else if (type.equalsIgnoreCase("rss"))
 				return false;
-			
+
 			return true;
 		}
 		return false;
@@ -242,10 +237,10 @@ public class Videocasting extends DefaultApplication {
 	private String getUrl(Element element) {
 		if (element.getName().equals("outline")) {
 			String url = Tools.getAttribute(element, "xmlUrl");
-			if (url!=null)
+			if (url != null)
 				return url;
 			url = Tools.getAttribute(element, "url");
-			if (url!=null)
+			if (url != null)
 				return url;
 		}
 		return null;
@@ -255,7 +250,7 @@ public class Videocasting extends DefaultApplication {
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(Videocasting.class.getName() + "."
 				+ videocast.getPath());
 		String content = persistentValue == null ? null : persistentValue.getValue();
-		//log.debug("content3="+content);
+		// log.debug("content3="+content);
 		if (PersistentValueManager.isAged(persistentValue)) {
 			try {
 				String page = Tools.getPage(new URL(videocast.getPath()));
@@ -265,7 +260,7 @@ public class Videocasting extends DefaultApplication {
 				Tools.logException(Videocasting.class, ex, "Could not cache listing: " + videocast.getPath());
 			}
 		}
-		//log.debug("content4="+content);
+		// log.debug("content4="+content);
 		if (content != null) {
 			try {
 				SAXReader saxReader = new SAXReader();
@@ -327,7 +322,7 @@ public class Videocasting extends DefaultApplication {
 								channelImage2 = item.attributeValue("href"); // itunes
 							}
 						}
-						
+
 						Element thumbnailElement = channel.element("thumbnail");
 						if (thumbnailElement != null) {
 							if ((value = thumbnailElement.attributeValue("url")) != null) {
@@ -384,10 +379,8 @@ public class Videocasting extends DefaultApplication {
 											.endsWith(".gif")))
 								videocast.setImage(channelImage1); // rss
 							else
-								videocast.setImage(channelImage3); 
-						} 
-						else 
-						{
+								videocast.setImage(channelImage3);
+						} else {
 							if (channelImage2.endsWith(".png") || channelImage2.endsWith(".jpg"))
 								videocast.setImage(channelImage2); // itunes
 						}
@@ -534,7 +527,7 @@ public class Videocasting extends DefaultApplication {
 								if (videocastTrack == null)
 									videocastTrack = new VideocastTrack();
 
-								if (title != null && title.length() > 0)
+								if (title != null && title.length() > 0 && (videocastTrack.getTitle()==null || videocastTrack.getTitle().trim().length()==0))
 									videocastTrack.setTitle(Tools.cleanHTML(title));
 								if (description != null && description.length() > 0)
 									videocastTrack.setDescription(Tools.trim(Tools.cleanHTML(description), 4096));
@@ -640,8 +633,8 @@ public class Videocasting extends DefaultApplication {
 					else
 						ttl = 60 * 6;
 
-					PersistentValueManager.savePersistentValue(Videocasting.class.getName() + "." + videocast.getPath(),
-							content, ttl * 60);
+					PersistentValueManager.savePersistentValue(
+							Videocasting.class.getName() + "." + videocast.getPath(), content, ttl * 60);
 				}
 			} catch (Exception ex) {
 				Tools.logException(Videocasting.class, ex, "Could not download listing: " + videocast.getPath());
@@ -676,9 +669,60 @@ public class Videocasting extends DefaultApplication {
 		return listing;
 	}
 
+	public class OptionsScreen extends DefaultOptionsScreen {
+
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+
+			getBelow().setResource(mInfoBackground);
+
+			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+					.getAppContext().getConfiguration();
+
+			int start = TOP;
+			int width = 280;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Download");
+
+			NameValue[] nameValues = new NameValue[] { new NameValue("All", "-1"), new NameValue("1", "1"),
+					new NameValue("2", "2"), new NameValue("3", "3"), new NameValue("4", "4"), new NameValue("5", "5") };
+			mDownloadButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(videocastingConfiguration.getDownload()));
+			setFocusDefault(mDownloadButton);
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+			try {
+				VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+						.getAppContext().getConfiguration();
+				videocastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
+
+				Server.getServer().updateApp(((VideocastingFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(Videocasting.class, ex, "Could not configure Videocasting app");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mDownloadButton;
+	}
+
 	public class VideocastingMenuScreen extends DefaultMenuScreen {
 		public VideocastingMenuScreen(Videocasting app) {
 			super(app, "Videocasting");
+
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -736,11 +780,22 @@ public class Videocasting extends DefaultApplication {
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(Tools.cleanHTML(nameValue.getName()), 40));
 		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+			}
+
+			return super.handleKeyPress(code, rawcode);
+		}
 	}
 
 	public class NowPlayingMenuScreen extends DefaultMenuScreen {
 		public NowPlayingMenuScreen(Videocasting app) {
 			super(app, "Now Playing");
+
+			setFooter("Press ENTER for options");
 
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d/yyyy hh:mm a");
@@ -750,7 +805,8 @@ public class Videocasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory()).getAppContext().getConfiguration();
+			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			List list = null;
 			try {
@@ -767,7 +823,8 @@ public class Videocasting extends DefaultApplication {
 					if (tracks != null && tracks.size() > 0) {
 						for (Iterator trackIterator = tracks.iterator(); trackIterator.hasNext();) {
 							VideocastTrack videocastTrack = (VideocastTrack) trackIterator.next();
-							if ((videocastTrack.getStatus() == VideocastTrack.STATUS_DOWNLOADED || videocastTrack.getStatus() == VideocastTrack.STATUS_PLAYED)
+							if ((videocastTrack.getStatus() == VideocastTrack.STATUS_DOWNLOADED || videocastTrack
+									.getStatus() == VideocastTrack.STATUS_PLAYED)
 									&& videocastTrack.getTrack() != null) {
 								mList.add(videocastTrack);
 							}
@@ -782,7 +839,8 @@ public class Videocasting extends DefaultApplication {
 				public int compare(Object o1, Object o2) {
 					VideocastTrack videocastTrack1 = (VideocastTrack) o1;
 					VideocastTrack videocastTrack2 = (VideocastTrack) o2;
-					if (videocastTrack1 != null && videocastTrack2 != null && videocastTrack1.getPublicationDate() != null
+					if (videocastTrack1 != null && videocastTrack2 != null
+							&& videocastTrack1.getPublicationDate() != null
 							&& videocastTrack2.getPublicationDate() != null)
 						return -videocastTrack1.getPublicationDate().compareTo(videocastTrack2.getPublicationDate());
 					else
@@ -812,8 +870,8 @@ public class Videocasting extends DefaultApplication {
 							try {
 								mTracker = new Tracker(mList, mMenuList.getFocus());
 
-								getBApp()
-										.push(new VideocastItemScreen((Videocasting) getBApp(), mTracker), TRANSITION_LEFT);
+								getBApp().push(new VideocastItemScreen((Videocasting) getBApp(), mTracker),
+										TRANSITION_LEFT);
 								getBApp().flush();
 							} catch (Exception ex) {
 								Tools.logException(Videocasting.class, ex);
@@ -862,6 +920,8 @@ public class Videocasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -879,9 +939,12 @@ public class Videocasting extends DefaultApplication {
 		public SubscribedMenuScreen(Videocasting app) {
 			super(app, "Subscriptions");
 
+			setFooter("Press ENTER for options");
+
 			getBelow().setResource(mMenuBackground);
 
-			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory()).getAppContext().getConfiguration();
+			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			try {
 				mList = VideocastManager.listAllSubscribed();
@@ -937,6 +1000,8 @@ public class Videocasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -948,9 +1013,12 @@ public class Videocasting extends DefaultApplication {
 		public DirectoriesMenuScreen(Videocasting app) {
 			super(app, "Videocast Directories");
 
+			setFooter("Press ENTER for options");
+
 			getBelow().setResource(mMenuBackground);
 
-			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory()).getAppContext().getConfiguration();
+			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			for (Iterator i = videocastingConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
 				NameValue nameValue = (NameValue) i.next();
@@ -977,9 +1045,7 @@ public class Videocasting extends DefaultApplication {
 											tracker);
 									getBApp().push(directoryScreen, TRANSITION_LEFT);
 									getBApp().flush();
-								}
-								else
-								{
+								} else {
 									ArrayList list = new ArrayList();
 									Videocast videocast = null;
 									try {
@@ -994,13 +1060,12 @@ public class Videocasting extends DefaultApplication {
 									} catch (Exception ex) {
 										Tools.logException(Videocasting.class, ex);
 									}
-									
-									if (videocast!=null)
-									{
+
+									if (videocast != null) {
 										list.add(videocast);
-	
+
 										Tracker tracker = new Tracker(list, 0);
-	
+
 										getBApp().push(new VideocastScreen((Videocasting) getBApp(), tracker),
 												TRANSITION_LEFT);
 										getBApp().flush();
@@ -1033,6 +1098,8 @@ public class Videocasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1046,6 +1113,8 @@ public class Videocasting extends DefaultApplication {
 
 		public DirectoryScreen(Videocasting app, Tracker tracker, boolean first) {
 			super(app, "Videocasting");
+
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -1069,7 +1138,7 @@ public class Videocasting extends DefaultApplication {
 				if (mMenuList.size() > 0) {
 					load();
 					final Element element = (Element) (mMenuList.get(mMenuList.getFocus()));
-					log.debug("rss0:"+element);
+					log.debug("rss0:" + element);
 					if (isFolder(element)) {
 						new Thread() {
 							public void run() {
@@ -1087,7 +1156,7 @@ public class Videocasting extends DefaultApplication {
 							}
 						}.start();
 					} else {
-						log.debug("rss01:"+element);
+						log.debug("rss01:" + element);
 						new Thread() {
 							public void run() {
 								try {
@@ -1110,7 +1179,7 @@ public class Videocasting extends DefaultApplication {
 										} else {
 											log.debug("rss1");
 											Element document = getDocument(location);
-											log.debug("rss2:"+document);
+											log.debug("rss2:" + document);
 											if (document != null) {
 												if (isFolder(document)) {
 													Tracker tracker = new Tracker(getElements(document), 0);
@@ -1125,9 +1194,9 @@ public class Videocasting extends DefaultApplication {
 													Iterator iterator = mTracker.getList().iterator();
 													while (iterator.hasNext()) {
 														Element element = (Element) iterator.next();
-														log.debug("rss4:"+element);
+														log.debug("rss4:" + element);
 														location = getUrl(element);
-														log.debug("rss5:"+location);
+														log.debug("rss5:" + location);
 
 														Videocast videocast = null;
 														try {
@@ -1156,7 +1225,8 @@ public class Videocasting extends DefaultApplication {
 													log.debug("rss6:");
 													Tracker tracker = new Tracker(list, mTracker.getPos());
 
-													getBApp().push(new VideocastScreen((Videocasting) getBApp(), tracker),
+													getBApp().push(
+															new VideocastScreen((Videocasting) getBApp(), tracker),
 															TRANSITION_LEFT);
 													getBApp().flush();
 												}
@@ -1224,7 +1294,8 @@ public class Videocasting extends DefaultApplication {
 									// musicPlayerConfiguration =
 									// Server.getServer().getMusicPlayerConfiguration();
 									// tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
-									getBApp().push(new PlayerScreen((Videocasting) getBApp(), tracker), TRANSITION_LEFT);
+									getBApp()
+											.push(new PlayerScreen((Videocasting) getBApp(), tracker), TRANSITION_LEFT);
 									getBApp().flush();
 								} catch (Exception ex) {
 									Tools.logException(Videocasting.class, ex);
@@ -1243,7 +1314,8 @@ public class Videocasting extends DefaultApplication {
 									// musicPlayerConfiguration =
 									// Server.getServer().getMusicPlayerConfiguration();
 									// tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
-									getBApp().push(new PlayerScreen((Videocasting) getBApp(), tracker), TRANSITION_LEFT);
+									getBApp()
+											.push(new PlayerScreen((Videocasting) getBApp(), tracker), TRANSITION_LEFT);
 									getBApp().flush();
 								} catch (Exception ex) {
 									Tools.logException(Videocasting.class, ex);
@@ -1260,7 +1332,7 @@ public class Videocasting extends DefaultApplication {
 			BView icon = new BView(parent, 9, 2, 32, 32);
 			Element element = (Element) mMenuList.get(index);
 			String location = getUrl(element);
-			if (location == null || location.indexOf(".")==-1)
+			if (location == null || location.indexOf(".") == -1)
 				icon.setResource(mFolderIcon);
 			else
 				icon.setResource(mItemIcon);
@@ -1281,6 +1353,8 @@ public class Videocasting extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1300,6 +1374,8 @@ public class Videocasting extends DefaultApplication {
 
 		public VideocastScreen(Videocasting app, Tracker tracker, boolean showView) {
 			super(app, "", true);
+
+			setFooter("Press ENTER for options");
 
 			mTracker = tracker;
 			mShowView = showView;
@@ -1503,17 +1579,17 @@ public class Videocasting extends DefaultApplication {
 							Videocast videocast = (Videocast) mTracker.getList().get(mTracker.getPos());
 							if (videocast.getStatus() == Videocast.STATUS_SUBSCRIBED) {
 								videocast.setStatus(Videocast.STATUS_DELETED);
+								VideocastingFactory.remove(videocast);
 								list.set(1, "Subscribe");
 							} else {
 								videocast.setStatus(Videocast.STATUS_SUBSCRIBED);
+								try {
+									VideocastManager.updateVideocast(videocast);
+									((VideocastingFactory) getApp().getFactory()).update();
+								} catch (Exception ex) {
+									Tools.logException(Videocasting.class, ex);
+								}
 								list.set(1, "Cancel subscription");
-							}
-
-							try {
-								VideocastManager.updateVideocast(videocast);
-								((VideocastingFactory) getApp().getFactory()).update();
-							} catch (Exception ex) {
-								Tools.logException(Videocasting.class, ex);
 							}
 
 							list.flush();
@@ -1569,6 +1645,8 @@ public class Videocasting extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1595,28 +1673,31 @@ public class Videocasting extends DefaultApplication {
 					public void run() {
 						Videocast videocast = (Videocast) mTracker.getList().get(mTracker.getPos());
 
-						VideocastTrack[] videocastTrackArray = (VideocastTrack[]) videocast.getTracks().toArray(new VideocastTrack[0]);
-			            Arrays.sort(videocastTrackArray, new Comparator() {
-			                public int compare(Object o1, Object o2) {
-			                	VideocastTrack videocastTrack1 = (VideocastTrack) o1;
-			                	VideocastTrack videocastTrack2 = (VideocastTrack) o2;
-			                	
-			                	if (videocastTrack1.getPublicationDate()!=null && videocastTrack2.getPublicationDate()!=null)
-			                		return -videocastTrack1.getPublicationDate().compareTo(videocastTrack2.getPublicationDate());
-			                	else
-			                		return 0;
-			                }
-			            });
+						VideocastTrack[] videocastTrackArray = (VideocastTrack[]) videocast.getTracks().toArray(
+								new VideocastTrack[0]);
+						Arrays.sort(videocastTrackArray, new Comparator() {
+							public int compare(Object o1, Object o2) {
+								VideocastTrack videocastTrack1 = (VideocastTrack) o1;
+								VideocastTrack videocastTrack2 = (VideocastTrack) o2;
 
-			            ArrayList list = new ArrayList();
-			            for (int i = 0; i < videocastTrackArray.length; i++) {
-			                list.add(videocastTrackArray[i]);
-			            }
-						
+								if (videocastTrack1.getPublicationDate() != null
+										&& videocastTrack2.getPublicationDate() != null)
+									return -videocastTrack1.getPublicationDate().compareTo(
+											videocastTrack2.getPublicationDate());
+								else
+									return 0;
+							}
+						});
+
+						ArrayList list = new ArrayList();
+						for (int i = 0; i < videocastTrackArray.length; i++) {
+							list.add(videocastTrackArray[i]);
+						}
+
 						Tracker tracker = new Tracker(list, 0);
 
-						getBApp()
-								.push(new VideocastMenuScreen((Videocasting) getBApp(), tracker, videocast), TRANSITION_LEFT);
+						getBApp().push(new VideocastMenuScreen((Videocasting) getBApp(), tracker, videocast),
+								TRANSITION_LEFT);
 						getBApp().flush();
 					}
 				}.start();
@@ -1655,6 +1736,8 @@ public class Videocasting extends DefaultApplication {
 		public VideocastMenuScreen(Videocasting app, Tracker tracker, Videocast videocast) {
 			super(app, "");
 
+			setFooter("Press ENTER for options");
+
 			setSmallTitle(videocast.getTitle());
 
 			mTracker = tracker;
@@ -1668,7 +1751,8 @@ public class Videocasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory()).getAppContext().getConfiguration();
+			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			for (Iterator i = mTracker.getList().iterator(); i.hasNext(); /* Nothing */) {
 				VideocastTrack videocastTrack = (VideocastTrack) i.next();
@@ -1737,6 +1821,8 @@ public class Videocasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1754,6 +1840,8 @@ public class Videocasting extends DefaultApplication {
 
 		public VideocastItemScreen(Videocasting app, Tracker tracker) {
 			super(app, "", true);
+
+			setFooter("Press ENTER for options");
 
 			mTracker = tracker;
 
@@ -1833,7 +1921,7 @@ public class Videocasting extends DefaultApplication {
 
 			mListDelete = new DefaultOptionList(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
 					(int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.3), 120, 35);
-			//mListDelete.add("Play");
+			// mListDelete.add("Play");
 			mListDelete.add("Delete");
 			mListDelete.add("Don't do anything");
 			mListDelete.setVisible(false);
@@ -1891,8 +1979,7 @@ public class Videocasting extends DefaultApplication {
 			try {
 				Videocast currentVideocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
 				videocastTrack = currentVideocast.getTrack(videocastTrack.getUrl());
-				if (videocastTrack!=null)
-				{
+				if (videocastTrack != null) {
 					setSmallTitle(videocastTrack.getTitle());
 					String description = null;
 					if (videocastTrack.getDescription() == null) {
@@ -1907,10 +1994,10 @@ public class Videocasting extends DefaultApplication {
 						mDateText.setValue(mDateFormat.format(videocastTrack.getPublicationDate()));
 					else
 						mDateText.setValue(mDateFormat.format(new Date()));
-	
+
 					mCategoryText.setValue(videocastTrack.getCategory());
 					mAuthorText.setValue(videocastTrack.getAuthor());
-	
+
 					if (videocastTrack.getExplicit() != null && videocastTrack.getExplicit().booleanValue()) {
 						mBack.setVisible(true);
 						mExplicitText.setValue("Explicit");
@@ -1918,9 +2005,9 @@ public class Videocasting extends DefaultApplication {
 						mExplicitText.setValue("");
 						mBack.setVisible(false);
 					}
-	
+
 					final Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-	
+
 					if (videocast != null && videocast.getImage() != null && videocast.getImage().length() > 0) {
 						if (!isThread) {
 							clearImage();
@@ -1928,7 +2015,7 @@ public class Videocasting extends DefaultApplication {
 								public void run() {
 									int x = mImage.getX();
 									int y = mImage.getY();
-	
+
 									try {
 										Image image = Tools.retrieveCachedImage(new URL(videocast.getImage()));
 										if (image == null) {
@@ -1970,7 +2057,7 @@ public class Videocasting extends DefaultApplication {
 							setPainting(true);
 						}
 					}
-	
+
 					if (videocastTrack.getStatus() == VideocastTrack.STATUS_DOWNLOADING) {
 						// || videocastTrack.getStatus() ==
 						// VideocastTrack.STATUS_DOWNLOADED) {
@@ -1978,13 +2065,14 @@ public class Videocasting extends DefaultApplication {
 						mStatusBar.setVisible(true);
 						mStatusBar.setSize(1, mStatusBar.getHeight());
 						// speedText.setVisible(true);
-	
+
 						if (videocastTrack.getDownloadTime() > 0) {
 							long rate = (videocastTrack.getDownloadSize() / 1024) / videocastTrack.getDownloadTime();
 							mStatusText.setValue(videocastTrack.getStatusString() + ": " + rate + " KB/Sec");
 							// speedText.setValue(rate+" KB/Sec");
 							if (videocastTrack.getStatus() == Video.STATUS_DOWNLOADED) {
-								// mStatusBar.setSize(mStatusBarBg.getWidth() - 4,
+								// mStatusBar.setSize(mStatusBarBg.getWidth() -
+								// 4,
 								// mStatusBar.getHeight());
 								mStatusBar.setVisible(false);
 								mStatusBarBg.setVisible(false);
@@ -2015,7 +2103,7 @@ public class Videocasting extends DefaultApplication {
 						// speedText.setVisible(false);
 						mStatusText.setValue(" ");
 					}
-	
+
 					if (videocastTrack.getStatus() == VideocastTrack.STATUS_PLAYED
 							|| videocastTrack.getStatus() == VideocastTrack.STATUS_DOWNLOADED) {
 						if (!mListDelete.getVisible()) {
@@ -2184,6 +2272,8 @@ public class Videocasting extends DefaultApplication {
 				getNextPos();
 				updateView(false);
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -2375,8 +2465,7 @@ public class Videocasting extends DefaultApplication {
 							else
 								player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
 										PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
-							if (player!=null)
-							{
+							if (player != null) {
 								player.updatePlayer();
 								player.setVisible(true);
 							}
@@ -2393,8 +2482,7 @@ public class Videocasting extends DefaultApplication {
 							setPainting(true);
 						}
 					}
-					if (player!=null)
-					{
+					if (player != null) {
 						setFocusDefault(player);
 						setFocus(player);
 					}
@@ -2484,11 +2572,9 @@ public class Videocasting extends DefaultApplication {
 
 			update();
 		}
-		
-		public void update()
-		{
-			if (mVideocastingThread!=null)
-			{
+
+		public void update() {
+			if (mVideocastingThread != null) {
 				mVideocastingThread.update();
 			}
 		}
@@ -2499,10 +2585,53 @@ public class Videocasting extends DefaultApplication {
 
 			mVideocastingThread = new VideocastingThread(videocastingConfiguration);
 			mVideocastingThread.start();
-			
-			Server.getServer().publishVideo(new NameValue(videocastingConfiguration.getName(),System.getProperty("data") + File.separator + "videocasts"));
+
+			Server.getServer().publishVideo(
+					new NameValue(videocastingConfiguration.getName(), System.getProperty("data") + File.separator
+							+ "videocasts"));
 		}
 		
+		public void remove()
+		{
+			try {
+				List list = VideocastManager.listAllSubscribed();
+				Iterator iterator = list.iterator();
+				while (iterator.hasNext())
+				{
+					Videocast videocast = (Videocast)iterator.next();
+					remove(videocast);
+				}
+			} catch (Exception ex) {
+				Tools.logException(Videocasting.class, ex);
+			}
+		}		
+		
+		public static void remove(Videocast videocast)
+		{
+			try {
+				List tracks = videocast.getTracks();
+				if (tracks!=null && tracks.size()>0)
+				{
+					Iterator trackIterator = tracks.iterator();
+					while (trackIterator.hasNext())
+					{
+						VideocastTrack track = (VideocastTrack) trackIterator.next();
+						if (track.getTrack()!=null)
+						{
+							File file = new File(track.getTrack().getPath());
+							if (file.exists())
+								file.delete();
+							VideoManager.deleteVideo(track.getTrack());
+						}
+					}
+					tracks.clear();
+				}
+				VideocastManager.deleteVideocast(videocast);
+			} catch (Exception ex) {
+				Tools.logException(Videocasting.class, ex);
+			}
+		}
+
 		VideocastingThread mVideocastingThread;
 	}
 }

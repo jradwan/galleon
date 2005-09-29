@@ -179,9 +179,8 @@ public class DownloadThread extends Thread implements DownloadWork, Serializable
 
 				changeStatusTo(ThreadStatus.COMPLETED);
 			}
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
 			Tools.logException(DownloadThread.class, ex);
-
 			changeStatusTo(ThreadStatus.ERROR);
 		} finally {
 			try {

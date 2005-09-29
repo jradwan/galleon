@@ -22,6 +22,7 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -505,6 +507,25 @@ public class RecordedPanel extends JPanel {
                             sleep(1000*5);
                         else
                         {
+                        	ArrayList shows = new ArrayList();
+                        	
+                        	List recordings = Galleon.getRecordings();
+                            Iterator iterator = recordings.iterator();
+                            while (iterator.hasNext())
+                            {
+                                Video video = (Video)iterator.next();
+	                        	if (video.getStatus()==Video.STATUS_DOWNLOADED)
+	                            {
+	                            	File file = new File(video.getPath());
+	                                if (file.exists())
+	                                	shows.add(video);
+	                            }
+	                        	else
+                        		if (video.getStatus()!=Video.STATUS_DELETED)
+	                        		shows.add(video);
+                            }
+                            mRecorded = shows;
+                        	
                             Collections.sort(mRecorded, new ShowComparator(3, false));
                             ShowTableData model = (ShowTableData) mTable.getModel();
                             model.fireTableDataChanged();

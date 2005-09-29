@@ -51,6 +51,7 @@ import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.downloads.Download;
 import org.lnicholls.galleon.server.Constants;
+import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.GoBackConfiguration;
 import org.lnicholls.galleon.server.DownloadConfiguration;
@@ -388,6 +389,31 @@ public final class Galleon implements Constants {
 	public static void updateServerConfiguration(ServerConfiguration serverConfiguration) throws Exception {
 		ServerControl serverControl = getServerControl();
 		serverControl.updateServerConfiguration(serverConfiguration);
+	}
+	
+	public void setDisableTimeout(boolean value) throws Exception
+	{
+		ServerControl serverControl = getServerControl();
+		serverControl.setDisableTimeout(value);
+	}
+	
+	public static void updateMusicPlayerConfiguration(MusicPlayerConfiguration musicPlayerConfiguration) throws Exception {
+		ServerControl serverControl = getServerControl();
+		serverControl.updateMusicPlayerConfiguration(musicPlayerConfiguration);
+	}
+	
+	public static MusicPlayerConfiguration getMusicPlayerConfiguration() {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getMusicPlayerConfiguration();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get app server data configuration from server: "
+					+ mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
 	}	
 
 	public static void updateDataConfiguration(DataConfiguration dataConfiguration) throws Exception {

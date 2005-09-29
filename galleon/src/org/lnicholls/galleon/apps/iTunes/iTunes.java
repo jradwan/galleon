@@ -57,6 +57,7 @@ import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
+import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
@@ -141,6 +142,8 @@ public class iTunes extends DefaultApplication {
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(iTunes app) {
 			super(app, "Music");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -277,6 +280,8 @@ public class iTunes extends DefaultApplication {
 			case KEY_PLAY:
 				postEvent(new BEvent.Action(this, "play"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -292,6 +297,8 @@ public class iTunes extends DefaultApplication {
 
 		public PathScreen(iTunes app, Tracker tracker, boolean first) {
 			super(app, "Music");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -418,6 +425,8 @@ public class iTunes extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -433,6 +442,8 @@ public class iTunes extends DefaultApplication {
 
 		public MusicScreen(iTunes app) {
 			super(app, "Song", true);
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
 
@@ -495,6 +506,8 @@ public class iTunes extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -668,6 +681,7 @@ public class iTunes extends DefaultApplication {
 				mScreenSaver.handleKeyPress(code, rawcode);
 			switch (code) {
 			case KEY_INFO:
+			case KEY_NUM0:
 				getBApp().play("select.snd");
 				getBApp().flush();
 				LyricsScreen lyricsScreen = new LyricsScreen((iTunes) getBApp(), mTracker);

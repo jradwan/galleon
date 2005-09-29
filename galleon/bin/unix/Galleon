@@ -1,7 +1,7 @@
-#! /bin/bash
+	#! /bin/bash
 #
 # chkconfig: 345 95 30 
-# description: JavaHMO is a Java client for the Tivo Home Media Option
+# description: Galleon is a Java client for the Tivo Home Media Option
 #
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -10,12 +10,12 @@
 # These settings can be modified to fit the needs of your application
 
 # Application
-APP_NAME="JavaHMO"
-APP_LONG_NAME="JavaHMO"
+APP_NAME="Galleon"
+APP_LONG_NAME="Galleon"
 
 # Wrapper
-WRAPPER_CMD="/usr/bin/JavaHMO"
-WRAPPER_CONF="/etc/javaHMO/wrapper.conf"
+WRAPPER_CMD="/usr/bin/Galleon"
+WRAPPER_CONF="/etc/Galleon/wrapper.conf"
 
 for java in `ls /usr/java 2>/dev/null` ; do
   if [ "${java%j2re*}" == "" ] ; then
@@ -54,7 +54,7 @@ start() {
     daemon $WRAPPER_CMD $WRAPPER_CONF wrapper.daemonize=TRUE wrapper.console.loglevel=NONE
     RETVAL=$?
     echo
-    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/JavaHMO
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/Galleon
     return $RETVAL
 }
 
@@ -64,7 +64,7 @@ stop() {
     killproc $WRAPPER_CMD
     RETVAL=$?
     echo
-    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/JavaHMO
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/Galleon
     return $RETVAL
 }
 
@@ -82,14 +82,14 @@ case "$1" in
         RETVAL=$?
         ;;
   condrestart)
-        if [ -f /var/lock/subsys/JavaHMO ]; then
+        if [ -f /var/lock/subsys/Galleon ]; then
             stop
             start
             RETVAL=$?
         fi
         ;;
   status)
-        status JavaHMO
+        status Galleon
         RETVAL=$?
         ;;
   *)

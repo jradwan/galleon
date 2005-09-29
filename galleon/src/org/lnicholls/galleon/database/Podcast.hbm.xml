@@ -164,7 +164,7 @@ See the file "COPYING" for more details.
         </many-to-one>
 
     <property name="title" type="string" not-null="true">
-      <column name="title" index="PODCAST_TRACK_TITLE"/>
+      <column name="title" index="PODCAST_T_TITLE"/>
     </property>
     
     <property name="link" type="string" length="1024"/>            
@@ -190,7 +190,7 @@ See the file "COPYING" for more details.
     <property name="publicationDate" type="timestamp"/>
     
     <property name="url" type="string" not-null="true" length="1024">        
-      <column name="url" index="PODCAST_TRACK_URL"/>
+      <column name="url" index="PODCAST_T_URL"/>
     </property>    
     
     <property name="mimeType" type="string" not-null="true" length="50"/>
@@ -202,7 +202,7 @@ See the file "COPYING" for more details.
     <property name="duration" type="long"/>        
     
     <property name="rating" type="int">        
-      <column name="rating" index="PODCAST_TRACK_RATING"/>
+      <column name="rating" index="PODCAST_T_RATING"/>
     </property>                
     
     <property name="downloadTime" type="int" not-null="true">    

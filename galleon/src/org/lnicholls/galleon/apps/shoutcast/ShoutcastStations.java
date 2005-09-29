@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +33,7 @@ import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
@@ -169,6 +171,33 @@ public class ShoutcastStations {
             next = (next + 1) % list.size();
         }
     }
+    
+    public void remove()
+    {
+    	try {
+    		List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
+			for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+				String genre = (String) i.next();
+	    		remove(genre);
+			}
+    		
+    	} catch (Exception ex) {
+    		Tools.logException(ShoutcastStations.class, ex);
+        }
+    }
+    
+    public void remove(String genre)
+    {
+    	try {
+    		List all = AudioManager.findByOrigenGenre(SHOUTCAST, genre);
+            for (int j = 0; j < all.size(); j++) {
+                Audio audio = (Audio) all.get(j);
+                AudioManager.deleteAudio(audio);
+            }
+    	} catch (Exception ex) {
+    		Tools.logException(ShoutcastStations.class, ex);
+        }
+    }    
 
     private boolean isLimit() {
         if ((System.currentTimeMillis() - mTime < 1000 * 60 * 60 * 24)) {

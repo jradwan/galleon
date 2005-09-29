@@ -208,6 +208,7 @@
             includes="org/**"
             excludes="**/apps/**,**/widget/ScrollText.class,**/widget/Grid.class,**/widget/PlayBar.class">
             <fileset dir="./doc" includes="server.html" />
+            <fileset dir="./doc" includes="network.html" />            
             <fileset dir="./doc" includes="togo.html" />            
             <fileset dir="./doc" includes="newapp.html" />            
             <fileset dir="./doc" includes="musicplayer.html" />                        

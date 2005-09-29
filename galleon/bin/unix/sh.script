@@ -13,8 +13,8 @@
 # These settings can be modified to fit the needs of your application
 
 # Application
-APP_NAME="JavaHMO"
-APP_LONG_NAME="JavaHMO"
+APP_NAME="Galleon"
+APP_LONG_NAME="Galleon"
 
 # Wrapper
 WRAPPER_CMD="./wrapper"

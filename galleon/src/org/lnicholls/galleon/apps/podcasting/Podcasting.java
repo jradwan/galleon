@@ -45,8 +45,7 @@ import org.lnicholls.galleon.database.Podcast;
 import org.lnicholls.galleon.database.PodcastManager;
 import org.lnicholls.galleon.database.PodcastTrack;
 import org.lnicholls.galleon.database.Video;
-import org.lnicholls.galleon.database.Videocast;
-import org.lnicholls.galleon.database.VideocastManager;
+import org.lnicholls.galleon.downloads.Download;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
@@ -58,23 +57,22 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScreenSaver;
-import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
-import org.lnicholls.galleon.downloads.*;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.interfaces.IArgumentList;
 
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
@@ -113,7 +111,8 @@ public class Podcasting extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mItemIcon = getSkinImage("menu", "item");
 
-		PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
+		PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+				.getAppContext().getConfiguration();
 
 		push(new PodcastingMenuScreen(this), TRANSITION_NONE);
 	}
@@ -128,8 +127,7 @@ public class Podcasting extends DefaultApplication {
 			if (PersistentValueManager.isAged(persistentValue) && !location.equals("local")) {
 				try {
 					String page = Tools.getPage(new URL(location));
-					if (page != null && page.length() > 0)
-					{
+					if (page != null && page.length() > 0) {
 						content = page;
 					}
 				} catch (Exception ex) {
@@ -184,9 +182,8 @@ public class Podcasting extends DefaultApplication {
 			if (element.getName().equals("outline") || element.getName().equals("body")) // OPML
 			{
 				List outlines = element.elements("outline");
-				if (outlines.size()==1)
-				{
-					element = (Element)outlines.get(0);
+				if (outlines.size() == 1) {
+					element = (Element) outlines.get(0);
 				}
 				for (Iterator i = element.elementIterator("outline"); i.hasNext();) {
 					Element outline = (Element) i.next();
@@ -222,13 +219,11 @@ public class Podcasting extends DefaultApplication {
 			String type = Tools.getAttribute(element, "type");
 			if (type == null)
 				return true;
-			else
-			if (type.equals("link"))
+			else if (type.equals("link"))
 				return false;
-			else
-			if (type.equals("rss"))
+			else if (type.equals("rss"))
 				return false;
-			
+
 			return true;
 		}
 		return false;
@@ -654,9 +649,60 @@ public class Podcasting extends DefaultApplication {
 		return listing;
 	}
 
+	public class OptionsScreen extends DefaultOptionsScreen {
+
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+
+			getBelow().setResource(mInfoBackground);
+
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+					.getAppContext().getConfiguration();
+
+			int start = TOP;
+			int width = 280;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Download");
+
+			NameValue[] nameValues = new NameValue[] { new NameValue("All", "-1"), new NameValue("1", "1"),
+					new NameValue("2", "2"), new NameValue("3", "3"), new NameValue("4", "4"), new NameValue("5", "5") };
+			mDownloadButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(podcastingConfiguration.getDownload()));
+			setFocusDefault(mDownloadButton);
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+			try {
+				PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+						.getAppContext().getConfiguration();
+				podcastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
+
+				Server.getServer().updateApp(((PodcastingFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(Podcasting.class, ex, "Could not configure podcasting app");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mDownloadButton;
+	}
+
 	public class PodcastingMenuScreen extends DefaultMenuScreen {
 		public PodcastingMenuScreen(Podcasting app) {
 			super(app, "Podcasting");
+
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -714,11 +760,22 @@ public class Podcasting extends DefaultApplication {
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(Tools.cleanHTML(nameValue.getName()), 40));
 		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+			}
+
+			return super.handleKeyPress(code, rawcode);
+		}
 	}
 
 	public class NowPlayingMenuScreen extends DefaultMenuScreen {
 		public NowPlayingMenuScreen(Podcasting app) {
 			super(app, "Now Playing");
+
+			setFooter("Press ENTER for options");
 
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d/yyyy hh:mm a");
@@ -728,7 +785,8 @@ public class Podcasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			List list = null;
 			try {
@@ -840,6 +898,8 @@ public class Podcasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -857,9 +917,12 @@ public class Podcasting extends DefaultApplication {
 		public SubscribedMenuScreen(Podcasting app) {
 			super(app, "Subscriptions");
 
+			setFooter("Press ENTER for options");
+
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			try {
 				mList = PodcastManager.listAllSubscribed();
@@ -915,6 +978,8 @@ public class Podcasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -926,9 +991,12 @@ public class Podcasting extends DefaultApplication {
 		public DirectoriesMenuScreen(Podcasting app) {
 			super(app, "Podcast Directories");
 
+			setFooter("Press ENTER for options");
+
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			for (Iterator i = podcastingConfiguration.getDirectorys().iterator(); i.hasNext(); /* Nothing */) {
 				NameValue nameValue = (NameValue) i.next();
@@ -955,9 +1023,7 @@ public class Podcasting extends DefaultApplication {
 											tracker);
 									getBApp().push(directoryScreen, TRANSITION_LEFT);
 									getBApp().flush();
-								}
-								else
-								{
+								} else {
 									ArrayList list = new ArrayList();
 									Podcast podcast = null;
 									try {
@@ -965,20 +1031,18 @@ public class Podcasting extends DefaultApplication {
 										if (podcasts != null && podcasts.size() > 0) {
 											podcast = (Podcast) podcasts.get(0);
 										} else {
-											podcast = new Podcast(nameValue.getName(), 0, location, 0,
-													new ArrayList());
+											podcast = new Podcast(nameValue.getName(), 0, location, 0, new ArrayList());
 											PodcastManager.createPodcast(podcast);
 										}
 									} catch (Exception ex) {
 										Tools.logException(Podcasting.class, ex);
 									}
-									
-									if (podcast!=null)
-									{
+
+									if (podcast != null) {
 										list.add(podcast);
-	
+
 										Tracker tracker = new Tracker(list, 0);
-	
+
 										getBApp().push(new PodcastScreen((Podcasting) getBApp(), tracker),
 												TRANSITION_LEFT);
 										getBApp().flush();
@@ -1011,6 +1075,8 @@ public class Podcasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1024,6 +1090,8 @@ public class Podcasting extends DefaultApplication {
 
 		public DirectoryScreen(Podcasting app, Tracker tracker, boolean first) {
 			super(app, "Podcasting");
+
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -1251,6 +1319,8 @@ public class Podcasting extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1270,6 +1340,8 @@ public class Podcasting extends DefaultApplication {
 
 		public PodcastScreen(Podcasting app, Tracker tracker, boolean showView) {
 			super(app, "", true);
+
+			setFooter("Press ENTER for options");
 
 			mTracker = tracker;
 			mShowView = showView;
@@ -1473,17 +1545,17 @@ public class Podcasting extends DefaultApplication {
 							Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
 							if (podcast.getStatus() == Podcast.STATUS_SUBSCRIBED) {
 								podcast.setStatus(Podcast.STATUS_DELETED);
+								PodcastingFactory.remove(podcast);
 								list.set(1, "Subscribe");
 							} else {
 								podcast.setStatus(Podcast.STATUS_SUBSCRIBED);
+								try {
+									PodcastManager.updatePodcast(podcast);
+									((PodcastingFactory) getApp().getFactory()).update();
+								} catch (Exception ex) {
+									Tools.logException(Podcasting.class, ex);
+								}
 								list.set(1, "Cancel subscription");
-							}
-
-							try {
-								PodcastManager.updatePodcast(podcast);
-								((PodcastingFactory) getApp().getFactory()).update();
-							} catch (Exception ex) {
-								Tools.logException(Podcasting.class, ex);
 							}
 
 							list.flush();
@@ -1539,6 +1611,8 @@ public class Podcasting extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1565,24 +1639,27 @@ public class Podcasting extends DefaultApplication {
 					public void run() {
 						Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
 
-						PodcastTrack[] podcastTrackArray = (PodcastTrack[]) podcast.getTracks().toArray(new PodcastTrack[0]);
-			            Arrays.sort(podcastTrackArray, new Comparator() {
-			                public int compare(Object o1, Object o2) {
-			                	PodcastTrack podcastTrack1 = (PodcastTrack) o1;
-			                	PodcastTrack podcastTrack2 = (PodcastTrack) o2;
-			                	
-			                	if (podcastTrack1.getPublicationDate()!=null && podcastTrack2.getPublicationDate()!=null)
-			                		return -podcastTrack1.getPublicationDate().compareTo(podcastTrack2.getPublicationDate());
-			                	else
-			                		return 0;
-			                }
-			            });
+						PodcastTrack[] podcastTrackArray = (PodcastTrack[]) podcast.getTracks().toArray(
+								new PodcastTrack[0]);
+						Arrays.sort(podcastTrackArray, new Comparator() {
+							public int compare(Object o1, Object o2) {
+								PodcastTrack podcastTrack1 = (PodcastTrack) o1;
+								PodcastTrack podcastTrack2 = (PodcastTrack) o2;
 
-			            ArrayList list = new ArrayList();
-			            for (int i = 0; i < podcastTrackArray.length; i++) {
-			                list.add(podcastTrackArray[i]);
-			            }
-						
+								if (podcastTrack1.getPublicationDate() != null
+										&& podcastTrack2.getPublicationDate() != null)
+									return -podcastTrack1.getPublicationDate().compareTo(
+											podcastTrack2.getPublicationDate());
+								else
+									return 0;
+							}
+						});
+
+						ArrayList list = new ArrayList();
+						for (int i = 0; i < podcastTrackArray.length; i++) {
+							list.add(podcastTrackArray[i]);
+						}
+
 						Tracker tracker = new Tracker(list, 0);
 
 						getBApp()
@@ -1625,6 +1702,8 @@ public class Podcasting extends DefaultApplication {
 		public PodcastMenuScreen(Podcasting app, Tracker tracker, Podcast podcast) {
 			super(app, "");
 
+			setFooter("Press ENTER for options");
+
 			setSmallTitle(podcast.getTitle());
 
 			mTracker = tracker;
@@ -1638,7 +1717,8 @@ public class Podcasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory()).getAppContext().getConfiguration();
+			PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+					.getAppContext().getConfiguration();
 
 			for (Iterator i = mTracker.getList().iterator(); i.hasNext(); /* Nothing */) {
 				PodcastTrack podcastTrack = (PodcastTrack) i.next();
@@ -1707,6 +1787,8 @@ public class Podcasting extends DefaultApplication {
 			case KEY_LEFT:
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1724,6 +1806,8 @@ public class Podcasting extends DefaultApplication {
 
 		public PodcastItemScreen(Podcasting app, Tracker tracker) {
 			super(app, "", true);
+
+			setFooter("Press ENTER for options");
 
 			mTracker = tracker;
 
@@ -1947,19 +2031,17 @@ public class Podcasting extends DefaultApplication {
 					mStatusBar.setVisible(true);
 					mStatusBar.setSize(1, mStatusBar.getHeight());
 					// speedText.setVisible(true);
-					
+
 					float barFraction = 0;
-					if (podcastTrack.getSize()>0)
+					if (podcastTrack.getSize() > 0)
 						barFraction = podcastTrack.getDownloadSize() / (float) podcastTrack.getSize();
 					int downloadTime = podcastTrack.getDownloadTime();
-					
+
 					List downloads = Server.getServer().getDownloads();
 					Iterator iterator = downloads.iterator();
-					while (iterator.hasNext())
-					{
-						Download download = (Download)iterator.next();
-						if (download.getURL().toString().equals(podcastTrack.getUrl()))
-						{
+					while (iterator.hasNext()) {
+						Download download = (Download) iterator.next();
+						if (download.getURL().toString().equals(podcastTrack.getUrl())) {
 							barFraction = download.getBytesCompleted() / (float) podcastTrack.getSize();
 							downloadTime = download.getElapsedTime();
 							break;
@@ -2169,6 +2251,8 @@ public class Podcasting extends DefaultApplication {
 				getNextPos();
 				updateView(false);
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -2360,8 +2444,7 @@ public class Podcasting extends DefaultApplication {
 							else
 								player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
 										PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
-							if (player!=null)
-							{
+							if (player != null) {
 								player.updatePlayer();
 								player.setVisible(true);
 							}
@@ -2378,8 +2461,7 @@ public class Podcasting extends DefaultApplication {
 							setPainting(true);
 						}
 					}
-					if (player!=null)
-					{
+					if (player != null) {
 						setFocusDefault(player);
 						setFocus(player);
 					}
@@ -2466,14 +2548,12 @@ public class Podcasting extends DefaultApplication {
 
 		public void setAppContext(AppContext appContext) {
 			super.setAppContext(appContext);
-
+			
 			update();
 		}
-		
-		public void update()
-		{
-			if (mPodcastingThread!=null)
-			{
+
+		public void update() {
+			if (mPodcastingThread != null) {
 				mPodcastingThread.update();
 			}
 		}
@@ -2484,6 +2564,47 @@ public class Podcasting extends DefaultApplication {
 
 			mPodcastingThread = new PodcastingThread(podcastingConfiguration);
 			mPodcastingThread.start();
+		}
+		
+		public void remove()
+		{
+			try {
+				List list = PodcastManager.listAllSubscribed();
+				Iterator iterator = list.iterator();
+				while (iterator.hasNext())
+				{
+					Podcast podcast = (Podcast)iterator.next();
+					remove(podcast);
+				}
+			} catch (Exception ex) {
+				Tools.logException(Podcasting.class, ex);
+			}
+		}
+		
+		public static void remove(Podcast podcast)
+		{
+			try {
+				List tracks = podcast.getTracks();
+				if (tracks!=null && tracks.size()>0)
+				{
+					Iterator trackIterator = tracks.iterator();
+					while (trackIterator.hasNext())
+					{
+						PodcastTrack track = (PodcastTrack) trackIterator.next();
+						if (track.getTrack()!=null)
+						{
+							File file = new File(track.getTrack().getPath());
+							if (file.exists())
+								file.delete();
+							AudioManager.deleteAudio(track.getTrack());
+						}
+					}
+					tracks.clear();
+				}
+				PodcastManager.deletePodcast(podcast);
+			} catch (Exception ex) {
+				Tools.logException(Podcasting.class, ex);
+			}
 		}
 		
 		PodcastingThread mPodcastingThread;

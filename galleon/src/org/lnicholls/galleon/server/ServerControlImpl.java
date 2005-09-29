@@ -56,6 +56,23 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
         	throw new RemoteException(ex.getMessage(), ex);
         }
     }
+
+    public MusicPlayerConfiguration getMusicPlayerConfiguration()  throws RemoteException
+    {
+        return Server.getServer().getMusicPlayerConfiguration();
+    }
+    
+    public void updateMusicPlayerConfiguration(MusicPlayerConfiguration musicPlayerConfiguration) throws RemoteException
+    {
+        try
+        {
+        	Server.getServer().updateMusicPlayerConfiguration(musicPlayerConfiguration);
+        }
+        catch (Exception ex)
+        {
+        	throw new RemoteException(ex.getMessage(), ex);
+        }
+    }
     
     public DataConfiguration getDataConfiguration()  throws RemoteException
     {
@@ -231,4 +248,10 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
 	{
 		Server.getServer().resumeDownload(download);
 	}
+	
+	public void setDisableTimeout(boolean value) throws RemoteException
+	{
+		Server.getServer().setDisableTimeout(value);
+	}	
+	
 }

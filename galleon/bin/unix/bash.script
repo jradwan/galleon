@@ -12,14 +12,14 @@
 # These settings can be modified to fit the needs of your application
 
 # Application
-APP_NAME="JavaHMO"
-APP_LONG_NAME="JavaHMO"
+APP_NAME="Galleon"
+APP_LONG_NAME="Galleon"
 
 # Wrapper
 #WRAPPER_CMD="./wrapper"
 #WRAPPER_CONF="../conf/wrapper.conf"
-WRAPPER_CMD="/usr/bin/JavaHMO"
-WRAPPER_CONF="/etc/javaHMO/wrapper.conf"
+WRAPPER_CMD="/usr/bin/Galleon"
+WRAPPER_CONF="/etc/Galleon/wrapper.conf"
 
 for java in `ls /usr/java 2>/dev/null` ; do
   if [ "${java%j2re*}" == "" ] ; then
@@ -216,19 +216,19 @@ dump() {
 }
 
 gui() {
-	cd /usr/share/javaHMO/lib
+	cd /usr/share/Galleon/lib
 	for i in *.jar
 	do
 	CLASSPATH=$CLASSPATH:$i
 	done
-	cd /usr/share/javaHMO/plugins
+	cd /usr/share/Galleon/plugins
 	for i in *.jar
 	do
 	CLASSPATH=$CLASSPATH:$i
 	done
-	cd /usr/share/javaHMO/lib
+	cd /usr/share/Galleon/lib
 	export CLASSPATH
-        $JAVA_HOME/bin/java -Xms64m -Xmx64m -Droot=/usr/share/javaHMO -Dconf=/etc/javaHMO -Dcache=/tmp/javaHMO.cache -Dlogfile=/var/log/javaHMO.log org.lnicholls.javahmo.gui.JavaHMO
+        $JAVA_HOME/bin/java -Xms64m -Xmx64m -Droot=/usr/share/Galleon -Dconf=/etc/Galleon -Dcache=/tmp/Galleon.cache -Dlogfile=/var/log/Galleon.log org.lnicholls.galleon.gui.Galleon
 
 }
  

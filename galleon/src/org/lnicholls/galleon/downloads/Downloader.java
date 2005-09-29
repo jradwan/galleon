@@ -35,6 +35,11 @@ public class Downloader extends Thread implements DownloadWork, Serializable {
 
 				download.setStatus(StatusEvent.COMPLETED);
 			}
+			else
+			if (se.getNewStatus() == se.ERROR)
+			{
+				notifyStatusChange(new StatusEvent(d, getStatus(), StatusEvent.ERROR));
+			}
 		}
 	}
 

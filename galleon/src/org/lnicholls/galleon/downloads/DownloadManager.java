@@ -31,6 +31,17 @@ public class DownloadManager implements Serializable {
 				da = dab;
 				--running;
 			}
+			else
+			if (se.getNewStatus() == se.ERROR) {
+				Downloader[] dab = new Downloader[da.length - 1];
+				int counter = 0;
+				for (int i = 0; i < da.length; i++) {
+					if (da[i] != dt)
+						dab[counter++] = da[i];
+				}
+				da = dab;
+				--running;
+			}
 
 			if (se.getNewStatus() == se.COMPLETED) {
 				// pauseMenuItem.setEnabled( false );

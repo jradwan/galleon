@@ -47,8 +47,9 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
  */
 public class ToGoDialog extends JDialog implements ActionListener {
 
-    public ToGoDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+    public ToGoDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
         super(frame, "ToGo", true);
+        mMainFrame = frame;
         mServerConfiguration = serverConfiguration;
 
         mTabbedPane = new JTabbedPane(SwingConstants.TOP);
@@ -109,7 +110,7 @@ public class ToGoDialog extends JDialog implements ActionListener {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try {
                 URL url = getClass().getClassLoader().getResource("togo.html");
-                displayHelp(url);
+                mMainFrame.displayHelp(mMainFrame, url);
             } catch (Exception ex) {
                 //HMOTools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
             }
@@ -118,16 +119,6 @@ public class ToGoDialog extends JDialog implements ActionListener {
         }
 
         this.setVisible(false);
-    }
-
-    public void displayHelp(URL url) {
-        if (mHelpDialog != null) {
-            mHelpDialog.setVisible(false);
-            mHelpDialog.dispose();
-        }
-
-        mHelpDialog = new HelpDialog(ToGoDialog.this, url);
-        mHelpDialog.setVisible(true);
     }
 
     private JTabbedPane mTabbedPane;
@@ -143,4 +134,6 @@ public class ToGoDialog extends JDialog implements ActionListener {
     private RulesPanel mRulesPanel;
 
     private HelpDialog mHelpDialog;
+    
+    private MainFrame mMainFrame;
 }

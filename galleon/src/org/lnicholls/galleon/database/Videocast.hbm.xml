@@ -105,7 +105,7 @@ See the file "COPYING" for more details.
     <property name="origen" type="string" length="30"/>        
     
     <property name="externalId" type="string">            
-          <column name="externalId" index="VIDEOCAST_EXTERNALID"/>
+          <column name="externalId" index="VIDEOCAST_EXTERNAL"/>
     </property>    
     
     <property name="ttl" type="int"/>                
@@ -164,7 +164,7 @@ See the file "COPYING" for more details.
         </many-to-one>
 
     <property name="title" type="string" not-null="true">
-      <column name="title" index="VIDEOCAST_TRACK_TITLE"/>
+      <column name="title" index="VIDEOCAST_T_TITLE"/>
     </property>
     
     <property name="link" type="string" length="1024"/>            
@@ -190,7 +190,7 @@ See the file "COPYING" for more details.
     <property name="publicationDate" type="timestamp"/>
     
     <property name="url" type="string" not-null="true" length="1024">        
-      <column name="url" index="VIDEOCAST_TRACK_URL"/>
+      <column name="url" index="VIDEOCAST_T_URL"/>
     </property>    
     
     <property name="mimeType" type="string" not-null="true" length="50"/>
@@ -202,7 +202,7 @@ See the file "COPYING" for more details.
     <property name="duration" type="long"/>        
     
     <property name="rating" type="int">        
-      <column name="rating" index="VIDEOCAST_TRACK_RATING"/>
+      <column name="rating" index="VIDEOCAST_T_RATING"/>
     </property>                
     
     <property name="downloadTime" type="int" not-null="true">    

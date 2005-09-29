@@ -52,8 +52,11 @@ public class MusicInfo extends BView {
 
         mWebImages = webImages;
 
-        mTimeFormat = new SimpleDateFormat();
-        mTimeFormat.applyPattern("mm:ss");
+        mTimeFormatShort = new SimpleDateFormat();
+        mTimeFormatShort.applyPattern("mm:ss");
+        
+        mTimeFormatLong = new SimpleDateFormat();
+        mTimeFormatLong.applyPattern("h:mm:ss");
 
         int start = 0;
 
@@ -167,7 +170,10 @@ public class MusicInfo extends BView {
                     	mTrackText.setVisible(true);
                     }
                     mDurationText.setLabel("Duration:");
-                    mDurationText.setValue(mTimeFormat.format(new Date(audio.getDuration())));
+                    if (audio.getDuration()>1000*60*60) 
+                    	mDurationText.setValue(mTimeFormatLong.format(new Date(audio.getDuration())));
+                    else
+                    	mDurationText.setValue(mTimeFormatShort.format(new Date(audio.getDuration())));
                     mAlbumText.setLabel("Album:");
                     mAlbumText.setValue(Tools.trim(audio.getAlbum(), 40));
                     mYearText.setLabel("Year:");
@@ -446,7 +452,9 @@ public class MusicInfo extends BView {
 
     private Audio mAudio;
 
-    private SimpleDateFormat mTimeFormat;
+    private SimpleDateFormat mTimeFormatShort;
+    
+    private SimpleDateFormat mTimeFormatLong;
 
     private Resource mAnim = getResource("*2000");
 

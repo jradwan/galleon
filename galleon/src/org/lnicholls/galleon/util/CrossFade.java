@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.photos;
+package org.lnicholls.galleon.util;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -17,8 +17,6 @@ package org.lnicholls.galleon.apps.photos;
  */
 
 import java.awt.Image;
-
-
 
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;

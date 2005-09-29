@@ -76,7 +76,7 @@ public final class Mp3Url {
                         conn.setInstanceFollowRedirects(true);
 
                         IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
-                                .getContentLength()));
+                                .getContentLength(), mApplication));
                         final IcyListener icyListener = new IcyListener(mApplication);
                         input.addTagParseListener(icyListener);
 
@@ -89,7 +89,7 @@ public final class Mp3Url {
                 log.debug("getStream: audio=" + audio.getPath());
 
                 TimedThread timedThread = new TimedThread(audio.getPath(), application);
-                TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 10);
+                TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 5);
                 InputStream mp3Stream = (InputStream) timedCallable.call();
 
                 if (mp3Stream != null)
@@ -102,9 +102,10 @@ public final class Mp3Url {
     }
 
     private static final class URLStream extends FilterInputStream {
-        URLStream(InputStream in, long contentLength) {
+        URLStream(InputStream in, long contentLength, DefaultApplication application) {
             super(in);
             mContentLength = contentLength;
+            mApplication = application;
         }
 
         public int available() {
@@ -118,7 +119,9 @@ public final class Mp3Url {
 
         public int read(byte b[], int off, int length) throws IOException {
             // Ugly hack to detect tight loop because TiVo didnt close the stream properly
-            if (System.currentTimeMillis() - mTime == 0) {
+        	if (mApplication!=null && mApplication.getContext()==null) {
+                    close();
+            } else if (System.currentTimeMillis() - mTime == 0 ) {
                 if (mCounter++ == 10)
                     close();
             } else
@@ -148,6 +151,7 @@ public final class Mp3Url {
         private long mTime = System.currentTimeMillis();
 
         private int mCounter;
+        private DefaultApplication mApplication;
     }
 
     public static class IcyListener implements TagParseListener {

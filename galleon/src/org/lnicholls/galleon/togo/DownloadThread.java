@@ -77,8 +77,11 @@ public class DownloadThread extends Thread implements Constants {
                             }
                         }
                     }
-                } else
-                    sleep(1000 * 30);
+                    else
+                    	sleep(1000 * 30);
+                }
+                else
+                	sleep(1000 * 30);
                 mSelectedVideo = null;
             } catch (InterruptedException ex) {
             } // handle silently for waking up

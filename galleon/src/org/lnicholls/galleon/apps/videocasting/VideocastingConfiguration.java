@@ -52,6 +52,7 @@ public class VideocastingConfiguration implements AppConfiguration {
 			mDirectories = new ArrayList();
 			mDirectories.add(new NameValue("FireAnt Directory", "http://api.antisnottv.net/feeds"));
 			mDirectories.add(new NameValue("blip.tv", "http://blip.tv/?1=1&&skin=rss"));
+			mDirectories.add(new NameValue("GlitchTV", "http://blip.tv/posts/?skin=rss&topic_name=glitchtv"));
 			mDirectories.add(new NameValue("Freelog.org Tutorials", "http://feeds.feedburner.com/freevlog/tutorials"));
 			mDirectories.add(new NameValue("Freelog.org Classic", "http://feeds.feedburner.com/freevlog/classics"));
 			mDirectories.add(new NameValue("Freelog.org Classic Videoblogs", "http://feeds.feedburner.com/freevlog/classics"));
@@ -59,6 +60,9 @@ public class VideocastingConfiguration implements AppConfiguration {
 			mDirectories.add(new NameValue("Mefeedia.com Videoblog", "http://mefeedia.com/feeds/opml.xml"));
 			mDirectories.add(new NameValue("Ourmedia.org Recent Videos", "http://www.ourmedia.org/mediarss/videomedia"));
 			mDirectories.add(new NameValue("MedicineFilms.com", "http://feeds.feedburner.com/medicinefeed"));
+			mDirectories.add(new NameValue("Xolo.TV", "http://feeds.feedburner.com/xolotv"));
+			mDirectories.add(new NameValue("MobuzzTV", "http://feeds.feedburner.com/mobuzztv-uk-wmv"));
+			//http://www.vodcast.nl/feeds/jsdemo.xml
 		}
 		return mDirectories;
 	}

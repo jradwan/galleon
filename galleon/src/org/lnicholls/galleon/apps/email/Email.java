@@ -44,12 +44,15 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
+import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
@@ -105,6 +108,8 @@ public class Email extends DefaultApplication {
     public class EmailMenuScreen extends DefaultMenuScreen {
         public EmailMenuScreen(Email app) {
             super(app, "Email");
+            
+            setFooter("Press ENTER for options");
 
             getBelow().setResource(mMenuBackground);
 
@@ -154,7 +159,67 @@ public class Email extends DefaultApplication {
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(account.getName(), 40));
         }
+        
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Email) getBApp()), TRANSITION_LEFT);
+			}
+
+			return super.handleKeyPress(code, rawcode);
+		}        
     }
+    
+	public class OptionsScreen extends DefaultOptionsScreen {
+
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+
+			getBelow().setResource(mInfoBackground);
+
+			EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory()).getAppContext().getConfiguration();
+
+			int start = TOP;
+			int width = 280;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Reload");
+
+			NameValue[] nameValues = new NameValue[] { new NameValue("5 minutes", "5"),
+					new NameValue("10 minutes", "10"), new NameValue("20 minutes", "20"),
+					new NameValue("30 minutes", "30"), new NameValue("1 hour", "60"), new NameValue("2 hours", "120"),
+					new NameValue("4 hours", "240"), new NameValue("6 hours", "720"),
+					new NameValue("10 minutes", "10"), new NameValue("24 hours", "1440") };
+			mReloadButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(emailConfiguration.getReload()));
+			setFocusDefault(mReloadButton);
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+
+			try {
+				EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory()).getAppContext().getConfiguration();
+				emailConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
+
+				Server.getServer().updateApp(((EmailFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(Email.class, ex, "Could not configure internet app");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mReloadButton;
+	}    
 
     public class EmailAccountMenuScreen extends DefaultMenuScreen {
 
@@ -164,6 +229,8 @@ public class Email extends DefaultApplication {
 
         public EmailAccountMenuScreen(Email app, Account account, List list, boolean first) {
             super(app, null);
+            
+            setFooter("Press ENTER for options");
 
             mList = list;
             mFirst = first;
@@ -239,6 +306,8 @@ public class Email extends DefaultApplication {
                     postEvent(new BEvent.Action(this, "pop"));
                     return true;
                 }
+            case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Email) getBApp()), TRANSITION_LEFT);                
             }
             return super.handleKeyPress(code, rawcode);
         }

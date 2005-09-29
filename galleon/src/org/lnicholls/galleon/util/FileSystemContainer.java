@@ -49,40 +49,47 @@ public class FileSystemContainer {
 
         final ArrayList items = new ArrayList();
 
-        File directory = FileGatherer.resolveLink(new File(getPath())); // Handle shortcuts
-        if (directory.isDirectory()) {
-        	FileGatherer.gatherDirectory(directory, fileFilter, mRecursive, new FileGatherer.GathererCallback() {
-                public void visit(File file, File originalFile) {
-                	if (originalFile.equals(file))
-                    {
-                		if (file.isDirectory())
-                		{
-                			items.add(new FolderItem(file.getName(), file));
-                		}
-                        else
-                        {
-                            if (FileFilters.playlistFilter.accept(file))
-                                items.add(new PlaylistItem(Tools.extractName(file.getName()), file));
-                            else
-                                items.add(new FileItem(Tools.extractName(file.getName()), file));
-                        }
-                    }
-                    else
-                    {
-                        if (file.isDirectory())
-                        {
-                            items.add(new FolderItem(originalFile.getName(), file));
-                        }
-                        else
-                        {
-                            if (FileFilters.playlistFilter.accept(file))
-                                items.add(new PlaylistItem(Tools.extractName(originalFile.getName()), file));
-                            else
-                                items.add(new FileItem(Tools.extractName(originalFile.getName()), file));
-                        }
-                    }
-                }
-            });
+        try
+        {
+	        File directory = FileGatherer.resolveLink(new File(getPath())); // Handle shortcuts
+	        if (directory.isDirectory()) {
+	        	FileGatherer.gatherDirectory(directory, fileFilter, mRecursive, new FileGatherer.GathererCallback() {
+	                public void visit(File file, File originalFile) {
+	                	if (originalFile.equals(file))
+	                    {
+	                		if (file.isDirectory())
+	                		{
+	                			items.add(new FolderItem(file.getName(), file));
+	                		}
+	                        else
+	                        {
+	                            if (FileFilters.playlistFilter.accept(file))
+	                                items.add(new PlaylistItem(Tools.extractName(file.getName()), file));
+	                            else
+	                                items.add(new FileItem(Tools.extractName(file.getName()), file));
+	                        }
+	                    }
+	                    else
+	                    {
+	                        if (file.isDirectory())
+	                        {
+	                            items.add(new FolderItem(originalFile.getName(), file));
+	                        }
+	                        else
+	                        {
+	                            if (FileFilters.playlistFilter.accept(file))
+	                                items.add(new PlaylistItem(Tools.extractName(originalFile.getName()), file));
+	                            else
+	                                items.add(new FileItem(Tools.extractName(originalFile.getName()), file));
+	                        }
+	                    }
+	                }
+	            });
+	        }
+        }
+        catch (Exception ex)
+        {
+        	Tools.logException(FileSystemContainer.class, ex, "Could not get items");
         }
         return items;
     }

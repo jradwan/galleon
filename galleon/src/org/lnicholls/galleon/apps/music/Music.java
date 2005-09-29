@@ -17,17 +17,24 @@ package org.lnicholls.galleon.apps.music;
  */
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.gui.Galleon;
+import org.lnicholls.galleon.gui.MainFrame;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.Playlist;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
@@ -49,14 +56,15 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
-import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.winamp.WinampPlayer;
+import org.lnicholls.galleon.widget.*;
+import org.lnicholls.galleon.winamp.*;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
@@ -118,6 +126,8 @@ public class Music extends DefaultApplication {
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(Music app) {
 			super(app, "Music");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -206,6 +216,8 @@ public class Music extends DefaultApplication {
 			case KEY_PLAY:
 				postEvent(new BEvent.Action(this, "play"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((Music) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -219,6 +231,8 @@ public class Music extends DefaultApplication {
 
 		public PathScreen(Music app, Tracker tracker, boolean first) {
 			super(app, "Music");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -388,6 +402,8 @@ public class Music extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((Music) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -396,13 +412,15 @@ public class Music extends DefaultApplication {
 
 		private boolean mFirst;
 	}
-
+	
 	public class MusicScreen extends DefaultScreen {
 
 		private BList list;
 
 		public MusicScreen(Music app) {
 			super(app, "Song", true);
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
 
@@ -465,6 +483,8 @@ public class Music extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((Music) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -638,6 +658,7 @@ public class Music extends DefaultApplication {
 				mScreenSaver.handleKeyPress(code, rawcode);
 			switch (code) {
 			case KEY_INFO:
+			case KEY_NUM0:
 				getBApp().play("select.snd");
 				getBApp().flush();
 				LyricsScreen lyricsScreen = new LyricsScreen((Music) getBApp(), mTracker);

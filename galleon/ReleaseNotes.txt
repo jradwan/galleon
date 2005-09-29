@@ -1,6 +1,21 @@
 Galleon
 -------
 
+Version 1.6.0:
+----------------------
+Fixed timeout saving bug
+Added configuration options to apps
+Fixed ToGo padding bug
+Changed slideshow music selection to 1 key
+Added 0 key for info
+Fixed multiple network interfaces bug
+Fixed shoutcast genre removal
+Fixed GoBack end bug
+Fixed ToGo for deleted files
+Fixed ToGo total hours 
+Upgraded to 1.3.1 HME SDK
+
+
 Version 1.5.0:
 ----------------------
 Added videocasting app

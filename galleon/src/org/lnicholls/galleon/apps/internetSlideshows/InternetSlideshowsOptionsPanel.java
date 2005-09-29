@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.gui.FileOptionsTable;
+import org.lnicholls.galleon.util.Effects;
 import org.lnicholls.galleon.util.NameValue;
 
 import com.jgoodies.forms.builder.PanelBuilder;

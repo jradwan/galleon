@@ -182,19 +182,16 @@ public final class VideoFile {
 		} catch (Exception ex) {
 		}
 
-		/*
-		 * System.out.println(filePropertiesMovie);
-		 * 
-		 * System.out.println(video.getVideoResolution());
-		 * System.out.println(video.getVideoCodec());
-		 * System.out.println(video.getVideoRate());
-		 * System.out.println(video.getVideoBitRate());
-		 * System.out.println(video.getDuration());
-		 * System.out.println(video.getAudioCodec());
-		 * System.out.println(video.getAudioRate());
-		 * System.out.println(video.getAudioBitRate());
-		 * System.out.println(video.getAudioChannels());
-		 */
+		 //System.out.println(filePropertiesMovie);
+		 //System.out.println(video.getVideoResolution());
+		 //System.out.println(video.getVideoCodec());
+		 //System.out.println(video.getVideoRate());
+		 //System.out.println(video.getVideoBitRate());
+		 //System.out.println(video.getDuration());
+		 //System.out.println(video.getAudioCodec());
+		 //System.out.println(video.getAudioRate());
+		 //System.out.println(video.getAudioBitRate());
+		 //System.out.println(video.getAudioChannels());
 	}
 
 	static class StreamHandler extends Thread {
@@ -312,8 +309,8 @@ public final class VideoFile {
 	{
 		try
 		{
-			return video.getVideoResolution().equals("720x480") &&
-				video.getVideoCodec().equals("MPEG") &&
+			return ( video.getVideoResolution().equals("720x480") || video.getVideoResolution().equals("704x480") || video.getVideoResolution().equals("544x480") || video.getVideoResolution().equals("480x480") || video.getVideoResolution().equals("352x480")) &&
+				(video.getVideoCodec().equals("MPEG") || (video.getVideoCodec().equals("MPEG2"))) &&
 				video.getVideoRate().equals("29.97") &&
 				video.getAudioCodec().equals("MPEG");
 		}

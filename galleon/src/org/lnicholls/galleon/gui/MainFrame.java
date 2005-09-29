@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 import java.awt.Toolkit;
@@ -270,7 +271,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/phpwiki/index.php/Configure");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/html/configure.html");
 				} catch (Exception ex) {
 				}
 			}
@@ -280,7 +281,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/phpwiki/index.php/FAQ");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/html/faq.html");
 				} catch (Exception ex) {
 				}
 			}
@@ -484,8 +485,9 @@ public class MainFrame extends JFrame {
 			AppDescriptor mAppDescriptor;
 		}
 
-		private AddAppDialog(JFrame frame) {
+		private AddAppDialog(MainFrame frame) {
 			super(frame, "New App", true);
+			mMainFrame = frame;
 
 			mNameField = new JTextField();
 			mNameField.addKeyListener(this);
@@ -611,7 +613,7 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				try {
 					URL url = getClass().getClassLoader().getResource("newapp.html");
-					displayHelp(url);
+					mMainFrame.displayHelp(mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(AddAppDialog.class, ex, "Could not find new app help ");
 				}
@@ -682,7 +684,8 @@ public class MainFrame extends JFrame {
 		private JTextPane mDocumentationField;
 
 		private JButton mOKButton;
-
+		
+		private MainFrame mMainFrame;
 	}
 
 	public class ServerDialog extends JDialog implements ActionListener {
@@ -697,8 +700,9 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-		private ServerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+		private ServerDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
 			super(frame, "Server Properties", true);
+			mMainFrame = frame;
 			mServerConfiguration = serverConfiguration;
 
 			// enable debug logging
@@ -899,7 +903,7 @@ public class MainFrame extends JFrame {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					URL url = getClass().getClassLoader().getResource("server.html");
-					displayHelp(url);
+					mMainFrame.displayHelp(mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not find server help ");
 				}
@@ -939,6 +943,8 @@ public class MainFrame extends JFrame {
 			this.setVisible(false);
 		}
 
+		private MainFrame mMainFrame;
+		
 		private JTextField mNameField;
 
 		private JTextField mVersionField;
@@ -978,8 +984,9 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-		private MusicPlayerDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+		private MusicPlayerDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
 			super(frame, "Music Player", true);
+			mMainFrame = frame;
 			mServerConfiguration = serverConfiguration;
 
 			MusicPlayerConfiguration musicPlayerConfiguration = mServerConfiguration.getMusicPlayerConfiguration();
@@ -1127,7 +1134,7 @@ public class MainFrame extends JFrame {
 					musicPlayerConfiguration.setRandomPlayFolders(mRandomPlayFoldersField.isSelected());
 					musicPlayerConfiguration.setScreensaver(mScreensaverField.isSelected());
 
-					Galleon.updateServerConfiguration(mServerConfiguration);
+					Galleon.updateMusicPlayerConfiguration(musicPlayerConfiguration);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not configure server");
 					
@@ -1139,7 +1146,7 @@ public class MainFrame extends JFrame {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					URL url = getClass().getClassLoader().getResource("musicplayer.html");
-					displayHelp(url);
+					mMainFrame.displayHelp(mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not find server help ");
 				}
@@ -1165,15 +1172,17 @@ public class MainFrame extends JFrame {
 		private JCheckBox mScreensaverField;
 
 		private ServerConfiguration mServerConfiguration;
+		
+		private MainFrame mMainFrame;
 	}
 
-	public void displayHelp(URL url) {
+	public void displayHelp(Frame frame, URL url) {
 		if (mHelpDialog != null) {
 			mHelpDialog.setVisible(false);
 			mHelpDialog.dispose();
 		}
 
-		mHelpDialog = new HelpDialog(MainFrame.this, url);
+		mHelpDialog = new HelpDialog(frame, url);
 		mHelpDialog.setVisible(true);
 	}
 
@@ -1181,6 +1190,7 @@ public class MainFrame extends JFrame {
 
 		private NetworkDialog(final ServerDialog serverDialog) {
 			super(serverDialog, "Network Wizard", true);
+			mServerDialog = serverDialog;
 
 			// enable debug logging
 
@@ -1252,7 +1262,7 @@ public class MainFrame extends JFrame {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					URL url = getClass().getClassLoader().getResource("network.html");
-					displayHelp(url);
+					mServerDialog.mMainFrame.displayHelp(mServerDialog.mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not find network help ");
 				}
@@ -1368,12 +1378,15 @@ public class MainFrame extends JFrame {
 		private TiVoListener mTiVoListener;
 
 		private boolean mFound;
+		
+		private ServerDialog mServerDialog;
 	}
 	
 	public class GoBackDialog extends JDialog implements ActionListener {
 
-		private GoBackDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+		private GoBackDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
 			super(frame, "GoBack", true);
+			mMainFrame = frame;
 			mServerConfiguration = serverConfiguration;
 			
 			final GoBackConfiguration goBackConfiguration = mServerConfiguration.getGoBackConfiguration();
@@ -1499,7 +1512,7 @@ public class MainFrame extends JFrame {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					URL url = getClass().getClassLoader().getResource("goback.html");
-					displayHelp(url);
+					mMainFrame.displayHelp(mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not find goback help ");
 				}
@@ -1522,12 +1535,15 @@ public class MainFrame extends JFrame {
 	    private ArrayList mColumnValues;		
 
 		private ServerConfiguration mServerConfiguration;
+		
+		private MainFrame mMainFrame;
 	}	
 	
 	public class DataDialog extends JDialog implements ActionListener {
 
-		private DataDialog(JFrame frame, ServerConfiguration serverConfiguration) {
+		private DataDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
 			super(frame, "Data sharing", true);
+			mMainFrame = frame;
 			mServerConfiguration = serverConfiguration;
 			
 			final DataConfiguration dataConfiguration = mServerConfiguration.getDataConfiguration();
@@ -1698,7 +1714,7 @@ public class MainFrame extends JFrame {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					URL url = getClass().getClassLoader().getResource("data.html");
-					displayHelp(url);
+					mMainFrame.displayHelp(mMainFrame, url);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not find data help ");
 				}
@@ -1721,6 +1737,8 @@ public class MainFrame extends JFrame {
 		private JCheckBox mAnonymous;
 
 		private ServerConfiguration mServerConfiguration;
+		
+		private MainFrame mMainFrame;
 	}	
 
 	private AppTree mAppTree;

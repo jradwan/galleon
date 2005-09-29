@@ -35,12 +35,15 @@ import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.TiVo;
+import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.LabelText;
+import org.lnicholls.galleon.widget.OptionsButton;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -89,10 +92,61 @@ public class ToGo extends DefaultApplication {
 
 		push(new ToGoMenuScreen(this), TRANSITION_NONE);
 	}
+	
+	public class OptionsScreen extends DefaultOptionsScreen {
 
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+
+			getBelow().setResource(mInfoBackground);
+
+			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
+			.getConfiguration();
+
+			int start = TOP;
+			int width = 280;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Show statistics");
+
+			NameValue[] nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
+			mShowStatsButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(togoConfiguration.isShowStats()));
+			setFocusDefault(mShowStatsButton);
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+
+			try {
+				ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
+				.getConfiguration();
+				togoConfiguration.setShowStats(Boolean.valueOf(mShowStatsButton.getValue()).booleanValue());
+
+				Server.getServer().updateApp(((ToGoFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(ToGo.class, ex, "Could not configure togo app");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mShowStatsButton;
+	}
+	
 	public class ToGoMenuScreen extends DefaultMenuScreen {
 		public ToGoMenuScreen(ToGo app) {
 			super(app, "Now Playing List");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -104,16 +158,11 @@ public class ToGo extends DefaultApplication {
 
 			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
 					.getConfiguration();
-			BText countText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
-			countText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
-			countText.setFont("default-18.font");
-			countText.setColor(Color.GREEN);
-			countText.setShadow(true);
-
-			int totalCount = 0;
-			int totalTime = 0;
-			long totalSize = 0;
-			int totalCapacity = 0;
+			mCountText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
+			mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
+			mCountText.setFont("default-18.font");
+			mCountText.setColor(Color.GREEN);
+			mCountText.setShadow(true);
 
 			// TODO Update list
 			try {
@@ -131,7 +180,7 @@ public class ToGo extends DefaultApplication {
 				List tivos = Server.getServer().getTiVos();
 				for (int i = 0; i < videoArray.length; i++) {
 					Video video = (Video) videoArray[i];
-					if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED) {
+					if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED && video.getStatus() != Video.STATUS_DELETED) {
 						boolean match = false;
 						if (video.getSource() != null) {
 							for (int j = 0; j < tivos.size(); j++) {
@@ -144,45 +193,22 @@ public class ToGo extends DefaultApplication {
 						}
 						if (match) {
 							mMenuList.add(mMenuList.size(), video);
-							totalCount = totalCount + 1;
-							totalTime = totalTime + video.getDuration();
-							totalSize = totalSize + video.getSize();
+							mTotalCount = mTotalCount + 1;
+							mTotalTime = mTotalTime + video.getDuration();
+							mTotalSize = mTotalSize + video.getSize();
 						}
 					}
 				}
 			} catch (HibernateException ex) {
 				log.error("Getting recordings failed", ex);
 			}
-
-			if (togoConfiguration.isShowStats()) {
-				List tivos = Server.getServer().getTiVos();
-				Iterator iterator = tivos.iterator();
-				while (iterator.hasNext()) {
-					TiVo tivo = (TiVo) iterator.next();
-					totalCapacity = totalCapacity + tivo.getCapacity();
-				}
-
-				long available = (totalCapacity * 1024) - (totalSize / (1024 * 1024));
-				if (available < 0)
-					available = 0;
-				String value = "";
-				value = "Total: " + String.valueOf(totalCount);
-				SimpleDateFormat timeFormat = new SimpleDateFormat();
-				timeFormat.applyPattern("H:mm");
-				int duration = (int) Math.rint(totalTime / 1000 / 60.0);
-				mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
-				mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
-				mCalendar.set(GregorianCalendar.SECOND, 0);
-				value = value + "   " + "Length: " + timeFormat.format(mCalendar.getTime());
-				DecimalFormat numberFormat = new DecimalFormat("###,###");
-				// sizeText.setValue("Size: " + numberFormat.format(totalSize /
-				// (1024 * 1024)) + " MB");
-				value = value + "   " + "Size: " + numberFormat.format(totalSize / (1024 * 1024)) + " MB";
-				value = value + "   " + "Available: " + numberFormat.format(available) + " MB";
-
-				countText.setValue(value);
+			
+			List tivos = Server.getServer().getTiVos();
+			Iterator iterator = tivos.iterator();
+			while (iterator.hasNext()) {
+				TiVo tivo = (TiVo) iterator.next();
+				mTotalCapacity = mTotalCapacity + tivo.getCapacity();
 			}
-
 			// setFooter("Press 0 for Sort by Date, 1 Group All, 2 Group
 			// Suggestions"); // 0 for Sort by Title, 1 List
 			// All, 2 List Suggestions
@@ -190,6 +216,32 @@ public class ToGo extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mMenuList.getFocus();
+			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
+			.getConfiguration();
+			if (togoConfiguration.isShowStats()) {
+				long available = (mTotalCapacity * 1024) - (mTotalSize / (1024 * 1024));
+				if (available < 0)
+					available = 0;
+				String value = "";
+				value = "Total: " + String.valueOf(mTotalCount);
+				SimpleDateFormat timeFormat = new SimpleDateFormat();
+				timeFormat.applyPattern("HH:mm");
+				int duration = (int) Math.rint(mTotalTime / 1000 / 60.0);
+				mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
+				mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
+				mCalendar.set(GregorianCalendar.SECOND, 0);
+				value = value + "   " + "Length: " + timeFormat.format(mCalendar.getTime());
+				DecimalFormat numberFormat = new DecimalFormat("###,###");
+				// sizeText.setValue("Size: " + numberFormat.format(totalSize /
+				// (1024 * 1024)) + " MB");
+				value = value + "   " + "Size: " + numberFormat.format(mTotalSize / (1024 * 1024)) + " MB";
+				value = value + "   " + "Available: " + numberFormat.format(available) + " MB";
+
+				mCountText.setValue(value);
+				mCountText.setVisible(true);
+			}
+			else
+				mCountText.setVisible(false);
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -241,10 +293,26 @@ public class ToGo extends DefaultApplication {
 			date.setFlags(RSRC_HALIGN_RIGHT);
 			date.setValue(mDateFormat.format(mCalendar.getTime()));
 		}
+		
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((ToGo) getBApp()), TRANSITION_LEFT);
+			}
+
+			return super.handleKeyPress(code, rawcode);
+		}
 
 		protected SimpleDateFormat mDateFormat;
 
 		protected GregorianCalendar mCalendar;
+		
+		private BText mCountText;
+		
+		private int mTotalCount = 0;
+		private int mTotalTime = 0;
+		private long mTotalSize = 0;
+		private int mTotalCapacity = 0;
 	}
 
 	public class ToGoScreen extends DefaultScreen {

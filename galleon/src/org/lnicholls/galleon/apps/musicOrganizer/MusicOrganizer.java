@@ -66,6 +66,7 @@ import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
+import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
@@ -105,7 +106,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
-
+		
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mPlayerBackground = getSkinImage("player", "background");
@@ -114,13 +115,15 @@ public class MusicOrganizer extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
-
+		
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(MusicOrganizer app) {
 			super(app, "Music");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -264,6 +267,8 @@ public class MusicOrganizer extends DefaultApplication {
 			case KEY_PLAY:
 				postEvent(new BEvent.Action(this, "play"));
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -279,6 +284,8 @@ public class MusicOrganizer extends DefaultApplication {
 
 		public PathScreen(MusicOrganizer app, PathScreen pathScreen, boolean first, FormatString formatString, int level) {
 			super(app, "Music");
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -484,7 +491,7 @@ public class MusicOrganizer extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
-			case KEY_ENTER:
+			case KEY_NUM1:
 				String restrictions = "(1=1)";
 				List conditions = new ArrayList();
 				getConditions(conditions);
@@ -504,6 +511,8 @@ public class MusicOrganizer extends DefaultApplication {
 				setCurrentTrackerContext(queryString);
 
 				return false;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -527,6 +536,8 @@ public class MusicOrganizer extends DefaultApplication {
 
 		public MusicScreen(MusicOrganizer app) {
 			super(app, "Song", true);
+			
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
 
@@ -586,6 +597,8 @@ public class MusicOrganizer extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -763,6 +776,7 @@ public class MusicOrganizer extends DefaultApplication {
 				mScreenSaver.handleKeyPress(code, rawcode);
 			switch (code) {
 			case KEY_INFO:
+			case KEY_NUM0:
 				getBApp().play("select.snd");
 				getBApp().flush();
 				LyricsScreen lyricsScreen = new LyricsScreen((MusicOrganizer) getBApp(), mTracker);
@@ -1950,17 +1964,14 @@ public class MusicOrganizer extends DefaultApplication {
 	public static class MusicOrganizerFactory extends AppFactory {
 
 		public void initialize() {
-			
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss"); // 2005-04-25
 																// 22:19:20
 			mDatabaseDateFormat = new SimpleDateFormat();
 			mDatabaseDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss.SSS"); // 2005-04-23
 																			// 13:38:15.078			
-			
 			MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) getAppContext()
 					.getConfiguration();
-
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
 			Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
 				public void reload() {
@@ -1994,7 +2005,6 @@ public class MusicOrganizer extends DefaultApplication {
 
 				MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) getAppContext()
 						.getConfiguration();
-
 				for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
 					String path = (String) i.next();
 					mMediaRefreshThread.addPath(new MediaRefreshThread.PathInfo(path,

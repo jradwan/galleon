@@ -459,6 +459,7 @@ public class Playlists extends DefaultApplication {
 				mScreenSaver.handleKeyPress(code, rawcode);
 			switch (code) {
 			case KEY_INFO:
+			case KEY_NUM0:
 				getBApp().play("select.snd");
 				getBApp().flush();
 				LyricsScreen lyricsScreen = new LyricsScreen((Playlists) getBApp(), mTracker);

@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.internetSlideshows;
+package org.lnicholls.galleon.util;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -19,6 +19,7 @@ package org.lnicholls.galleon.apps.internetSlideshows;
 import java.util.Collection;
 import java.util.Set;
 import java.util.HashMap;
+
 
 
 public class Effects {

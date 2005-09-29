@@ -32,6 +32,7 @@ import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.Podcast;
 import org.lnicholls.galleon.database.PodcastManager;
 import org.lnicholls.galleon.database.PodcastTrack;
+import org.lnicholls.galleon.database.VideocastTrack;
 import org.lnicholls.galleon.downloads.Download;
 import org.lnicholls.galleon.downloads.StatusEvent;
 import org.lnicholls.galleon.downloads.StatusListener;
@@ -290,7 +291,15 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 				}
 				if (!mDownloadNext) {
 					synchronized (this) {
-						wait(1000 * 60 * 60);
+						if (mTrack!=null && mTrack.getStatus()==PodcastTrack.STATUS_DOWNLOAD_CANCELLED)
+						{
+							if (mDownload!=null)
+							{
+								mDownload.interrupt();
+							}
+						}
+						else
+							wait(1000 * 60 * 60);
 					}
 				}
 				mDownloadNext = false;
@@ -334,6 +343,30 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 	}
 
 	public void statusChanged(StatusEvent se) {
+		if (se.getNewStatus() == StatusEvent.ERROR) {
+			synchronized (this) {
+				try {
+					mTrack = mPodcast.getTrack(mTrack.getUrl());
+				} catch (Exception ex) {
+					Tools.logException(PodcastingThread.class, ex, "Track update failed");
+				}
+			}
+
+			synchronized (this) {
+				try {
+					mTrack.setStatus(PodcastTrack.STATUS_DOWNLOAD_ERROR);
+					PodcastManager.updatePodcast(mPodcast);
+					mTrack = mPodcast.getTrack(mTrack.getUrl());
+				} catch (HibernateException ex) {
+					Tools.logException(PodcastingThread.class, ex, "Track update failed");
+				}
+			}
+			
+			mDownloadNext = true;
+			mWaiting = false;
+			interrupt();
+		}
+		else
 		if (se.getNewStatus() == StatusEvent.IN_PROGRESS) {
 			synchronized (this) {
 				try {

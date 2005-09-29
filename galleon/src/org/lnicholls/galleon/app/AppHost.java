@@ -46,7 +46,7 @@ public class AppHost implements ILogger
     {
         factories = new ArrayList();
         config = new Config();
-        config.put("listener.debug", "" + argumentlist.getBoolean("-d"));
+        //config.put("listener.debug", "" + log.isDebugEnabled());
         mInterface = argumentlist.getInt("--port", 7288);
         config.put("http.ports", "" + mInterface);
         String s = "";

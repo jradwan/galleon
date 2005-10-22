@@ -684,8 +684,28 @@ public class ToGo {
 				dir.mkdirs();
 			}
 			String name = getFilename(video);
-			log.info("Downloading: " + name);
 			File file = new File(path + File.separator + name);
+			// TODO Handle retransfers
+			/*
+			if (file.exists())
+			{
+				try {
+					List list = VideoManager.findByPath(file.getCanonicalPath());
+					if (list!=null && list.size()>0)
+					{
+						video.setDownloadSize(file.length());
+						video.setDownloadTime(0);
+						video.setPath(file.getCanonicalPath());
+						video.setStatus(Video.STATUS_DELETED);
+						VideoManager.updateVideo(video);
+						return true;
+					}
+				} catch (HibernateException ex) {
+					log.error("Video update failed", ex);
+				}	
+			}
+			*/
+			log.info("Downloading: " + name);
 			WritableByteChannel channel = new FileOutputStream(file, false).getChannel();
 
 			long total = 0;

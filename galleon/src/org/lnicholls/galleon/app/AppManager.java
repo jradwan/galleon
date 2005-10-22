@@ -56,20 +56,6 @@ public final class AppManager {
         mHMEApps = new ArrayList();
         //mAppFactory = new AppFactory(this);
         //loadAppDescriptors();
-        
-        String arguments = "";
-        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
-        if (serverConfiguration.getIPAddress() != null
-                && serverConfiguration.getIPAddress().trim().length() > 0) {
-            arguments = "--intf " + serverConfiguration.getIPAddress();
-        }
-        if (serverConfiguration.getPort() != 0) {
-            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "--port "
-                    + Server.getServer().getPort();
-        }
-        ArgumentList argumentList = new ArgumentList(arguments);
-        
-        mAppHost = new AppHost(argumentList);
     }
     
     public void loadApps() {
@@ -78,15 +64,22 @@ public final class AppManager {
         if (file.exists()) {
         	try
         	{
-        		mAppHost.loadLaunchFile(file.getAbsolutePath(), mAppClassLoader);
+        		getAppHost().loadLaunchFile(file.getAbsolutePath(), mAppClassLoader);
         	}
         	catch (Exception ex)
         	{
-        		log.error("Could load HME launch file", ex);
+        		log.error("Could not load HME launch file", ex);
         	}
         }
-    	
-    	mAppHost.listen();
+        
+        try
+    	{
+        	getAppHost().listen();
+    	}
+    	catch (Exception ex)
+    	{
+    		log.error("Could not listen", ex);
+    	}
     }
 
     private void getJars() {
@@ -214,7 +207,7 @@ public final class AppManager {
         	StringBuffer stringbuffer = new StringBuffer(64);
         	AppHost.addArg(stringbuffer, "--class", appContext.getDescriptor().getClassName());
         	//AppHost.addArg(stringbuffer, null, attributes.getValue("HME-Arguments"));
-            appFactory = mAppHost.createFactory(new ArgumentList(stringbuffer.toString()), mAppClassLoader);
+            appFactory = getAppHost().createFactory(new ArgumentList(stringbuffer.toString()), mAppClassLoader);
             if (!(appFactory instanceof AppFactory))
             {
             	try
@@ -274,7 +267,7 @@ public final class AppManager {
 		            if (appContext.getId()==appFactory.getAppContext().getId())
 		            {
 		            	appFactory.remove();
-		            	mAppHost.remove(app);
+		            	getAppHost().remove(app);
 		                mApps.remove(app);
 		                return;
 		            }
@@ -379,10 +372,33 @@ public final class AppManager {
             	
             	mAppContexts.add(appContext);
             }
-            mAppHost.listen(appFactory);
+            getAppHost().listen(appFactory);
         } catch (Exception ex) {
             log.error("Could not update app", ex);
         }
+    }
+    
+    private AppHost getAppHost() throws Exception
+    {
+    	if (mAppHost==null)
+    	{
+	    	String arguments = "";
+	        ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+	        if (serverConfiguration.getIPAddress() != null
+	                && serverConfiguration.getIPAddress().trim().length() > 0) {
+	            arguments = "--intf " + serverConfiguration.getIPAddress();
+	        }
+	        if (serverConfiguration.getPort() != 0) {
+	            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "--port "
+	                    + Server.getServer().getPort();
+	        }
+	        log.debug("Arguments: "+arguments);
+	        ArgumentList argumentList = new ArgumentList(arguments);
+	        
+	        mAppHost = new AppHost(argumentList);
+    	}
+        
+        return mAppHost;
     }
     
     private LinkedList mPluginListeners = new LinkedList();

@@ -25,122 +25,132 @@ import org.lnicholls.galleon.app.AppConfiguration;
 
 public class EmailConfiguration implements AppConfiguration {
 
-    public String getName() {
-        return mName;
-    }
+	public String getName() {
+		return mName;
+	}
 
-    public void setName(String value) {
-        if (mName != null && !mName.equals(value))
-            mModified = true;
-        mName = value;
-    }
+	public void setName(String value) {
+		if (mName != null && !mName.equals(value))
+			mModified = true;
+		mName = value;
+	}
 
-    public List getAccounts() {
-        return mAccounts;
-    }
+	public List getAccounts() {
+		return mAccounts;
+	}
 
-    public void setAccounts(List value) {
-        mAccounts = value;
-    }
+	public void setAccounts(List value) {
+		mAccounts = value;
+	}
 
-    public void addAccount(Account value) {
-        mAccounts.add(value);
-    }
+	public void addAccount(Account value) {
+		mAccounts.add(value);
+	}
 
-    public int getReload() {
-        return mReload;
-    }
+	public int getReload() {
+		return mReload;
+	}
 
-    public void setReload(int value) {
-        mReload = value;
-    }
+	public void setReload(int value) {
+		mReload = value;
+	}
 
-    public void setModified(boolean value) {
-        mModified = value;
-    }
+	public int getLimit() {
+		return mLimit;
+	}
 
-    public boolean isModified() {
-        return mModified;
-    }
+	public void setLimit(int value) {
+		mLimit = value;
+	}
 
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	public void setModified(boolean value) {
+		mModified = value;
+	}
 
-    public static class Account implements Serializable {
-        public Account() {
-        }
+	public boolean isModified() {
+		return mModified;
+	}
 
-        public String getName() {
-            return mName;
-        }
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 
-        public void setName(String value) {
-            mName = value;
-        }
+	public static class Account implements Serializable {
+		public Account() {
+		}
 
-        public String getProtocol() {
-            return mProtocol;
-        }
+		public String getName() {
+			return mName;
+		}
 
-        public void setProtocol(String value) {
-            mProtocol = value;
-        }
+		public void setName(String value) {
+			mName = value;
+		}
 
-        public String getServer() {
-            return mServer;
-        }
+		public String getProtocol() {
+			return mProtocol;
+		}
 
-        public void setServer(String value) {
-            mServer = value;
-        }
+		public void setProtocol(String value) {
+			mProtocol = value;
+		}
 
-        public String getUsername() {
-            return mUsername;
-        }
+		public String getServer() {
+			return mServer;
+		}
 
-        public void setUsername(String value) {
-            mUsername = value;
-        }
+		public void setServer(String value) {
+			mServer = value;
+		}
 
-        public String getPassword() {
-            return mPassword;
-        }
+		public String getUsername() {
+			return mUsername;
+		}
 
-        public void setPassword(String value) {
-            mPassword = value;
-        }
-        
-        public boolean valid() {
-            return mValid;
-        }
+		public void setUsername(String value) {
+			mUsername = value;
+		}
 
-        public void setValid(boolean value) {
-            mValid = value;
-        }
+		public String getPassword() {
+			return mPassword;
+		}
 
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
-        }
+		public void setPassword(String value) {
+			mPassword = value;
+		}
 
-        private String mName;
+		public boolean valid() {
+			return mValid;
+		}
 
-        private String mProtocol;
+		public void setValid(boolean value) {
+			mValid = value;
+		}
 
-        private String mServer;
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
+		}
 
-        private String mUsername;
+		private String mName;
 
-        private String mPassword;
-        
-        private boolean mValid = true;
-    }
+		private String mProtocol;
 
-    private String mName;
+		private String mServer;
 
-    private int mReload;
+		private String mUsername;
 
-    private List mAccounts = new ArrayList();
+		private String mPassword;
 
-    private boolean mModified;
+		private boolean mValid = true;
+	}
+
+	private String mName;
+
+	private int mReload;
+
+	private int mLimit;
+
+	private List mAccounts = new ArrayList();
+
+	private boolean mModified;
 }

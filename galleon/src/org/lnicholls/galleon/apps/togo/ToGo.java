@@ -288,7 +288,7 @@ public class ToGo extends DefaultApplication {
 					+ mCalendar.get(GregorianCalendar.SECOND) + 30) / 60);
 			mCalendar.set(GregorianCalendar.SECOND, 0);
 
-			BText date = new BText(parent, parent.getWidth() - 100 - parent.getHeight(), 4, 100, parent.getHeight() - 4);
+			BText date = new BText(parent, parent.getWidth() - 120 - parent.getHeight(), 4, 120, parent.getHeight() - 4);
 			date.setShadow(true);
 			date.setFlags(RSRC_HALIGN_RIGHT);
 			date.setValue(mDateFormat.format(mCalendar.getTime()));

@@ -16,8 +16,9 @@ package org.lnicholls.galleon.apps.rss;
  * See the file "COPYING" for more details.
  */
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
@@ -36,16 +37,35 @@ public class RSSConfiguration implements AppConfiguration {
     }
 
     public List getFeeds() {
-        return mFeeds;
+        return null;
     }
 
     public void setFeeds(List value) {
-        mFeeds = value;
+        Iterator iterator = value.iterator();
+        while (iterator.hasNext())
+        {
+        	NameValue nameValue = (NameValue)iterator.next();
+        	SharedFeed sharedFeed = new SharedFeed(nameValue.getName(), nameValue.getValue(), "", "", SharedFeed.PRIVATE);
+        	mSharedFeeds.add(sharedFeed);
+        }
     }
 
     public void addFeed(NameValue value) {
-        mFeeds.add(value);
+    	SharedFeed sharedFeed = new SharedFeed(value.getName(), value.getValue(), "", "", SharedFeed.PRIVATE);
+    	mSharedFeeds.add(sharedFeed);
     }
+    
+    public List getSharedFeeds() {
+        return mSharedFeeds;
+    }
+
+    public void setSharedFeeds(List value) {
+        mSharedFeeds = value;
+    }
+
+    public void addSharedFeed(SharedFeed value) {
+        mSharedFeeds.add(value);
+    }    
 
     public void setModified(boolean value) {
         mModified = value;
@@ -58,10 +78,21 @@ public class RSSConfiguration implements AppConfiguration {
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+    
+    public static class SharedFeed extends SharedNameValue implements Serializable {
+    	public SharedFeed()
+    	{
+    		
+    	}
+    	
+    	public SharedFeed(String name, String value, String description, String tags, String privacy) {
+    		super(name, value, description, tags, privacy);
+    	}
+    }    
 
     private String mName;
 
-    private List mFeeds = new ArrayList();
+    private List mSharedFeeds = new ArrayList();
 
     private boolean mModified;
 }

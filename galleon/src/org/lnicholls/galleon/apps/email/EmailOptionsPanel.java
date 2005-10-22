@@ -60,6 +60,18 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         mReloadCombo.addItem(new ComboWrapper("6 hours", "720"));
         mReloadCombo.addItem(new ComboWrapper("24 hours", "1440"));
         defaultCombo(mReloadCombo, Integer.toString(emailConfiguration.getReload()));
+        mLimitCombo = new JComboBox();
+        mLimitCombo.addItem(new ComboWrapper("Unlimited", "-1"));
+        mLimitCombo.addItem(new ComboWrapper("1", "1"));
+        mLimitCombo.addItem(new ComboWrapper("2", "2"));
+        mLimitCombo.addItem(new ComboWrapper("3", "3"));
+        mLimitCombo.addItem(new ComboWrapper("4", "4"));
+        mLimitCombo.addItem(new ComboWrapper("5", "5"));
+        mLimitCombo.addItem(new ComboWrapper("10", "10"));
+        mLimitCombo.addItem(new ComboWrapper("20", "20"));
+        mLimitCombo.addItem(new ComboWrapper("40", "40"));
+        mLimitCombo.addItem(new ComboWrapper("60", "60"));
+        defaultCombo(mLimitCombo, Integer.toString(emailConfiguration.getLimit()));        
         mNameField = new JTextField();
         mProtocolCombo = new JComboBox();
         mProtocolCombo.addItem(new ComboWrapper("POP3", "pop3"));
@@ -73,6 +85,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
                 "3dlu, " + "pref, " + // reload
+                "3dlu, " + "pref, " + // limit
                 "9dlu, " + "pref, " + // account
                 "9dlu, " + "pref," + // name
                 "9dlu, " + "pref," + // protocol
@@ -93,18 +106,20 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         builder.add(mTitleField, cc.xyw(3, 3, 1));
         builder.addLabel("Reload", cc.xy(1, 5));
         builder.add(mReloadCombo, cc.xyw(3, 5, 1));
+        builder.addLabel("Download Limit", cc.xy(1, 7));
+        builder.add(mLimitCombo, cc.xyw(3, 7, 1));
 
-        builder.addSeparator("Accounts", cc.xyw(1, 7, 4));
-        builder.addLabel("Name", cc.xy(1, 9));
-        builder.add(mNameField, cc.xyw(3, 9, 1));
-        builder.addLabel("Protocol", cc.xy(1, 11));
-        builder.add(mProtocolCombo, cc.xyw(3, 11, 1));
-        builder.addLabel("Server", cc.xy(1, 13));
-        builder.add(mServerField, cc.xyw(3, 13, 1));
-        builder.addLabel("Username", cc.xy(1, 15));
-        builder.add(mUsernameField, cc.xyw(3, 15, 1));
-        builder.addLabel("Password", cc.xy(1, 17));
-        builder.add(mPasswordField, cc.xyw(3, 17, 1));
+        builder.addSeparator("Accounts", cc.xyw(1, 9, 4));
+        builder.addLabel("Name", cc.xy(1, 11));
+        builder.add(mNameField, cc.xyw(3, 11, 1));
+        builder.addLabel("Protocol", cc.xy(1, 13));
+        builder.add(mProtocolCombo, cc.xyw(3, 13, 1));
+        builder.addLabel("Server", cc.xy(1, 15));
+        builder.add(mServerField, cc.xyw(3, 15, 1));
+        builder.addLabel("Username", cc.xy(1, 17));
+        builder.add(mUsernameField, cc.xyw(3, 17, 1));
+        builder.addLabel("Password", cc.xy(1, 19));
+        builder.add(mPasswordField, cc.xyw(3, 19, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -132,7 +147,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         fields.add(mUsernameField);
         fields.add(mPasswordField);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 19, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 21, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -159,6 +174,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         EmailConfiguration emailConfiguration = (EmailConfiguration) mAppConfiguration;
         emailConfiguration.setName(mTitleField.getText());
         emailConfiguration.setReload(Integer.parseInt(((NameValue) mReloadCombo.getSelectedItem()).getValue()));
+        emailConfiguration.setLimit(Integer.parseInt(((NameValue) mLimitCombo.getSelectedItem()).getValue()));
 
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
@@ -178,6 +194,8 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
     private JTextComponent mTitleField;
 
     private JComboBox mReloadCombo;
+    
+    private JComboBox mLimitCombo;
 
     private JTextComponent mNameField;
 

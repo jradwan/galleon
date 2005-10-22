@@ -46,6 +46,8 @@ public class Download extends Thread implements DownloadWork, Serializable {
 		URLConnection uc = u.openConnection();
 		uc.connect();
 		size = uc.getContentLength();
+		if (size<=0)
+			throw new IllegalArgumentException();
 	}
 
 	public int getID() {

@@ -22,37 +22,51 @@ package org.lnicholls.galleon.util;
 
 import java.io.Serializable;
 
-public class NameValue implements Serializable {
+public class SharedNameValue extends NameValue implements Serializable {
 
-	public NameValue() {
+	public static final String PUBLIC = "Public";
+
+	public static final String PRIVATE = "Private";
+
+	public static final String FRIENDS = "Friends";
+
+	public SharedNameValue() {
 	}
 
-	public NameValue(String name, String value) {
-		mName = name;
-		mValue = value;
+	public SharedNameValue(String name, String value, String description, String tags, String privacy) {
+		super(name, value);
+		mDescription = description;
+		mTags = tags;
+		mPrivacy = privacy;
 	}
 
-	public String getName() {
-		return mName;
+	public String getDescription() {
+		return mDescription;
 	}
 
-	public String getValue() {
-		return mValue;
+	public void setDescription(String value) {
+		mDescription = value;
 	}
 
-	public void setName(String name) {
-		mName = name;
+	public String getTags() {
+		return mTags;
 	}
 
-	public void setValue(String value) {
-		mValue = value;
+	public void setTags(String value) {
+		mTags = value;
 	}
 
-	public String toString() {
-		return mName + "=" + mValue;
+	public String getPrivacy() {
+		return mPrivacy;
 	}
 
-	private String mName;
+	public void setPrivacy(String value) {
+		mPrivacy = value;
+	}
 
-	private String mValue;
+	private String mDescription;
+
+	private String mTags;
+
+	private String mPrivacy = PRIVATE;
 }

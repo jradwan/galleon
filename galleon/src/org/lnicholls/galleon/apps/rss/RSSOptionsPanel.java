@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -28,6 +29,7 @@ import javax.swing.text.JTextComponent;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
+import org.lnicholls.galleon.app.AppConfigurationPanel.ComboWrapper;
 import org.lnicholls.galleon.gui.OptionsTable;
 import org.lnicholls.galleon.util.NameValue;
 
@@ -38,16 +40,6 @@ import com.jgoodies.forms.layout.FormLayout;
 public class RSSOptionsPanel extends AppConfigurationPanel {
     private static Logger log = Logger.getLogger(RSSOptionsPanel.class.getName());
 
-    class ComboWrapper extends NameValue {
-        public ComboWrapper(String name, String value) {
-            super(name, value);
-        }
-
-        public String toString() {
-            return getName();
-        }
-    }
-
     public RSSOptionsPanel(AppConfiguration appConfiguration) {
         super(appConfiguration);
         setLayout(new GridLayout(0, 1));
@@ -57,12 +49,22 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         mTitleField = new JTextField(rssConfiguration.getName());
         mNameField = new JTextField("");
         mFeedField = new JTextField("");
+        mDescriptionField = new JTextField("");
+        mTagsField = new JTextField("");
+        mPrivacyCombo = new JComboBox();
+        mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.PRIVATE, RSSConfiguration.SharedFeed.PRIVATE));
+        mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.PUBLIC, RSSConfiguration.SharedFeed.PUBLIC));
+        mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.FRIENDS, RSSConfiguration.SharedFeed.FRIENDS));
+        defaultCombo(mPrivacyCombo, RSSConfiguration.SharedFeed.PRIVATE);
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
                 + // title
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // name
                 "3dlu, " + "pref, " + // feed
+                "3dlu, " + "pref, " + // description
+                "3dlu, " + "pref, " + // tags
+                "3dlu, " + "pref, " + // privacy
                 "3dlu, " + "pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
@@ -80,25 +82,40 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         builder.add(mNameField, cc.xyw(3, 7, 1));
         builder.addLabel("URL", cc.xy(1, 9));
         builder.add(mFeedField, cc.xyw(3, 9, 1));
+        builder.addLabel("Description", cc.xy(1, 11));
+        builder.add(mDescriptionField, cc.xyw(3, 11, 1));
+        builder.addLabel("Tags", cc.xy(1, 13));
+        builder.add(mTagsField, cc.xyw(3, 13, 1));
+        builder.addLabel("Privacy", cc.xy(1, 15));
+        builder.add(mPrivacyCombo, cc.xyw(3, 15, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
-        for (Iterator i = rssConfiguration.getFeeds().iterator(); i.hasNext();) {
-            NameValue value = (NameValue) i.next();
+        for (Iterator i = rssConfiguration.getSharedFeeds().iterator(); i.hasNext();) {
+        	RSSConfiguration.SharedFeed value = (RSSConfiguration.SharedFeed) i.next();
             ArrayList values = new ArrayList();
             values.add(0, value.getName());
             values.add(1, value.getValue());
+            values.add(2, value.getDescription());
+            values.add(3, value.getTags());
+            values.add(4, value.getPrivacy());
             mColumnValues.add(counter++, values);
         }
 
         ArrayList columnNames = new ArrayList();
         columnNames.add(0, "Name");
         columnNames.add(1, "URL");
+        columnNames.add(2, "Description");
+        columnNames.add(3, "Tags");
+        columnNames.add(4, "Privacy");
         ArrayList fields = new ArrayList();
         fields.add(mNameField);
         fields.add(mFeedField);
+        fields.add(mDescriptionField);
+        fields.add(mTagsField);
+        fields.add(mPrivacyCombo);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 11, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 17, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -129,7 +146,7 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         Iterator iterator = mColumnValues.iterator();
         while (iterator.hasNext()) {
             ArrayList rows = (ArrayList) iterator.next();
-            newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
+            newItems.add(new RSSConfiguration.SharedFeed((String) rows.get(0), (String) rows.get(1), (String) rows.get(2), (String) rows.get(3), (String) rows.get(4)));
         }
         rssConfiguration.setFeeds(newItems);
     }
@@ -139,9 +156,14 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
     private JTextComponent mNameField;
 
     private JTextComponent mFeedField;
+    
+    private JTextComponent mDescriptionField;
+    
+    private JTextComponent mTagsField;
+    
+    private JComboBox mPrivacyCombo;
 
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
-
 }

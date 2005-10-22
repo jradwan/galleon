@@ -34,7 +34,6 @@ import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.server.Server;
-import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
@@ -96,19 +95,19 @@ public class RSS extends DefaultApplication {
 
             RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory())
                     .getAppContext().getConfiguration();
-            List feeds = rssConfiguration.getFeeds();
-            NameValue[] feedArray = (NameValue[]) feeds.toArray(new NameValue[0]);
+            List feeds = rssConfiguration.getSharedFeeds();
+            RSSConfiguration.SharedFeed[] feedArray = (RSSConfiguration.SharedFeed[]) feeds.toArray(new RSSConfiguration.SharedFeed[0]);
             Arrays.sort(feedArray, new Comparator() {
                 public int compare(Object o1, Object o2) {
-                    NameValue nameValue1 = (NameValue) o1;
-                    NameValue nameValue2 = (NameValue) o2;
+                	RSSConfiguration.SharedFeed nameValue1 = (RSSConfiguration.SharedFeed) o1;
+                	RSSConfiguration.SharedFeed nameValue2 = (RSSConfiguration.SharedFeed) o2;
 
                     return -nameValue1.getName().compareTo(nameValue2.getName());
                 }
             });
 
             for (int i = 0; i < feedArray.length; i++) {
-                NameValue nameValue = (NameValue) feedArray[i];
+            	RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) feedArray[i];
                 List stories = (List) ((RSSFactory) getFactory()).mChannels.get(nameValue.getValue());
                 if (stories != null)
                     mMenuList.add(nameValue);
@@ -119,7 +118,7 @@ public class RSS extends DefaultApplication {
             if (action.equals("push")) {
                 if (mMenuList.size() > 0) {
                     load();
-                    NameValue nameValue = (NameValue) mMenuList.get(mMenuList.getFocus());
+                    RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) mMenuList.get(mMenuList.getFocus());
 
                     List stories = (List) ((RSSFactory) getFactory()).mChannels.get(nameValue.getValue());
                     RSSFeedMenuScreen rssFeedMenuScreen = new RSSFeedMenuScreen((RSS) getBApp(), nameValue, stories);
@@ -135,7 +134,7 @@ public class RSS extends DefaultApplication {
             BView icon = new BView(parent, 10, 3, 30, 30);
             icon.setResource(mFolderIcon);
 
-            NameValue nameValue = (NameValue) mMenuList.get(index);
+            RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) mMenuList.get(index);
             BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
             name.setShadow(true);
             name.setFlags(RSRC_HALIGN_LEFT);
@@ -144,7 +143,7 @@ public class RSS extends DefaultApplication {
     }
 
     public class RSSFeedMenuScreen extends DefaultMenuScreen {
-        public RSSFeedMenuScreen(RSS app, NameValue nameValue, List list) {
+        public RSSFeedMenuScreen(RSS app, RSSConfiguration.SharedFeed nameValue, List list) {
             super(app, null);
             
             mList = list;
@@ -302,9 +301,9 @@ public class RSS extends DefaultApplication {
 
             new Thread() {
                 public void run() {
-                    Iterator iterator = rssConfiguration.getFeeds().iterator();
+                    Iterator iterator = rssConfiguration.getSharedFeeds().iterator();
                     while (iterator.hasNext()) {
-                        NameValue nameValue = (NameValue) iterator.next();
+                    	RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) iterator.next();
                         List stories = (List) mChannels.get(nameValue.getValue());
                         if (stories == null) {
                             stories = new ArrayList();

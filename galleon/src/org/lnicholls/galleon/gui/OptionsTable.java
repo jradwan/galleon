@@ -129,7 +129,7 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                                     String value = (String) mTableModel.getValueAt(selectedRow, i, false);
                                     for (int j = 0; j < combo.getItemCount(); j++) {
                                         if (((NameValue) combo.getItemAt(j)).getValue().equals(value)) {
-                                            combo.setSelectedIndex(i);
+                                            combo.setSelectedIndex(j);
                                             break;
                                         }
                                     }

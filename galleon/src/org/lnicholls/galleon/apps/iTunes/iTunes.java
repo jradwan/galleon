@@ -1196,5 +1196,6 @@ public class iTunes extends DefaultApplication {
 		}
 	}
 
+	// TODO Handle multiple iTunes playlists
 	private static Thread mThread;
 }

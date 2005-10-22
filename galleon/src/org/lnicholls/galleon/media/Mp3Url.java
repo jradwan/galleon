@@ -75,12 +75,19 @@ public final class Mp3Url {
                         conn.setRequestProperty("Accept", "audio/mpeg");
                         conn.setInstanceFollowRedirects(true);
 
-                        IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
-                                .getContentLength(), mApplication));
-                        final IcyListener icyListener = new IcyListener(mApplication);
-                        input.addTagParseListener(icyListener);
-
-                        return input;
+                        try
+                        {
+	                        IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
+	                                .getContentLength(), mApplication));
+	                        final IcyListener icyListener = new IcyListener(mApplication);
+	                        input.addTagParseListener(icyListener);
+	                        return input;
+                        }
+                        catch (Exception ex)
+                        {
+                        	Tools.logException(Mp3Url.class, ex, mPath);        	
+                        }
+                        return conn.getInputStream();
                     }
                 }
 
@@ -89,7 +96,7 @@ public final class Mp3Url {
                 log.debug("getStream: audio=" + audio.getPath());
 
                 TimedThread timedThread = new TimedThread(audio.getPath(), application);
-                TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 5);
+                TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 10);
                 InputStream mp3Stream = (InputStream) timedCallable.call();
 
                 if (mp3Stream != null)

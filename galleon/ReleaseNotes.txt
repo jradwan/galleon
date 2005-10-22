@@ -1,6 +1,14 @@
 Galleon
 -------
 
+Version 1.7.0:
+----------------------
+Fixed multiple network interfaces bug
+Increased ToGo date width
+Added download limit for email accounts
+Improved download manager error handling
+
+
 Version 1.6.0:
 ----------------------
 Fixed timeout saving bug

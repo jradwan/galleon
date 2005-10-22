@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.app.AppConfigurationPanel.ComboWrapper;
 import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
@@ -196,6 +197,23 @@ public class Email extends DefaultApplication {
 					new NameValue("10 minutes", "10"), new NameValue("24 hours", "1440") };
 			mReloadButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(emailConfiguration.getReload()));
+			
+			start = start + increment;
+			
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Download Limit");
+
+			nameValues = new NameValue[] { new NameValue("Unlimited", "-1"),
+					new NameValue("1", "1"), new NameValue("2", "2"),
+					new NameValue("3", "3"), new NameValue("4", "4"), new NameValue("5", "5"),
+					new NameValue("10", "10"), new NameValue("20", "20"),
+					new NameValue("40", "40"), new NameValue("60", "60") };
+			mLimitButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(emailConfiguration.getLimit()));			
+			
 			setFocusDefault(mReloadButton);
 		}
 
@@ -210,15 +228,18 @@ public class Email extends DefaultApplication {
 			try {
 				EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory()).getAppContext().getConfiguration();
 				emailConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
+				emailConfiguration.setLimit(Integer.parseInt(mLimitButton.getValue()));
 
 				Server.getServer().updateApp(((EmailFactory) getFactory()).getAppContext());
 			} catch (Exception ex) {
-				Tools.logException(Email.class, ex, "Could not configure internet app");
+				Tools.logException(Email.class, ex, "Could not configure email app");
 			}
 			return super.handleExit();
 		}
 
 		private OptionsButton mReloadButton;
+		
+		private OptionsButton mLimitButton;
 	}    
 
     public class EmailAccountMenuScreen extends DefaultMenuScreen {
@@ -524,6 +545,9 @@ public class Email extends DefaultApplication {
                                 String[] statusHeader = message.getHeader("Status");
 
                                 count = count + 1;
+                                
+                                if (emailConfiguration.getLimit() > 0 && count > emailConfiguration.getLimit())
+                                	break;
 
                                 if (statusHeader != null && statusHeader.length > 0) {
                                     if (statusHeader[0].equals("")) {

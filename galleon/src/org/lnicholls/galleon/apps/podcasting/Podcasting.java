@@ -64,6 +64,7 @@ import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
@@ -765,6 +766,18 @@ public class Podcasting extends DefaultApplication {
 			switch (code) {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 
 			return super.handleKeyPress(code, rawcode);
@@ -834,7 +847,10 @@ public class Podcasting extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			if (mTracker != null)
+			{
 				mFocus = mTracker.getPos();
+				mTracker = (Tracker)mTracker.clone();
+			}
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -900,6 +916,18 @@ public class Podcasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -980,6 +1008,18 @@ public class Podcasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1077,6 +1117,18 @@ public class Podcasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1107,6 +1159,7 @@ public class Podcasting extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -1319,8 +1372,21 @@ public class Podcasting extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+				break;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1613,6 +1679,18 @@ public class Podcasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1728,6 +1806,7 @@ public class Podcasting extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -1789,6 +1868,18 @@ public class Podcasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -2253,6 +2344,18 @@ public class Podcasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((Podcasting) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -2518,7 +2621,7 @@ public class Podcasting extends DefaultApplication {
 
 		private ScreenSaver mScreenSaver;
 	}
-
+	
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {
@@ -2543,7 +2646,7 @@ public class Podcasting extends DefaultApplication {
 		}
 		return audio;
 	}
-
+	
 	public static class PodcastingFactory extends AppFactory {
 
 		public void setAppContext(AppContext appContext) {

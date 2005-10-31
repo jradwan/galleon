@@ -27,6 +27,8 @@ import org.apache.log4j.Logger;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class LabelText extends BView {
 
     private static Logger log = Logger.getLogger(LabelText.class.getName());
@@ -49,7 +51,7 @@ public class LabelText extends BView {
         super(parent, x, y, width, height, visible);
 
         mLabelText = new BText(this, 0, 0, width, height);
-        mLabelText.setColor(darken(Color.WHITE));
+        mLabelText.setColor(Tools.darken(Color.WHITE));
         //mLabelText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
         mValueText = new BText(this, 0, 0, width, height);
         
@@ -68,16 +70,10 @@ public class LabelText extends BView {
     }
 
     public void setColor(Object color) {
-        mLabelText.setColor(darken((Color)color));
+        mLabelText.setColor(Tools.darken((Color)color));
         mValueText.setColor(color);
     }
     
-    private Color darken(Color color) {
-        return new Color((int) (color.getRed() * 0.59),  
-           (int) (color.getGreen() * 0.59), 
-           (int) (color.getBlue() * 0.59));
-     }
-
     public void setShadow(boolean shadow) {
         mLabelText.setShadow(shadow);
         mValueText.setShadow(shadow);

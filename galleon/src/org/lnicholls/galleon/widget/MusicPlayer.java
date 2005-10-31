@@ -86,7 +86,8 @@ public class MusicPlayer extends DefaultPlayer {
     }
 
     private static Audio getAudio(String path) {
-        Audio audio = null;
+    	log.debug(path);
+    	Audio audio = null;
         try {
             List list = AudioManager.findByPath(path);
             if (list != null && list.size() > 0) {
@@ -99,6 +100,7 @@ public class MusicPlayer extends DefaultPlayer {
         if (audio == null) {
             try {
                 audio = (Audio) MediaManager.getMedia(path);
+                log.debug(audio);
                 AudioManager.createAudio(audio);
             } catch (Exception ex) {
                 Tools.logException(MusicInfo.class, ex);

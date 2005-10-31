@@ -103,8 +103,8 @@ public class Music extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 
-		MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory())
-				.getAppContext().getConfiguration();
+		MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory()).getAppContext()
+				.getConfiguration();
 
 		if (musicConfiguration.getPaths().size() == 1) {
 			try {
@@ -126,13 +126,13 @@ public class Music extends DefaultApplication {
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(Music app) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
-			MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory())
-					.getAppContext().getConfiguration();
+			MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory()).getAppContext()
+					.getConfiguration();
 
 			for (Iterator i = musicConfiguration.getPaths().iterator(); i.hasNext(); /* Nothing */) {
 				NameValue nameValue = (NameValue) i.next();
@@ -218,6 +218,18 @@ public class Music extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((Music) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:
+				if (((Music) getBApp()).getTracker() != null) {
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Music) getBApp(), ((Music) getBApp()).getTracker()),
+									TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -231,7 +243,7 @@ public class Music extends DefaultApplication {
 
 		public PathScreen(Music app, Tracker tracker, boolean first) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
@@ -248,6 +260,7 @@ public class Music extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -402,8 +415,21 @@ public class Music extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+				break;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((Music) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:
+				if (((Music) getBApp()).getTracker() != null) {
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Music) getBApp(), ((Music) getBApp()).getTracker()),
+									TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -412,14 +438,14 @@ public class Music extends DefaultApplication {
 
 		private boolean mFirst;
 	}
-	
+
 	public class MusicScreen extends DefaultScreen {
 
 		private BList list;
 
 		public MusicScreen(Music app) {
 			super(app, "Song", true);
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
@@ -485,6 +511,18 @@ public class Music extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((Music) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:
+				if (((Music) getBApp()).getTracker() != null) {
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Music) getBApp(), ((Music) getBApp()).getTracker()),
+									TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -689,28 +727,6 @@ public class Music extends DefaultApplication {
 		private Tracker mTracker;
 
 		private ScreenSaver mScreenSaver;
-	}
-
-	private static Audio getAudio(String path) {
-		Audio audio = null;
-		try {
-			List list = AudioManager.findByPath(path);
-			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
-			}
-		} catch (Exception ex) {
-			Tools.logException(Music.class, ex);
-		}
-
-		if (audio == null) {
-			try {
-				audio = (Audio) MediaManager.getMedia(path);
-				AudioManager.createAudio(audio);
-			} catch (Exception ex) {
-				Tools.logException(Music.class, ex);
-			}
-		}
-		return audio;
 	}
 
 	public class LyricsScreen extends DefaultScreen {
@@ -1075,6 +1091,28 @@ public class Music extends DefaultApplication {
 		private BText mPosText;
 
 		private BText mUrlText;
+	}
+	
+	private static Audio getAudio(String path) {
+		Audio audio = null;
+		try {
+			List list = AudioManager.findByPath(path);
+			if (list != null && list.size() > 0) {
+				audio = (Audio) list.get(0);
+			}
+		} catch (Exception ex) {
+			Tools.logException(Music.class, ex);
+		}
+
+		if (audio == null) {
+			try {
+				audio = (Audio) MediaManager.getMedia(path);
+				AudioManager.createAudio(audio);
+			} catch (Exception ex) {
+				Tools.logException(Music.class, ex);
+			}
+		}
+		return audio;
 	}
 
 	public static class MusicFactory extends AppFactory {

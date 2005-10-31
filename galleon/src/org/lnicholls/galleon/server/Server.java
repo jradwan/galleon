@@ -1147,7 +1147,20 @@ public class Server {
 	public void resumeDownload(Download download) throws RemoteException
 	{
 		mDownloadManager.resumeDownload(download);
-	}    
+	}
+	
+	public boolean isFileExists(String path)
+	{
+		File file = new File(path);
+		return file.exists();
+	}
+	
+	public void deleteFile(String path)
+	{
+		File file = new File(path);
+		if (file.exists())
+			file.delete();
+	}
 	
 	public static void main(String args[]) {
 		mStartMain = true;

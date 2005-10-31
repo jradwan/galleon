@@ -20,6 +20,7 @@ package org.lnicholls.galleon.util;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -891,7 +892,7 @@ public class Tools {
 			} else
 				result = data;
 		}
-		return StringEscapeUtils.unescapeHtml(result).trim();
+		return StringEscapeUtils.unescapeXml(StringEscapeUtils.unescapeHtml(result).trim());
 	}
 	
     public static void copy(File src, File dst) {
@@ -982,4 +983,10 @@ public class Tools {
 		}
 		return message;
     }
+    
+    public static Color darken(Color color) {
+        return new Color((int) (color.getRed() * 0.59),  
+           (int) (color.getGreen() * 0.59), 
+           (int) (color.getBlue() * 0.59));
+     }
 }

@@ -516,8 +516,7 @@ public class RecordedPanel extends JPanel {
                                 Video video = (Video)iterator.next();
 	                        	if (video.getStatus()==Video.STATUS_DOWNLOADED)
 	                            {
-	                            	File file = new File(video.getPath());
-	                                if (file.exists())
+	                        		if (Galleon.isFileExists(video.getPath()))
 	                                	shows.add(video);
 	                            }
 	                        	else

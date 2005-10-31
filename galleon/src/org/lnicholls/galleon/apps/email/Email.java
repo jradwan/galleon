@@ -327,8 +327,10 @@ public class Email extends DefaultApplication {
                     postEvent(new BEvent.Action(this, "pop"));
                     return true;
                 }
+                break;
             case KEY_ENTER:
-				getBApp().push(new OptionsScreen((Email) getBApp()), TRANSITION_LEFT);                
+				getBApp().push(new OptionsScreen((Email) getBApp()), TRANSITION_LEFT);
+				return true;
             }
             return super.handleKeyPress(code, rawcode);
         }
@@ -538,7 +540,7 @@ public class Email extends DefaultApplication {
                             mail.clear();
 
                             int count = 0;
-                            for (int i = 1; i <= countEmail; i++) {
+                            for (int i = countEmail; i > 0; i--) {
                                 boolean unread = false;
 
                                 Message message = folder.getMessage(i);

@@ -223,6 +223,7 @@
     <image source="movies/icon.png" id="icon"/>  
   	<image source="movies/item.png" id="item"/>
   	<image source="movies/folder.png" id="folder"/>	
+  	<image source="movies/favorite.png" id="favorite"/>	  	
     <image source="movies/background.jpg" id="background"/>
   </app>                    
   
@@ -239,5 +240,19 @@
   	<image source="internetSlideshows/folder.png" id="folder"/>	
     <image source="internetSlideshows/background.jpg" id="background"/>
   </app>                    
+  
+  <app id="org.lnicholls.galleon.apps.upcoming.Upcoming">  
+    <image source="upcoming/icon.png" id="icon"/>  
+  	<image source="upcoming/item.png" id="item"/>
+  	<image source="upcoming/folder.png" id="folder"/>	
+    <image source="upcoming/background.jpg" id="background"/>
+  </app>                      
+  
+  <app id="org.lnicholls.galleon.apps.jukebox.Jukebox">  
+    <image source="jukebox/icon.png" id="icon"/>  
+  	<image source="jukebox/item.png" id="item"/>
+  	<image source="jukebox/folder.png" id="folder"/>	
+    <image source="jukebox/background.jpg" id="background"/>
+  </app>                        
 
 </skin>

@@ -41,7 +41,8 @@ public class RSSConfiguration implements AppConfiguration {
     }
 
     public void setFeeds(List value) {
-        Iterator iterator = value.iterator();
+    	mSharedFeeds.clear();
+    	Iterator iterator = value.iterator();
         while (iterator.hasNext())
         {
         	NameValue nameValue = (NameValue)iterator.next();

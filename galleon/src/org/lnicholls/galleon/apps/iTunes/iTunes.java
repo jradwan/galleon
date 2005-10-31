@@ -61,6 +61,7 @@ import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -184,9 +185,16 @@ public class iTunes extends DefaultApplication {
 			if (persistentValue != null) {
 				String refreshed = persistentValue.getValue();
 				if (refreshed != null) {
-					SimpleDateFormat dateFormat = new SimpleDateFormat();
-					dateFormat.applyPattern("M/d/yy hh:mm a");
-					status = status + "   Refreshed: " + dateFormat.format(new Date(refreshed));
+					try
+					{
+						SimpleDateFormat dateFormat = new SimpleDateFormat();
+						dateFormat.applyPattern("M/d/yy hh:mm a");
+						status = status + "   Refreshed: " + dateFormat.format(new Date(refreshed));
+					}
+					catch (Exception ex)
+					{
+						log.error("Invalid date: " + persistentValue.getValue(), ex);
+					}
 				}
 			}
 
@@ -282,6 +290,18 @@ public class iTunes extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((iTunes) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((iTunes) getBApp(), ((iTunes) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -314,6 +334,7 @@ public class iTunes extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -425,8 +446,21 @@ public class iTunes extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+				break;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((iTunes) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((iTunes) getBApp(), ((iTunes) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -508,6 +542,18 @@ public class iTunes extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((iTunes) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((iTunes) getBApp(), ((iTunes) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -712,28 +758,6 @@ public class iTunes extends DefaultApplication {
 		private Tracker mTracker;
 
 		private ScreenSaver mScreenSaver;
-	}
-
-	private static Audio getAudio(String path) {
-		Audio audio = null;
-		try {
-			List list = AudioManager.findByPath(path);
-			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
-			}
-		} catch (Exception ex) {
-			Tools.logException(iTunes.class, ex);
-		}
-
-		if (audio == null) {
-			try {
-				audio = (Audio) MediaManager.getMedia(path);
-				AudioManager.createAudio(audio);
-			} catch (Exception ex) {
-				Tools.logException(iTunes.class, ex);
-			}
-		}
-		return audio;
 	}
 
 	public class LyricsScreen extends DefaultScreen {
@@ -1145,12 +1169,20 @@ public class iTunes extends DefaultApplication {
 						PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(iTunes.class.getName()
 								+ "." + "refresh");
 						if (persistentValue != null) {
-							Date date = new Date(persistentValue.getValue());
-							File file = new File(iTunesConfiguration.getPlaylistPath());
-							if (file.exists()) {
-								fileDate = new Date(file.lastModified());
-								if (fileDate.getTime() - date.getTime() > 1000)
-									reload = true;
+							try
+							{
+								Date date = new Date(persistentValue.getValue());
+								File file = new File(iTunesConfiguration.getPlaylistPath());
+								if (file.exists()) {
+									fileDate = new Date(file.lastModified());
+									if (fileDate.getTime() - date.getTime() > 1000)
+										reload = true;
+								}
+							}
+							catch (Exception ex)
+							{
+								log.error("Invalid date: " + persistentValue.getValue(), ex);
+								reload = true;
 							}
 						} else
 							reload = true;
@@ -1194,6 +1226,28 @@ public class iTunes extends DefaultApplication {
 			}
 			return value;
 		}
+	}
+	
+	private static Audio getAudio(String path) {
+		Audio audio = null;
+		try {
+			List list = AudioManager.findByPath(path);
+			if (list != null && list.size() > 0) {
+				audio = (Audio) list.get(0);
+			}
+		} catch (Exception ex) {
+			Tools.logException(iTunes.class, ex);
+		}
+
+		if (audio == null) {
+			try {
+				audio = (Audio) MediaManager.getMedia(path);
+				AudioManager.createAudio(audio);
+			} catch (Exception ex) {
+				Tools.logException(iTunes.class, ex);
+			}
+		}
+		return audio;
 	}
 
 	// TODO Handle multiple iTunes playlists

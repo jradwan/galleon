@@ -23,16 +23,27 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.Random;
 import java.util.StringTokenizer;
 
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.ScrollableResults;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.Transaction;
+
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.FileFilters;
+import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -53,7 +64,9 @@ public class DefaultApplication extends BApplication {
 
     private static final Logger log = Logger.getLogger(DefaultApplication.class.getName());
 
-    public static String TRACKER = "org.lnicholls.galleon.widget.DefaultApplication.Tracker";
+    public static String TRACKER = "org.lnicholls.galleon.widget.DefaultApplication.Tracker.List";
+    
+    public static String SEPARATOR = ",";
 
     protected Resource mBusyIcon;
 
@@ -127,7 +140,89 @@ public class DefaultApplication extends BApplication {
         case KEY_NUM1:
             if (mCurrentTrackerContext != null) {
                 play("thumbsup.snd");
-                PersistentValueManager.savePersistentValue(TRACKER, mCurrentTrackerContext);
+                
+                PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
+                StringBuffer buffer = new StringBuffer();
+                if (persistentValue!=null)
+                {
+                	buffer.append(persistentValue.getValue());
+                }
+                File file = new File(mCurrentTrackerContext);
+    			if (file.exists()) {
+    				if (file.isDirectory())
+    				{
+    					FileSystemContainer fileSystemContainer = new FileSystemContainer(mCurrentTrackerContext, true);
+        				Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
+        				//mTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+        				
+        				String trackerString = getTrackerString(tracker);
+        				if (buffer.length()==0)
+        					buffer.append(trackerString);
+        				else
+        				{
+        					buffer.append(SEPARATOR);
+        					buffer.append(trackerString);
+        				}
+    				}
+    				else
+    				{
+    	    			try
+    	    			{
+	    					Audio audio = getAudio(file.getCanonicalPath());
+	    	    			if (buffer.length()==0)
+	    	    				buffer.append(audio.getId());
+	    	    			else
+	    	    			{
+	    	    				buffer.append(SEPARATOR);
+	    	    				buffer.append(audio.getId());
+	    	    			}
+    	    			} catch (Exception ex) {
+        					Tools.logException(DefaultApplication.class, ex);
+        				}
+    				}
+    			} else {
+    				// Organizer
+    				List files = new ArrayList();
+    				try {
+    					Transaction tx = null;
+    					Session session = HibernateUtil.openSession();
+    					try {
+    						tx = session.beginTransaction();
+    						Query query = session.createQuery(mCurrentTrackerContext).setCacheable(true);
+    						Audio audio = null;
+    						ScrollableResults items = query.scroll();
+    						if (items.first()) {
+    							items.beforeFirst();
+    							while (items.next()) {
+    								audio = (Audio) items.get(0);
+    								files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
+    							}
+    						}
+
+    						tx.commit();
+    					} catch (HibernateException he) {
+    						if (tx != null)
+    							tx.rollback();
+    						throw he;
+    					} finally {
+    						HibernateUtil.closeSession();
+    					}
+    				} catch (Exception ex) {
+    					Tools.logException(DefaultApplication.class, ex);
+    				}
+
+    				Tracker tracker = new Tracker(files, 0);
+    				//mTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+    				String trackerString = getTrackerString(tracker);
+    				if (buffer.length()==0)
+    					buffer.append(trackerString);
+    				else
+    				{
+    					buffer.append(SEPARATOR);
+    					buffer.append(trackerString);
+    				}
+    			}
+                PersistentValueManager.savePersistentValue(TRACKER, buffer.toString());
             }
             return true;
         case KEY_LEFT:
@@ -183,7 +278,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void setPos(int pos) {
-            mPos = pos;
+        	mPos = pos;
         }
 
         public int getPos() {
@@ -257,7 +352,14 @@ public class DefaultApplication extends BApplication {
         	}
         	return 0;
         }
-
+        
+        public Object clone()
+        {
+        	ArrayList list = new ArrayList();
+        	list.addAll(mList);
+        	return new Tracker(list, mPos);
+        }
+        
         private List mList = new ArrayList();
 
         private int mPos = -1;
@@ -267,6 +369,33 @@ public class DefaultApplication extends BApplication {
         private Random mRandomizer = new Random();
         
         private ArrayList mRandomAvailable = null;
+    }
+    
+    public static String getTrackerString(Tracker tracker)
+    {
+    	StringBuffer buffer = new StringBuffer();
+    	if (tracker!=null)
+    	{
+	    	Iterator iterator = tracker.getList().iterator();
+	    	while (iterator.hasNext())
+	    	{
+	    		try
+	    		{
+	    			Item nameFile = (Item) iterator.next();
+	    			File file = (File) nameFile.getValue();
+	    			Audio audio = getAudio(file.getCanonicalPath());
+	    			if (buffer.length()==0)
+	    				buffer.append(audio.getId());
+	    			else
+	    			{
+	    				buffer.append(SEPARATOR);
+	    				buffer.append(audio.getId());
+	    			}
+	    		}
+	    		catch (Exception ex) {}
+	    	}
+    	}
+    	return buffer.toString();
     }
 
     public static class Player implements IHmeEventHandler, IHmeProtocol {
@@ -581,7 +710,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void setTracker(Tracker tracker) {
-            if (mTracker != null)
+        	if (mTracker != null)
                 stopTrack();
 
             mTracker = tracker;

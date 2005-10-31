@@ -70,6 +70,7 @@ import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -269,6 +270,18 @@ public class MusicOrganizer extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((MusicOrganizer) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), ((MusicOrganizer) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -316,7 +329,10 @@ public class MusicOrganizer extends DefaultApplication {
 			try {
 				Item item = (Item) mMenuList.get(mTracker.getPos());
 				if (!item.isFolder())
+				{
 					mFocus = mTracker.getPos();
+					mTracker = (Tracker)mTracker.clone();
+				}
 			} catch (Exception ex) {
 			}
 			return super.handleEnter(arg, isReturn);
@@ -491,6 +507,7 @@ public class MusicOrganizer extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+				break;
 			case KEY_NUM1:
 				String restrictions = "(1=1)";
 				List conditions = new ArrayList();
@@ -513,6 +530,18 @@ public class MusicOrganizer extends DefaultApplication {
 				return false;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((MusicOrganizer) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), ((MusicOrganizer) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -599,6 +628,18 @@ public class MusicOrganizer extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
+			case KEY_REPLAY:	
+				if (((MusicOrganizer) getBApp()).getTracker()!=null)
+				{
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), ((MusicOrganizer) getBApp()).getTracker()), TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();				
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -794,28 +835,6 @@ public class MusicOrganizer extends DefaultApplication {
 		private Tracker mTracker;
 
 		private ScreenSaver mScreenSaver;
-	}
-
-	private static Audio getAudio(String path) {
-		Audio audio = null;
-		try {
-			List list = AudioManager.findByPath(path);
-			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
-			}
-		} catch (Exception ex) {
-			Tools.logException(MusicOrganizer.class, ex);
-		}
-
-		if (audio == null) {
-			try {
-				audio = (Audio) MediaManager.getMedia(path);
-				AudioManager.createAudio(audio);
-			} catch (Exception ex) {
-				Tools.logException(MusicOrganizer.class, ex);
-			}
-		}
-		return audio;
 	}
 
 	public class LyricsScreen extends DefaultScreen {
@@ -1959,6 +1978,28 @@ public class MusicOrganizer extends DefaultApplication {
 			}
 		}
 		return results;
+	}
+	
+	private static Audio getAudio(String path) {
+		Audio audio = null;
+		try {
+			List list = AudioManager.findByPath(path);
+			if (list != null && list.size() > 0) {
+				audio = (Audio) list.get(0);
+			}
+		} catch (Exception ex) {
+			Tools.logException(MusicOrganizer.class, ex);
+		}
+
+		if (audio == null) {
+			try {
+				audio = (Audio) MediaManager.getMedia(path);
+				AudioManager.createAudio(audio);
+			} catch (Exception ex) {
+				Tools.logException(MusicOrganizer.class, ex);
+			}
+		}
+		return audio;
 	}
 
 	public static class MusicOrganizerFactory extends AppFactory {

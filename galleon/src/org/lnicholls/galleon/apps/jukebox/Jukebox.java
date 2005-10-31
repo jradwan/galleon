@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.shoutcast;
+package org.lnicholls.galleon.apps.jukebox;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -23,23 +23,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.media.MediaManager;
-import org.lnicholls.galleon.media.Playlist;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
-import org.lnicholls.galleon.util.FileFilters;
-import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
+import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
@@ -47,24 +46,26 @@ import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
+import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
+import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.interfaces.IArgumentList;
+import com.tivo.hme.sdk.Resource;
 
-public class Shoutcast extends DefaultApplication {
+public class Jukebox extends DefaultApplication {
 
-	private static Logger log = Logger.getLogger(Shoutcast.class.getName());
+	private static Logger log = Logger.getLogger(Jukebox.class.getName());
 
-	public final static String TITLE = "Shoutcast";
+	public final static String TITLE = "Jukebox";
 
 	private Resource mMenuBackground;
 
@@ -82,6 +83,8 @@ public class Shoutcast extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
+	// TODO Allow individual tracks to be added to jukebox list
+
 	public void init(IContext context) throws Exception {
 		super.init(context);
 
@@ -94,52 +97,93 @@ public class Shoutcast extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 
-		ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
+		JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) ((JukeboxFactory) getFactory())
+				.getAppContext().getConfiguration();
 
-		push(new MusicMenuScreen(this), TRANSITION_NONE);
+		MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getServerConfiguration()
+				.getMusicPlayerConfiguration();
+
+		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
+		if (persistentValue != null) {
+
+			List files = new ArrayList();
+			StringTokenizer tokenizer = new StringTokenizer(persistentValue.getValue(), DefaultApplication.SEPARATOR);
+			while (tokenizer.hasMoreTokens()) {
+				String id = tokenizer.nextToken();
+				Audio audio = AudioManager.retrieveAudio(new Integer(id));
+				if (audio != null) {
+					files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
+				}
+			}
+			mTracker = new Tracker(files, 0);
+			// mTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+		}
+
+		push(new JukeboxMenuScreen(this), TRANSITION_NONE);
 	}
 
-	public class MusicMenuScreen extends DefaultMenuScreen {
-		public MusicMenuScreen(Shoutcast app) {
-			super(app, "Music");
+	public class JukeboxMenuScreen extends DefaultMenuScreen {
+		public JukeboxMenuScreen(Jukebox app) {
+			super(app, "Jukebox");
+
+			setFooter("Press ENTER for options, 1 for delete, 9 for delete all");
 
 			getBelow().setResource(mMenuBackground);
 
-			ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
+			JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) ((JukeboxFactory) getFactory())
+					.getAppContext().getConfiguration();
 
-			try {
-				List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
-				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-					String genre = (String) i.next();
-					mMenuList.add(new NameValue(genre, genre));
+			if (mTracker != null) {
+				Iterator iterator = mTracker.getList().iterator();
+				while (iterator.hasNext()) {
+					Item nameFile = (Item) iterator.next();
+					if (nameFile.isFile()) {
+						try {
+							File file = (File) nameFile.getValue();
+							Audio audio = getAudio(file.getCanonicalPath());
+							if (audio != null)
+								mMenuList.add(nameFile);
+						} catch (Exception ex) {
+							Tools.logException(Jukebox.class, ex);
+						}
+					}
 				}
-			} catch (Exception ex) {
-				Tools.logException(Shoutcast.class, ex);
 			}
 		}
 
 		public boolean handleAction(BView view, Object action) {
 			if (action.equals("push")) {
-				load();
+				if (mMenuList.size() > 0) {
+					load();
 
+					new Thread() {
+						public void run() {
+							try {
+								mPlayerTracker = (Tracker) mTracker.clone();
+								mPlayerTracker.setPos(mMenuList.getFocus());
+								JukeboxScreen jukeboxScreen = new JukeboxScreen((Jukebox) getBApp());
+								jukeboxScreen.setTracker(mPlayerTracker);
+								getBApp().push(jukeboxScreen, TRANSITION_LEFT);
+								getBApp().flush();
+							} catch (Exception ex) {
+								Tools.logException(Jukebox.class, ex);
+							}
+						}
+					}.start();
+					return true;
+				}
+			} else if (action.equals("play")) {
+				load();
 				new Thread() {
 					public void run() {
 						try {
-							NameValue nameValue = (NameValue) (mMenuList.get(mMenuList.getFocus()));
-							List list = AudioManager.findByOrigenGenre(ShoutcastStations.SHOUTCAST, nameValue
-									.getValue());
-							List nameFiles = new ArrayList();
-							for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-								Audio audio = (Audio) i.next();
-								nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
-							}
-
-							Tracker tracker = new Tracker(nameFiles, 0);
-							PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
-							getBApp().push(pathScreen, TRANSITION_LEFT);
+							mPlayerTracker = (Tracker) mTracker.clone();
+							mPlayerTracker.setPos(mMenuList.getFocus());
+							PlayerScreen playerScreen = new PlayerScreen((Jukebox) getBApp(), mPlayerTracker);
+							getBApp().push(playerScreen, TRANSITION_LEFT);
 							getBApp().flush();
 						} catch (Exception ex) {
-							Tools.logException(Shoutcast.class, ex);
+							Tools.logException(Jukebox.class, ex);
 						}
 					}
 				}.start();
@@ -149,190 +193,86 @@ public class Shoutcast extends DefaultApplication {
 		}
 
 		protected void createRow(BView parent, int index) {
-			BView icon = new BView(parent, 9, 2, 32, 32);
-			NameValue nameValue = (NameValue) mMenuList.get(index);
-			icon.setResource(mFolderIcon);
+			try {
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				Item nameFile = (Item) mMenuList.get(index);
+				File file = (File) nameFile.getValue();
+				Audio audio = getAudio(file.getCanonicalPath());
+				icon.setResource(mCDIcon);
 
-			BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
-			name.setShadow(true);
-			name.setFlags(RSRC_HALIGN_LEFT);
-			name.setValue(Tools.trim(StringUtils.capitalize(Tools.clean(nameValue.getName()).toLowerCase()), 40));
-		}
-
-	}
-
-	public class PathScreen extends DefaultMenuScreen {
-
-		public PathScreen(Shoutcast app, Tracker tracker) {
-			this(app, tracker, false);
-		}
-
-		public PathScreen(Shoutcast app, Tracker tracker, boolean first) {
-			super(app, "Music");
-
-			getBelow().setResource(mMenuBackground);
-
-			mTracker = tracker;
-			mFirst = first;
-
-			Iterator iterator = mTracker.getList().iterator();
-			while (iterator.hasNext()) {
-				Item nameFile = (Item) iterator.next();
-				mMenuList.add(nameFile);
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(audio.getTitle()), 40));
+			} catch (Exception ex) {
+				Tools.logException(Jukebox.class, ex);
 			}
-		}
-
-		public boolean handleAction(BView view, Object action) {
-			if (action.equals("push")) {
-				load();
-				final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
-				if (nameFile.isFolder()) {
-					new Thread() {
-						public void run() {
-							try {
-								mTracker.setPos(mMenuList.getFocus());
-								File file = (File) nameFile.getValue();
-								FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-										.getCanonicalPath());
-								((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
-								Tracker tracker = new Tracker(fileSystemContainer
-										.getItems(FileFilters.audioDirectoryFilter), 0);
-								PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
-								getBApp().push(pathScreen, TRANSITION_LEFT);
-								getBApp().flush();
-							} catch (Exception ex) {
-								Tools.logException(Shoutcast.class, ex);
-							}
-						}
-					}.start();
-				} else {
-					if (nameFile.isPlaylist()) {
-						try {
-							File file = (File) nameFile.getValue();
-							Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
-							Tracker tracker = new Tracker(playlist.getList(), 0);
-							PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
-							getBApp().push(pathScreen, TRANSITION_LEFT);
-							getBApp().flush();
-						} catch (Exception ex) {
-							ex.printStackTrace();
-						}
-					} else {
-						new Thread() {
-							public void run() {
-								try {
-									mTracker.setPos(mMenuList.getFocus());
-									// MusicScreen musicScreen = new
-									// MusicScreen((Shoutcast) getBApp());
-									// musicScreen.setTracker(mTracker);
-
-									// getBApp().push(mMusicScreen,
-									// TRANSITION_LEFT);
-									// getBApp().flush();
-									getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
-									getBApp().flush();
-								} catch (Exception ex) {
-									Tools.logException(Shoutcast.class, ex);
-								}
-							}
-						}.start();
-					}
-				}
-
-				return true;
-			} else if (action.equals("play")) {
-				load();
-				final Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
-				if (nameFile.isFolder()) {
-					new Thread() {
-						public void run() {
-							try {
-								mTracker.setPos(mMenuList.getFocus());
-								File file = (File) nameFile.getValue();
-								FileSystemContainer fileSystemContainer = new FileSystemContainer(file
-										.getCanonicalPath(), true);
-								((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
-								Tracker tracker = new Tracker(fileSystemContainer
-										.getItems(FileFilters.audioDirectoryFilter), 0);
-
-								getBApp().push(new PlayerScreen((Shoutcast) getBApp(), tracker), TRANSITION_LEFT);
-								getBApp().flush();
-							} catch (Exception ex) {
-								Tools.logException(Shoutcast.class, ex);
-							}
-						}
-					}.start();
-				} else {
-					new Thread() {
-						public void run() {
-							try {
-								mTracker.setPos(mMenuList.getFocus());
-								// getBApp().push(new PlayerScreen((Shoutcast)
-								// getBApp(), mTracker), TRANSITION_LEFT);
-								// getBApp().flush();
-								getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
-								getBApp().flush();
-							} catch (Exception ex) {
-								Tools.logException(Shoutcast.class, ex);
-							}
-						}
-					}.start();
-				}
-			}
-			return super.handleAction(view, action);
-		}
-
-		protected void createRow(BView parent, int index) {
-			BView icon = new BView(parent, 9, 2, 32, 32);
-			Item nameFile = (Item) mMenuList.get(index);
-			if (nameFile.isFolder()) {
-				icon.setResource(mFolderIcon);
-			} else {
-				if (nameFile.isPlaylist())
-					icon.setResource(mPlaylistIcon);
-				else
-					icon.setResource(mCDIcon);
-			}
-
-			BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
-			name.setShadow(true);
-			name.setFlags(RSRC_HALIGN_LEFT);
-			name.setValue(Tools.trim(Tools.clean(nameFile.getName()), 40));
 		}
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
-			case KEY_LEFT:
-				if (!mFirst) {
-					postEvent(new BEvent.Action(this, "pop"));
-					return true;
-				}
+			case KEY_NUM1:
+				getBApp().play("select.snd");
+				getBApp().flush();
+
+				int focus = mMenuList.getFocus();
+				mTracker.getList().remove(mMenuList.getFocus());
+				mMenuList.remove(mMenuList.getFocus());
+				mMenuList.setFocus(focus, false);
+
+				String trackerString = getTrackerString(mTracker);
+				PersistentValueManager.savePersistentValue(TRACKER, trackerString);
+				return true;
+			case KEY_NUM9:
+				getBApp().play("select.snd");
+				getBApp().flush();
+
+				mTracker.getList().clear();
+				mMenuList.clear();
+				mMenuList.setVisible(false);
+
+				PersistentValueManager.savePersistentValue(TRACKER, "");
+				return true;
+			case KEY_PLAY:
+				postEvent(new BEvent.Action(this, "play"));
+				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((Jukebox) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
 			case KEY_REPLAY:
-				if (((Shoutcast) getBApp()).getTracker() != null) {
+				if (((Jukebox) getBApp()).getTracker() != null) {
 					new Thread() {
 						public void run() {
-							getBApp().push(new PlayerScreen((Shoutcast) getBApp(), ((Shoutcast) getBApp()).getTracker()),
+							getBApp().push(new PlayerScreen((Jukebox) getBApp(), ((Jukebox) getBApp()).getTracker()),
 									TRANSITION_LEFT);
 							getBApp().flush();
 						}
 					}.start();
 				}
-				return true;				
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
 
-		private Tracker mTracker;
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			if (mPlayerTracker != null) {
+				mFocus = mPlayerTracker.getPos();
+				mPlayerTracker = (Tracker)mPlayerTracker.clone();
+			}
+			return super.handleEnter(arg, isReturn);
+		}
 
-		private boolean mFirst;
+		private Tracker mPlayerTracker;
 	}
 
-	public class MusicScreen extends DefaultScreen {
+	public class JukeboxScreen extends DefaultScreen {
 
 		private BList list;
 
-		public MusicScreen(Shoutcast app) {
+		public JukeboxScreen(Jukebox app) {
 			super(app, "Song", true);
+
+			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
 
@@ -356,7 +296,8 @@ public class Shoutcast extends DefaultApplication {
 		private void updateView() {
 			Audio audio = currentAudio();
 			if (audio != null) {
-				mMusicInfo.setAudio(audio);
+				Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+				mMusicInfo.setAudio(audio, nameFile.getName());
 			}
 		}
 
@@ -394,11 +335,14 @@ public class Shoutcast extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_ENTER:
+				getBApp().push(new MusicOptionsScreen((Jukebox) getBApp(), mInfoBackground), TRANSITION_LEFT);
+				return true;
 			case KEY_REPLAY:
-				if (((Shoutcast) getBApp()).getTracker() != null) {
+				if (((Jukebox) getBApp()).getTracker() != null) {
 					new Thread() {
 						public void run() {
-							getBApp().push(new PlayerScreen((Shoutcast) getBApp(), ((Shoutcast) getBApp()).getTracker()),
+							getBApp().push(new PlayerScreen((Jukebox) getBApp(), ((Jukebox) getBApp()).getTracker()),
 									TRANSITION_LEFT);
 							getBApp().flush();
 						}
@@ -439,7 +383,7 @@ public class Shoutcast extends DefaultApplication {
 
 				new Thread() {
 					public void run() {
-						getBApp().push(new PlayerScreen((Shoutcast) getBApp(), mTracker), TRANSITION_LEFT);
+						getBApp().push(new PlayerScreen((Jukebox) getBApp(), mTracker), TRANSITION_LEFT);
 						getBApp().flush();
 					}
 				}.start();
@@ -457,14 +401,14 @@ public class Shoutcast extends DefaultApplication {
 			if (mTracker != null) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-					if (nameFile != null) {
+					if (nameFile != null && nameFile.getValue() != null) {
 						if (nameFile.isFile())
 							return getAudio(((File) nameFile.getValue()).getCanonicalPath());
 						else
 							return getAudio((String) nameFile.getValue());
 					}
 				} catch (Exception ex) {
-					Tools.logException(Shoutcast.class, ex);
+					Tools.logException(Jukebox.class, ex);
 				}
 			}
 			return null;
@@ -477,17 +421,35 @@ public class Shoutcast extends DefaultApplication {
 
 	public class PlayerScreen extends DefaultScreen {
 
-		public PlayerScreen(Shoutcast app, Tracker tracker) {
+		public PlayerScreen(Jukebox app, Tracker tracker) {
 			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
 
-			mTracker = tracker;
+			boolean sameTrack = false;
+			DefaultApplication defaultApplication = (DefaultApplication) getApp();
+			Audio currentAudio = defaultApplication.getCurrentAudio();
+			Tracker currentTracker = defaultApplication.getTracker();
+			if (currentTracker != null && currentAudio != null) {
+				Item newItem = (Item) tracker.getList().get(tracker.getPos());
+				if (currentAudio.getPath().equals(newItem.getValue().toString())) {
+					mTracker = currentTracker;
+					sameTrack = true;
+				} else {
+					mTracker = tracker;
+					app.setTracker(mTracker);
+				}
+			} else {
+				mTracker = tracker;
+				app.setTracker(mTracker);
+			}
 
 			setTitle(" ");
 
-			app.setTracker(mTracker);
-			getPlayer().startTrack();
+			setFooter("Press INFO for lyrics");
+
+			if (!sameTrack || getPlayer().getState() == Player.STOP)
+				getPlayer().startTrack();
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -499,9 +461,9 @@ public class Shoutcast extends DefaultApplication {
 					synchronized (this) {
 						try {
 							setPainting(false);
-							MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+							MusicPlayerConfiguration jukeboxPlayerConfiguration = Server.getServer()
 									.getMusicPlayerConfiguration();
-							if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
+							if (jukeboxPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
 								player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
 										BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
 							else
@@ -517,9 +479,9 @@ public class Shoutcast extends DefaultApplication {
 					setFocus(player);
 					mBusy.setVisible(false);
 
-					MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+					MusicPlayerConfiguration jukeboxPlayerConfiguration = Server.getServer()
 							.getMusicPlayerConfiguration();
-					if (musicPlayerConfiguration.isScreensaver()) {
+					if (jukeboxPlayerConfiguration.isScreensaver()) {
 						mScreenSaver = new ScreenSaver(PlayerScreen.this);
 						mScreenSaver.start();
 					}
@@ -539,7 +501,6 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-
 				if (mScreenSaver != null && mScreenSaver.isAlive()) {
 					mScreenSaver.interrupt();
 					mScreenSaver = null;
@@ -559,6 +520,29 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleKeyPress(int code, long rawcode) {
 			if (mScreenSaver != null)
 				mScreenSaver.handleKeyPress(code, rawcode);
+			switch (code) {
+			case KEY_INFO:
+			case KEY_NUM0:
+				getBApp().play("select.snd");
+				getBApp().flush();
+				LyricsScreen lyricsScreen = new LyricsScreen((Jukebox) getBApp(), mTracker);
+				getBApp().push(lyricsScreen, TRANSITION_LEFT);
+				getBApp().flush();
+				return true;
+			/*
+			 * case KEY_NUM0: JukeboxConfiguration jukeboxConfiguration =
+			 * (JukeboxConfiguration) ((JukeboxFactory)
+			 * getContext().getFactory()) .getAppContext().getConfiguration();
+			 * MusicPlayerConfiguration jukeboxPlayerConfiguration =
+			 * Server.getServer().getMusicPlayerConfiguration(); if
+			 * (jukeboxPlayerConfiguration.isShowImages()) {
+			 * getBApp().play("select.snd"); getBApp().flush(); ImagesScreen
+			 * imagesScreen = new ImagesScreen((Jukebox) getBApp(), mTracker);
+			 * getBApp().push(imagesScreen, TRANSITION_LEFT); getBApp().flush();
+			 * return true; } else return false;
+			 */
+			}
+
 			return super.handleKeyPress(code, rawcode);
 		}
 
@@ -574,7 +558,7 @@ public class Shoutcast extends DefaultApplication {
 	public class LyricsScreen extends DefaultScreen {
 		private BList list;
 
-		public LyricsScreen(Shoutcast app, Tracker tracker) {
+		public LyricsScreen(Jukebox app, Tracker tracker) {
 			super(app, "Lyrics", false);
 
 			getBelow().setResource(mLyricsBackground);
@@ -585,18 +569,26 @@ public class Shoutcast extends DefaultApplication {
 					- TOP - 70, "");
 			scrollText.setVisible(false);
 
-			setFocusDefault(scrollText);
+			// setFocusDefault(scrollText);
 
 			// setFooter("lyrc.com.ar");
 			setFooter("lyrictracker.com");
 
 			mBusy.setVisible(true);
 
-			list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40,
-					(int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-			// list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-			list.add("Back to player");
-			setFocusDefault(list);
+			/*
+			 * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10,
+			 * (getHeight() - SAFE_TITLE_V) - 60, (int) Math .round((getWidth() -
+			 * (SAFE_TITLE_H * 2)) / 2), 90, 35);
+			 * //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+			 * list.add("Back to player"); setFocusDefault(list);
+			 */
+
+			BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
+					.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
+			button.setResource(createText("default-24.font", Color.white, "Return to player"));
+			button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+			setFocus(button);
 		}
 
 		public void updateLyrics() {
@@ -619,7 +611,7 @@ public class Shoutcast extends DefaultApplication {
 					audio = (Audio) list.get(0);
 				}
 			} catch (Exception ex) {
-				Tools.logException(Shoutcast.class, ex);
+				Tools.logException(Jukebox.class, ex);
 			}
 			if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
 				try {
@@ -647,7 +639,7 @@ public class Shoutcast extends DefaultApplication {
 										lyricsAudio.setLyrics(lyrics);
 										AudioManager.updateAudio(lyricsAudio);
 									} catch (Exception ex) {
-										Tools.logException(Shoutcast.class, ex, "Could not update lyrics");
+										Tools.logException(Jukebox.class, ex, "Could not update lyrics");
 									}
 								}
 							}
@@ -664,7 +656,7 @@ public class Shoutcast extends DefaultApplication {
 								}
 							}
 						} catch (Exception ex) {
-							Tools.logException(Shoutcast.class, ex, "Could retrieve lyrics");
+							Tools.logException(Jukebox.class, ex, "Could retrieve lyrics");
 						}
 					}
 
@@ -700,10 +692,6 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_SELECT:
-			case KEY_RIGHT:
-				postEvent(new BEvent.Action(this, "pop"));
-				return true;
-			case KEY_LEFT: // TODO Why never gets this code?
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
 			case KEY_UP:
@@ -726,7 +714,7 @@ public class Shoutcast extends DefaultApplication {
 	public class ImagesScreen extends DefaultScreen {
 		private BList list;
 
-		public ImagesScreen(Shoutcast app, Tracker tracker) {
+		public ImagesScreen(Jukebox app, Tracker tracker) {
 			super(app, "Images", true);
 
 			getBelow().setResource(mImagesBackground);
@@ -753,11 +741,19 @@ public class Shoutcast extends DefaultApplication {
 
 			mBusy.setVisible(true);
 
-			list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 60,
-					(int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 90, 35);
-			// list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-			list.add("Back to player");
-			setFocusDefault(list);
+			/*
+			 * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10,
+			 * (getHeight() - SAFE_TITLE_V) - 60, (int) Math .round((getWidth() -
+			 * (SAFE_TITLE_H * 2)) / 2), 90, 35);
+			 * //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
+			 * list.add("Back to player"); setFocusDefault(list);
+			 */
+
+			BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 55, (int) Math
+					.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
+			button.setResource(createText("default-24.font", Color.white, "Return to player"));
+			button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+			setFocus(button);
 		}
 
 		public void updateImage() {
@@ -773,7 +769,7 @@ public class Shoutcast extends DefaultApplication {
 					audio = (Audio) list.get(0);
 				}
 			} catch (Exception ex) {
-				Tools.logException(Shoutcast.class, ex);
+				Tools.logException(Jukebox.class, ex);
 			}
 			final Audio lyricsAudio = audio;
 
@@ -786,7 +782,7 @@ public class Shoutcast extends DefaultApplication {
 						}
 
 						if (mResults == null || mResults.size() == 0) {
-							mResults = Yahoo.getImages("\"" + lyricsAudio.getArtist() + "\" music");
+							mResults = Yahoo.getImages("\"" + lyricsAudio.getArtist() + "\" jukebox");
 							mPos = 0;
 						}
 						if (mResults.size() == 0) {
@@ -827,7 +823,7 @@ public class Shoutcast extends DefaultApplication {
 						}
 
 					} catch (Exception ex) {
-						Tools.logException(Shoutcast.class, ex, "Could not retrieve image");
+						Tools.logException(Jukebox.class, ex, "Could not retrieve image");
 						mResults.remove(mPos);
 					} finally {
 						synchronized (this) {
@@ -880,10 +876,6 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_SELECT:
-			case KEY_RIGHT:
-				postEvent(new BEvent.Action(this, "pop"));
-				return true;
-			case KEY_LEFT: // TODO Why never gets this code?
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
 			case KEY_UP:
@@ -926,7 +918,7 @@ public class Shoutcast extends DefaultApplication {
 
 		private BText mUrlText;
 	}
-	
+
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {
@@ -935,7 +927,7 @@ public class Shoutcast extends DefaultApplication {
 				audio = (Audio) list.get(0);
 			}
 		} catch (Exception ex) {
-			Tools.logException(Shoutcast.class, ex);
+			Tools.logException(Jukebox.class, ex);
 		}
 
 		if (audio == null) {
@@ -943,58 +935,18 @@ public class Shoutcast extends DefaultApplication {
 				audio = (Audio) MediaManager.getMedia(path);
 				AudioManager.createAudio(audio);
 			} catch (Exception ex) {
-				Tools.logException(Shoutcast.class, ex);
+				Tools.logException(Jukebox.class, ex);
 			}
 		}
 		return audio;
-	}	
+	}
 
-	public static class ShoutcastFactory extends AppFactory {
+	public static class JukeboxFactory extends AppFactory {
 
 		public void initialize() {
-			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) getAppContext().getConfiguration();
-
-			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
-			if (mShoutcastStations==null)
-				mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
-		}
-		
-		public void remove()
-		{
-			mShoutcastStations.remove();
-		}
-		
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
-
-			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) appContext.getConfiguration();
-			try {
-				List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
-				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-					String current = (String) i.next();
-					
-					boolean found = false;
-					List genres = shoutcastConfiguration.getGenres();
-					for (Iterator j = genres.iterator(); j.hasNext(); /* Nothing */) {
-						String genre = (String) j.next();
-						if (genre.equals(current))
-						{
-							found = true;
-							break;
-						}
-					}
-					if (!found)
-						mShoutcastStations.remove(current);		
-				}
-	    	} catch (Exception ex) {
-	    		Tools.logException(ShoutcastStations.class, ex);
-	        }
-	    	
-	    	if (mShoutcastStations==null)
-				mShoutcastStations = new ShoutcastStations(shoutcastConfiguration);
-	    	mShoutcastStations.getPlaylists();
+			JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) getAppContext().getConfiguration();
 		}
 	}
 
-	private static ShoutcastStations mShoutcastStations;
+	private Tracker mTracker;
 }

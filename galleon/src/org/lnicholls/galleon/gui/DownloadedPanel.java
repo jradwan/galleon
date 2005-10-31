@@ -206,9 +206,8 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     if (selectedRows.length > 0) {
                         for (int i = 0; i < selectedRows.length; i++) {
                             Video video = (Video) mShows.get(selectedRows[i]);
-                            File file = new File(video.getPath());
-                            if (file.exists())
-                                file.delete();
+                            if (Galleon.isFileExists(video.getPath()))
+                            	Galleon.deleteFile(video.getPath());
                             video.setPath(null);
                             video.setDownloadSize(0);
                             video.setDownloadTime(0);
@@ -440,9 +439,13 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             Video video = (Video)iterator.next();
             if (video.getStatus()==Video.STATUS_DOWNLOADED)
             {
-            	File file = new File(video.getPath());
-                if (file.exists())
-                	mShows.add(video);
+            	try
+            	{
+            		if (Galleon.isFileExists(video.getPath()))
+            			mShows.add(video);
+	            } catch (Exception ex) {
+	                Tools.logException(DownloadedPanel.class, ex);
+	            }
             }
         }
         ShowTableData model = (ShowTableData) mTable.getModel();

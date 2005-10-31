@@ -67,6 +67,7 @@ import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -99,6 +100,8 @@ public class Movies extends DefaultApplication {
 	private Resource mCDIcon;
 
 	private Resource mPlaylistIcon;
+	
+	private Resource mFavoriteIcon;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -111,6 +114,7 @@ public class Movies extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
+		mFavoriteIcon = getSkinImage("menu", "favorite");
 
 		MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
 				.getAppContext().getConfiguration();
@@ -127,16 +131,23 @@ public class Movies extends DefaultApplication {
 			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
 					.getAppContext().getConfiguration();
 
+			List list = null;
 			try {
-				mList = TheaterManager.listAll();
+				list = TheaterManager.listAll();
 			} catch (Exception ex) {
 				Tools.logException(Movies.class, ex);
 			}
 
-			if (mList != null && mList.size() > 0) {
-				for (Iterator i = mList.iterator(); i.hasNext(); /* Nothing */) {
+			if (list != null && list.size() > 0) {
+				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
 					Theater theater = (Theater) i.next();
-					mMenuList.add(theater);
+					if (theater.getFavorite()!=null && theater.getFavorite().intValue()>0)
+						mMenuList.add(theater);
+				}
+				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+					Theater theater = (Theater) i.next();
+					if (theater.getFavorite()==null || theater.getFavorite().intValue()==0)
+						mMenuList.add(theater);
 				}
 			}
 		}
@@ -149,7 +160,12 @@ public class Movies extends DefaultApplication {
 					new Thread() {
 						public void run() {
 							try {
-								Tracker tracker = new Tracker(mList, mMenuList.getFocus());
+								List list = new ArrayList();
+								for (int i = 0; i < mMenuList.size(); i++) {
+									list.add(mMenuList.get(i));
+								}
+								
+								Tracker tracker = new Tracker(list, mMenuList.getFocus());
 
 								getBApp().push(new MovieMenuScreen((Movies) getBApp(), tracker), TRANSITION_LEFT);
 								getBApp().flush();
@@ -167,15 +183,60 @@ public class Movies extends DefaultApplication {
 		protected void createRow(BView parent, int index) {
 			BView icon = new BView(parent, 9, 2, 32, 32);
 			Theater theater = (Theater) mMenuList.get(index);
-			icon.setResource(mFolderIcon);
+			if (theater.getFavorite()!=null && theater.getFavorite().intValue()>0)
+				icon.setResource(mFavoriteIcon);
+			else
+				icon.setResource(mFolderIcon);
 
 			BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
 			name.setShadow(true);
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(theater.getName(), 45));
 		}
-
-		List mList;
+		
+	    public boolean handleKeyPress(int code, long rawcode) {
+	        switch (code) {
+	        case KEY_THUMBSDOWN:
+                getBApp().play("thumbsdown.snd");
+                getBApp().flush();
+                
+                BView row = mMenuList.getRow(mMenuList.getFocus());
+                BView icon = (BView) row.getChild(0);
+                icon.setResource(mFolderIcon);
+                icon.flush();
+                
+                try
+                {
+	                Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
+	               	theater.setFavorite(new Integer(0));
+	               	TheaterManager.updateTheater(theater);
+				} catch (Exception ex) {
+					log.error("Could not update theater", ex);
+				}
+                
+	            return true;
+	        case KEY_THUMBSUP:
+                getBApp().play("thumbsup.snd");
+                getBApp().flush();
+                
+                row = mMenuList.getRow(mMenuList.getFocus());
+                icon = (BView) row.getChild(0);
+                icon.setResource(mFavoriteIcon);
+                icon.flush();
+                
+                try
+                {
+                	Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
+                	theater.setFavorite(new Integer(1));
+                	TheaterManager.updateTheater(theater);
+                } catch (Exception ex) {
+					log.error("Could not update theater", ex);
+				}
+                
+	            return true;
+	        }
+	        return super.handleKeyPress(code, rawcode);
+	    }
 	}
 
 	public class MovieMenuScreen extends DefaultMenuScreen {
@@ -254,7 +315,10 @@ public class Movies extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			if (mMovieTracker != null)
+			{
 				mFocus = mMovieTracker.getPos();
+				mMovieTracker = (Tracker)mMovieTracker.clone();
+			}
 			return super.handleEnter(arg, isReturn);
 		}
 

@@ -19,6 +19,7 @@ package org.lnicholls.galleon.server;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.io.File;
 
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
@@ -98,4 +99,14 @@ public interface ServerControl extends Remote {
 	public void resumeDownload(Download download) throws RemoteException;
 	
 	public void setDisableTimeout(boolean value) throws RemoteException;
+	
+	public boolean isFileExists(String path) throws RemoteException;
+	
+	public void deleteFile(String path) throws RemoteException;
+	
+	public List getUpcomingCountries() throws RemoteException;
+	
+	public List getUpcomingStates(String countryId) throws RemoteException;
+	
+	public List getMetros(String stateId) throws RemoteException;
 }

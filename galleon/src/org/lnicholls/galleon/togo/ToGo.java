@@ -255,7 +255,6 @@ public class ToGo {
 								}
 							}
 							Thread.sleep(100); // give the CPU some breathing
-												// time
 						} finally {
 							if (get != null) {
 								get.releaseConnection();
@@ -277,6 +276,12 @@ public class ToGo {
 					Tools.logException(ToGo.class, ex);
 				} catch (Exception ex) {
 					Tools.logException(ToGo.class, ex);
+					
+					try
+					{
+						Thread.sleep(10000); // give the CPU some breathing time
+					}
+					catch (Exception ex2) {}
 				}
 			}
 		}
@@ -687,8 +692,9 @@ public class ToGo {
 			File file = new File(path + File.separator + name);
 			// TODO Handle retransfers
 			/*
-			if (file.exists())
+			if (file.exists() && video.getStatus()!=Video.STATUS_DOWNLOADING)
 			{
+				log.debug("duplicate file: "+file);
 				try {
 					List list = VideoManager.findByPath(file.getCanonicalPath());
 					if (list!=null && list.size()>0)

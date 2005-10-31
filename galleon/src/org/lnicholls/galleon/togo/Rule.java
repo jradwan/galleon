@@ -245,7 +245,7 @@ public class Rule implements Serializable {
         	}
         } else if (mCriteria.equals(CRITERIA_DURATION)) {
             try {
-                int duration = Integer.parseInt(mValue) / 1000;
+                int duration = Integer.parseInt(mValue) * 1000 * 60;
                 if (mComparison.equals(COMPARISON_EQUALS))
                     return video.getDuration() == duration;
                 else if (mComparison.equals(COMPARISON_MORE_THAN))
@@ -256,7 +256,7 @@ public class Rule implements Serializable {
                 Tools.logException(Rule.class, ex);
             }
         } else if (mCriteria.equals(CRITERIA_SIZE)) {
-            long size = Long.parseLong(mValue) / (1024 * 1024);
+            long size = Long.parseLong(mValue) * 1024 * 1024;
             if (mComparison.equals(COMPARISON_EQUALS))
                 return video.getSize() == size;
             else if (mComparison.equals(COMPARISON_MORE_THAN))

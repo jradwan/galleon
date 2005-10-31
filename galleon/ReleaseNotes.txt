@@ -1,6 +1,19 @@
 Galleon
 -------
 
+Version 1.8.0:
+----------------------
+Fixed email sorting
+Added movie theater favorites
+Fixed remote configuration GUI ToGo bugs
+Added music current track shortcut
+Fixed RSS text escaping
+Fixed RSS configuration bug
+Added Jukebox app
+Added Upcoming app
+Fixed iTunes date bug
+
+
 Version 1.7.0:
 ----------------------
 Fixed multiple network interfaces bug

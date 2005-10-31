@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -51,6 +52,7 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsOptionsPanel.ImagesWrapper;
 import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
@@ -80,6 +82,7 @@ import org.lnicholls.galleon.widget.Grid;
 import org.lnicholls.galleon.widget.LabelText;
 import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.OptionsButton;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -128,46 +131,21 @@ public class InternetSlideshows extends DefaultApplication {
 
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
 		if (persistentValue != null) {
-			String trackerContext = persistentValue.getValue();
-			File file = new File(trackerContext);
-			if (file.exists()) {
-				FileSystemContainer fileSystemContainer = new FileSystemContainer(trackerContext, true);
-				Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
-				setTracker(tracker);
-			} else {
-				// Organizer
-				List files = new ArrayList();
-				try {
-					Transaction tx = null;
-					Session session = HibernateUtil.openSession();
-					try {
-						tx = session.beginTransaction();
-						Query query = session.createQuery(trackerContext).setCacheable(true);
-						Audio audio = null;
-						ScrollableResults items = query.scroll();
-						if (items.first()) {
-							items.beforeFirst();
-							while (items.next()) {
-								audio = (Audio) items.get(0);
-								files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
-							}
-						}
-
-						tx.commit();
-					} catch (HibernateException he) {
-						if (tx != null)
-							tx.rollback();
-						throw he;
-					} finally {
-						HibernateUtil.closeSession();
-					}
-				} catch (Exception ex) {
-					Tools.logException(InternetSlideshows.class, ex);
+			List files = new ArrayList();
+			StringTokenizer tokenizer = new StringTokenizer(persistentValue.getValue(), DefaultApplication.SEPARATOR);
+			while (tokenizer.hasMoreTokens())
+			{
+				String id = tokenizer.nextToken();
+				Audio audio = AudioManager.retrieveAudio(new Integer(id));
+				if (audio!=null)
+				{
+					files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
 				}
-
-				Tracker tracker = new Tracker(files, 0);
-				setTracker(tracker);
 			}
+
+			Tracker tracker = new Tracker(files, 0);
+			//tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
+			setTracker(tracker);
 		}
 
 		push(new PhotosMenuScreen(this), TRANSITION_NONE);

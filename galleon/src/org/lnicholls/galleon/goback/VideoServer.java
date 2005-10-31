@@ -217,12 +217,26 @@ public class VideoServer extends HttpServer {
 				if (file.exists()) {
 					httprequest.reply(200, "Success");
 					InputStream inputstream = new FileInputStream(file);
+					if (itemURL.getParameter(Constants.PARAMETER_SEEK)!=null)
+					{
+						try {
+							int seek = Integer.parseInt(itemURL.getParameter(Constants.PARAMETER_SEEK));
+							inputstream.skip(seek);
+						} catch (Exception ex) {
+						}	
+					}
+					
 					try {
+						long startTime = System.currentTimeMillis(); 
 						OutputStream outputstream = httprequest.getOutputStream(inputstream.available());
 						byte abyte0[] = new byte[4380];
 						int i;
 						while ((i = inputstream.read(abyte0, 0, abyte0.length)) > 0)
 							outputstream.write(abyte0, 0, i);
+						outputstream.close();
+						long endTime = System.currentTimeMillis();
+
+						log.info("GoBack upload duration: " + (endTime - startTime) / 1000 + " sec for " + file);
 					} finally {
 						inputstream.close();
 					}

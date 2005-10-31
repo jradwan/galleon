@@ -48,6 +48,7 @@ import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -122,6 +123,7 @@ public class Playlists extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -208,6 +210,17 @@ public class Playlists extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+			case KEY_REPLAY:
+				if (((Playlists) getBApp()).getTracker() != null) {
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Playlists) getBApp(), ((Playlists) getBApp()).getTracker()),
+									TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -285,6 +298,17 @@ public class Playlists extends DefaultApplication {
 				getNextPos();
 				updateView();
 				return true;
+			case KEY_REPLAY:
+				if (((Playlists) getBApp()).getTracker() != null) {
+					new Thread() {
+						public void run() {
+							getBApp().push(new PlayerScreen((Playlists) getBApp(), ((Playlists) getBApp()).getTracker()),
+									TRANSITION_LEFT);
+							getBApp().flush();
+						}
+					}.start();
+				}
+				return true;				
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -475,28 +499,6 @@ public class Playlists extends DefaultApplication {
 		private Tracker mTracker;
 
 		private ScreenSaver mScreenSaver;
-	}
-
-	private static Audio getAudio(String path) {
-		Audio audio = null;
-		try {
-			List list = AudioManager.findByPath(path);
-			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
-			}
-		} catch (Exception ex) {
-			Tools.logException(Playlists.class, ex);
-		}
-
-		if (audio == null) {
-			try {
-				audio = (Audio) MediaManager.getMedia(path);
-				AudioManager.createAudio(audio);
-			} catch (Exception ex) {
-				Tools.logException(Playlists.class, ex);
-			}
-		}
-		return audio;
 	}
 
 	public class LyricsScreen extends DefaultScreen {
@@ -866,6 +868,28 @@ public class Playlists extends DefaultApplication {
 		private BText mUrlText;
 	}
 
+	private static Audio getAudio(String path) {
+		Audio audio = null;
+		try {
+			List list = AudioManager.findByPath(path);
+			if (list != null && list.size() > 0) {
+				audio = (Audio) list.get(0);
+			}
+		} catch (Exception ex) {
+			Tools.logException(Playlists.class, ex);
+		}
+
+		if (audio == null) {
+			try {
+				audio = (Audio) MediaManager.getMedia(path);
+				AudioManager.createAudio(audio);
+			} catch (Exception ex) {
+				Tools.logException(Playlists.class, ex);
+			}
+		}
+		return audio;
+	}
+	
 	public static class PlaylistsFactory extends AppFactory {
 
 		public void initialize() {

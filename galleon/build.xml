@@ -265,7 +265,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/ToGo"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/togo.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.togo.ToGoOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.togo.ToGoConfiguration"/>                      
@@ -290,7 +290,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Weather"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/weather.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.weather.WeatherConfiguration"/>                      
@@ -320,7 +320,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Music"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/music.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.music.MusicOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.music.MusicConfiguration"/>                      
@@ -345,7 +345,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Photos"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/photos.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.photos.PhotosConfiguration"/>                      
@@ -369,7 +369,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Shoutcast"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/shoutcast.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastConfiguration"/>                      
@@ -394,7 +394,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/MusicOrganizer"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/musicorganizer.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerConfiguration"/>                      
@@ -418,7 +418,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/RSS"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/rss.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.rss.RSSOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.rss.RSSConfiguration"/>            
@@ -442,7 +442,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Desktop"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/desktop.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.desktop.DesktopOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.desktop.DesktopConfiguration"/>                      
@@ -467,7 +467,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Email"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/email.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.email.EmailOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.email.EmailConfiguration"/>                      
@@ -491,7 +491,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Internet"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/internet.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internet.InternetOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.internet.InternetConfiguration"/>                      
@@ -515,7 +515,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Playlists"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/playlists.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.playlists.PlaylistsOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.playlists.PlaylistsConfiguration"/>
@@ -563,7 +563,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Podcasting"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/podcasting.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.podcasting.PodcastingOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.podcasting.PodcastingConfiguration"/>                      
@@ -587,7 +587,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/iTunes"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/itunes.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.iTunes.iTunesOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.iTunes.iTunesConfiguration"/>                      
@@ -612,7 +612,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Music"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/music.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.movies.MoviesOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.movies.MoviesConfiguration"/>                      
@@ -636,7 +636,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/Videocasting"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/videocasting.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.videocasting.VideocastingOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.videocasting.VideocastingConfiguration"/>                      
@@ -660,7 +660,7 @@
           <attribute name="Documentation" value="help.html"/>                              
           <attribute name="Author" value="Leon Nicholls"/>                                        
           <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-          <attribute name="Homepage" value="http://galleon.sourceforge.net/phpwiki/index.php/InternetSlideshows"/>                                                            
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/internetslideshows.html"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsConfiguration"/>                      
@@ -671,6 +671,54 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/internetSlideshows" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/internetSlideshows.jar" tofile="./apps/internetSlideshows.jar" />                
+        
+        <copy file="./media/images/upcoming/icon.png" tofile="${build}/org/lnicholls/galleon/apps/upcoming/icon.png" />        
+        <copy file="./doc/upcomingapp.html" tofile="${build}/org/lnicholls/galleon/apps/upcoming/help.html" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.upcoming.Upcoming"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="Upcoming"/>
+          <attribute name="ReleaseDate" value="10/28/05"/>          
+          <attribute name="Description" value="The Upcoming app displays upcoming events and venues."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/upcoming.html"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.upcoming.UpcomingOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.upcoming.UpcomingConfiguration"/>                      
+          <attribute name="Tags" value="Events"/>            
+        </manifest>        
+        <jar jarfile="${build}/apps/upcoming.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/upcoming/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/upcoming" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/upcoming.jar" tofile="./apps/upcoming.jar" />                        
+        
+        <copy file="./media/images/jukebox/icon.png" tofile="${build}/org/lnicholls/galleon/apps/jukebox/icon.png" />        
+        <copy file="./doc/jukeboxapp.html" tofile="${build}/org/lnicholls/galleon/apps/jukebox/help.html" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.jukebox.Jukebox"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="Jukebox"/>
+          <attribute name="ReleaseDate" value="10/28/05"/>          
+          <attribute name="Description" value="The Jukebox app allows you to create dynamic playlists."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/jukebox.html"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.jukebox.JukeboxOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.jukebox.JukeboxConfiguration"/>                      
+          <attribute name="Tags" value="Music"/>            
+        </manifest>        
+        <jar jarfile="${build}/apps/jukebox.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/jukebox/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/jukebox" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/jukebox.jar" tofile="./apps/jukebox.jar" />                                
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
@@ -755,6 +803,7 @@
         <copy file="./media/images/movies/icon.png" tofile="${build}/skins/movies/icon.png" />        
         <copy file="./media/images/movies/folder.png" tofile="${build}/skins/movies/folder.png" />                
         <copy file="./media/images/movies/item.png" tofile="${build}/skins/movies/item.png" />                
+        <copy file="./media/images/movies/favorite.png" tofile="${build}/skins/movies/favorite.png" />                
         <copy file="./media/images/movies/background.jpg" tofile="${build}/skins/movies/background.jpg" />                        
         
         <copy file="./media/images/videocasting/icon.png" tofile="${build}/skins/videocasting/icon.png" />        
@@ -766,6 +815,16 @@
         <copy file="./media/images/internetSlideshows/folder.png" tofile="${build}/skins/internetSlideshows/folder.png" />                
         <copy file="./media/images/internetSlideshows/item.png" tofile="${build}/skins/internetSlideshows/item.png" />                
         <copy file="./media/images/internetSlideshows/background.jpg" tofile="${build}/skins/internetSlideshows/background.jpg" />                        
+        
+        <copy file="./media/images/upcoming/icon.png" tofile="${build}/skins/upcoming/icon.png" />        
+        <copy file="./media/images/upcoming/folder.png" tofile="${build}/skins/upcoming/folder.png" />                
+        <copy file="./media/images/upcoming/item.png" tofile="${build}/skins/upcoming/item.png" />                
+        <copy file="./media/images/upcoming/background.jpg" tofile="${build}/skins/upcoming/background.jpg" />                                
+        
+        <copy file="./media/images/jukebox/icon.png" tofile="${build}/skins/jukebox/icon.png" />        
+        <copy file="./media/images/jukebox/folder.png" tofile="${build}/skins/jukebox/folder.png" />                
+        <copy file="./media/images/jukebox/item.png" tofile="${build}/skins/jukebox/item.png" />                
+        <copy file="./media/images/jukebox/background.jpg" tofile="${build}/skins/jukebox/background.jpg" />                                        
 
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -792,6 +851,8 @@
         <delete dir="${build}/skins/movies" />        
         <delete dir="${build}/skins/videocasting" />        
         <delete dir="${build}/skins/internetSlideshows" />                
+        <delete dir="${build}/skins/upcoming" />                        
+        <delete dir="${build}/skins/jukebox" />                                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
         
@@ -884,6 +945,16 @@
         <copy file="./media/images/internetSlideshows/folder.png" tofile="${build}/skins/internetSlideshows/folder.png" />                
         <copy file="./media/images/internetSlideshows/item.png" tofile="${build}/skins/internetSlideshows/item.png" />                
         <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/internetSlideshows/background.mpg" />        
+        
+        <copy file="./media/images/upcoming/icon.png" tofile="${build}/skins/upcoming/icon.png" />        
+        <copy file="./media/images/upcoming/folder.png" tofile="${build}/skins/upcoming/folder.png" />                
+        <copy file="./media/images/upcoming/item.png" tofile="${build}/skins/upcoming/item.png" />                
+        <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/upcoming/background.mpg" />                
+        
+        <copy file="./media/images/jukebox/icon.png" tofile="${build}/skins/jukebox/icon.png" />        
+        <copy file="./media/images/jukebox/folder.png" tofile="${build}/skins/jukebox/folder.png" />                
+        <copy file="./media/images/jukebox/item.png" tofile="${build}/skins/jukebox/item.png" />                
+        <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/jukebox/background.mpg" />                        
 
         <copy file="./skins/tivoskin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -910,6 +981,8 @@
         <delete dir="${build}/skins/movies" />        
         <delete dir="${build}/skins/videocasting" />        
         <delete dir="${build}/skins/internetSlideshows" />                
+        <delete dir="${build}/skins/upcoming" />                        
+        <delete dir="${build}/skins/jukebox" />                                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                        
     </target>

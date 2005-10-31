@@ -54,6 +54,8 @@ See the file "COPYING" for more details.
     	<property name="times" type="string"/>        	    
       </composite-element>
     </list>    
+    
+    <property name="favorite" type="int"/>            
 
   </class>
   

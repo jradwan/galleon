@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import net.sf.hibernate.HibernateException;
@@ -37,6 +38,7 @@ import net.sf.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.database.ImageManager;
@@ -106,48 +108,21 @@ public class Photos extends DefaultApplication {
 
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
 		if (persistentValue != null) {
-			String trackerContext = persistentValue.getValue();
-			File file = new File(trackerContext);
-			if (file.exists()) {
-				FileSystemContainer fileSystemContainer = new FileSystemContainer(trackerContext, true);
-				Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
-				tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
-				setTracker(tracker);
-			} else {
-				// Organizer
-				List files = new ArrayList();
-				try {
-					Transaction tx = null;
-					Session session = HibernateUtil.openSession();
-					try {
-						tx = session.beginTransaction();
-						Query query = session.createQuery(trackerContext).setCacheable(true);
-						Audio audio = null;
-						ScrollableResults items = query.scroll();
-						if (items.first()) {
-							items.beforeFirst();
-							while (items.next()) {
-								audio = (Audio) items.get(0);
-								files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
-							}
-						}
-
-						tx.commit();
-					} catch (HibernateException he) {
-						if (tx != null)
-							tx.rollback();
-						throw he;
-					} finally {
-						HibernateUtil.closeSession();
-					}
-				} catch (Exception ex) {
-					Tools.logException(Photos.class, ex);
+			List files = new ArrayList();
+			StringTokenizer tokenizer = new StringTokenizer(persistentValue.getValue(), DefaultApplication.SEPARATOR);
+			while (tokenizer.hasMoreTokens())
+			{
+				String id = tokenizer.nextToken();
+				Audio audio = AudioManager.retrieveAudio(new Integer(id));
+				if (audio!=null)
+				{
+					files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
 				}
-
-				Tracker tracker = new Tracker(files, 0);
-				tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
-				setTracker(tracker);
 			}
+
+			Tracker tracker = new Tracker(files, 0);
+			tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
+			setTracker(tracker);
 		}
 
 		if (imagesConfiguration.getPaths().size() == 1) {
@@ -669,6 +644,7 @@ public class Photos extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Photos) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 
 			return super.handleKeyPress(code, rawcode);
@@ -906,6 +882,7 @@ public class Photos extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Photos) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}

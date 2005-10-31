@@ -297,6 +297,26 @@ public class MainFrame extends JFrame {
 			}
 
 		});
+		helpMenu.add(new MenuAction("File a bug", null, "", new Integer(KeyEvent.VK_B)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://sourceforge.net/tracker/?atid=705256&group_id=126291&func=browse");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		helpMenu.add(new MenuAction("Request a feature", null, "", new Integer(KeyEvent.VK_E)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://sourceforge.net/tracker/?atid=705259&group_id=126291&func=browse");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
 		helpMenu.addSeparator();
 		helpMenu.add(new MenuAction("About...", null, "", new Integer(KeyEvent.VK_A)) {
 
@@ -1393,7 +1413,7 @@ public class MainFrame extends JFrame {
 			
 			mEnabled = new JCheckBox("Enabled");
 			mEnabled.setSelected(goBackConfiguration.isEnabled());
-			mPublishTiVoRecordings = new JCheckBox("Publish TiVo Recordings");
+			mPublishTiVoRecordings = new JCheckBox("Publish ToGo Recordings");
 			mPublishTiVoRecordings.setSelected(goBackConfiguration.isPublishTiVoRecordings());
 			mConvertVideo = new JCheckBox("Convert Video");
 			mConvertVideo.setSelected(goBackConfiguration.isConvertVideo());

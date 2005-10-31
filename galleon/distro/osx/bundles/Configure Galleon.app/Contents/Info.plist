@@ -65,6 +65,7 @@
 			<string>$JAVAROOT/lib/jshortcut.jar</string>
 			<string>$JAVAROOT/lib/js.jar</string>
 			<string>$JAVAROOT/lib/jdom.jar</string>
+			<string>$JAVAROOT/lib/upcoming.jar</string>
 		</array>
 		<key>JVMVersion</key>
 		<string>1.4*</string>

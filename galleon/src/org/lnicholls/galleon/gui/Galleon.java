@@ -59,6 +59,7 @@ import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.server.ServerControl;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.UpcomingServices;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -677,6 +678,75 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	
+	public static boolean isFileExists(String path) throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.isFileExists(path);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get file from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return false;
+	}
+	
+	public static void deleteFile(String path) throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			serverControl.deleteFile(path);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get file from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public static List getUpcomingCountries() throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getUpcomingCountries();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get upcoming countries from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}	
+	
+	public static List getUpcomingStates(String countryId) throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getUpcomingStates(countryId);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get upcoming states from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}	
+	
+	public static List getUpcomingMetros(String stateId) throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getMetros(stateId);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get upcoming metros from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}	
 
 	public static class ConnectionDialog extends JDialog {
 

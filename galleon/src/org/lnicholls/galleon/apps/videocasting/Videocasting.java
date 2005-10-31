@@ -64,6 +64,7 @@ import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
@@ -856,7 +857,10 @@ public class Videocasting extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			if (mTracker != null)
+			{
 				mFocus = mTracker.getPos();
+				mTracker = (Tracker)mTracker.clone();
+			}
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -922,6 +926,7 @@ public class Videocasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1002,6 +1007,7 @@ public class Videocasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1100,6 +1106,7 @@ public class Videocasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1130,6 +1137,7 @@ public class Videocasting extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -1353,8 +1361,10 @@ public class Videocasting extends DefaultApplication {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
+				break;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1647,6 +1657,7 @@ public class Videocasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -1762,6 +1773,7 @@ public class Videocasting extends DefaultApplication {
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			mFocus = mTracker.getPos();
+			mTracker = (Tracker)mTracker.clone();
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -1823,6 +1835,7 @@ public class Videocasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -2274,6 +2287,7 @@ public class Videocasting extends DefaultApplication {
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Videocasting) getBApp()), TRANSITION_LEFT);
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -2332,23 +2346,6 @@ public class Videocasting extends DefaultApplication {
 			}
 
 			return super.handleAction(view, action);
-		}
-
-		private Audio currentAudio() {
-			if (mTracker != null) {
-				try {
-					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-					if (nameFile != null) {
-						if (nameFile.isFile())
-							return getAudio(((File) nameFile.getValue()).getCanonicalPath());
-						else
-							return getAudio((String) nameFile.getValue());
-					}
-				} catch (Throwable ex) {
-					Tools.logException(Videocasting.class, ex);
-				}
-			}
-			return null;
 		}
 
 		private SimpleDateFormat mDateFormat;
@@ -2538,31 +2535,6 @@ public class Videocasting extends DefaultApplication {
 		private Tracker mTracker;
 
 		private ScreenSaver mScreenSaver;
-	}
-
-	private static Audio getAudio(String path) {
-		Audio audio = null;
-		try {
-			List list = AudioManager.findByPath(path);
-			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
-			}
-		} catch (Exception ex) {
-			Tools.logException(Videocasting.class, ex);
-		}
-
-		if (audio == null) {
-			try {
-				File file = new File(path);
-				if (file.exists()) {
-					audio = (Audio) MediaManager.getMedia(file.getCanonicalPath());
-					AudioManager.createAudio(audio);
-				}
-			} catch (Exception ex) {
-				Tools.logException(Videocasting.class, ex);
-			}
-		}
-		return audio;
 	}
 
 	public static class VideocastingFactory extends AppFactory {

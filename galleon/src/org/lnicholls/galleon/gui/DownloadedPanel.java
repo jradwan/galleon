@@ -56,6 +56,7 @@ import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.togo.*;
 import org.lnicholls.galleon.database.*;
+import org.lnicholls.galleon.gui.RecordedPanel.ShowComparator;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -81,7 +82,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
     }
 
     private static final ColumnData mColumns[] = { new ColumnData("Title", 180, JLabel.LEFT),
-            new ColumnData("Episode", 200, JLabel.LEFT), new ColumnData("Date Recorded", 70, JLabel.RIGHT),
+            new ColumnData("Episode", 200, JLabel.LEFT), new ColumnData("Date Recorded", 80, JLabel.RIGHT),
             new ColumnData("Duration", 30, JLabel.RIGHT), new ColumnData("Size", 30, JLabel.RIGHT),
             new ColumnData("Status", 30, JLabel.RIGHT) };
 
@@ -241,7 +242,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
 
         public ShowTableData() {
             mDateFormat = new SimpleDateFormat();
-            mDateFormat.applyPattern("EEE M/d hh:mm");
+            mDateFormat.applyPattern("EEE M/d hh:mm a");
             mTimeFormat = new SimpleDateFormat();
             mTimeFormat.applyPattern("H:mm");
             mCalendar = new GregorianCalendar();
@@ -359,52 +360,54 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             }
         }
 
-        class ShowComparator implements Comparator {
-            protected int mSortCol;
+    }
+    
+    class ShowComparator implements Comparator {
+        protected int mSortCol;
 
-            protected boolean mSortAsc;
+        protected boolean mSortAsc;
 
-            public ShowComparator(int sortCol, boolean sortAsc) {
-                mSortCol = sortCol;
-                mSortAsc = sortAsc;
+        public ShowComparator(int sortCol, boolean sortAsc) {
+            mSortCol = sortCol;
+            mSortAsc = sortAsc;
+        }
+
+        public int compare(Object o1, Object o2) {
+            Video show1 = (Video) o1;
+            Video show2 = (Video) o2;
+            int result = 0;
+            double d1, d2;
+            switch (mSortCol) {
+            case 0:
+                result = show1.getTitle().compareTo(show2.getTitle());
+                break;
+            case 1:
+                result = show1.getEpisodeTitle().compareTo(show2.getEpisodeTitle());
+                break;
+            case 2:
+                result = show1.getDateRecorded().compareTo(show2.getDateRecorded());
+                break;
+            case 3:
+                Integer duration1 = new Integer(show1.getDuration());
+                Integer duration2 = new Integer(show2.getDuration());
+                result = duration1.compareTo(duration2);
+                break;
+            case 4:
+                Long size1 = new Long(show1.getSize());
+                Long size2 = new Long(show2.getSize());
+                result = size1.compareTo(size2);
+                break;
+            case 5:
+                result = show1.getStatusString().compareTo(show2.getStatusString());
+                break;
             }
 
-            public int compare(Object o1, Object o2) {
-                Video show1 = (Video) o1;
-                Video show2 = (Video) o2;
-                int result = 0;
-                double d1, d2;
-                switch (mSortCol) {
-                case 0:
-                    result = show1.getTitle().compareTo(show2.getTitle());
-                    break;
-                case 1:
-                    result = show1.getEpisodeTitle().compareTo(show2.getEpisodeTitle());
-                    break;
-                case 2:
-                    result = show1.getDateRecorded().compareTo(show2.getDateRecorded());
-                    break;
-                case 3:
-                    Integer duration1 = new Integer(show1.getDuration());
-                    Integer duration2 = new Integer(show2.getDuration());
-                    result = duration1.compareTo(duration2);
-                    break;
-                case 4:
-                    Long size1 = new Long(show1.getSize());
-                    Long size2 = new Long(show2.getSize());
-                    result = size1.compareTo(size2);
-                    break;
-                case 5:
-                    result = show1.getStatusString().compareTo(show2.getStatusString());
-                    break;
-                }
-
-                if (!mSortAsc)
-                    result = -result;
-                return result;
-            }
+            if (!mSortAsc)
+                result = -result;
+            return result;
         }
     }
+    
 
     class CustomTableCellRender extends DefaultTableCellRenderer {
         public CustomTableCellRender() {
@@ -449,6 +452,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             }
         }
         ShowTableData model = (ShowTableData) mTable.getModel();
+        Collections.sort(mShows, new ShowComparator(2, false));
         model.fireTableDataChanged();
 
         if (model.getRowCount() > 0)

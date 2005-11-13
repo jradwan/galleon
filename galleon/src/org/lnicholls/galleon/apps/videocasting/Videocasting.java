@@ -116,6 +116,8 @@ public class Videocasting extends DefaultApplication {
 				.getAppContext().getConfiguration();
 
 		push(new VideocastingMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public static Element getDocument(String location) {
@@ -2470,6 +2472,11 @@ public class Videocasting extends DefaultApplication {
 							if (videocast != null && track != null) {
 								try {
 									track.setStatus(VideocastTrack.STATUS_PLAYED);
+									videocast.setDatePlayed(new Date());
+									int count = 0;
+									if (videocast.getPlayCount()!=null)
+										count = videocast.getPlayCount().intValue();
+									videocast.setPlayCount(new Integer(count+1));
 									VideocastManager.updateVideocast(videocast);
 								} catch (Exception ex) {
 									Tools.logException(Videocasting.class, ex);

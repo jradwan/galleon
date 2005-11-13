@@ -33,9 +33,11 @@ import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.media.ImageManipulator;
+import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultScreen;
+import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import sun.awt.ComponentFactory;
 
@@ -52,6 +54,8 @@ public class Desktop extends DefaultApplication {
         super.init(context);
 
         push(new DesktopScreen(this), TRANSITION_NONE);
+        
+        checkVersion(this);
     }
 
     public class DesktopScreen extends DefaultScreen {

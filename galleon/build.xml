@@ -133,6 +133,7 @@
     <hbm2java output="${basedir}/src">    
       <fileset dir="${basedir}/src">
         <include name="**/*.hbm.xml"/>
+        <exclude name="**/Playlist.hbm.xml"/>        
       </fileset>
     </hbm2java>
   </target> 
@@ -719,6 +720,30 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/jukebox" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/jukebox.jar" tofile="./apps/jukebox.jar" />                                
+        
+        <copy file="./media/images/traffic/icon.png" tofile="${build}/org/lnicholls/galleon/apps/traffic/icon.png" />        
+        <copy file="./doc/trafficapp.html" tofile="${build}/org/lnicholls/galleon/apps/traffic/help.html" />                
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.traffic.Traffic"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="Traffic"/>
+          <attribute name="ReleaseDate" value="11/09/05"/>          
+          <attribute name="Description" value="The Traffic app displays maps of local traffic conditions."/>
+          <attribute name="Documentation" value="help.html"/>                              
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.sourceforge.net/html/traffic.html"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.traffic.TrafficOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.traffic.TrafficConfiguration"/>                      
+          <attribute name="Tags" value="Traffic"/>            
+        </manifest>        
+        <jar jarfile="${build}/apps/traffic.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/traffic/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/traffic" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/traffic.jar" tofile="./apps/traffic.jar" />
 
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
@@ -825,6 +850,12 @@
         <copy file="./media/images/jukebox/folder.png" tofile="${build}/skins/jukebox/folder.png" />                
         <copy file="./media/images/jukebox/item.png" tofile="${build}/skins/jukebox/item.png" />                
         <copy file="./media/images/jukebox/background.jpg" tofile="${build}/skins/jukebox/background.jpg" />                                        
+        
+        <copy file="./media/images/traffic/icon.png" tofile="${build}/skins/traffic/icon.png" />                
+        <copy file="./media/images/traffic/incident.png" tofile="${build}/skins/traffic/incident.png" />        
+        <copy file="./media/images/traffic/construction.png" tofile="${build}/skins/traffic/construction.png" />                
+        <copy file="./media/images/traffic/folder.png" tofile="${build}/skins/traffic/folder.png" />                
+        <copy file="./media/images/traffic/background.jpg" tofile="${build}/skins/traffic/background.jpg" />                                                
 
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -853,6 +884,7 @@
         <delete dir="${build}/skins/internetSlideshows" />                
         <delete dir="${build}/skins/upcoming" />                        
         <delete dir="${build}/skins/jukebox" />                                
+        <delete dir="${build}/skins/traffic" />                                        
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
         
@@ -934,6 +966,7 @@
         <copy file="./media/images/movies/icon.png" tofile="${build}/skins/movies/icon.png" />        
         <copy file="./media/images/movies/folder.png" tofile="${build}/skins/movies/folder.png" />                
         <copy file="./media/images/movies/item.png" tofile="${build}/skins/movies/item.png" />                
+        <copy file="./media/images/movies/favorite.png" tofile="${build}/skins/movies/favorite.png" />                        
         <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/movies/background.mpg" />        
         
         <copy file="./media/images/videocasting/icon.png" tofile="${build}/skins/videocasting/icon.png" />        
@@ -955,6 +988,12 @@
         <copy file="./media/images/jukebox/folder.png" tofile="${build}/skins/jukebox/folder.png" />                
         <copy file="./media/images/jukebox/item.png" tofile="${build}/skins/jukebox/item.png" />                
         <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/jukebox/background.mpg" />                        
+        
+        <copy file="./media/images/traffic/icon.png" tofile="${build}/skins/traffic/icon.png" />        
+        <copy file="./media/images/traffic/folder.png" tofile="${build}/skins/traffic/folder.png" />                
+        <copy file="./media/images/traffic/incident.png" tofile="${build}/skins/traffic/incident.png" />                
+        <copy file="./media/images/traffic/construction.png" tofile="${build}/skins/traffic/construction.png" />                
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/traffic/background.mpg" />                                
 
         <copy file="./skins/tivoskin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
@@ -983,6 +1022,7 @@
         <delete dir="${build}/skins/internetSlideshows" />                
         <delete dir="${build}/skins/upcoming" />                        
         <delete dir="${build}/skins/jukebox" />                                
+        <delete dir="${build}/skins/traffic" />                                        
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                        
     </target>
@@ -1121,11 +1161,11 @@
 
     <target name="package-bin-unix">
         <echo>Copying executables</echo>
-        <copy file="./bin/unix/bash.script" tofile="${build}/bin/bash.script" filtering="true" />
+        <!--copy file="./bin/unix/bash.script" tofile="${build}/bin/bash.script" filtering="true" />
         <copy file="./bin/unix/sh.script" tofile="${build}/bin/sh.script" />
         <copy file="./bin/unix/Realpath" tofile="${build}/bin/Realpath" />
         <copy file="./bin/unix/Wrapper" tofile="${build}/bin/Wrapper" />
-        <copy file="./bin/unix/Galleon" tofile="${build}/bin/Galleon" />
+        <copy file="./bin/unix/Galleon" tofile="${build}/bin/Galleon" /-->
         <copy file="./bin/unix/run.sh" tofile="${build}/bin/run.sh" />        
         <copy file="./bin/unix/gui.sh" tofile="${build}/bin/gui.sh" />                
         <chmod file="${build}/bin/*" perm="a+rx" />        

@@ -181,6 +181,10 @@ See the file "COPYING" for more details.
     <property name="datePlayed" type="timestamp">
       <meta attribute="field-description">When the track was last played</meta>
     </property>                
+    
+    <property name="dateDownloaded" type="timestamp"/>
+    
+    <property name="dateUploaded" type="timestamp"/>    
   </class>
 
 </hibernate-mapping>

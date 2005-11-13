@@ -16,6 +16,7 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -35,8 +36,10 @@ import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.app.*;
+import org.lnicholls.galleon.database.*;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.ApplicationManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
@@ -49,7 +52,9 @@ import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.PersistentValue;
 
 import com.tivo.hme.bananas.BApplication;
+import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.IHmeEventHandler;
@@ -59,6 +64,7 @@ import com.tivo.hme.sdk.StreamResource;
 import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
+import com.tivo.core.ds.TeDict;
 
 public class DefaultApplication extends BApplication {
 
@@ -68,27 +74,52 @@ public class DefaultApplication extends BApplication {
     
     public static String SEPARATOR = ",";
 
-    protected Resource mBusyIcon;
+    private Resource mBusyIcon;
 
-    protected Resource mStarIcon;
+    private Resource mStarIcon;
+    
+    private byte mMemento[];
+    
+    private TeDict mParams;
 
     public void init(IContext context) throws Exception {
         super.init(context);
 
-        mBusyIcon = getSkinImage(null, "busy");
-        mStarIcon = getSkinImage(null, "star");
-
         mCallbacks = new ArrayList();
-
-        mPlayer = new Player(this);
+        
+        try
+        {
+        	AppContext appContext = ((AppFactory)getFactory()).getAppContext();
+        	List list = ApplicationManager.findByClazz(appContext.getDescriptor().getClassName());
+        	if (list!=null && list.size()>0)
+        	{
+        		Application application = (Application)list.get(0);
+        		if (application.getDateInstalled()==null)
+        			application.setDateInstalled(new Date());
+        		application.setLastUsed(new Date());
+        		application.setTotal(application.getTotal()+1);
+        		ApplicationManager.updateApplication(application);
+        	}
+        	else
+        	{
+        		Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getTitle(), appContext.getDescriptor().getVersion(), 1, new Date(), null, new Date());
+        		ApplicationManager.createApplication(application);
+        	}
+        } catch (Exception ex) {
+            Tools.logException(DefaultApplication.class, ex);
+        }
     }
 
     public Resource getStarIcon() {
+    	if (mStarIcon==null)
+    		mStarIcon = getSkinImage(null, "star");	
         return mStarIcon;
     }
 
     public Resource getBusyIcon() {
-        return mBusyIcon;
+    	if (mBusyIcon==null)
+    		mBusyIcon = getSkinImage(null, "busy");
+    	return mBusyIcon;
     }
 
     protected Resource getSkinImage(String screen, String key) {
@@ -233,36 +264,36 @@ public class DefaultApplication extends BApplication {
         case KEY_PAUSE:
             //setSoundPlayed(true);
             play(null);
-            mPlayer.pauseTrack();
+            getPlayer().pauseTrack();
             return true;
         case KEY_PLAY:
-            mPlayer.playTrack();
+        	getPlayer().playTrack();
             return true;
         case KEY_CHANNELUP:
             play("select.snd");
             flush();
-            mPlayer.getPrevPos();
-            mPlayer.startTrack();
+            getPlayer().getPrevPos();
+            getPlayer().startTrack();
             return true;
         case KEY_CHANNELDOWN:
             play("select.snd");
             flush();
-            mPlayer.getNextPos();
-            mPlayer.startTrack();
+            getPlayer().getNextPos();
+            getPlayer().startTrack();
             return true;
         case KEY_SLOW:
-            mPlayer.stopTrack();
+        	getPlayer().stopTrack();
             break;
         case KEY_FORWARD: 
-        	mPlayer.fastForwardTrack();
+        	getPlayer().fastForwardTrack();
             break;
         case KEY_REVERSE: 
-        	mPlayer.rewindTrack();
+        	getPlayer().rewindTrack();
             break;            
         case KEY_ADVANCE:
         	play("right.snd");
             flush();
-        	mPlayer.jumpTrack();
+            getPlayer().jumpTrack();
             break;
         case KEY_CLEAR:
             setActive(false);
@@ -270,6 +301,13 @@ public class DefaultApplication extends BApplication {
         }
         return super.handleKeyPress(code, rawcode);
     }
+    
+    public boolean handleInitInfo(HmeEvent.InitInfo info)
+    {
+    	mParams = info.getParams();
+    	byte mMemento[] = info.getMemento();
+    	return true;
+    }    
 
     public static class Tracker {
         public Tracker(List list, int pos) {
@@ -809,11 +847,13 @@ public class DefaultApplication extends BApplication {
     }
 
     public Player getPlayer() {
-        return mPlayer;
+    	if (mPlayer==null)
+    		mPlayer = new Player(this);
+    	return mPlayer;
     }
 
     public void setTracker(Tracker tracker) {
-        mPlayer.setTracker(tracker);
+    	getPlayer().setTracker(tracker);
         List list = tracker.getList();
         if (list.size() > 0) {
             Item nameFile = (Item) list.get(0);
@@ -825,11 +865,11 @@ public class DefaultApplication extends BApplication {
     }
 
     public Tracker getTracker() {
-        return mPlayer.getTracker();
+        return getPlayer().getTracker();
     }
 
     public Audio getCurrentAudio() {
-        return mPlayer.getCurrentAudio();
+        return getPlayer().getCurrentAudio();
     }
 
     public void setCurrentTrackerContext(String value) {
@@ -959,8 +999,50 @@ public class DefaultApplication extends BApplication {
     {
     	return mHandleTimeout;
     }
+    
+	public class VersionScreen extends DefaultScreen {
 
-    // TODO Need to handle multiple apps
+		public VersionScreen(DefaultApplication app) {
+			super(app, "", false);
+
+			getBelow().setResource(Color.WHITE);
+			
+			BView image = new BView(getNormal(), (getWidth()/2)-125, SAFE_TITLE_V, 250, 188, true);
+			image.setResource("galleon.png");
+			
+			BText text = new BText(getNormal(), BORDER_LEFT, (getHeight() - SAFE_TITLE_V) - 140, BODY_WIDTH, 100);
+			text.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
+			text.setFont("default-30-bold.font");
+			text.setColor(Color.BLACK);
+			text.setShadow(true);
+			text.setValue("A new version of Galleon is available.");
+
+			BButton button = new BButton(getNormal(), (getWidth()/2)-50, (getHeight() - SAFE_TITLE_V) - 40, 100, 30);
+			button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, null, null, null, true);
+			button.setResource(createText("default-24.font", Color.white, "OK"));
+	        setFocusDefault(button);
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			postEvent(new BEvent.Action(this, "pop"));
+			return true;
+		}
+	}
+
+	public void checkVersion(DefaultApplication app) {
+		try
+		{
+			if (!Server.getServer().isCurrentVersion())
+			{
+				push(new VersionScreen(app), TRANSITION_NONE);			
+			}
+		}
+		catch (Exception ex)
+		{
+			Tools.logException(DefaultApplication.class, ex);
+		}
+	}
+
     private Player mPlayer;
 
     private ArrayList mCallbacks;

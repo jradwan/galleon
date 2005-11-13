@@ -29,6 +29,7 @@ import java.net.URLClassLoader;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.Naming;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -132,10 +133,12 @@ public final class Galleon implements Constants {
 			 * mServerConfiguration.getIPAddress(); if (mAddress == null ||
 			 * mAddress.length() == 0) mAddress = "127.0.0.1";
 			 */
+			log.info("Server address: " + mServerAddress);
 			for (int i = 0; i < 100; i++) {
 				try {
 					mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099 + i);
 					String[] names = mRegistry.list();
+					ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
 					log.info("Found server at: " + mServerAddress + " on " + (1099 + i));
 					break;
 				} catch (Throwable ex) {

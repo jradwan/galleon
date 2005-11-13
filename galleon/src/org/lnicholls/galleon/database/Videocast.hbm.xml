@@ -217,6 +217,10 @@ See the file "COPYING" for more details.
       </composite-element>
       
     </list>        
+    
+    <property name="datePlayed" type="timestamp"/>
+    
+    <property name="playCount" type="int"/>        
 
   </class>
   

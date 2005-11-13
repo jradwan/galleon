@@ -19,6 +19,7 @@ package org.lnicholls.galleon.togo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Date;
 
 import net.sf.hibernate.HibernateException;
 
@@ -43,10 +44,10 @@ public class DownloadThread extends Thread implements Constants {
     public void run() {
         while (true) {
             try {
-                if (mSelectedVideo == null)
+            	if (mSelectedVideo == null)
                     mSelectedVideo = mToGo.pickNextVideoForDownloading();
                 
-                if (mSelectedVideo != null) {
+            	if (mSelectedVideo != null) {
 
                     if (log.isDebugEnabled())
                         log.debug("Picked: " + mSelectedVideo);
@@ -70,9 +71,9 @@ public class DownloadThread extends Thread implements Constants {
                     if (success) {
                         if (!mCancelThread.cancel()) {
                             synchronized (this) {
-                                // TODO Track download stats
                                 mSelectedVideo = VideoManager.retrieveVideo(mSelectedVideo.getId());
                                 mSelectedVideo.setStatus(Video.STATUS_DOWNLOADED);
+                                mSelectedVideo.setDateDownloaded(new Date());
                                 VideoManager.updateVideo(mSelectedVideo);
                             }
                         }

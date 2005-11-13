@@ -273,7 +273,7 @@ public class MusicInfo extends BView {
     	            		
     	            		                        NameValue nameValue = (NameValue) mResults.get(mPos);
     	            		                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
-    	            		
+    	            		                        
     	            		                        if (image != null) {
     	            		                                setPainting(false);
     	            		                                try {
@@ -385,6 +385,7 @@ public class MusicInfo extends BView {
         try {
                 if (mCoverThread != null && mCoverThread.isAlive()) {
                     mCoverThread.interrupt();
+                    mCoverThread.stop();
                     mCoverThread = null;
                     
                     /*

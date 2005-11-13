@@ -27,17 +27,24 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.Transaction;
+
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
-import org.lnicholls.galleon.database.Playlist;
-import org.lnicholls.galleon.database.PlaylistManager;
-import org.lnicholls.galleon.database.PlaylistTrack;
+import org.lnicholls.galleon.database.Playlists;
+import org.lnicholls.galleon.database.PlaylistsManager;
+import org.lnicholls.galleon.database.PlaylistsTracks;
+import org.lnicholls.galleon.database.PlaylistsTracksManager;
 import org.lnicholls.galleon.media.MediaManager;
+import org.lnicholls.galleon.media.MediaRefreshThread;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.FileFilters;
@@ -62,6 +69,7 @@ import org.lnicholls.galleon.widget.MusicPlayer;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
+import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
@@ -113,31 +121,46 @@ public class iTunes extends DefaultApplication {
 
 		List titles = null;
 		try {
-			titles = PlaylistManager.listTitles();
+			titles = PlaylistsManager.listTitles();
 		} catch (Exception ex) {
 			Tools.logException(PlaylistParser.class, ex);
 		}
 		if (titles.size() == 1) {
 			try {
 				String title = (String) titles.get(0);
-				List playlists = PlaylistManager.findByTitle(title);
-				if (playlists != null && playlists.size() > 0) {
-					Playlist playlist = (Playlist) playlists.get(0);
-					ArrayList list = new ArrayList();
-					Iterator iterator = playlist.getTracks().iterator();
-					while (iterator.hasNext()) {
-						PlaylistTrack track = (PlaylistTrack) iterator.next();
-						list.add(new FileItem(track.getTrack().getTitle(), new File(track.getTrack().getPath())));
+				
+				List list = PlaylistsManager.findByTitle(title);
+				if (list!=null && list.size()>0)
+				{
+					Playlists playlist = (Playlists) list.get(0);
+					
+					ArrayList tracks = new ArrayList();
+					List playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
+					if (playlists!=null && playlists.size()>0)
+					{
+						Iterator iterator = playlists.iterator();
+						while (iterator.hasNext()) {
+							PlaylistsTracks track = (PlaylistsTracks) iterator.next();
+							if (track.getTrack()!=null)
+							{
+								Audio audio = AudioManager.retrieveAudio(track.getTrack());
+								tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));		
+							}
+						}
+						playlists.clear();
 					}
-					Tracker tracker = new Tracker(list, 0);
+					Tracker tracker = new Tracker(tracks, 0);
 					PathScreen pathScreen = new PathScreen(this, tracker, true);
 					push(pathScreen, TRANSITION_LEFT);
+					list.clear();
 				}
 			} catch (Exception ex) {
 				Tools.logException(iTunes.class, ex);
 			}
 		} else
 			push(new MusicMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -159,7 +182,7 @@ public class iTunes extends DefaultApplication {
 
 			List titles = null;
 			try {
-				titles = PlaylistManager.listTitles();
+				titles = PlaylistsManager.listTitles();
 			} catch (Exception ex) {
 				Tools.logException(PlaylistParser.class, ex);
 			}
@@ -212,20 +235,30 @@ public class iTunes extends DefaultApplication {
 						public void run() {
 							try {
 								FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-								List playlists = PlaylistManager.findByTitle((String) nameFile.getValue());
-								if (playlists != null && playlists.size() > 0) {
-									Playlist playlist = (Playlist) playlists.get(0);
-									ArrayList list = new ArrayList();
-									Iterator iterator = playlist.getTracks().iterator();
-									while (iterator.hasNext()) {
-										PlaylistTrack track = (PlaylistTrack) iterator.next();
-										list.add(new FileItem(track.getTrack().getTitle(), new File(track.getTrack()
-												.getPath())));
+								List list = PlaylistsManager.findByTitle((String) nameFile.getValue());
+								if (list!=null && list.size()>0)
+								{
+									Playlists playlist = (Playlists) list.get(0);
+									
+									ArrayList tracks = new ArrayList();
+									List playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
+									if (playlists!=null && playlists.size()>0)
+									{
+										Iterator iterator = playlists.iterator();
+										while (iterator.hasNext()) {
+											PlaylistsTracks track = (PlaylistsTracks) iterator.next();
+											if (track.getTrack()!=null)
+											{
+												Audio audio = AudioManager.retrieveAudio(track.getTrack());
+												tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));		
+											}
+										}
+										playlists.clear();
 									}
-									Tracker tracker = new Tracker(list, 0);
+									Tracker tracker = new Tracker(tracks, 0);
 									PathScreen pathScreen = new PathScreen((iTunes) getBApp(), tracker);
-									getBApp().push(pathScreen, TRANSITION_LEFT);
-									getBApp().flush();
+									push(pathScreen, TRANSITION_LEFT);
+									list.clear();
 								}
 							} catch (Exception ex) {
 								Tools.logException(iTunes.class, ex);
@@ -240,17 +273,22 @@ public class iTunes extends DefaultApplication {
 					public void run() {
 						try {
 							FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-							List playlists = PlaylistManager.findByTitle((String) nameFile.getValue());
+							List playlists = PlaylistsManager.findByTitle((String) nameFile.getValue());
 							if (playlists != null && playlists.size() > 0) {
-								Playlist playlist = (Playlist) playlists.get(0);
-								ArrayList list = new ArrayList();
-								Iterator iterator = playlist.getTracks().iterator();
+								Playlists playlist = (Playlists) playlists.get(0);
+								
+								List pList = PlaylistsTracksManager.findByPlaylists(playlist.getId());
+								ArrayList tracks = new ArrayList();
+								Iterator iterator = pList.iterator();
 								while (iterator.hasNext()) {
-									PlaylistTrack track = (PlaylistTrack) iterator.next();
-									list.add(new FileItem(track.getTrack().getTitle(), new File(track.getTrack()
-											.getPath())));
+									PlaylistsTracks track = (PlaylistsTracks) iterator.next();
+									if (track.getTrack()!=null)
+									{
+										Audio audio = AudioManager.retrieveAudio(track.getTrack());
+										tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));		
+									}
 								}
-								Tracker tracker = new Tracker(list, 0);
+								Tracker tracker = new Tracker(tracks, 0);
 								MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
 										.getMusicPlayerConfiguration();
 								tracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
@@ -1167,7 +1205,7 @@ public class iTunes extends DefaultApplication {
 						boolean reload = false;
 						Date fileDate = new Date();
 						PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(iTunes.class.getName()
-								+ "." + "refresh");
+								+ "." + "refresh2");
 						if (persistentValue != null) {
 							try
 							{
@@ -1187,8 +1225,8 @@ public class iTunes extends DefaultApplication {
 						} else
 							reload = true;
 						// PlaylistParser PlaylistParser = new
-						// PlaylistParser("D:/galleon/iTunes Music
-						// Library.xml");
+						// PlaylistParser("D:/galleon/iTunes Music Library.xml");
+						
 						if (reload) {
 							log.info("Reloading iTunes Library");
 							String location = iTunesConfiguration.getPlaylistPath(); 
@@ -1206,7 +1244,16 @@ public class iTunes extends DefaultApplication {
 							}
 							
 							PlaylistParser PlaylistParser = new PlaylistParser(location);
-							PersistentValueManager.savePersistentValue(iTunes.class.getName() + ".refresh",
+							
+							synchronized (this) {
+					            try {
+					                AudioManager.clean();
+					            } catch (Exception ex) {
+					                Tools.logException(iTunes.class, ex);
+					            }
+					        }
+							
+							PersistentValueManager.savePersistentValue(iTunes.class.getName() + ".refresh2",
 									fileDate.toString());
 							log.info("Reloaded iTunes Library");
 						}

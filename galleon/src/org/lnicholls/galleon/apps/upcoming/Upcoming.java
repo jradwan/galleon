@@ -80,6 +80,8 @@ public class Upcoming extends DefaultApplication {
 		mItemIcon = getSkinImage("menu", "item");
 
 		push(new UpcomingMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class UpcomingMenuScreen extends DefaultMenuScreen {

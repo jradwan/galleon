@@ -85,6 +85,8 @@ public class RSS extends DefaultApplication {
         mItemIcon = getSkinImage("menu", "item");
 
         push(new RSSMenuScreen(this), TRANSITION_NONE);
+        
+        checkVersion(this);
     }
 
     public class RSSMenuScreen extends DefaultMenuScreen {

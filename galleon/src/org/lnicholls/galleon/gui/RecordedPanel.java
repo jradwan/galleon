@@ -86,7 +86,7 @@ public class RecordedPanel extends JPanel {
 
     private static final ColumnData mColumns[] = { new ColumnData(" ", 5, JLabel.CENTER),
             new ColumnData("Title", 160, JLabel.LEFT), new ColumnData("Episode", 140, JLabel.LEFT),
-            new ColumnData("Date Recorded", 70, JLabel.RIGHT), new ColumnData("Duration", 30, JLabel.RIGHT),
+            new ColumnData("Date Recorded", 80, JLabel.RIGHT), new ColumnData("Duration", 30, JLabel.RIGHT),
             new ColumnData("Size", 30, JLabel.RIGHT), new ColumnData("Status", 100, JLabel.RIGHT) };
 
     public RecordedPanel() {
@@ -207,7 +207,7 @@ public class RecordedPanel extends JPanel {
 
         public ShowTableData() {
             mDateFormat = new SimpleDateFormat();
-            mDateFormat.applyPattern("EEE M/d hh:mm");
+            mDateFormat.applyPattern("EEE M/d hh:mm a");
             mTimeFormat = new SimpleDateFormat();
             mTimeFormat.applyPattern("H:mm");
             mCalendar = new GregorianCalendar();

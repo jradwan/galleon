@@ -83,6 +83,7 @@ import org.lnicholls.galleon.widget.LabelText;
 import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
+import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -149,6 +150,8 @@ public class InternetSlideshows extends DefaultApplication {
 		}
 
 		push(new PhotosMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 	
 	public class OptionsScreen extends DefaultOptionsScreen {
@@ -523,8 +526,8 @@ public class InternetSlideshows extends DefaultApplication {
 		                setPainting(false);
 			        	if (mDescription == null) {
 			            	mDescriptionBackground = new View(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 60, (getWidth() - (SAFE_TITLE_H * 2)), 75);
-			                mDescriptionBackground.setResource(Color.BLACK);
-			                mDescriptionBackground.setTransparency(0.2f);
+			                mDescriptionBackground.setResource(Color.BLUE);
+			                mDescriptionBackground.setTransparency(0.4f);
 			            	
 			            	mDescription = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 60, (getWidth() - (SAFE_TITLE_H * 2)), 75);
 			                mDescription.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);

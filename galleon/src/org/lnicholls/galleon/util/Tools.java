@@ -270,19 +270,19 @@ public class Tools {
 		if (cdata == null)
 			return "";
 		if (cdata.indexOf('&') != -1) {
-			cdata = cdata.replaceAll("&", "&amp;");  //&#38;#38; 
+			cdata = cdata.replaceAll("&", "&amp;"); // &#38;#38;
 		}
 		if (cdata.indexOf('<') != -1) {
-			cdata = cdata.replaceAll("<", "&lt;");  //&#38;#60;
+			cdata = cdata.replaceAll("<", "&lt;"); // &#38;#60;
 		}
 		if (cdata.indexOf('>') != -1) {
-			cdata = cdata.replaceAll(">", "&gt;"); //&#62;
+			cdata = cdata.replaceAll(">", "&gt;"); // &#62;
 		}
 		if (cdata.indexOf('\'') != -1) {
-			cdata = cdata.replaceAll("'", "&apos;"); //&#39;
+			cdata = cdata.replaceAll("'", "&apos;"); // &#39;
 		}
 		if (cdata.indexOf('"') != -1) {
-			cdata = cdata.replaceAll("\"", "&quot;"); //&#34;
+			cdata = cdata.replaceAll("\"", "&quot;"); // &#34;
 		}
 		return cdata;
 	}
@@ -312,6 +312,8 @@ public class Tools {
 			for (int i = 0; i < value.length(); i++) {
 				if (value.charAt(i) == '’')
 					buffer.append("'");
+				else if (value.charAt(i) >= '0' && value.charAt(i) <= '9')
+					buffer.append(value.charAt(i));
 				else if (!Character.isISOControl(value.charAt(i)))
 					buffer.append(value.charAt(i));
 			}
@@ -738,7 +740,7 @@ public class Tools {
 				Image internetImage = null;
 				if (log.isDebugEnabled())
 					log.debug("Downloading internet image=" + url.toExternalForm());
-				
+
 				class TimedThread implements Callable {
 					private URL mUrl;
 
@@ -894,86 +896,82 @@ public class Tools {
 		}
 		return StringEscapeUtils.unescapeXml(StringEscapeUtils.unescapeHtml(result).trim());
 	}
-	
-    public static void copy(File src, File dst) {
-    	try {
-            FileChannel srcChannel = new FileInputStream(src).getChannel();
-            FileChannel dstChannel = new FileOutputStream(dst).getChannel();
-            dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
-            srcChannel.close();
-            dstChannel.close();
-        } catch (IOException ex) {
-        	Tools.logException(Tools.class, ex, dst.getAbsolutePath());
-        }
-    }
-    
-    public static InputStream getInputStream(File file)
-    {
-    	try {
-            FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
-            final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int)roChannel.size());    		
-            return new InputStream() {
-                public synchronized int read() throws IOException {
-                    if (!buf.hasRemaining()) {
-                        return -1;
-                    }
-                    return buf.get();
-                }
-        
-                public synchronized int read(byte[] bytes, int off, int len) throws IOException {
-                	if (!buf.hasRemaining()) {
-                        return -1;
-                    }
-                	len = Math.min(len, buf.remaining());
-                    buf.get(bytes, off, len);
-                    return len;
-                }
-            };    		
-		} catch (Exception ex) {
-			Tools.logException(Tools.class, ex, file.getAbsolutePath());
-		}    	
-		return null;
-    }
-    
-    public static BufferedImage ImageIORead(File file)
-    {
-    	try {
-            FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
-            final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int)roChannel.size());    		
-            return ImageIO.read(new InputStream() {
-                public synchronized int read() throws IOException {
-                    if (!buf.hasRemaining()) {
-                        return -1;
-                    }
-                    return buf.get();
-                }
-        
-                public synchronized int read(byte[] bytes, int off, int len) throws IOException {
-                	if (!buf.hasRemaining()) {
-                        return -1;
-                    }
-                	len = Math.min(len, buf.remaining());
-                    buf.get(bytes, off, len);
-                    return len;
-                }
-            });    		
+
+	public static void copy(File src, File dst) {
+		try {
+			FileChannel srcChannel = new FileInputStream(src).getChannel();
+			FileChannel dstChannel = new FileOutputStream(dst).getChannel();
+			dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+			srcChannel.close();
+			dstChannel.close();
+		} catch (IOException ex) {
+			Tools.logException(Tools.class, ex, dst.getAbsolutePath());
+		}
+	}
+
+	public static InputStream getInputStream(File file) {
+		try {
+			FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
+			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int) roChannel.size());
+			return new InputStream() {
+				public synchronized int read() throws IOException {
+					if (!buf.hasRemaining()) {
+						return -1;
+					}
+					return buf.get();
+				}
+
+				public synchronized int read(byte[] bytes, int off, int len) throws IOException {
+					if (!buf.hasRemaining()) {
+						return -1;
+					}
+					len = Math.min(len, buf.remaining());
+					buf.get(bytes, off, len);
+					return len;
+				}
+			};
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex, file.getAbsolutePath());
 		}
-		
-		try
-		{
+		return null;
+	}
+
+	public static BufferedImage ImageIORead(File file) {
+		try {
+			FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
+			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int) roChannel.size());
+			return ImageIO.read(new InputStream() {
+				public synchronized int read() throws IOException {
+					if (!buf.hasRemaining()) {
+						return -1;
+					}
+					return buf.get();
+				}
+
+				public synchronized int read(byte[] bytes, int off, int len) throws IOException {
+					if (!buf.hasRemaining()) {
+						return -1;
+					}
+					len = Math.min(len, buf.remaining());
+					buf.get(bytes, off, len);
+					return len;
+				}
+			});
+		} catch (Exception ex) {
+			Tools.logException(Tools.class, ex, file.getAbsolutePath());
+		}
+
+		try {
 			return ImageIO.read(new FileInputStream(file));
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex, file.getAbsolutePath());
 		}
 		return null;
-    }
-    
-    public static String getCause(Throwable ex)
-    {
-    	String message = ex.getMessage();
-    	Throwable cause = ex.getCause();
+	}
+
+	public static String getCause(Throwable ex) {
+		String message = ex.getMessage();
+		Throwable cause = ex.getCause();
 		while (cause != null) {
 			message = cause.getMessage();
 			if (!(cause instanceof GalleonException))
@@ -982,11 +980,9 @@ public class Tools {
 				break;
 		}
 		return message;
-    }
-    
-    public static Color darken(Color color) {
-        return new Color((int) (color.getRed() * 0.59),  
-           (int) (color.getGreen() * 0.59), 
-           (int) (color.getBlue() * 0.59));
-     }
+	}
+
+	public static Color darken(Color color) {
+		return new Color((int) (color.getRed() * 0.59), (int) (color.getGreen() * 0.59), (int) (color.getBlue() * 0.59));
+	}
 }

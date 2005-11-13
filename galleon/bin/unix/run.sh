@@ -3,9 +3,9 @@
 # Run the Galleon server
 #
 # You may have to set JAVA_HOME to the correct value for your system
-JAVA_HOME=/usr/java/jre
+#JAVA_HOME=/usr/java/jre
 OLDCLASSPATH=$CLASSPATH
-CLASSPATH=$CLASSPATH:../conf
+CLASSPATH=../conf
 for j in ../lib/*.jar 
 do 
 CLASSPATH=$CLASSPATH:$j 

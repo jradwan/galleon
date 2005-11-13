@@ -36,303 +36,299 @@ import com.tivo.hme.bananas.BView;
 
 public class MusicPlayer extends DefaultPlayer {
 
-    private static Logger log = Logger.getLogger(MusicPlayer.class.getName());
-    
-    public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
-            DefaultApplication application, Tracker tracker) {
-        this(parent, x, y, width, height, visible, application, tracker, true);
-    }
-    
-    public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
-            DefaultApplication application, Tracker tracker, boolean showWebImages) {
-        super(parent, x, y, width, height, visible);
+	private static Logger log = Logger.getLogger(MusicPlayer.class.getName());
 
-        mTracker = tracker;
-        mApplication = application;
+	public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
+			DefaultApplication application, Tracker tracker) {
+		this(parent, x, y, width, height, visible, application, tracker, true);
+	}
 
-        MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
+	public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
+			DefaultApplication application, Tracker tracker, boolean showWebImages) {
+		super(parent, x, y, width, height, visible);
 
-        mMusicInfo = new MusicInfo(this, 0, 0, width, height, true, showWebImages && musicPlayerConfiguration.isShowImages());
+		mTracker = tracker;
+		mApplication = application;
 
-        mPlayBar = new PlayBar(this);
-    }
+		MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
 
-    public void updatePlayer() {
-        final Audio audio = currentAudio();
-        if (audio != null) {
-            mMusicInfo.setAudio(audio);
-            if (!mPlaying)
-            	playPlayer();
+		mMusicInfo = new MusicInfo(this, 0, 0, width, height, true, showWebImages
+				&& musicPlayerConfiguration.isShowImages());
 
-            mPlaying = true;
-        }
-    }
+		mPlayBar = new PlayBar(this);
+	}
 
-    private Audio currentAudio() {
-        if (mTracker != null) {
-            try {
-                Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-                if (nameFile != null) {
-                    if (nameFile.isFile())
-                        return getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                    else
-                        return getAudio((String) nameFile.getValue());
-                }
-            } catch (Exception ex) {
-                Tools.logException(MusicInfo.class, ex);
-            }
-        }
-        return null;
-    }
+	public void updatePlayer() {
+		final Audio audio = currentAudio();
+		if (audio != null) {
+			mMusicInfo.setAudio(audio);
+			if (!mPlaying)
+				playPlayer();
 
-    private static Audio getAudio(String path) {
-    	log.debug(path);
-    	Audio audio = null;
-        try {
-            List list = AudioManager.findByPath(path);
-            if (list != null && list.size() > 0) {
-                audio = (Audio) list.get(0);
-            }
-        } catch (Exception ex) {
-            Tools.logException(MusicInfo.class, ex);
-        }
+			mPlaying = true;
+		}
+	}
 
-        if (audio == null) {
-            try {
-                audio = (Audio) MediaManager.getMedia(path);
-                log.debug(audio);
-                AudioManager.createAudio(audio);
-            } catch (Exception ex) {
-                Tools.logException(MusicInfo.class, ex);
-            }
-        }
-        return audio;
-    }
+	private Audio currentAudio() {
+		if (mTracker != null) {
+			try {
+				Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+				if (nameFile != null) {
+					if (nameFile.isFile())
+						return getAudio(((File) nameFile.getValue()).getCanonicalPath());
+					else
+						return getAudio((String) nameFile.getValue());
+				}
+			} catch (Exception ex) {
+				Tools.logException(MusicInfo.class, ex);
+			}
+		}
+		return null;
+	}
 
-    private void updateTitle() {
-        try {
-            Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-            Audio audio = null;
-            if (nameFile.isFile())
-                audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-            else
-                audio = getAudio((String) nameFile.getValue());
+	private static Audio getAudio(String path) {
+		Audio audio = null;
+		try {
+			List list = AudioManager.findByPath(path);
+			if (list != null && list.size() > 0) {
+				audio = (Audio) list.get(0);
+			}
+		} catch (Exception ex) {
+			Tools.logException(MusicInfo.class, ex);
+		}
 
-            if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST)) {
-                audio.setTitle(nameFile.getName());
-            }
-            mMusicInfo.setAudio(audio);
-        } catch (Exception ex) {
-        }
-    }
+		if (audio == null) {
+			try {
+				audio = (Audio) MediaManager.getMedia(path);
+				AudioManager.createAudio(audio);
+			} catch (Exception ex) {
+				Tools.logException(MusicInfo.class, ex);
+			}
+		}
+		return audio;
+	}
 
-    private void updateTime(int seconds) {
-        try {
-            setPainting(false);
-            //mPlayBar.setProgress(seconds);
-            mPlayBar.setPosition(seconds);
-        } finally {
-            setPainting(true);
-        }
-        flush();
-    }
+	private void updateTitle() {
+		try {
+			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+			Audio audio = null;
+			if (nameFile.isFile())
+				audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
+			else
+				audio = getAudio((String) nameFile.getValue());
 
-    public void stopPlayer() {
-        try {
-            setPainting(false);
-            mPlayBar.stop();
-        } finally {
-            setPainting(true);
-        }
-        try {
-            Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-            Audio audio = null;
-            if (nameFile.isFile())
-                audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-            else
-                audio = getAudio((String) nameFile.getValue());
+			if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST)) {
+				audio.setTitle(nameFile.getName());
+			}
+			mMusicInfo.setAudio(audio);
+		} catch (Exception ex) {
+		}
+	}
 
-            /*
-            if (mPlaying && audio != null) {
-                mMusicInfo.setAudio(audio);
-            }
-            */
-        } catch (Exception ex) {
-        }
-    }
+	private void updateTime(int seconds) {
+		try {
+			setPainting(false);
+			// mPlayBar.setProgress(seconds);
+			mPlayBar.setPosition(seconds);
+		} finally {
+			setPainting(true);
+		}
+		flush();
+	}
 
-    public void playPlayer() {
-    	try {
-            setPainting(false);
-            mPlayBar.play();
-        } finally {
-            setPainting(true);
-        }
-    }
-    
-    public void rewindPlayer() {
-    	try {
-            setPainting(false);
-            mPlayBar.rewind();
-        } finally {
-            setPainting(true);
-        }
-    }    
+	public void stopPlayer() {
+		try {
+			setPainting(false);
+			mPlayBar.stop();
+		} finally {
+			setPainting(true);
+		}
+		try {
+			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+			Audio audio = null;
+			if (nameFile.isFile())
+				audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
+			else
+				audio = getAudio((String) nameFile.getValue());
 
-    public void pausePlayer() {
-        if (mApplication.getPlayer().getState() != Player.STOP) {
-            try {
-                setPainting(false);
-                if (mApplication.getPlayer().getState() == Player.PAUSE) {
-                    mPlayBar.play();
-                } else {
-                    mPlayBar.pause();
-                }
-            } finally {
-                setPainting(true);
-            }
-        }
-    }
+			/*
+			 * if (mPlaying && audio != null) { mMusicInfo.setAudio(audio); }
+			 */
+		} catch (Exception ex) {
+		}
+	}
 
-    public void nextPlayer() {
-        try {
-            setPainting(false);
-            mPlayBar.play();
-        } finally {
-            setPainting(true);
-        }
-    }
+	public void playPlayer() {
+		try {
+			setPainting(false);
+			mPlayBar.play();
+		} finally {
+			setPainting(true);
+		}
+	}
 
-    public boolean handleKeyPress(int code, long rawcode) {
-        if (mMusicInfo.handleKeyPress(code, rawcode))
-            return true;
-        switch (code) {
-        case KEY_PAUSE:
-            pausePlayer();
-            break;
-        case KEY_PLAY:
-        case KEY_FORWARD:
-            playPlayer();
-            break;        	
-        case KEY_REVERSE:
-            rewindPlayer();
-            break;
-        case KEY_CHANNELUP:
-            break;
-        case KEY_CHANNELDOWN:
-            break;
-        case KEY_SLOW:
-            stopPlayer();
-            break;
-        case KEY_SELECT:
-        case KEY_RIGHT:
-            postEvent(new BEvent.Action(this, "pop"));
-            remove();
-            return true;
-        case KEY_LEFT:
-            postEvent(new BEvent.Action(this, "pop"));
-            remove();
-            return true;
-        }
-        return super.handleKeyPress(code, rawcode);
-    }
+	public void rewindPlayer() {
+		try {
+			setPainting(false);
+			mPlayBar.rewind();
+		} finally {
+			setPainting(true);
+		}
+	}
 
-    public boolean handleKeyRelease(int code, long rawcode) {
-        switch (code) {
-        case KEY_PAUSE:
-            break;
-        case KEY_PLAY:
-        case KEY_FORWARD:
-        case KEY_REVERSE:
-            break;
-        case KEY_CHANNELUP:
-            break;
-        case KEY_CHANNELDOWN:
-            break;
-        case KEY_SLOW:
-            break;
-        case KEY_ENTER:
-            break;
-        }
-        return super.handleKeyRelease(code, rawcode);
-    }
+	public void pausePlayer() {
+		if (mApplication.getPlayer().getState() != Player.STOP) {
+			try {
+				setPainting(false);
+				if (mApplication.getPlayer().getState() == Player.PAUSE) {
+					mPlayBar.play();
+				} else {
+					mPlayBar.pause();
+				}
+			} finally {
+				setPainting(true);
+			}
+		}
+	}
 
-    public boolean handleAction(BView view, Object action) {
-        Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-        if (action.equals("ready")) {
-            /*
-        	if (mPlaying) {
-                playPlayer();
-            }
-            */
-            try {
-                Audio audio = null;
-                if (nameFile.isFile()) {
-                    audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                } else
-                    audio = getAudio((String) nameFile.getValue());
-                if (mPlaying && audio != null) {
-                    mMusicInfo.setAudio(audio);
-                    mPlayBar.setDuration((int) audio.getDuration() / 1000);
-                }
-            } catch (Exception ex) {
-                Tools.logException(MusicPlayer.class, ex);
-            }
-        } else if (action.equals("playing") || action.equals("seeking")) {
-            if (mPlaying) {
-            	if (action.equals("playing"))
-            			playPlayer();
-            	if (mApplication.getPlayer().getTotal() != 0) {
-                    try {
-                        Audio audio = null;
-                        if (nameFile.isFile())
-                            audio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
-                        else
-                            audio = getAudio((String) nameFile.getValue());
-                        if (audio != null && audio.getDuration() != -1) {
-                            mPlayBar.setDuration((int) audio.getDuration() / 1000);
-                            updateTime(mApplication.getPlayer().getCurrentPosition() / 1000);
-                        }
-                    } catch (Exception ex) {
-                    }
-                }
-            }
-            return true;
-        } else if (action.equals("stopped")) {
-            if (mPlaying) {
-                stopPlayer();
-                mMusicInfo.setTitle(" ");
-                updateTime(0);
-            }
-            return true;
-        } else if (action.equals("update")) {
-            if (mPlaying) {
-                mMusicInfo.setTitle(mApplication.getPlayer().getTitle());
-            } else
-                mLastTitle = mApplication.getPlayer().getTitle();
-            return true;
-        }
+	public void nextPlayer() {
+		try {
+			setPainting(false);
+			mPlayBar.play();
+		} finally {
+			setPainting(true);
+		}
+	}
 
-        return super.handleAction(view, action);
-    }
+	public boolean handleKeyPress(int code, long rawcode) {
+		if (mMusicInfo.handleKeyPress(code, rawcode))
+			return true;
+		switch (code) {
+		case KEY_PAUSE:
+			pausePlayer();
+			break;
+		case KEY_PLAY:
+		case KEY_FORWARD:
+			playPlayer();
+			break;
+		case KEY_REVERSE:
+			rewindPlayer();
+			break;
+		case KEY_CHANNELUP:
+			break;
+		case KEY_CHANNELDOWN:
+			break;
+		case KEY_SLOW:
+			stopPlayer();
+			break;
+		case KEY_SELECT:
+		case KEY_RIGHT:
+			postEvent(new BEvent.Action(this, "pop"));
+			remove();
+			return true;
+		case KEY_LEFT:
+			postEvent(new BEvent.Action(this, "pop"));
+			remove();
+			return true;
+		}
+		return super.handleKeyPress(code, rawcode);
+	}
 
-    public void remove() {
-        mMusicInfo.clearResource();
+	public boolean handleKeyRelease(int code, long rawcode) {
+		switch (code) {
+		case KEY_PAUSE:
+			break;
+		case KEY_PLAY:
+		case KEY_FORWARD:
+		case KEY_REVERSE:
+			break;
+		case KEY_CHANNELUP:
+			break;
+		case KEY_CHANNELDOWN:
+			break;
+		case KEY_SLOW:
+			break;
+		case KEY_ENTER:
+			break;
+		}
+		return super.handleKeyRelease(code, rawcode);
+	}
 
-        super.remove();
-    }
+	public boolean handleAction(BView view, Object action) {
+		Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
+		if (action.equals("ready")) {
+			/*
+			 * if (mPlaying) { playPlayer(); }
+			 */
+			try {
+				if (nameFile.isFile()) {
+					mAudio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
+				} else
+					mAudio = getAudio((String) nameFile.getValue());
+				if (mPlaying && mAudio != null) {
+					mMusicInfo.setAudio(mAudio);
+					mPlayBar.setDuration((int) mAudio.getDuration() / 1000);
+				}
+			} catch (Exception ex) {
+				Tools.logException(MusicPlayer.class, ex);
+			}
+		} else if (action.equals("playing") || action.equals("seeking")) {
+			if (mPlaying) {
+				if (action.equals("playing"))
+					playPlayer();
+				if (mApplication.getPlayer().getTotal() != 0) {
+					try {
+						if (mAudio == null) {
+							if (nameFile.isFile())
+								mAudio = getAudio(((File) nameFile.getValue()).getCanonicalPath());
+							else
+								mAudio = getAudio((String) nameFile.getValue());
+						}
+						if (mAudio != null && mAudio.getDuration() != -1) {
+							mPlayBar.setDuration((int) mAudio.getDuration() / 1000);
+							updateTime(mApplication.getPlayer().getCurrentPosition() / 1000);
+						}
+					} catch (Exception ex) {
+					}
+				}
+			}
+			return true;
+		} else if (action.equals("stopped")) {
+			if (mPlaying) {
+				stopPlayer();
+				mMusicInfo.setTitle(" ");
+				updateTime(0);
+				mAudio = null;
+			}
+			return true;
+		} else if (action.equals("update")) {
+			if (mPlaying) {
+				mMusicInfo.setTitle(mApplication.getPlayer().getTitle());
+			} else
+				mLastTitle = mApplication.getPlayer().getTitle();
+			return true;
+		}
 
-    private DefaultApplication mApplication;
+		return super.handleAction(view, action);
+	}
 
-    private Audio mAudio;
+	public void remove() {
+		mMusicInfo.clearResource();
 
-    private boolean mPlaying;
+		super.remove();
+	}
 
-    private String mLastTitle = "";
+	private DefaultApplication mApplication;
 
-    private Tracker mTracker;
+	private Audio mAudio;
 
-    private MusicInfo mMusicInfo;
+	private boolean mPlaying;
 
-    private PlayBar mPlayBar;
+	private String mLastTitle = "";
+
+	private Tracker mTracker;
+
+	private MusicInfo mMusicInfo;
+
+	private PlayBar mPlayBar;
 }

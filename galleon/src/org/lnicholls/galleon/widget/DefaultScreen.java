@@ -108,7 +108,7 @@ public class DefaultScreen extends BScreen {
                     * SAFE_TITLE_V, true);
 
         mBusy = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
-        mBusy.setResource(app.mBusyIcon);
+        mBusy.setResource(app.getBusyIcon());
         mBusy.setVisible(false);
     }
 
@@ -161,11 +161,15 @@ public class DefaultScreen extends BScreen {
     }
     
     public void setSmallTitle(String value) {
+    	setSmallTitle(value, Color.yellow);
+    }
+    
+    public void setSmallTitle(String value, Color color) {
         if (value != null && value.length() > 0) {
             if (mTitle == null) {
                 mTitle = new BText(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)) - 20, 110);
                 mTitle.setValue(" ");
-                mTitle.setColor(Color.yellow);
+                mTitle.setColor(color);
                 mTitle.setShadow(Color.black, 3);
                 //mTitle.setFlags(RSRC_HALIGN_CENTER);
                 mTitle.setFlags(RSRC_HALIGN_CENTER | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
@@ -187,7 +191,7 @@ public class DefaultScreen extends BScreen {
     public void setFooter(String value) {
         if (value != null && value.length() > 0) {
             if (mFooter == null) {
-                mFooter = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)), 20);
+            	mFooter = new BText(getAbove(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V, (getWidth() - (SAFE_TITLE_H * 2)), 20);
                 mFooter.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
                 mFooter.setFont("default-18.font");
             }

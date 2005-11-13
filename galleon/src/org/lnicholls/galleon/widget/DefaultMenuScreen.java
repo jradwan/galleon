@@ -44,7 +44,8 @@ public class DefaultMenuScreen extends DefaultScreen {
 
     public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
         mMenuList.init();
-        mMenuList.setFocus(mFocus,false);
+        if (mFocus>0)
+        	mMenuList.setFocus(mFocus,false);
         
         /*
         mAnimationThread = new Thread(){
@@ -111,7 +112,7 @@ public class DefaultMenuScreen extends DefaultScreen {
             BView row = mMenuList.getRow(mMenuList.getFocus());
             BView icon = (BView) row.getChild(0);
             mRowResource = icon.getResource();
-            icon.setResource(((DefaultApplication) getApp()).mBusyIcon);
+            icon.setResource(((DefaultApplication) getApp()).getBusyIcon());
             icon.flush();
     
             getBApp().play("select.snd");

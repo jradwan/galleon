@@ -31,6 +31,8 @@ import net.sf.hibernate.Transaction;
 import net.sf.hibernate.cfg.Configuration;
 import net.sf.hibernate.tool.hbm2ddl.SchemaExport;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class VideoManager {
 
     private static Logger log = Logger.getLogger(VideoManager.class.getName());
@@ -62,13 +64,14 @@ public class VideoManager {
         return result;
     }
 
-    public static  Video createVideo(Video Video) throws HibernateException {
+    public static  Video createVideo(Video video) throws HibernateException {
 
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(Video);
+            clean(video);
+            session.save(video);
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -77,16 +80,17 @@ public class VideoManager {
         } finally {
             HibernateUtil.closeSession();
         }
-        return Video;
+        return video;
     }
 
-    public static  void updateVideo(Video Video) throws HibernateException {
+    public static  void updateVideo(Video video) throws HibernateException {
 
         Session session = HibernateUtil.openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(Video);
+            clean(video);
+            session.update(video);
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -206,5 +210,15 @@ public class VideoManager {
         } finally {
             HibernateUtil.closeSession();
         }
+    }
+    
+    private static void clean(Video video)
+    {
+    	if (video.getDescription()!=null)
+    	{
+    		if (video.getDescription().endsWith("Copyright Tribune Media Services, Inc."))
+    			video.setDescription(video.getDescription().substring(0,video.getDescription().length()-"Copyright Tribune Media Services, Inc.".length()));
+    		video.setDescription(Tools.trim(video.getDescription(), 255));
+    	}
     }
 }

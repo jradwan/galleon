@@ -171,8 +171,6 @@ public class MoviesOptionsPanel extends AppConfigurationPanel {
 
     private JTextComponent mTitleField;
 
-    private JComboBox mReloadCombo;
-
     private JTextComponent mCityField;
 
     private JComboBox mStateCombo;

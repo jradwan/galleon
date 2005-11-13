@@ -24,7 +24,7 @@ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 See the file "COPYING" for more details.
     </meta>
     
-    <cache usage="read-write"/>
+    <!--cache usage="read-write"/-->
     
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>
@@ -56,7 +56,7 @@ See the file "COPYING" for more details.
           <column name="externalId" index="PLAYLIST_EXTERNAL"/>
     </property>    
     
-    <list name="tracks" table="PLAYLIST_TRACKS" cascade="all">
+    <list name="tracks" table="PLAYLIST_TRACKS" cascade="all" lazy="true" batch-size="500">
       <key column="PLAYLIST_ID"/>
       <index column="TRACK"/>
       <composite-element class="org.lnicholls.galleon.database.PlaylistTrack">

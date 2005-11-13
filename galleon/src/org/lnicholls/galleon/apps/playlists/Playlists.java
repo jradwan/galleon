@@ -98,21 +98,20 @@ public class Playlists extends DefaultApplication {
 
 		Tracker tracker = new Tracker(list, 0);
 		push(new PathScreen(this, tracker, true), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class PathScreen extends DefaultMenuScreen {
 
-		public PathScreen(Playlists app, Tracker tracker) {
-			this(app, tracker, false);
-		}
-
 		public PathScreen(Playlists app, Tracker tracker, boolean first) {
 			super(app, "Playlists");
+			
+			mFirst = first;
 
 			getBelow().setResource(mMenuBackground);
 
 			mTracker = tracker;
-			mFirst = first;
 
 			Iterator iterator = mTracker.getList().iterator();
 			while (iterator.hasNext()) {
@@ -139,7 +138,7 @@ public class Playlists extends DefaultApplication {
 							Playlist playlist = (Playlist) MediaManager.getMedia(file.getCanonicalPath());
 							if (playlist != null && playlist.getList() != null) {
 								Tracker tracker = new Tracker(playlist.getList(), 0);
-								PathScreen pathScreen = new PathScreen((Playlists) getBApp(), tracker);
+								PathScreen pathScreen = new PathScreen((Playlists) getBApp(), tracker, false);
 								getBApp().push(pathScreen, TRANSITION_LEFT);
 								getBApp().flush();
 							}
@@ -205,11 +204,6 @@ public class Playlists extends DefaultApplication {
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
-			case KEY_LEFT:
-				if (!mFirst) {
-					postEvent(new BEvent.Action(this, "pop"));
-					return true;
-				}
 			case KEY_REPLAY:
 				if (((Playlists) getBApp()).getTracker() != null) {
 					new Thread() {
@@ -221,12 +215,19 @@ public class Playlists extends DefaultApplication {
 					}.start();
 				}
 				return true;
+			case KEY_LEFT:
+				if (!mFirst)
+				{
+					postEvent(new BEvent.Action(this, "pop"));
+					return true;
+				}
+				break;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
 
 		private Tracker mTracker;
-
+		
 		private boolean mFirst;
 	}
 

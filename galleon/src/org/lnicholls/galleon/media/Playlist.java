@@ -66,7 +66,8 @@ public abstract class Playlist implements Media {
     }
 
     public static boolean isPlaylist(String filename) {
-        return FileFilters.playlistFilter.accept(new File(filename));
+    	File file = new File(filename);
+    	return file.exists() && FileFilters.playlistFilter.accept(file);
     }
 
     public String getTitle() {

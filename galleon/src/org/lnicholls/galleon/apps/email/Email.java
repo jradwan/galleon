@@ -56,6 +56,7 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
+import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -104,6 +105,8 @@ public class Email extends DefaultApplication {
             push(new EmailAccountMenuScreen(this, account, mail, true), TRANSITION_NONE);
         } else
             push(new EmailMenuScreen(this), TRANSITION_NONE);
+        
+        checkVersion(this);
     }
 
     public class EmailMenuScreen extends DefaultMenuScreen {

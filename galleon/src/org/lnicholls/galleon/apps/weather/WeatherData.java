@@ -292,124 +292,127 @@ public class WeatherData implements Serializable {
     }
 
     public void parseWeather(String page) {
-        try {
-            SAXReader saxReader = new SAXReader();
-            StringReader stringReader = new StringReader(page);
-            Document document = saxReader.read(stringReader);
-
-            //Document document = saxReader.read(new File("d:/galleon/weather.xml"));
-
-            Element root = document.getRootElement();
-            setVersion(Tools.getAttribute(root, "ver"));
-
-            for (Iterator i = root.elementIterator(); i.hasNext();) {
-                Element element = (Element) i.next();
-                if (element.getName().equals("head")) {
-                    setLocale(Tools.getAttribute(element, "locale"));
-                    setTemperatureUnit(Tools.getAttribute(element, "ut"));
-                    setDistanceUnit(Tools.getAttribute(element, "ud"));
-                    setSpeedUnit(Tools.getAttribute(element, "us"));
-                    setPrecipitationUnit(Tools.getAttribute(element, "up"));
-                    setPressureUnit(Tools.getAttribute(element, "ur"));
-                    setFormat(Tools.getAttribute(element, "form"));
-                } else if (element.getName().equals("loc")) {
-                    setId(Tools.getAttribute(element, "id"));
-                    setName(Tools.getAttribute(element, "dnam"));
-                    setTime(Tools.getAttribute(element, "tm"));
-                    setLatitude(Tools.getAttribute(element, "lat"));
-                    setLongitude(Tools.getAttribute(element, "lon"));
-                    setSunrise(Tools.getAttribute(element, "sunr"));
-                    setSunset(Tools.getAttribute(element, "suns"));
-                    setTimeZone(Tools.getAttribute(element, "zone"));
-                } else if (element.getName().equals("lnks")) {
-                    for (Iterator linksIterator = element.elementIterator(); linksIterator.hasNext();) {
-                        Element linkElement = (Element) linksIterator.next();
-                        Link link = new Link();
-                        link.setUrl(Tools.getAttribute(linkElement, "l"));
-                        link.setName(Tools.getAttribute(linkElement, "t"));
-                        addLink(link);
-                    }
-                } else if (element.getName().equals("cc")) {
-                    CurrentConditions currentConditions = new CurrentConditions();
-                    currentConditions.setLastUpdate(Tools.getAttribute(element, "lsup"));
-                    currentConditions.setStation(Tools.getAttribute(element, "obst"));
-                    currentConditions.setTemperature(Tools.getAttribute(element, "tmp"));
-                    currentConditions.setFeelsLike(Tools.getAttribute(element, "flik"));
-                    currentConditions.setConditions(Tools.getAttribute(element, "t"));
-                    currentConditions.setIcon(Tools.getAttribute(element, "icon"));
-                    currentConditions.setHumidity(Tools.getAttribute(element, "hmid"));
-                    currentConditions.setVisibility(Tools.getAttribute(element, "vis"));
-                    currentConditions.setDewPoint(Tools.getAttribute(element, "dewp"));
-
-                    Element child = element.element("bar");
-                    if (child != null) {
-                        currentConditions.setBarometricPressure(Tools.getAttribute(child, "r"));
-                        currentConditions.setBarometricDescription(Tools.getAttribute(child, "d"));
-                    }
-                    child = element.element("wind");
-                    if (child != null) {
-                        currentConditions.setWindSpeed(Tools.getAttribute(child, "s"));
-                        currentConditions.setWindGusts(Tools.getAttribute(child, "gust"));
-                        currentConditions.setWindDirection(Tools.getAttribute(child, "d"));
-                        currentConditions.setWindDescription(Tools.getAttribute(child, "t"));
-                    }
-                    child = element.element("uv");
-                    if (child != null) {
-                        currentConditions.setUltraVioletIndex(Tools.getAttribute(child, "i"));
-                        currentConditions.setUltraVioletDescription(Tools.getAttribute(child, "t"));
-                    }
-                    child = element.element("moon");
-                    if (child != null) {
-                        currentConditions.setMoonPhaseIcon(Tools.getAttribute(child, "icon"));
-                        currentConditions.setMoonPhaseDescription(Tools.getAttribute(child, "t"));
-                    }
-                    setCurrentConditions(currentConditions);
-                } else if (element.getName().equals("dayf")) {
-                    Forecasts forecasts = new Forecasts();
-                    forecasts.setLastUpdate(Tools.getAttribute(element, "lsup"));
-
-                    for (Iterator dayIterator = element.elementIterator("day"); dayIterator.hasNext();) {
-                        Element dayElement = (Element) dayIterator.next();
-                        Forecast forecast = new Forecast();
-
-                        forecast.setDay(Tools.getAttribute(dayElement, "d"));
-                        forecast.setDescription(Tools.getAttribute(dayElement, "t"));
-                        forecast.setDate(Tools.getAttribute(dayElement, "dt"));
-                        forecast.setHigh(Tools.getAttribute(dayElement, "hi"));
-                        forecast.setLow(Tools.getAttribute(dayElement, "low"));
-                        forecast.setSunrise(Tools.getAttribute(dayElement, "sunr"));
-                        forecast.setSunset(Tools.getAttribute(dayElement, "suns"));
-
-                        for (Iterator partIterator = dayElement.elementIterator("part"); partIterator.hasNext();) {
-                            Element partElement = (Element) partIterator.next();
-                            Part part = new Part();
-                            part.setIcon(Tools.getAttribute(partElement, "icon"));
-                            part.setDescription(Tools.getAttribute(partElement, "t"));
-                            part.setPrecipitation(Tools.getAttribute(partElement, "ppcp"));
-                            part.setHumidity(Tools.getAttribute(partElement, "hmid"));
-
-                            Element windElement = partElement.element("wind");
-                            if (windElement != null) {
-                                part.setWindSpeed(Tools.getAttribute(windElement, "s"));
-                                part.setWindGusts(Tools.getAttribute(windElement, "gust"));
-                                part.setWindDirection(Tools.getAttribute(windElement, "d"));
-                                part.setWindDescription(Tools.getAttribute(windElement, "t"));
-                            }
-
-                            String which = Tools.getAttribute(partElement, "p");
-                            if (which.equals("n")) {
-                                forecast.addNightPart(part);
-                            } else
-                                forecast.addDayPart(part);
-                        }
-
-                        forecasts.addForecast(forecast);
-                    }
-                    setForecasts(forecasts);
-                }
-            }
-        } catch (Exception ex) {
-            log.error("Could not determine weather conditions", ex);
+        if (page!=null)
+        {
+	    	try {
+	            SAXReader saxReader = new SAXReader();
+	            StringReader stringReader = new StringReader(page);
+	            Document document = saxReader.read(stringReader);
+	
+	            //Document document = saxReader.read(new File("d:/galleon/weather.xml"));
+	
+	            Element root = document.getRootElement();
+	            setVersion(Tools.getAttribute(root, "ver"));
+	
+	            for (Iterator i = root.elementIterator(); i.hasNext();) {
+	                Element element = (Element) i.next();
+	                if (element.getName().equals("head")) {
+	                    setLocale(Tools.getAttribute(element, "locale"));
+	                    setTemperatureUnit(Tools.getAttribute(element, "ut"));
+	                    setDistanceUnit(Tools.getAttribute(element, "ud"));
+	                    setSpeedUnit(Tools.getAttribute(element, "us"));
+	                    setPrecipitationUnit(Tools.getAttribute(element, "up"));
+	                    setPressureUnit(Tools.getAttribute(element, "ur"));
+	                    setFormat(Tools.getAttribute(element, "form"));
+	                } else if (element.getName().equals("loc")) {
+	                    setId(Tools.getAttribute(element, "id"));
+	                    setName(Tools.getAttribute(element, "dnam"));
+	                    setTime(Tools.getAttribute(element, "tm"));
+	                    setLatitude(Tools.getAttribute(element, "lat"));
+	                    setLongitude(Tools.getAttribute(element, "lon"));
+	                    setSunrise(Tools.getAttribute(element, "sunr"));
+	                    setSunset(Tools.getAttribute(element, "suns"));
+	                    setTimeZone(Tools.getAttribute(element, "zone"));
+	                } else if (element.getName().equals("lnks")) {
+	                    for (Iterator linksIterator = element.elementIterator(); linksIterator.hasNext();) {
+	                        Element linkElement = (Element) linksIterator.next();
+	                        Link link = new Link();
+	                        link.setUrl(Tools.getAttribute(linkElement, "l"));
+	                        link.setName(Tools.getAttribute(linkElement, "t"));
+	                        addLink(link);
+	                    }
+	                } else if (element.getName().equals("cc")) {
+	                    CurrentConditions currentConditions = new CurrentConditions();
+	                    currentConditions.setLastUpdate(Tools.getAttribute(element, "lsup"));
+	                    currentConditions.setStation(Tools.getAttribute(element, "obst"));
+	                    currentConditions.setTemperature(Tools.getAttribute(element, "tmp"));
+	                    currentConditions.setFeelsLike(Tools.getAttribute(element, "flik"));
+	                    currentConditions.setConditions(Tools.getAttribute(element, "t"));
+	                    currentConditions.setIcon(Tools.getAttribute(element, "icon"));
+	                    currentConditions.setHumidity(Tools.getAttribute(element, "hmid"));
+	                    currentConditions.setVisibility(Tools.getAttribute(element, "vis"));
+	                    currentConditions.setDewPoint(Tools.getAttribute(element, "dewp"));
+	
+	                    Element child = element.element("bar");
+	                    if (child != null) {
+	                        currentConditions.setBarometricPressure(Tools.getAttribute(child, "r"));
+	                        currentConditions.setBarometricDescription(Tools.getAttribute(child, "d"));
+	                    }
+	                    child = element.element("wind");
+	                    if (child != null) {
+	                        currentConditions.setWindSpeed(Tools.getAttribute(child, "s"));
+	                        currentConditions.setWindGusts(Tools.getAttribute(child, "gust"));
+	                        currentConditions.setWindDirection(Tools.getAttribute(child, "d"));
+	                        currentConditions.setWindDescription(Tools.getAttribute(child, "t"));
+	                    }
+	                    child = element.element("uv");
+	                    if (child != null) {
+	                        currentConditions.setUltraVioletIndex(Tools.getAttribute(child, "i"));
+	                        currentConditions.setUltraVioletDescription(Tools.getAttribute(child, "t"));
+	                    }
+	                    child = element.element("moon");
+	                    if (child != null) {
+	                        currentConditions.setMoonPhaseIcon(Tools.getAttribute(child, "icon"));
+	                        currentConditions.setMoonPhaseDescription(Tools.getAttribute(child, "t"));
+	                    }
+	                    setCurrentConditions(currentConditions);
+	                } else if (element.getName().equals("dayf")) {
+	                    Forecasts forecasts = new Forecasts();
+	                    forecasts.setLastUpdate(Tools.getAttribute(element, "lsup"));
+	
+	                    for (Iterator dayIterator = element.elementIterator("day"); dayIterator.hasNext();) {
+	                        Element dayElement = (Element) dayIterator.next();
+	                        Forecast forecast = new Forecast();
+	
+	                        forecast.setDay(Tools.getAttribute(dayElement, "d"));
+	                        forecast.setDescription(Tools.getAttribute(dayElement, "t"));
+	                        forecast.setDate(Tools.getAttribute(dayElement, "dt"));
+	                        forecast.setHigh(Tools.getAttribute(dayElement, "hi"));
+	                        forecast.setLow(Tools.getAttribute(dayElement, "low"));
+	                        forecast.setSunrise(Tools.getAttribute(dayElement, "sunr"));
+	                        forecast.setSunset(Tools.getAttribute(dayElement, "suns"));
+	
+	                        for (Iterator partIterator = dayElement.elementIterator("part"); partIterator.hasNext();) {
+	                            Element partElement = (Element) partIterator.next();
+	                            Part part = new Part();
+	                            part.setIcon(Tools.getAttribute(partElement, "icon"));
+	                            part.setDescription(Tools.getAttribute(partElement, "t"));
+	                            part.setPrecipitation(Tools.getAttribute(partElement, "ppcp"));
+	                            part.setHumidity(Tools.getAttribute(partElement, "hmid"));
+	
+	                            Element windElement = partElement.element("wind");
+	                            if (windElement != null) {
+	                                part.setWindSpeed(Tools.getAttribute(windElement, "s"));
+	                                part.setWindGusts(Tools.getAttribute(windElement, "gust"));
+	                                part.setWindDirection(Tools.getAttribute(windElement, "d"));
+	                                part.setWindDescription(Tools.getAttribute(windElement, "t"));
+	                            }
+	
+	                            String which = Tools.getAttribute(partElement, "p");
+	                            if (which.equals("n")) {
+	                                forecast.addNightPart(part);
+	                            } else
+	                                forecast.addDayPart(part);
+	                        }
+	
+	                        forecasts.addForecast(forecast);
+	                    }
+	                    setForecasts(forecasts);
+	                }
+	            }
+	        } catch (Exception ex) {
+	            log.error("Could not determine weather conditions", ex);
+	        }
         }
     }
 

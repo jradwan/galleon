@@ -22,6 +22,7 @@ import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +35,8 @@ import com.tivo.hme.host.sample.Main;
 import com.tivo.hme.host.util.*;
 import com.tivo.hme.interfaces.IFactory;
 
+import org.lnicholls.galleon.database.Application;
+import org.lnicholls.galleon.database.ApplicationManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.*;
@@ -269,6 +272,20 @@ public final class AppManager {
 		            	appFactory.remove();
 		            	getAppHost().remove(app);
 		                mApps.remove(app);
+		                
+		                try
+		                {
+		                	List list = ApplicationManager.findByClazz(appContext.getDescriptor().getClassName());
+		                	if (list!=null && list.size()>0)
+		                	{
+		                		Application application = (Application)list.get(0);
+		                		application.setDateRemoved(new Date());
+		                		ApplicationManager.updateApplication(application);
+		                	}
+		                } catch (Exception ex) {
+		                    Tools.logException(AppManager.class, ex);
+		                }
+		                
 		                return;
 		            }
 	            }
@@ -387,6 +404,7 @@ public final class AppManager {
 	        if (serverConfiguration.getIPAddress() != null
 	                && serverConfiguration.getIPAddress().trim().length() > 0) {
 	            arguments = "--intf " + serverConfiguration.getIPAddress();
+	            //arguments = "--nomdns " + serverConfiguration.getIPAddress();
 	        }
 	        if (serverConfiguration.getPort() != 0) {
 	            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "--port "

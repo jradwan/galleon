@@ -112,15 +112,17 @@ public class Music extends DefaultApplication {
 				File file = new File(nameValue.getValue());
 				FileItem nameFile = new FileItem(nameValue.getName(), file);
 				FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
-				setCurrentTrackerContext(file.getCanonicalPath());
+				//setCurrentTrackerContext(file.getCanonicalPath());
 				Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
 				PathScreen pathScreen = new PathScreen(this, tracker, true);
 				push(pathScreen, TRANSITION_LEFT);
-			} catch (Exception ex) {
+			} catch (Throwable ex) {
 				Tools.logException(Music.class, ex);
 			}
 		} else
 			push(new MusicMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -152,7 +154,7 @@ public class Music extends DefaultApplication {
 								File file = (File) nameFile.getValue();
 								FileSystemContainer fileSystemContainer = new FileSystemContainer(file
 										.getCanonicalPath());
-								((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+								//((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
 								Tracker tracker = new Tracker(fileSystemContainer
 										.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
 								PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
@@ -174,7 +176,7 @@ public class Music extends DefaultApplication {
 							File file = (File) nameFile.getValue();
 							FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath(),
 									true);
-							((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+							//((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
 							Tracker tracker = new Tracker(fileSystemContainer
 									.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
 
@@ -194,6 +196,8 @@ public class Music extends DefaultApplication {
 		}
 
 		protected void createRow(BView parent, int index) {
+			try
+			{
 			BView icon = new BView(parent, 9, 2, 32, 32);
 			Item nameFile = (Item) mMenuList.get(index);
 			String filename = nameFile.getName();
@@ -209,6 +213,11 @@ public class Music extends DefaultApplication {
 			name.setShadow(true);
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(Tools.clean(filename), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 		}
 
 		public boolean handleKeyPress(int code, long rawcode) {
@@ -243,14 +252,14 @@ public class Music extends DefaultApplication {
 
 		public PathScreen(Music app, Tracker tracker, boolean first) {
 			super(app, "Music");
-
+			
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
 			mTracker = tracker;
 			mFirst = first;
-
+			
 			Iterator iterator = mTracker.getList().iterator();
 			while (iterator.hasNext()) {
 				Item nameFile = (Item) iterator.next();
@@ -277,7 +286,7 @@ public class Music extends DefaultApplication {
 									File file = (File) nameFile.getValue();
 									FileSystemContainer fileSystemContainer = new FileSystemContainer(file
 											.getCanonicalPath());
-									((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+									//((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
 									Tracker tracker = new Tracker(fileSystemContainer
 											.getItemsSorted(FileFilters.audioDirectoryFilter), 0);
 									PathScreen pathScreen = new PathScreen((Music) getBApp(), tracker);
@@ -335,7 +344,7 @@ public class Music extends DefaultApplication {
 									File file = (File) nameFile.getValue();
 									FileSystemContainer fileSystemContainer = new FileSystemContainer(file
 											.getCanonicalPath(), true);
-									((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
+									//((DefaultApplication) getBApp()).setCurrentTrackerContext(file.getCanonicalPath());
 									Tracker tracker = new Tracker(fileSystemContainer
 											.getItems(FileFilters.audioDirectoryFilter), 0);
 
@@ -410,6 +419,21 @@ public class Music extends DefaultApplication {
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
+			case KEY_NUM1:
+				try
+				{
+					Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+					File file = (File) nameFile.getValue();
+					// TODO Playlists?
+					if (nameFile.isFolder() || nameFile.isFile()) {
+						setCurrentTrackerContext(file.getCanonicalPath());
+						return super.handleKeyPress(code, rawcode);
+					}
+				}
+				catch (Exception ex) {
+					Tools.logException(Music.class, ex);
+				}
+				break;
 			case KEY_LEFT:
 				if (!mFirst) {
 					postEvent(new BEvent.Action(this, "pop"));

@@ -66,9 +66,11 @@ public class MediaRefreshThread extends Thread {
         if (log.isDebugEnabled())
             Tools.logMemory("refresh1");
         long startTime = System.currentTimeMillis();
+        int counter = 0;
         // Update existing records and add new records
         FileGatherer.gatherDirectory(new File(pathInfo.mPath), pathInfo.mFilter, true,
                 new FileGatherer.GathererCallback() {
+        			private int mCounter;
                     public void visit(File file, File originalFile) {
                         synchronized (this) {
                             try {
@@ -93,17 +95,25 @@ public class MediaRefreshThread extends Thread {
                                             if (log.isDebugEnabled())
                                                 log.debug("Changed: " + file.getCanonicalPath());
                                             audio = (Audio) MediaManager.getMedia(audio, file.getCanonicalPath());
-                                            audio.setOrigen("PC");
-                                            AudioManager.updateAudio(audio);
+                                            if (audio!=null)
+                                            {
+                                            	audio.setOrigen("PC");
+                                            	AudioManager.updateAudio(audio);
+                                            }
                                         }
                                     } else {
                                         if (log.isDebugEnabled())
                                             log.debug("New: " + file.getCanonicalPath());
                                         Audio audio = (Audio) MediaManager.getMedia(file.getCanonicalPath());
-                                        audio.setOrigen("PC");
-                                        AudioManager.createAudio(audio);
+                                        if (audio!=null)
+                                        {
+                                        	audio.setOrigen("PC");
+                                        	AudioManager.createAudio(audio);
+                                        }
                                     }
                                 }
+                                if (mCounter%100==0)
+             	         		   System.gc();
                                 Thread.sleep(50); // give the CPU some breathing time
                             } catch (Exception ex) {
                                 Tools.logException(MediaRefreshThread.class, ex, file.getAbsolutePath());
@@ -114,26 +124,7 @@ public class MediaRefreshThread extends Thread {
         // Determine any records that need to be removed
         synchronized (this) {
             try {
-                AudioManager.scroll(new AudioManager.Callback() {
-                    public void visit(Session session, Audio audio) {
-                        if (!audio.getPath().startsWith("http") && !(audio.getOrigen()!=null && audio.getOrigen().equals("Podcast")))
-                        {
-                            File file = new File(audio.getPath());
-                            if (!file.exists()) {
-                                try {
-                                	session.delete(audio);
-
-                                    if (log.isDebugEnabled())
-                                        log.debug("Removed: " + audio.getPath());
-                                    
-                                    Thread.sleep(50); // give the CPU some breathing time
-                                } catch (Exception ex) {
-                                    Tools.logException(MediaRefreshThread.class, ex, "Could not remove: " + audio.getPath());
-                                }
-                            }
-                        }
-                    }
-                });
+                AudioManager.clean();
             } catch (Exception ex) {
                 Tools.logException(MediaRefreshThread.class, ex);
             }

@@ -88,6 +88,7 @@ public class Weather extends DefaultApplication {
         	Tools.logException(Weather.class, ex);
         }
         
+        checkVersion(this);
     }
 
     public class WeatherMenuScreen extends DefaultMenuScreen {

@@ -53,6 +53,9 @@ public class ImageManipulator {
     }
 
     public static BufferedImage getScaledImage(BufferedImage photo, int width, int height) {
+    	if (photo.getWidth()==width && photo.getHeight()==height)
+    		return photo;
+    	
         double heightScale = (double) height / (double) photo.getHeight();
         double widthScale = (double) width / (double) photo.getWidth();
         double scaleFactor = 1.0;

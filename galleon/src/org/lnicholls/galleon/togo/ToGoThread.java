@@ -124,6 +124,8 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                             next.setPath(video.getPath());
                                             next.setDownloadSize(video.getDownloadSize());
                                             next.setDownloadTime(video.getDownloadTime());
+                                            next.setDateDownloaded(video.getDateDownloaded());
+                                            next.setDateUploaded(video.getDateUploaded());
                                         }
                                         PropertyUtils.copyProperties(video, next);
                                         VideoManager.updateVideo(video);

@@ -679,7 +679,7 @@ public class ToGo {
 			client.getState().setCredentials("TiVo DVR", url.getHost(), credentials);
 			get = new GetMethod(video.getUrl());
 			client.executeMethod(get);
-			if (get.getStatusCode() == 503)
+			if (get.getStatusCode() != 200)
 				return false;
 			InputStream input = get.getResponseBodyAsStream();
 
@@ -766,6 +766,7 @@ public class ToGo {
 			}
 			diff = (System.currentTimeMillis() - start) / 1000.0;
 			channel.close();
+			
 			if (diff != 0)
 				log.info("Download rate=" + (total / 1024) / diff + " KBps");
 			try {

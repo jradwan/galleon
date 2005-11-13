@@ -59,7 +59,6 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 		while (true) {
 			try {
 				if (!mWaiting) {
-					log.debug("podcastingthread run");
 					List list = null;
 					synchronized (this) {
 						try {
@@ -92,7 +91,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 								}
 
 								List podcastTracks = mPodcast.getTracks();
-								if (podcastTracks != null && podcastTracks.size() > 0) {
+								if (podcastTracks != null) {
 									PodcastTrack[] tracks = new PodcastTrack[podcastTracks.size()];
 									int pos = 0;
 									for (Iterator j = podcastTracks.iterator(); j.hasNext(); /* Nothing */) {
@@ -299,7 +298,9 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 							}
 						}
 						else
+						{
 							wait(1000 * 60 * 60);
+						}
 					}
 				}
 				mDownloadNext = false;

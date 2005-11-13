@@ -68,6 +68,7 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
+import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -120,6 +121,8 @@ public class Movies extends DefaultApplication {
 				.getAppContext().getConfiguration();
 
 		push(new TheaterMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class TheaterMenuScreen extends DefaultMenuScreen {

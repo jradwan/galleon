@@ -228,5 +228,13 @@
   	<image source="jukebox/folder.png" id="folder"/>	
     <image source="jukebox/background.mpg" id="background"/>
   </app>                          
+  
+  <app id="org.lnicholls.galleon.apps.traffic.Traffic">  
+    <image source="traffic/icon.png" id="icon"/>  
+  	<image source="traffic/incident.png" id="incident"/>
+  	<image source="traffic/construction.png" id="construction"/>  	
+  	<image source="traffic/folder.png" id="folder"/>	
+    <image source="traffic/background.mpg" id="background"/>
+  </app>                            
 
 </skin>

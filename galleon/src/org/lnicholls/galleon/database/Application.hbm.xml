@@ -37,6 +37,12 @@ See the file "COPYING" for more details.
     <property name="version" type="string" not-null="true"/>
 
     <property name="total" type="int" not-null="true"/>
+    
+    <property name="dateInstalled" type="timestamp"/>
+    
+    <property name="dateRemoved" type="timestamp"/>    
+    
+    <property name="lastUsed" type="timestamp"/>        
 
   </class>
   

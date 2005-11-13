@@ -132,15 +132,6 @@ public class MainFrame extends JFrame {
 
 		});
 		fileMenu.addSeparator();
-		/*
-		fileMenu.add(new MenuAction("Account...", null, "", new Integer(KeyEvent.VK_A)) {
-
-			public void actionPerformed(ActionEvent event) {
-				new DataDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
-			}
-
-		});
-		*/		
 		fileMenu.add(new MenuAction("Properties...", null, "", new Integer(KeyEvent.VK_P)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -148,6 +139,15 @@ public class MainFrame extends JFrame {
 			}
 
 		});
+		/*
+		fileMenu.add(new MenuAction("Galleon.tv Account...", null, "", new Integer(KeyEvent.VK_A)) {
+
+			public void actionPerformed(ActionEvent event) {
+				new DataDialog(Galleon.getMainFrame(), Galleon.getServerConfiguration()).setVisible(true);
+			}
+
+		});
+		*/
 		fileMenu.add(new MenuAction("Download Manager...", null, "", new Integer(KeyEvent.VK_D)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -671,8 +671,10 @@ public class MainFrame extends JFrame {
 		public void keyReleased(KeyEvent e) {
 			String name = mNameField.getText();
 			if (name.length() > 0) {
-				if (Galleon.getApps() != null) {
-					Iterator iterator = Galleon.getApps().iterator();
+				if (mApps==null)
+					mApps = Galleon.getApps();
+				if (mApps != null) {
+					Iterator iterator = mApps.iterator();
 					while (iterator.hasNext()) {
 						AppContext app = (AppContext) iterator.next();
 						if (app.getTitle()!=null && app.getTitle().equals(name)) {
@@ -706,6 +708,8 @@ public class MainFrame extends JFrame {
 		private JButton mOKButton;
 		
 		private MainFrame mMainFrame;
+		
+		private List mApps;
 	}
 
 	public class ServerDialog extends JDialog implements ActionListener {
@@ -1562,7 +1566,7 @@ public class MainFrame extends JFrame {
 	public class DataDialog extends JDialog implements ActionListener {
 
 		private DataDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
-			super(frame, "Data sharing", true);
+			super(frame, "Galleon.tv", true);
 			mMainFrame = frame;
 			mServerConfiguration = serverConfiguration;
 			
@@ -1600,7 +1604,7 @@ public class MainFrame extends JFrame {
 			mAgree.addChangeListener(new ChangeListener() {
 				public void stateChanged(ChangeEvent e)
 				{
-					if (mAgree.isSelected())
+					if (mAgree.isSelected() && mUsernameField.getText().trim().length()>0 && mPasswordField.getText().trim().length()>0 && mPassword2Field.getText().trim().length()>0)
 						okButton.setEnabled(true);
 					else
 					if (dataConfiguration.isAgree())

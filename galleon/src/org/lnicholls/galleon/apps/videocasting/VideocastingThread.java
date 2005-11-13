@@ -90,7 +90,7 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 								}
 
 								List videocastTracks = mVideocast.getTracks();
-								if (videocastTracks != null && videocastTracks.size() > 0) {
+								if (videocastTracks != null) {
 									VideocastTrack[] tracks = new VideocastTrack[videocastTracks.size()];
 									int pos = 0;
 									for (Iterator j = videocastTracks.iterator(); j.hasNext(); /* Nothing */) {

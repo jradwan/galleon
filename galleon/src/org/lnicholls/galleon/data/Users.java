@@ -40,6 +40,9 @@ import org.lnicholls.galleon.util.Tools;
 public class Users {
 
 	private static String HOST = "localhost";
+	//private static String HOST = "galleon.tv";
+	
+	private static String PROTOCOL = "http";
 
 	private static Logger log = Logger.getLogger(Users.class.getName());
 
@@ -51,7 +54,7 @@ public class Users {
 	}
 
 	public static Object getCode() {
-		PostMethod post = new PostMethod("http://" + HOST + "/galleon/xml/code.php");
+		PostMethod post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/code.php");
 		post.setFollowRedirects(false);
 
 		try {
@@ -75,7 +78,7 @@ public class Users {
 	public static void createUser(DataConfiguration dataConfiguration) throws Exception {
 		log.debug("createUser: " + dataConfiguration);
 		// TODO https
-		PostMethod post = new PostMethod("http://" + HOST + "/galleon/xml/duplicateUser.php");
+		PostMethod post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/duplicateUser.php");
 		post.setFollowRedirects(false);
 		NameValuePair username = new NameValuePair("username", dataConfiguration.getUsername());
 		post.setQueryString(new NameValuePair[] { username });
@@ -108,7 +111,7 @@ public class Users {
 			post.releaseConnection();
 		}
 
-		post = new PostMethod("http://" + HOST + "/galleon/xml/createUser.php");
+		post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/createUser.php");
 		post.setFollowRedirects(false);
 		username = new NameValuePair("username", dataConfiguration.getUsername());
 		NameValuePair password = new NameValuePair("password", Tools.decrypt(dataConfiguration.getPassword()));
@@ -159,7 +162,7 @@ public class Users {
 	public static void updateUser(DataConfiguration dataConfiguration, ServerConfiguration serverConfiguration) throws Exception {
 		log.debug("updateUser: " + dataConfiguration);
 		// TODO https
-		PostMethod post = new PostMethod("http://" + HOST + "/galleon/xml/updateUser.php");
+		PostMethod post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/updateUser.php");
 		post.setFollowRedirects(false);
 		NameValuePair username = new NameValuePair("username", dataConfiguration.getUsername());
 		NameValuePair oldPassword = new NameValuePair("oldPassword", Tools.decrypt(serverConfiguration.getDataConfiguration().getPassword()));
@@ -217,7 +220,7 @@ public class Users {
 	public static void deleteUser(DataConfiguration dataConfiguration) throws Exception {
 		log.debug("deleteUser: " + dataConfiguration);
 		// TODO https
-		PostMethod post = new PostMethod("http://" + HOST + "/galleon/xml/deleteUser.php");
+		PostMethod post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/deleteUser.php");
 		post.setFollowRedirects(false);
 		NameValuePair username = new NameValuePair("username", dataConfiguration.getUsername());
 		NameValuePair password = new NameValuePair("password", Tools.decrypt(dataConfiguration.getPassword()));
@@ -266,7 +269,7 @@ public class Users {
 	public static void login(DataConfiguration dataConfiguration) throws Exception {
 		log.debug("login: " + dataConfiguration);
 		// TODO https
-		PostMethod post = new PostMethod("http://" + HOST + "/galleon/xml/login.php");
+		PostMethod post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/login.php");
 		post.setFollowRedirects(false);
 		NameValuePair username = new NameValuePair("username", dataConfiguration.getUsername());
 		NameValuePair password = new NameValuePair("password", Tools.decrypt(dataConfiguration.getPassword()));
@@ -310,7 +313,7 @@ public class Users {
 	
 	public static void logout(DataConfiguration dataConfiguration) throws Exception {
 		log.debug("logout: " + dataConfiguration);
-		PostMethod post = new PostMethod("http://" + HOST + "/galleon/xml/logout.php");
+		PostMethod post = new PostMethod(PROTOCOL+"://" + HOST + "/galleon/xml/logout.php");
 		post.setFollowRedirects(false);
 
 		log.debug(post.getQueryString());

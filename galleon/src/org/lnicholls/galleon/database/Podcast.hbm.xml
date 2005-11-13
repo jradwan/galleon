@@ -110,7 +110,7 @@ See the file "COPYING" for more details.
     
     <property name="ttl" type="int"/>                
     
-    <list name="tracks" table="PODCAST_TRACKS" cascade="all">
+    <list name="tracks" table="PODCAST_TRACKS" cascade="all" batch-size="100">
       <key column="PODCAST_ID"/>
       <index column="TRACK"/>
       <composite-element class="org.lnicholls.galleon.database.PodcastTrack">
@@ -217,6 +217,10 @@ See the file "COPYING" for more details.
       </composite-element>
       
     </list>        
+    
+    <property name="datePlayed" type="timestamp"/>
+    
+    <property name="playCount" type="int"/>    
 
   </class>
   

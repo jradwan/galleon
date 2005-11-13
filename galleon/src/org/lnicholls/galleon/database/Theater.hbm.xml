@@ -43,7 +43,7 @@ See the file "COPYING" for more details.
     
     <property name="telephone" type="string"/>            
     
-    <list name="showtimes" table="THEATER_SHOWTIMES" cascade="all">
+    <list name="showtimes" table="THEATER_SHOWTIMES" cascade="all" batch-size="20">
       <key column="THEATER_ID"/>
       <index column="MOVIE"/>
       <composite-element class="org.lnicholls.galleon.database.TheaterShowtimes">

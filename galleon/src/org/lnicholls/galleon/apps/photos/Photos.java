@@ -141,6 +141,8 @@ public class Photos extends DefaultApplication {
 			}
 		} else
 			push(new PhotosMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class PhotosMenuScreen extends DefaultMenuScreen {
@@ -488,7 +490,7 @@ public class Photos extends DefaultApplication {
 			setFocusDefault(grid);
 
 			mBusy = new BView(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
-			mBusy.setResource(mBusyIcon);
+			mBusy.setResource(getBusyIcon());
 			mBusy.setVisible(false);
 		}
 
@@ -708,7 +710,7 @@ public class Photos extends DefaultApplication {
 			for (int i = 0; i < 5; i++) {
 				mStars[i] = new BView(getNormal(), BORDER_LEFT + (i * 40), getHeight() - SAFE_TITLE_V - 200, 34, 34,
 						true);
-				mStars[i].setResource(mStarIcon, RSRC_IMAGE_BESTFIT);
+				mStars[i].setResource(getStarIcon(), RSRC_IMAGE_BESTFIT);
 				mStars[i].setTransparency(0.6f);
 			}
 

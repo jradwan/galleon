@@ -21,30 +21,33 @@ public class DownloadManager implements Serializable {
 		public void statusChanged(StatusEvent se) {
 			Downloader dt = (Downloader) se.getSource();
 
-			if (se.getNewStatus() == se.STOPPED || se.getNewStatus() == se.COMPLETED) {
-				Downloader[] dab = new Downloader[da.length - 1];
-				int counter = 0;
-				for (int i = 0; i < da.length; i++) {
-					if (da[i] != dt)
-						dab[counter++] = da[i];
+			if (da.length > 0)
+			{
+				if (se.getNewStatus() == se.STOPPED || se.getNewStatus() == se.COMPLETED) {
+					Downloader[] dab = new Downloader[da.length - 1];
+					int counter = 0;
+					for (int i = 0; i < da.length; i++) {
+						if (da[i] != dt)
+							dab[counter++] = da[i];
+					}
+					da = dab;
+					--running;
 				}
-				da = dab;
-				--running;
-			}
-			else
-			if (se.getNewStatus() == se.ERROR) {
-				Downloader[] dab = new Downloader[da.length - 1];
-				int counter = 0;
-				for (int i = 0; i < da.length; i++) {
-					if (da[i] != dt)
-						dab[counter++] = da[i];
+				else
+				if (se.getNewStatus() == se.ERROR) {
+					Downloader[] dab = new Downloader[da.length - 1];
+					int counter = 0;
+					for (int i = 0; i < da.length; i++) {
+						if (da[i] != dt)
+							dab[counter++] = da[i];
+					}
+					da = dab;
+					--running;
 				}
-				da = dab;
-				--running;
-			}
-
-			if (se.getNewStatus() == se.COMPLETED) {
-				// pauseMenuItem.setEnabled( false );
+	
+				if (se.getNewStatus() == se.COMPLETED) {
+					// pauseMenuItem.setEnabled( false );
+				}
 			}
 		}
 	}

@@ -82,11 +82,15 @@ public class FileGatherer {
 
     public static final File resolveLink(File file) {
         // Is this a Windows shortcut?
-        if (FileFilters.linkFilter.accept(file)) {
-            return resolveLink(followLink(file));
-        } else {
-            return file;
-        }
+    	if (SystemUtils.IS_OS_WINDOWS)
+    	{
+	    	if (FileFilters.linkFilter.accept(file)) {
+	            return resolveLink(followLink(file));
+	        } else {
+	            return file;
+	        }
+    	}
+    	return file;
     }
 
     // For each recurser instance, track how deep we are to avoid loops. TODO mwk88

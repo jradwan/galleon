@@ -36,6 +36,7 @@ import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.Grid;
 import org.lnicholls.galleon.widget.OptionsButton;
+import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -77,6 +78,8 @@ public class Internet extends DefaultApplication {
 		Tracker tracker = new Tracker(internetConfiguration.getUrls(), 0);
 
 		push(new PathScreen(this, tracker), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class PGrid extends Grid {
@@ -251,7 +254,7 @@ public class Internet extends DefaultApplication {
 			setFocusDefault(grid);
 
 			mBusy = new BView(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
-			mBusy.setResource(mBusyIcon);
+			mBusy.setResource(getBusyIcon());
 			mBusy.setVisible(false);
 		}
 

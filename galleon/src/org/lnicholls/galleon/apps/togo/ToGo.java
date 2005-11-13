@@ -91,6 +91,8 @@ public class ToGo extends DefaultApplication {
 		mEmptyIcon = getSkinImage("menu", "empty");
 
 		push(new ToGoMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 	
 	public class OptionsScreen extends DefaultOptionsScreen {

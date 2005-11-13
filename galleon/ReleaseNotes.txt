@@ -1,6 +1,18 @@
 Galleon
 -------
 
+Version 1.9.0:
+----------------------
+Added artist name to Jukebox listing
+Updated to TiVo HME 1.4 SDK
+iTunes app performance improvements
+Fixed organizer support for names starting with digits
+Added single track selection to Jukebox app
+Added traffic app
+Improved MP3 tag parsing
+Fixed podcasting/videocasting download logic
+
+
 Version 1.8.0:
 ----------------------
 Fixed email sorting
@@ -258,11 +270,6 @@ Your TiVo needs to be running version 7.1 software.
 
 
 
-How to enabled HME on your TiVo DVR:
-1. Turn on HME. Navigate to System Information and press the following four keys in order : CLEAR CLEAR 0 0. Ignore the sounds.
-2. Return to TiVo Central. Note that Music and Photos changed to Music, Photos and More.
-3. Enter Music, Photos and More. 
-
 Known issues:
 1. The server needs to be running for the configuration GUI to work.
 2. Most JavaHMO plugins have been ported to Galleon.
@@ -272,16 +279,13 @@ Known issues:
 6. Weather web links need parameters.
 8. Weather currently only uses zip.
 9. When you start Galleon, it might take some time before the ToGo list is populated.
-19. Music app only plays one folder of songs at a time.
-11. TiVo sometimes reboots after using the Music app for some time.
-12. Music player generates resource not found errors.
-13. Port 1099 required for GUI to update the server.
-14. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
-15. Port 7288 required for accessing the apps from your TiVo.
-16. Only one weather app at a time is supported.
-17. Port 1527 needed for database.
-18. Removing an app does not delete the associated data in the database.
-19. Depending on the bitrate of the original stream and of the options chosen, transcoding can be a very CPU intensive task.
+10. Music player generates resource not found errors.
+11. Port 1099 required for GUI to update the server.
+12. Thumbnail grid can cause "view not found" errors when you move quickly between screens.
+13. Port 7288 required for accessing the apps from your TiVo.
+14. Only one weather app at a time is supported.
+15. Port 1527 needed for database.
+16. Depending on the bitrate of the original stream and of the options chosen, transcoding can be a very CPU intensive task.
 
 
 

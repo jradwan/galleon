@@ -62,12 +62,13 @@ public class HibernateUtil {
             configuration.addClass(Video.class);
             configuration.addClass(Thumbnail.class);
             configuration.addClass(PersistentValue.class);
-            configuration.addClass(Playlist.class);
             configuration.addClass(Podcast.class);
             configuration.addClass(Movie.class);
             configuration.addClass(Theater.class);
             configuration.addClass(Application.class);
             configuration.addClass(Videocast.class);
+            configuration.addClass(Playlists.class);
+            configuration.addClass(PlaylistsTracks.class);
 
             sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {
@@ -90,7 +91,10 @@ public class HibernateUtil {
         Session s = (Session) session.get();
         session.set(null);
         if (s != null)
+        {
             s.close();
+            s = null;
+        }
     }
 
     // Determine if the database schema is up to date with the current Galleon version

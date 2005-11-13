@@ -97,6 +97,8 @@ public class Shoutcast extends DefaultApplication {
 		ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
 
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {

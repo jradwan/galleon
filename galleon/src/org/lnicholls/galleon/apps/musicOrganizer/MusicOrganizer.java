@@ -41,6 +41,7 @@ import net.sf.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
@@ -118,6 +119,8 @@ public class MusicOrganizer extends DefaultApplication {
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 		
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -341,8 +344,18 @@ public class MusicOrganizer extends DefaultApplication {
 		public boolean handleExit() {
 			return super.handleExit();
 		}
-
+		
 		private void getConditions(List conditions) {
+			getConditions(conditions, false);
+		}
+
+		private void getConditions(List conditions, boolean current) {
+			if (current)
+			{
+				int focus = mMenuList.getFocus();
+				QueryPart queryPart = (QueryPart) (mMenuList.get(focus));
+				conditions.add(queryPart);
+			}
 			if (mParent == null)
 				return;
 			else {
@@ -502,12 +515,50 @@ public class MusicOrganizer extends DefaultApplication {
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
+			case KEY_NUM1:
+				try
+				{
+					Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+					// TODO Playlists?
+					if (nameFile.isFolder()) {
+						//setCurrentTrackerContext(mFormatString);
+						String restrictions = "(1=1)";
+						List conditions = new ArrayList();
+						getConditions(conditions, true);
+						Iterator conditionsIterator = conditions.iterator();
+						while (conditionsIterator.hasNext()) {
+							QueryPart queryPart = (QueryPart) conditionsIterator.next();
+							for (int q = 0; q < queryPart.getFields().size(); q++) {
+								NameValue nameValue = (NameValue) queryPart.getFields().get(q);
+								boolean needQuote = isString(nameValue.getName());
+								restrictions = restrictions + " AND " + nameValue.getValue();
+							}
+						}
+
+						String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
+								+ " AND substr(audio.path,1,4)<>'http'" + " AND audio.origen<>'Podcast'";
+						
+						setCurrentTrackerContext(queryString);						
+						return super.handleKeyPress(code, rawcode);
+					}
+					else
+					if (nameFile.isFile()) {
+						File file = (File) nameFile.getValue();
+						setCurrentTrackerContext(file.getCanonicalPath());
+						return super.handleKeyPress(code, rawcode);
+					}					
+				}
+				catch (Exception ex) {
+					Tools.logException(Music.class, ex);
+				}
+				break;			
 			case KEY_LEFT:
 				if (!mFirst) {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
 				}
 				break;
+			/*
 			case KEY_NUM1:
 				String restrictions = "(1=1)";
 				List conditions = new ArrayList();
@@ -528,6 +579,7 @@ public class MusicOrganizer extends DefaultApplication {
 				setCurrentTrackerContext(queryString);
 
 				return false;
+				*/
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
@@ -1622,6 +1674,11 @@ public class MusicOrganizer extends DefaultApplication {
 	// Find key for sorting by alphabetical value
 	private static String getAlphaKey(String value, NameValue nameValue) {
 		value = value.toUpperCase();
+		if (value.charAt(0) >= '0' && value.charAt(0) <= '9') {
+			String criteria = "substr(audio." + nameValue.getName() + ",1,1)='" + value.charAt(0) + "'";
+			nameValue.setValue(criteria);
+			return String.valueOf(value.charAt(0));
+		} else
 		if ((value.charAt(0) >= 'A' && value.charAt(0) <= 'Z') || (value.charAt(0) >= 'a' && value.charAt(0) <= 'z')) {
 			String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))='" + value.charAt(0) + "')";
 			nameValue.setValue(criteria);
@@ -1636,6 +1693,41 @@ public class MusicOrganizer extends DefaultApplication {
 	private static String getGroupedAlphaKey(String value, NameValue nameValue) {
 		String key = "-";
 		if (value.length() > 0) {
+			if ((value.charAt(0) >= '0') && (value.charAt(0) <= '1')) {
+				key = "0-1";
+				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='0' AND upper(substr(audio."
+						+ nameValue.getName() + ",1,1))<='1')";
+				nameValue.setValue(criteria);
+			} 
+			else
+			if ((value.charAt(0) >= '2') && (value.charAt(0) <= '3')) {
+				key = "2-3";
+				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='2' AND upper(substr(audio."
+						+ nameValue.getName() + ",1,1))<='3')";
+				nameValue.setValue(criteria);
+			} 
+			else				
+			if ((value.charAt(0) >= '4') && (value.charAt(0) <= '5')) {
+				key = "4-5";
+				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='4' AND upper(substr(audio."
+						+ nameValue.getName() + ",1,1))<='5')";
+				nameValue.setValue(criteria);
+			} 
+			else				
+			if ((value.charAt(0) >= '6') && (value.charAt(0) <= '7')) {
+				key = "6-7";
+				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='6' AND upper(substr(audio."
+						+ nameValue.getName() + ",1,1))<='7')";
+				nameValue.setValue(criteria);
+			} 
+			else				
+			if ((value.charAt(0) >= '8') && (value.charAt(0) <= '9')) {
+				key = "8-9";
+				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='8' AND upper(substr(audio."
+						+ nameValue.getName() + ",1,1))<='9')";
+				nameValue.setValue(criteria);
+			} 
+			else				
 			if (((value.charAt(0) >= 'A') && (value.charAt(0) <= 'C'))
 					|| ((value.charAt(0) >= 'a') && (value.charAt(0) <= 'c'))) {
 				key = "A-C";

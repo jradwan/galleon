@@ -116,6 +116,8 @@ public class Podcasting extends DefaultApplication {
 				.getAppContext().getConfiguration();
 
 		push(new PodcastingMenuScreen(this), TRANSITION_NONE);
+		
+		checkVersion(this);
 	}
 
 	public static Element getDocument(String location) {
@@ -295,7 +297,7 @@ public class Podcasting extends DefaultApplication {
 						if ((value = Tools.getAttribute(channel, "description")) != null) {
 							channelDescription = value;
 						}
-
+						
 						if ((value = Tools.getAttribute(channel, "subtitle")) != null) {
 							channelSubtitle = value;
 						}
@@ -2555,6 +2557,11 @@ public class Podcasting extends DefaultApplication {
 							if (podcast != null && track != null) {
 								try {
 									track.setStatus(PodcastTrack.STATUS_PLAYED);
+									podcast.setDatePlayed(new Date());
+									int count = 0;
+									if (podcast.getPlayCount()!=null)
+										count = podcast.getPlayCount().intValue();
+									podcast.setPlayCount(new Integer(count+1));
 									PodcastManager.updatePodcast(podcast);
 								} catch (Exception ex) {
 									Tools.logException(Podcasting.class, ex);

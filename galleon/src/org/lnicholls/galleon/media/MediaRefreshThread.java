@@ -66,7 +66,6 @@ public class MediaRefreshThread extends Thread {
         if (log.isDebugEnabled())
             Tools.logMemory("refresh1");
         long startTime = System.currentTimeMillis();
-        int counter = 0;
         // Update existing records and add new records
         FileGatherer.gatherDirectory(new File(pathInfo.mPath), pathInfo.mFilter, true,
                 new FileGatherer.GathererCallback() {
@@ -86,6 +85,7 @@ public class MediaRefreshThread extends Thread {
                                 	}
                                 	
                                 	List list = AudioManager.findByPath(file.getCanonicalPath());
+                                	Thread.yield();
                                     
                                     if (list.size() > 0) {
                                         Audio audio = (Audio) list.get(0);
@@ -112,7 +112,7 @@ public class MediaRefreshThread extends Thread {
                                         }
                                     }
                                 }
-                                if (mCounter%100==0)
+                                if (++mCounter%100==0)
              	         		   System.gc();
                                 Thread.sleep(50); // give the CPU some breathing time
                             } catch (Exception ex) {

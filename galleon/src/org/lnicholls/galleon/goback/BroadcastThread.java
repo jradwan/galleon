@@ -97,7 +97,13 @@ public class BroadcastThread extends Thread implements Constants {
 
             for (int i = 0; i < aList.length; i++) {
                 oCurrent = aList[i];
-                return oCurrent.getBroadcastAddress();
+                if (mServer.getIPAddress()!=null)
+                {
+                	if (oCurrent.getAddress().equals(mServer.getIPAddress()))
+                		return oCurrent.getBroadcastAddress();
+                }
+                else
+                	return oCurrent.getBroadcastAddress();
             }
         }
 

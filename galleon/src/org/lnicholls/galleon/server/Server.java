@@ -356,7 +356,7 @@ public class Server {
 			iterator = mLongTermTasks.iterator();
 			while (iterator.hasNext()) {
 				TaskInfo taskInfo = (TaskInfo) iterator.next();
-				scheduleLongTerm(taskInfo.task, 0, taskInfo.time);
+				scheduleLongTerm(taskInfo.task, 30, taskInfo.time);
 			}
 			mLongTermTasks.clear();
 			
@@ -647,7 +647,7 @@ public class Server {
 		if (mReady)
 			scheduleLongTerm(task, 0, time);
 		else
-			mShortTermTasks.add(new TaskInfo(task, time));
+			mLongTermTasks.add(new TaskInfo(task, time));
 	}
 
 	public synchronized void scheduleLongTerm(TimerTask task, long delay, long time) {
@@ -673,7 +673,7 @@ public class Server {
 		if (mReady)
 			scheduleShortTerm(task, 0, time);
 		else
-			mLongTermTasks.add(new TaskInfo(task, time));
+			mShortTermTasks.add(new TaskInfo(task, time));
 	}
 
 	public synchronized void scheduleShortTerm(TimerTask task, long delay, long time) {

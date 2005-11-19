@@ -333,13 +333,11 @@ public final class Mp3File {
 			Tools.logException(Mp3File.class, ex, filename);
 		}
 
-		/*
 		try {
 			secondPass(file, audio);
 		} catch (Throwable ex) {
 			Tools.logException(Mp3File.class, ex, filename);
 		}
-		*/
 
 		try {
 			thirdPass(file, audio);

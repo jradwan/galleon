@@ -83,7 +83,7 @@ public final class Mp3Url {
 	                        input.addTagParseListener(icyListener);
 	                        return input;
                         }
-                        catch (Exception ex)
+                        catch (Throwable ex)
                         {
                         	Tools.logException(Mp3Url.class, ex, mPath);        	
                         }
@@ -95,9 +95,31 @@ public final class Mp3Url {
                 Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
                 log.debug("getStream: audio=" + audio.getPath());
 
-                TimedThread timedThread = new TimedThread(audio.getPath(), application);
-                TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 10);
-                InputStream mp3Stream = (InputStream) timedCallable.call();
+                InputStream mp3Stream = null;
+                try
+                {
+                	TimedThread timedThread = new TimedThread(audio.getPath(), application);
+                	TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 5);
+                	mp3Stream = (InputStream) timedCallable.call();
+                }
+                catch (EDU.oswego.cs.dl.util.concurrent.TimeoutException ex)
+                {
+                	try
+                	{
+	                	URL url = new URL(audio.getPath());
+	                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	                    conn.setRequestProperty("Icy-Metadata", "1");
+	                    conn.setRequestProperty("User-Agent", "WinampMPEG/5.0");
+	                    conn.setRequestProperty("Accept", "audio/mpeg");
+	                    conn.setInstanceFollowRedirects(true);
+	                    
+	                    mp3Stream = conn.getInputStream();
+                    }
+                    catch (Throwable ex2)
+                    {
+                    	Tools.logException(Mp3Url.class, ex, audio.getPath());        	
+                    }
+                }
 
                 if (mp3Stream != null)
                     return mp3Stream;

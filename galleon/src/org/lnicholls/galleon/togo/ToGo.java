@@ -782,7 +782,8 @@ public class ToGo {
 			Tools.logException(ToGo.class, ex, video.getUrl());
 			return false;
 		} finally {
-			get.releaseConnection();
+			if (get!=null)
+				get.releaseConnection();
 		}
 		return true;
 	}

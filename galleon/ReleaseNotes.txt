@@ -1,6 +1,12 @@
 Galleon
 -------
 
+Version 1.9.1:
+----------------------
+MP3 library fix
+Audio organizer performance improvements
+
+
 Version 1.9.0:
 ----------------------
 Added artist name to Jukebox listing

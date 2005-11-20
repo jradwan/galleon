@@ -1,6 +1,11 @@
 Galleon
 -------
 
+Version 1.9.2:
+----------------------
+Fix for online radio streams
+
+
 Version 1.9.1:
 ----------------------
 MP3 library fix

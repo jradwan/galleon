@@ -81,7 +81,7 @@ public class Upcoming extends DefaultApplication {
 
 		push(new UpcomingMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class UpcomingMenuScreen extends DefaultMenuScreen {
@@ -956,8 +956,8 @@ public class Upcoming extends DefaultApplication {
 
 	public static class UpcomingFactory extends AppFactory {
 
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 
 			mEventDateFormat.applyPattern("yyyy-MM-dd"); // 2005-10-27
 			mEventTimeFormat.applyPattern("HH:mm:ss"); // 21:00:00

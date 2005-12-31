@@ -17,351 +17,338 @@ package org.lnicholls.galleon.database;
  */
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.ScrollableResults;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 
-import net.sf.hibernate.*;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.Transaction;
-import net.sf.hibernate.cfg.Configuration;
-import net.sf.hibernate.tool.hbm2ddl.SchemaExport;
-
 public class PersistentValueManager {
 
-    private static Logger log = Logger.getLogger(PersistentValueManager.class.getName());
+	private static Logger log = Logger.getLogger(PersistentValueManager.class.getName());
 
-    public static interface Callback {
-        public void visit(Session session, PersistentValue persistentValue);
-    }
+	public static interface Callback {
+		public void visit(Session session, PersistentValue persistentValue);
+	}
 
-    public static PersistentValue retrievePersistentValue(PersistentValue persistentValue) throws HibernateException {
-        return retrievePersistentValue(persistentValue.getId());
-    }
+	public static PersistentValue retrievePersistentValue(PersistentValue persistentValue) throws HibernateException {
+		return retrievePersistentValue(persistentValue.getId());
+	}
 
-    public static PersistentValue retrievePersistentValue(Integer id) throws HibernateException {
+	public static PersistentValue retrievePersistentValue(Integer id) throws HibernateException {
 
-        PersistentValue result = null;
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            result = (PersistentValue) session.load(PersistentValue.class, id);
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-        return result;
-    }
+		PersistentValue result = null;
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			result = (PersistentValue) session.load(PersistentValue.class, id);
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+		return result;
+	}
 
-    public static PersistentValue createPersistentValue(PersistentValue persistentValue) throws HibernateException {
+	public static PersistentValue createPersistentValue(PersistentValue persistentValue) throws HibernateException {
 
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            session.save(persistentValue);
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-        return persistentValue;
-    }
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			session.save(trim(persistentValue));
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+		return persistentValue;
+	}
 
-    public static void updatePersistentValue(PersistentValue persistentValue) throws HibernateException {
+	public static void updatePersistentValue(PersistentValue persistentValue) throws HibernateException {
 
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            session.update(persistentValue);
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-    }
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			session.update(trim(persistentValue));
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
 
-    public static void deletePersistentValue(PersistentValue persistentValue) throws HibernateException {
+	public static void deletePersistentValue(PersistentValue persistentValue) throws HibernateException {
 
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            session.delete(persistentValue);
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-    }
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			session.delete(persistentValue);
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
 
-    public static List listAll() throws HibernateException {
-        List list = new ArrayList();
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue").list();
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-        return list;
-    }
+	public static List listAll() throws HibernateException {
+		List list = new ArrayList();
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue").list();
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+		return list;
+	}
 
-    public static List listBetween(int start, int end) throws HibernateException {
-        List list = new ArrayList();
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
+	public static List listBetween(int start, int end) throws HibernateException {
+		List list = new ArrayList();
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
 
-            Query query = session.createQuery("from org.lnicholls.galleon.database.PersistentValue");
-            ScrollableResults items = query.scroll();
-            int counter = start;
-            if (items.first()) {
-                items.scroll(start);
-                while (items.next() && (counter < end)) {
-                    PersistentValue persistentValue = (PersistentValue) items.get(0);
-                    list.add(persistentValue);
-                    counter++;
-                }
-            }
+			Query query = session.createQuery("from org.lnicholls.galleon.database.PersistentValue");
+			ScrollableResults items = query.scroll();
+			int counter = start;
+			if (items.first()) {
+				items.scroll(start);
+				while (items.next() && (counter < end)) {
+					PersistentValue persistentValue = (PersistentValue) items.get(0);
+					list.add(persistentValue);
+					counter++;
+				}
+			}
 
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-        return list;
-    }
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+		return list;
+	}
 
-    public static void scroll(Callback callback) throws HibernateException {
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            Query q = session.createQuery("from org.lnicholls.galleon.database.PersistentValue");
-            ScrollableResults items = q.scroll();
-            if (items.first()) {
-                items.beforeFirst();
-                while (items.next())
-                {
-                    PersistentValue persistentValue = (PersistentValue) items.get(0);
-                    callback.visit(session, persistentValue);
-                };
-            }
-            tx.commit();
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-    }
+	public static void scroll(Callback callback) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Query q = session.createQuery("from org.lnicholls.galleon.database.PersistentValue");
+			ScrollableResults items = q.scroll();
+			if (items.first()) {
+				items.beforeFirst();
+				while (items.next()) {
+					PersistentValue persistentValue = (PersistentValue) items.get(0);
+					callback.visit(session, persistentValue);
+				}
+				;
+			}
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
 
-    public static String findValueByName(String name) throws HibernateException {
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
+	public static String findValueByName(String name) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
 
-            List list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
-                .setString(0, name).list();
-            tx.commit();
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
+					.setString(0, name).list();
+			tx.commit();
 
-            if (list.size()>0)
-            {
-                PersistentValue persistentValue = (PersistentValue)list.get(0);
-                return persistentValue.getValue();
-            }
-            return null;
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-    }
-    
-    public static PersistentValue findByName(String name) throws HibernateException {
-        Session session = HibernateUtil.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
+			if (list.size() > 0) {
+				PersistentValue persistentValue = (PersistentValue) list.get(0);
+				return persistentValue.getValue();
+			}
+			return null;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
 
-            List list = session.createQuery("from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
-                        .setString(0, name).list();
+	public static PersistentValue findByName(String name) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
 
-            tx.commit();
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
+					.setString(0, name).list();
 
-            if (list.size()>0)
-            {
-                return (PersistentValue)list.get(0);
-            }
-            return null;
-        } catch (HibernateException he) {
-            if (tx != null)
-                tx.rollback();
-            throw he;
-        } finally {
-            HibernateUtil.closeSession();
-        }
-    }
-    
-    public static void savePersistentValue(String name, String value) {
-        savePersistentValue(name, value, new Date(), 0);    
-    }
-    
-    public static void savePersistentValue(String name, String value, int ttl) {
-        savePersistentValue(name, value, new Date(), ttl);    
-    }
-    
-    public static void savePersistentValue(String name, String value, Date date, int ttl) {
-        try {
-            PersistentValue existingPersistentValue = PersistentValueManager.findByName(name);
-            if (existingPersistentValue != null) {
-                PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
-                if (persistentValueCount!=null)
-                {
-                    try
-                    {
-                        PersistentValueManager.deletePersistentValue(existingPersistentValue);
-                        
-                        int counter = Integer.parseInt(persistentValueCount.getValue());
-                        for (int i=2;i<=counter;i++)
-                        {
-                            existingPersistentValue = PersistentValueManager.findByName(name+"."+i);
-                            if (existingPersistentValue!=null)
-                                PersistentValueManager.deletePersistentValue(existingPersistentValue);
-                        }
-                        
-                        PersistentValueManager.deletePersistentValue(persistentValueCount);
-                    }
-                    catch (Exception ex)
-                    {
-                        Tools.logException(Tools.class, ex, name);        
-                    }
-                }
-                else
-                {
-                    PersistentValueManager.deletePersistentValue(existingPersistentValue);    
-                }
-            }
-            
-            if (value.length()<=32672)
-            {
-                PersistentValue persistentValue = new PersistentValue(name, value, date, new Integer(ttl));
-                PersistentValueManager.createPersistentValue(persistentValue);
-            }
-            else
-            {
-                int counter = 0;
-                int start = 0;
-                int end = start+32672;
-                String sub = value.substring(start,end);
-                while (sub.length()>0)
-                {
-                    String postfix = "";
-                    if (++counter>1)
-                        postfix = "."+counter;
-                    
-                    existingPersistentValue = new PersistentValue(name+postfix, sub, date, new Integer(ttl));
-                    PersistentValueManager.createPersistentValue(existingPersistentValue);
-                
-                    start = end;
-                    end = start+32672;
-                    if (end>value.length())
-                        end = value.length();
-                    sub = value.substring(start, end);
-                }
-                PersistentValue persistentValue = new PersistentValue(name+".count", String.valueOf(counter), date, new Integer(ttl));
-                PersistentValueManager.createPersistentValue(persistentValue);
-            }
-        } catch (HibernateException ex) {
-            log.error("PersistentValue save failed", ex);
-        }
-    }
+			tx.commit();
 
-    public static PersistentValue loadPersistentValue(String name) {
-        try {
-            PersistentValue persistentValueCount = PersistentValueManager.findByName(name+".count");
-            if (persistentValueCount!=null)
-            {
-                try
-                {
-                    StringBuffer buffer = new StringBuffer();
-                    PersistentValue persistentValue = PersistentValueManager.findByName(name);
-                    Date when = new Date();
-                    Integer ttl = new Integer(0);
-                    if (persistentValue!=null)
-                    {
-                        buffer.append(persistentValue.getValue());
-                        int counter = Integer.parseInt(persistentValueCount.getValue());
-                        for (int i=2;i<=counter;i++)
-                        {
-                            persistentValue = PersistentValueManager.findByName(name+"."+i);
-                            if (persistentValue!=null)
-                                buffer.append(persistentValue.getValue());
-                        }
-                        when = persistentValue.getDateModified();
-                        ttl = persistentValue.getTimeToLive();
-                    }
-                    return new PersistentValue(name+".count", buffer.toString(), when, ttl);
-                }
-                catch (Exception ex)
-                {
-                    Tools.logException(Tools.class, ex, name);        
-                }
-            }
-            else
-                return PersistentValueManager.findByName(name);
-        } catch (HibernateException ex) {
-            log.error("PersistentValue load failed", ex);
-        } catch (Exception ex) {
-            Tools.logException(PersistentValueManager.class, ex, name);
-        }
-        return null;
-    }
-    
-    public static boolean isAged(PersistentValue persistentValue)
-    {
-        if (persistentValue!=null && persistentValue.getDateModified()!=null && persistentValue.getTimeToLive()!=null)
-        {
-            Date ttl = new Date(persistentValue.getDateModified().getTime()+persistentValue.getTimeToLive().intValue()*1000);
-            return new Date().after(ttl);
-        }
-        
-        return true;
-    }
+			if (list.size() > 0) {
+				return (PersistentValue) list.get(0);
+			}
+			return null;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+
+	public static void savePersistentValue(String name, String value) {
+		savePersistentValue(name, value, new Date(), 0);
+	}
+
+	public static void savePersistentValue(String name, String value, int ttl) {
+		savePersistentValue(name, value, new Date(), ttl);
+	}
+
+	public static void savePersistentValue(String name, String value, Date date, int ttl) {
+		try {
+			PersistentValue existingPersistentValue = PersistentValueManager.findByName(name);
+			if (existingPersistentValue != null) {
+				PersistentValue persistentValueCount = PersistentValueManager.findByName(name + ".count");
+				if (persistentValueCount != null) {
+					try {
+						PersistentValueManager.deletePersistentValue(existingPersistentValue);
+
+						int counter = Integer.parseInt(persistentValueCount.getValue());
+						for (int i = 2; i <= counter; i++) {
+							existingPersistentValue = PersistentValueManager.findByName(name + "." + i);
+							if (existingPersistentValue != null)
+								PersistentValueManager.deletePersistentValue(existingPersistentValue);
+						}
+
+						PersistentValueManager.deletePersistentValue(persistentValueCount);
+					} catch (Exception ex) {
+						Tools.logException(Tools.class, ex, name);
+					}
+				} else {
+					PersistentValueManager.deletePersistentValue(existingPersistentValue);
+				}
+			}
+
+			if (value.length() <= 32672) {
+				PersistentValue persistentValue = new PersistentValue(name, value, date, new Integer(ttl));
+				PersistentValueManager.createPersistentValue(persistentValue);
+			} else {
+				int counter = 0;
+				int start = 0;
+				int end = start + 32672;
+				String sub = value.substring(start, end);
+				while (sub.length() > 0) {
+					String postfix = "";
+					if (++counter > 1)
+						postfix = "." + counter;
+
+					existingPersistentValue = new PersistentValue(name + postfix, sub, date, new Integer(ttl));
+					PersistentValueManager.createPersistentValue(existingPersistentValue);
+
+					start = end;
+					end = start + 32672;
+					if (end > value.length())
+						end = value.length();
+					sub = value.substring(start, end);
+				}
+				PersistentValue persistentValue = new PersistentValue(name + ".count", String.valueOf(counter), date,
+						new Integer(ttl));
+				PersistentValueManager.createPersistentValue(persistentValue);
+			}
+		} catch (HibernateException ex) {
+			log.error("PersistentValue save failed", ex);
+		}
+	}
+
+	public static PersistentValue loadPersistentValue(String name) {
+		try {
+			PersistentValue persistentValueCount = PersistentValueManager.findByName(name + ".count");
+			if (persistentValueCount != null) {
+				try {
+					StringBuffer buffer = new StringBuffer();
+					PersistentValue persistentValue = PersistentValueManager.findByName(name);
+					Date when = new Date();
+					Integer ttl = new Integer(0);
+					if (persistentValue != null) {
+						buffer.append(persistentValue.getValue());
+						int counter = Integer.parseInt(persistentValueCount.getValue());
+						for (int i = 2; i <= counter; i++) {
+							persistentValue = PersistentValueManager.findByName(name + "." + i);
+							if (persistentValue != null)
+								buffer.append(persistentValue.getValue());
+						}
+						when = persistentValue.getDateModified();
+						ttl = persistentValue.getTimeToLive();
+					}
+					return new PersistentValue(name + ".count", buffer.toString(), when, ttl);
+				} catch (Exception ex) {
+					Tools.logException(Tools.class, ex, name);
+				}
+			} else
+				return PersistentValueManager.findByName(name);
+		} catch (HibernateException ex) {
+			log.error("PersistentValue load failed", ex);
+		} catch (Exception ex) {
+			Tools.logException(PersistentValueManager.class, ex, name);
+		}
+		return null;
+	}
+
+	public static boolean isAged(PersistentValue persistentValue) {
+		if (persistentValue != null && persistentValue.getDateModified() != null
+				&& persistentValue.getTimeToLive() != null) {
+			Date ttl = new Date(persistentValue.getDateModified().getTime()
+					+ persistentValue.getTimeToLive().intValue() * 1000);
+			return new Date().after(ttl);
+		}
+
+		return true;
+	}
+
+	private static PersistentValue trim(PersistentValue persistentValue) {
+		persistentValue.setName(Tools.trim(persistentValue.getName(), 256));
+		persistentValue.setValue(Tools.trim(persistentValue.getValue(), 32672));
+		return persistentValue;
+	}
 }

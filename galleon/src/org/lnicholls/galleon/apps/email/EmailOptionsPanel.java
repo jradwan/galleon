@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -49,6 +50,9 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         EmailConfiguration emailConfiguration = (EmailConfiguration) appConfiguration;
 
         mTitleField = new JTextField(emailConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(emailConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mReloadCombo = new JComboBox();
         mReloadCombo.addItem(new ComboWrapper("5 minutes", "5"));
         mReloadCombo.addItem(new ComboWrapper("10 minutes", "10"));
@@ -84,6 +88,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "3dlu, " + "pref, " + // reload
                 "3dlu, " + "pref, " + // limit
                 "9dlu, " + "pref, " + // account
@@ -104,22 +109,23 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addLabel("Reload", cc.xy(1, 5));
-        builder.add(mReloadCombo, cc.xyw(3, 5, 1));
-        builder.addLabel("Download Limit", cc.xy(1, 7));
-        builder.add(mLimitCombo, cc.xyw(3, 7, 1));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addLabel("Reload", cc.xy(1, 7));
+        builder.add(mReloadCombo, cc.xyw(3, 7, 1));
+        builder.addLabel("Download Limit", cc.xy(1, 9));
+        builder.add(mLimitCombo, cc.xyw(3, 9, 1));
 
-        builder.addSeparator("Accounts", cc.xyw(1, 9, 4));
-        builder.addLabel("Name", cc.xy(1, 11));
-        builder.add(mNameField, cc.xyw(3, 11, 1));
-        builder.addLabel("Protocol", cc.xy(1, 13));
-        builder.add(mProtocolCombo, cc.xyw(3, 13, 1));
-        builder.addLabel("Server", cc.xy(1, 15));
-        builder.add(mServerField, cc.xyw(3, 15, 1));
-        builder.addLabel("Username", cc.xy(1, 17));
-        builder.add(mUsernameField, cc.xyw(3, 17, 1));
-        builder.addLabel("Password", cc.xy(1, 19));
-        builder.add(mPasswordField, cc.xyw(3, 19, 1));
+        builder.addSeparator("Accounts", cc.xyw(1, 11, 4));
+        builder.addLabel("Name", cc.xy(1, 13));
+        builder.add(mNameField, cc.xyw(3, 13, 1));
+        builder.addLabel("Protocol", cc.xy(1, 15));
+        builder.add(mProtocolCombo, cc.xyw(3, 15, 1));
+        builder.addLabel("Server", cc.xy(1, 17));
+        builder.add(mServerField, cc.xyw(3, 17, 1));
+        builder.addLabel("Username", cc.xy(1, 19));
+        builder.add(mUsernameField, cc.xyw(3, 19, 1));
+        builder.addLabel("Password", cc.xy(1, 21));
+        builder.add(mPasswordField, cc.xyw(3, 21, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -147,7 +153,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
         fields.add(mUsernameField);
         fields.add(mPasswordField);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 21, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 23, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -189,6 +195,7 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
             newItems.add(server);
         }
         emailConfiguration.setAccounts(newItems);
+        emailConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -210,4 +217,6 @@ public class EmailOptionsPanel extends AppConfigurationPanel {
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

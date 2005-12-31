@@ -31,6 +31,8 @@ import net.sf.hibernate.Transaction;
 import net.sf.hibernate.cfg.Configuration;
 import net.sf.hibernate.tool.hbm2ddl.SchemaExport;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class MovieManager {
 
     private static Logger log = Logger.getLogger(MovieManager.class.getName());
@@ -68,7 +70,7 @@ public class MovieManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(movie);
+            session.save(trim(movie));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -86,7 +88,7 @@ public class MovieManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(Movie);
+            session.update(trim(Movie));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -248,5 +250,28 @@ public class MovieManager {
         } finally {
             HibernateUtil.closeSession();
         }
+    }
+    
+    private static Movie trim(Movie movie)
+    {
+    	movie.setActors(Tools.trim(movie.getActors(), 4096));
+    	movie.setCredits(Tools.trim(movie.getCredits(), 4096));
+    	movie.setDirector(Tools.trim(movie.getDirector(), 255));
+    	movie.setExternalId(Tools.trim(movie.getExternalId(), 255));
+    	movie.setGenre(Tools.trim(movie.getGenre(), 255));
+    	movie.setIMDB(Tools.trim(movie.getIMDB(), 255));
+    	movie.setMimeType(Tools.trim(movie.getMimeType(), 50));
+    	movie.setOrigen(Tools.trim(movie.getOrigen(), 30));
+    	movie.setPath(Tools.trim(movie.getPath(), 1024));
+    	movie.setPlot(Tools.trim(movie.getPlot(), 4096));
+    	movie.setPlotOutline(Tools.trim(movie.getPlotOutline(), 4096));
+    	movie.setProducer(Tools.trim(movie.getProducer(), 255));
+    	movie.setRated(Tools.trim(movie.getRated(), 255));
+    	movie.setRatedReason(Tools.trim(movie.getRatedReason(), 255));
+    	movie.setTagline(Tools.trim(movie.getTagline(), 255));
+    	movie.setThumbUrl(Tools.trim(movie.getThumbUrl(), 1024));
+    	movie.setTitle(Tools.trim(movie.getTitle(), 255));
+    	movie.setUrl(Tools.trim(movie.getUrl(), 1024));
+    	return movie;
     }
 }

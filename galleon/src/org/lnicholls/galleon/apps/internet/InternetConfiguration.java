@@ -16,12 +16,15 @@ package org.lnicholls.galleon.apps.internet;
  * See the file "COPYING" for more details.
  */
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.SharedNameValue;
 
 public class InternetConfiguration implements AppConfiguration {
 
@@ -46,17 +49,35 @@ public class InternetConfiguration implements AppConfiguration {
     }
 
     public List getUrls() {
-        return mUrls;
+        return null;
     }
 
     public void setUrls(List value) {
-        mModified = true;
-        mUrls = value;
+    	mSharedUrls.clear();
+    	Iterator iterator = value.iterator();
+        while (iterator.hasNext())
+        {
+        	NameValue nameValue = (NameValue)iterator.next();
+        	SharedUrl sharedUrl = new SharedUrl(nameValue.getName(), nameValue.getValue(), "", "", SharedUrl.PRIVATE);
+        	mSharedUrls.add(sharedUrl);
+        }
     }
 
-    public void addUrl(NameValue nameValue) {
-        mModified = true;
-        mUrls.add(nameValue);
+    public void addUrl(NameValue value) {
+    	SharedUrl sharedUrl = new SharedUrl(value.getName(), value.getValue(), "", "", SharedUrl.PRIVATE);
+    	mSharedUrls.add(sharedUrl);
+    }
+    
+    public List getSharedUrls() {
+        return mSharedUrls;
+    }
+
+    public void setSharedUrls(List value) {
+        mSharedUrls = value;
+    }
+
+    public void addSharedUrl(SharedUrl value) {
+        mSharedUrls.add(value);
     }
 
     public void setModified(boolean value) {
@@ -70,6 +91,29 @@ public class InternetConfiguration implements AppConfiguration {
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+    
+    public static class SharedUrl extends SharedNameValue implements Serializable {
+    	public SharedUrl()
+    	{
+    		
+    	}
+    	
+    	public SharedUrl(String name, String value, String description, String tags, String privacy) {
+    		super(name, value, description, tags, privacy);
+    	}
+    }
+    
+    public boolean isShared()
+    {
+    	return mShared;
+    }
+    
+    public void setShared(boolean value)
+    {
+    	mShared = value;
+    }
+    
+    private boolean mShared;    
 
     private String mName;
 
@@ -77,5 +121,5 @@ public class InternetConfiguration implements AppConfiguration {
 
     private boolean mModified;
 
-    private List mUrls = new ArrayList();
+    private List mSharedUrls = new ArrayList();
 }

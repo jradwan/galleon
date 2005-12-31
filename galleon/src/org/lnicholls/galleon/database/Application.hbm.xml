@@ -43,6 +43,8 @@ See the file "COPYING" for more details.
     <property name="dateRemoved" type="timestamp"/>    
     
     <property name="lastUsed" type="timestamp"/>        
+    
+    <property name="shared" type="boolean"/>                        
 
   </class>
   

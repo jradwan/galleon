@@ -37,40 +37,53 @@ public class DataUpdateThread extends Thread {
     }
 
     public void run() {
-        while (true)
+    	ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+    	DataConfiguration dataConfiguration = serverConfiguration.getDataConfiguration();
+    	
+    	int counter = 1;
+
+    	while (true)
         {
-	    	ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
-        	DataConfiguration dataConfiguration = serverConfiguration.getDataConfiguration();
-        	/*
-        	AppManager appManager = Server.getServer().getAppManager();
-        	if (dataConfiguration!=null && dataConfiguration.isAgree())
-        	{
-	        	try {
-		            if (log.isDebugEnabled())
-		                log.debug("DataUpdateThread start");
-		            
-		            Users.login(dataConfiguration);
-		            
-		            // TODO Limit how much per hour can be uploaded
-		            List apps = appManager.getApps();
-		            Iterator iterator = apps.iterator();
-		            while (iterator.hasNext())
-		            {
-		            	AppContext appContext = (AppContext)iterator.next();
-		            	AppDescriptor appDescriptor = appContext.getDescriptor();
-		            	
-		            	System.out.println(appDescriptor);
-		            }
-		            
-		            Users.logout(dataConfiguration);
-		            
-		            sleep(1000*60*60);
-		        } 
-		        catch (Exception ex) {
-		            Tools.logException(DataUpdateThread.class, ex);
-		        }
-        	}
-        	*/
+    		try
+    		{
+				if (dataConfiguration.isConfigured())
+				{
+					System.out.println("login");
+					boolean result = Users.login(dataConfiguration);
+					if (result)
+					{
+						System.out.println("updateApplications");
+						result = Users.updateApplications(dataConfiguration);
+						if (result)
+						{
+							System.out.println("logout");
+							result = Users.logout(dataConfiguration);
+						}
+					}
+					
+					if (result)
+						counter = 1;
+					else
+						counter++;
+				}
+	        	
+	            sleep(1000*60*60*counter);
+	            
+	            if (counter > 48)
+	            	counter = 24;
+	        }
+    		catch (InterruptedException ex) {
+    			
+    		}
+	        catch (Exception ex) {
+	        	counter++;
+	        	Tools.logException(DataUpdateThread.class, ex);
+	            try
+	            {
+	            	sleep(1000*60*60*counter);	
+	            }
+	            catch (Exception ex2){}
+	        }
         }
     }
 }

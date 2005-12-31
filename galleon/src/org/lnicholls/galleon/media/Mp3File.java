@@ -421,9 +421,12 @@ public final class Mp3File {
 			}
 			if (mp3File.getTrack() != DEFAULT_TRACK)
 				audio.setTrack(mp3File.getTrack());
-			if (mp3File.getComment() != null && mp3File.getComment().trim().length() != 0
-					&& !mp3File.getComment().equals(DEFAULT_COMMENTS))
-				audio.setComments(mp3File.getComment());
+			try {
+				if (mp3File.getComment() != null && mp3File.getComment().trim().length() != 0
+						&& !mp3File.getComment().equals(DEFAULT_COMMENTS))
+					audio.setComments(mp3File.getComment());
+			} catch (Exception e1) {
+			}
 			String channel = mp3File.getMPEGChannelMode();
 			if (channel.equals("stereo"))
 				if (1 != DEFAULT_CHANNELS)
@@ -908,8 +911,8 @@ public final class Mp3File {
 	public static Image getCover(Audio audio, boolean useAmazon, boolean useFile) {
 		// Ways to get album cover:
 		// 1. Embedded APIC tag.
-		// 2. Amazon image lookup.
-		// 3. File system image file.
+		// 2. File system image file.
+		// 3. Amazon image lookup.
 
 		if (audio.getCover() != null && !audio.getAlbum().equals(DEFAULT_ALBUM)
 				&& !audio.getArtist().equals(DEFAULT_ARTIST)) {
@@ -929,6 +932,39 @@ public final class Mp3File {
 					return image;
 			} catch (Exception ex) {
 				Tools.logException(Mp3File.class, ex, "Cannot create cover from key: " + audio.getPath());
+			}
+		}
+		
+		if (useFile) {
+			File file = new File(audio.getPath());
+			File directory = new File(file.getParent());
+			if (directory.exists()) {
+				File[] files = directory.listFiles(new FileFilter() {
+					public boolean accept(File pathname) {
+						return pathname.getName().toLowerCase().equals("folder.jpg") || pathname.getName().toLowerCase().equals("album.jpg");
+					}
+				});
+				if (files != null) {
+					for (int i = 0; i < files.length; i++) {
+						try {
+							BufferedImage image = Tools.ImageIORead(files[i]);
+							if (image != null) {
+								createCover(new FileInputStream(files[i]), audio, "image/jpg");
+
+								try {
+									AudioManager.updateAudio(audio);
+								} catch (HibernateException ex) {
+									log.error("Cover create failed", ex);
+								}
+								return image;
+							}
+						} catch (Exception ex) {
+							Tools.logException(Mp3File.class, ex, "Cannot create cover from: "
+									+ files[i].getAbsolutePath());
+						}
+						break;
+					}
+				}
 			}
 		}
 
@@ -955,38 +991,6 @@ public final class Mp3File {
 			}
 		}
 
-		if (useFile) {
-			File file = new File(audio.getPath());
-			File directory = new File(file.getParent());
-			if (directory.exists()) {
-				File[] files = directory.listFiles(new FileFilter() {
-					public boolean accept(File pathname) {
-						return pathname.getName().toLowerCase().equals("folder.jpg");
-					}
-				});
-				if (files != null) {
-					for (int i = 0; i < files.length; i++) {
-						try {
-							BufferedImage image = Tools.ImageIORead(files[i]);
-							if (image != null) {
-								createCover(new FileInputStream(files[i]), audio, "image/jpg");
-
-								try {
-									AudioManager.updateAudio(audio);
-								} catch (HibernateException ex) {
-									log.error("Cover create failed", ex);
-								}
-								return image;
-							}
-						} catch (Exception ex) {
-							Tools.logException(Mp3File.class, ex, "Cannot create cover from: "
-									+ files[i].getAbsolutePath());
-						}
-						break;
-					}
-				}
-			}
-		}
 		return null;
 	}
 	

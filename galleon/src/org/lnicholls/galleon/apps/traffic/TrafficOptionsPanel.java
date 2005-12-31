@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -45,6 +46,9 @@ public class TrafficOptionsPanel extends AppConfigurationPanel {
 		TrafficConfiguration trafficConfiguration = (TrafficConfiguration) appConfiguration;
 
 		mTitleField = new JTextField(trafficConfiguration.getName());
+		mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(trafficConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 		mStreetField = new JTextField();
 		mCityField = new JTextField();
 		mStateCombo = new JComboBox();
@@ -114,6 +118,7 @@ public class TrafficOptionsPanel extends AppConfigurationPanel {
 
 		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
 				"9dlu, " + "pref, " + // title
+				"3dlu, " + "pref, " + // share
 				"9dlu, " + "pref, " + // location
 				"9dlu, " + "pref, " + // street
 				"9dlu, " + "pref, " + // city
@@ -132,17 +137,18 @@ public class TrafficOptionsPanel extends AppConfigurationPanel {
 		builder.addSeparator("General", cc.xyw(1, 1, 4));
 		builder.addLabel("Title", cc.xy(1, 3));
 		builder.add(mTitleField, cc.xyw(3, 3, 1));
-		builder.addSeparator("Location", cc.xyw(1, 5, 4));
-		builder.addLabel("Street", cc.xy(1, 7));
-		builder.add(mStreetField, cc.xyw(3, 7, 1));
-		builder.addLabel("City", cc.xy(1, 9));
-		builder.add(mCityField, cc.xyw(3, 9, 1));
-		builder.addLabel("State", cc.xy(1, 11));
-		builder.add(mStateCombo, cc.xyw(3, 11, 1));
-		builder.addLabel("Zip", cc.xy(1, 13));
-		builder.add(mZipField, cc.xyw(3, 13, 1));
-		builder.addLabel("Radius", cc.xy(1, 15));
-		builder.add(mRadiusCombo, cc.xyw(3, 15, 1));
+		builder.add(mSharedField, cc.xyw(3, 5, 1));
+		builder.addSeparator("Location", cc.xyw(1, 7, 4));
+		builder.addLabel("Street", cc.xy(1, 9));
+		builder.add(mStreetField, cc.xyw(3, 9, 1));
+		builder.addLabel("City", cc.xy(1, 11));
+		builder.add(mCityField, cc.xyw(3, 11, 1));
+		builder.addLabel("State", cc.xy(1, 13));
+		builder.add(mStateCombo, cc.xyw(3, 13, 1));
+		builder.addLabel("Zip", cc.xy(1, 15));
+		builder.add(mZipField, cc.xyw(3, 15, 1));
+		builder.addLabel("Radius", cc.xy(1, 17));
+		builder.add(mRadiusCombo, cc.xyw(3, 17, 1));
 
 		mColumnValues = new ArrayList();
 		int counter = 0;
@@ -170,7 +176,7 @@ public class TrafficOptionsPanel extends AppConfigurationPanel {
 		fields.add(mZipField);
 		fields.add(mRadiusCombo);
 		mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-		builder.add(mOptionsTable, cc.xyw(1, 17, 4));
+		builder.add(mOptionsTable, cc.xyw(1, 19, 4));
 
 		JPanel panel = builder.getPanel();
 		// FormDebugUtils.dumpAll(panel);
@@ -204,6 +210,7 @@ public class TrafficOptionsPanel extends AppConfigurationPanel {
 					.get(2), (String) rows.get(3), (String) rows.get(4)));
 		}
 		trafficConfiguration.setLocations(newItems);
+		trafficConfiguration.setShared(mSharedField.isSelected());
 	}
 
 	private String mId;
@@ -223,4 +230,6 @@ public class TrafficOptionsPanel extends AppConfigurationPanel {
 	private OptionsTable mOptionsTable;
 
 	private ArrayList mColumnValues;
+	
+	private JCheckBox mSharedField;
 }

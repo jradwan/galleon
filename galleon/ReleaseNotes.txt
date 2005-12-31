@@ -1,6 +1,25 @@
 Galleon
 -------
 
+Version 2.0.0:
+----------------------
+Dowload manager delete option
+Support more GoBack video filename formats
+Support GoBack folders (need 7.2.1)
+Internet app thumbnail lists
+Fixed JRE install bug
+Added ToGo download rules flag criteria
+Support GoBack transfer restarts
+Improved error handling
+App sharing
+Improved startup time
+Improved background images
+Galleon menu system
+Internet and RSS tag sharing
+ToGo reload controlled by server reload setting
+Fixed iTunes import
+
+
 Version 1.9.2:
 ----------------------
 Fix for online radio streams
@@ -297,6 +316,7 @@ Known issues:
 14. Only one weather app at a time is supported.
 15. Port 1527 needed for database.
 16. Depending on the bitrate of the original stream and of the options chosen, transcoding can be a very CPU intensive task.
+17. If you have a mix of videos and folders and you browse into a folder while on the info screen for a video, your Tivo recorder might reboot.
 
 
 
@@ -323,8 +343,8 @@ How to start Galleon manually from the command line:
 
 How to play music with slideshow:
 1. Configure Music app and configure Photos app.
-2. Use your Tivo to browse into a music directory.
-3. Press the ENTER button.
+2. Use your Tivo to browse to a music directory.
+3. Press the 1 button.
 4. Browse into a directory in the Photos app.
 5. When slideshow starts, press Play.
 
@@ -377,6 +397,5 @@ The harder way:
 5. Use the configuration GUI File/Properties menu to change the selected skin.
 
 =====================================================
-galleon.sourceforge.net
+galleon.tv
 javahmo@users.sourceforge.net
-

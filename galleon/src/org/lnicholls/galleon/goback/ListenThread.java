@@ -45,6 +45,8 @@ import org.lnicholls.galleon.server.*;
 
 public class ListenThread extends Thread {
     private static Logger log = Logger.getLogger(ListenThread.class.getName());
+    
+    private final static String TIVO_PLATFORM_PREFIX = "tcd"; // platform=tcd/Series2
 
     public ListenThread(Server server) throws IOException {
         super("ListenThread");
@@ -70,19 +72,22 @@ public class ListenThread extends Thread {
 
                 if (!address.getHostAddress().equals(mLocalHost.getHostAddress())) {
                     TCM tcm = mServer.getTCM(beacon);
-                    if (tcm == null) {
-                        if (log.isDebugEnabled())
-                            log.debug("Got beacon: " + beacon);
-                        mServer.addTCM(new TCM(address, beacon, false));
-                        mServer.getBroadcastThread().enableHighFrequency();
-                    } else {
-                        mServer.removeTCM(tcm);
-                        mServer.addTCM(new TCM(address, beacon, false));
+                    if (beacon.getPlatform().startsWith(TIVO_PLATFORM_PREFIX))
+                    {
+	                    if (tcm == null) {
+	                        if (log.isDebugEnabled())
+	                            log.debug("Got beacon: " + beacon);
+	                        mServer.addTCM(new TCM(address, beacon, false));
+	                        mServer.getBroadcastThread().enableHighFrequency();
+	                    } else {
+	                        mServer.removeTCM(tcm);
+	                        mServer.addTCM(new TCM(address, beacon, false));
+	                    }
                     }
                 }
                 address = null;
                 packet = null;
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Tools.logException(ListenThread.class, ex);
             }
         }

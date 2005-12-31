@@ -139,7 +139,6 @@ public class MainFrame extends JFrame {
 			}
 
 		});
-		/*
 		fileMenu.add(new MenuAction("Galleon.tv Account...", null, "", new Integer(KeyEvent.VK_A)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -147,7 +146,6 @@ public class MainFrame extends JFrame {
 			}
 
 		});
-		*/
 		fileMenu.add(new MenuAction("Download Manager...", null, "", new Integer(KeyEvent.VK_D)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -194,7 +192,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/server.htm");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
 				} catch (Exception ex) {
 				}
 			}
@@ -204,7 +202,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/player.htm");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
 				} catch (Exception ex) {
 				}
 			}
@@ -215,7 +213,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/email.htm");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
 				} catch (Exception ex) {
 				}
 			}
@@ -225,7 +223,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/music.htm");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
 				} catch (Exception ex) {
 				}
 			}
@@ -235,7 +233,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/podcasting.htm");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
 				} catch (Exception ex) {
 				}
 			}
@@ -245,7 +243,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/tutorials/togo.htm");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
 				} catch (Exception ex) {
 				}
 			}
@@ -261,7 +259,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net");
+					BrowserLauncher.openURL("http://galleon.tv");
 				} catch (Exception ex) {
 				}
 			}
@@ -271,7 +269,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/html/configure.html");
+					BrowserLauncher.openURL("http://galleon.tv/content/view/93/52/");
 				} catch (Exception ex) {
 				}
 			}
@@ -281,17 +279,29 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.sourceforge.net/html/faq.html");
+					BrowserLauncher.openURL("http://galleon.tv/content/section/3/47/");
 				} catch (Exception ex) {
 				}
 			}
 
 		});
+		/*
 		helpMenu.add(new MenuAction("TiVo Community Forum", null, "", new Integer(KeyEvent.VK_T)) {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
 					BrowserLauncher.openURL("http://www.tivocommunity.com/tivo-vb/forumdisplay.php?f=35");
+				} catch (Exception ex) {
+				}
+			}
+
+		});
+		*/
+		helpMenu.add(new MenuAction("Galleon Forum", null, "", new Integer(KeyEvent.VK_G)) {
+
+			public void actionPerformed(ActionEvent event) {
+				try {
+					BrowserLauncher.openURL("http://galleon.tv/component/option,com_joomlaboard/Itemid,26/");
 				} catch (Exception ex) {
 				}
 			}
@@ -328,9 +338,11 @@ public class MainFrame extends JFrame {
 										+ Tools.getVersion()
 										+ "\nJava Version "
 										+ System.getProperty("java.vm.version")
-										+ "\nPort "
+										+ "\nPublishing Port "
+										+ Galleon.getHttpPort()
+										+ "\nApplication Port "
 										+ Galleon.getPort()
-										+ "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\nCopyright \251 2005 Leon Nicholls. All Rights Reserved.",
+										+ "\nhttp://galleon.tv\njavahmo@users.sourceforge.net\nCopyright \251 2005, 2006 Leon Nicholls. All Rights Reserved.",
 								"About", JOptionPane.INFORMATION_MESSAGE);
 			}
 
@@ -381,7 +393,7 @@ public class MainFrame extends JFrame {
 
 		panel.add(mainSplitPane, "Center");
 
-		JLabel statusField = new JLabel("Copyright \251 2005 Leon Nicholls");
+		JLabel statusField = new JLabel("Copyright \251 2005, 2006 Leon Nicholls");
 		statusField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		JPanel statusPanel = new JPanel(new BorderLayout());
 		statusPanel.add(statusField, "West");
@@ -515,6 +527,19 @@ public class MainFrame extends JFrame {
 			mVersionField.setEditable(false);
 			mReleaseDateField = new JTextField();
 			mReleaseDateField.setEditable(false);
+			mHomepageField = new JTextField();
+			mHomepageField.setEditable(false);
+			mHomepageField.setToolTipText("Open site in web browser");
+			mHomepageField.setForeground(Color.blue);
+			mHomepageField.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			mHomepageField.addMouseListener(new MouseAdapter() {
+				public void mousePressed(MouseEvent e) {
+					try {
+						BrowserLauncher.openURL(mHomepageField.getText());
+					} catch (Exception ex) {
+					}
+				}
+			});
 			mAuthorNameField = new JTextField();
 			mAuthorNameField.setEditable(false);
 			mAuthorEmailField = new JTextField();
@@ -564,6 +589,7 @@ public class MainFrame extends JFrame {
 					"9dlu, " + "pref, " + // description
 					"3dlu, " + "pref, " + // version
 					"3dlu, " + "pref, " + // release date
+					"3dlu, " + "pref, " + // homepage
 					"9dlu, " + "pref, " + // author
 					"3dlu, " + "pref, " + // name
 					"3dlu, " + "pref, " + // email
@@ -588,13 +614,15 @@ public class MainFrame extends JFrame {
 			builder.add(mVersionField, cc.xy(3, 9));
 			builder.addLabel("Release Date", cc.xy(1, 11));
 			builder.add(mReleaseDateField, cc.xy(3, 11));
-			builder.addSeparator("Author", cc.xyw(1, 13, 3));
-			builder.addLabel("Name", cc.xy(1, 15));
-			builder.add(mAuthorNameField, cc.xy(3, 15));
-			builder.addLabel("Email", cc.xy(1, 17));
-			builder.add(mAuthorEmailField, cc.xy(3, 17));
-			builder.addLabel("Homepage", cc.xy(1, 19));
-			builder.add(mAuthorHomeField, cc.xy(3, 19));
+			builder.addLabel("Homepage", cc.xy(1, 13));
+			builder.add(mHomepageField, cc.xy(3, 13));
+			builder.addSeparator("Author", cc.xyw(1, 15, 3));
+			builder.addLabel("Name", cc.xy(1, 17));
+			builder.add(mAuthorNameField, cc.xy(3, 17));
+			builder.addLabel("Email", cc.xy(1, 19));
+			builder.add(mAuthorEmailField, cc.xy(3, 19));
+			builder.addLabel("Homepage", cc.xy(1, 21));
+			builder.add(mAuthorHomeField, cc.xy(3, 21));
 
 			getContentPane().add(builder.getPanel(), "Center");
 
@@ -632,10 +660,8 @@ public class MainFrame extends JFrame {
 				}
 			} else if ("help".equals(e.getActionCommand())) {
 				try {
-					URL url = getClass().getClassLoader().getResource("newapp.html");
-					mMainFrame.displayHelp(mMainFrame, url);
+					BrowserLauncher.openURL("http://galleon.tv/content/view/98/27/");
 				} catch (Exception ex) {
-					Tools.logException(AddAppDialog.class, ex, "Could not find new app help ");
 				}
 				return;
 			}
@@ -648,6 +674,7 @@ public class MainFrame extends JFrame {
 				AppDescriptor appDescriptor = ((AppDescriptorWrapper) mAppsCombo.getSelectedItem()).mAppDescriptor;
 				mVersionField.setText(appDescriptor.getVersion());
 				mReleaseDateField.setText(appDescriptor.getReleaseDate());
+				mHomepageField.setText(appDescriptor.getDocumentation());
 				mAuthorNameField.setText(appDescriptor.getAuthorName());
 				mAuthorEmailField.setText(appDescriptor.getAuthorEmail());
 				mAuthorHomeField.setText(appDescriptor.getAuthorHomepage());
@@ -655,6 +682,7 @@ public class MainFrame extends JFrame {
 			} else {
 				mVersionField.setText("");
 				mReleaseDateField.setText("");
+				mHomepageField.setText("");
 				mAuthorNameField.setText("");
 				mAuthorEmailField.setText("");
 				mAuthorHomeField.setText("");
@@ -696,6 +724,8 @@ public class MainFrame extends JFrame {
 		private JTextField mVersionField;
 
 		private JTextField mReleaseDateField;
+		
+		private JTextField mHomepageField;
 
 		private JTextField mAuthorNameField;
 
@@ -772,11 +802,20 @@ public class MainFrame extends JFrame {
 			mDebug.setSelected(serverConfiguration.isDebug());
 			mDisableTimeout = new JCheckBox("Disable Timeout");
 			mDisableTimeout.setSelected(serverConfiguration.isDisableTimeout());
+			mMenu = new JCheckBox("Menu");
+			mMenu.setSelected(serverConfiguration.isMenu());
 			mPort = new JFormattedTextField();
 			try {
 				MaskFormatter formatter = new MaskFormatter("####");
 				mPort = new JFormattedTextField(formatter);
 				mPort.setValue(new Integer(serverConfiguration.getPort()));
+			} catch (Exception ex) {
+			}
+			mHTTPPort = new JFormattedTextField();
+			try {
+				MaskFormatter formatter = new MaskFormatter("####");
+				mHTTPPort = new JFormattedTextField(formatter);
+				mHTTPPort.setValue(new Integer(serverConfiguration.getHttpPort()));
 			} catch (Exception ex) {
 			}
 			mIPAddress = new JComboBox();
@@ -801,6 +840,11 @@ public class MainFrame extends JFrame {
 			mRecordingsPath.setText(serverConfiguration.getRecordingsPath());
 			mMediaAccessKey = new JTextField();
 			mMediaAccessKey.setText(Tools.decrypt(serverConfiguration.getMediaAccessKey()));
+			mPublicIPAddressField = new JTextField();
+			mPublicIPAddressField.setText(serverConfiguration.getPublicIPAddress());
+			// TODO Only digits
+			mPINField = new JPasswordField();
+			mPINField.setText(Tools.decrypt(serverConfiguration.getPin()));
 
 			getContentPane().setLayout(new BorderLayout());
 
@@ -809,7 +853,8 @@ public class MainFrame extends JFrame {
 					"3dlu, " + "pref, " + // version
 					"3dlu, " + "pref, " + // reload
 					"3dlu, " + "pref, " + // reload
-					"3dlu, " + "pref, " + // generatethumbnails,
+					"3dlu, " + "pref, " + // generatethumbnails
+					"3dlu, " + "pref, " + // menu
 					// streamingproxy
 					"3dlu, " + "pref, " + // debug
 					"3dlu, " + "pref, " + // timeout
@@ -817,7 +862,10 @@ public class MainFrame extends JFrame {
 					"3dlu, " + "pref, " + // media access key
 					"9dlu, " + "pref, " + // network
 					"6dlu, " + "pref, " + // port
-					"3dlu, " + "pref, " // address
+					"6dlu, " + "pref, " + // http port
+					"3dlu, " + "pref, " + // address
+					"3dlu, " + "pref, " + // public ip
+					"3dlu, " + "pref" // pin
 			);
 
 			PanelBuilder builder = new PanelBuilder(layout);
@@ -838,27 +886,37 @@ public class MainFrame extends JFrame {
 			builder.add(mGenerateThumbnails, cc.xy(3, 11));
 			builder.add(mDebug, cc.xy(3, 13));
 			builder.add(mDisableTimeout, cc.xy(3, 15));
+			builder.add(mMenu, cc.xy(3, 17));
 			JButton button = new JButton("...");
 			button.setActionCommand("pick");
 			button.addActionListener(this);
-			builder.addLabel("Recordings Path", cc.xy(1, 17));
-			builder.add(mRecordingsPath, cc.xyw(3, 17, 2));
-			builder.add(button, cc.xyw(6, 17, 1));
-			builder.addLabel("Media Access Key", cc.xy(1, 19));
-			builder.add(mMediaAccessKey, cc.xyw(3, 19, 2));
+			builder.addLabel("Recordings Path", cc.xy(1, 19));
+			builder.add(mRecordingsPath, cc.xyw(3, 19, 2));
+			builder.add(button, cc.xyw(6, 19, 1));
+			builder.addLabel("Media Access Key", cc.xy(1, 21));
+			builder.add(mMediaAccessKey, cc.xyw(3, 21, 2));
 
-			builder.addSeparator("Network", cc.xyw(1, 21, 6));
-			builder.addLabel("PC Port", cc.xy(1, 23));
-			builder.add(mPort, cc.xy(3, 23));
+			builder.addSeparator("Network", cc.xyw(1, 23, 6));
+			builder.addLabel("PC Application Port", cc.xy(1, 25));
+			builder.add(mPort, cc.xy(3, 25));
 			if (serverConfiguration.getPort() != Galleon.getPort()) {
-				builder.addLabel("(" + Galleon.getPort() + ")", cc.xy(4, 21));
+				builder.addLabel("(" + Galleon.getPort() + ")", cc.xy(4, 25));
 			}
-			builder.addLabel("PC IP Address", cc.xy(1, 25));
-			builder.add(mIPAddress, cc.xy(3, 25));
+			builder.addLabel("PC Publishing Port", cc.xy(1, 27));
+			builder.add(mHTTPPort, cc.xy(3, 27));
+			if (serverConfiguration.getHttpPort() != Galleon.getHTTPPort()) {
+				builder.addLabel("(" + Galleon.getHTTPPort() + ")", cc.xy(4, 27));
+			}
+			builder.addLabel("PC IP Address", cc.xy(1, 29));
+			builder.add(mIPAddress, cc.xy(3, 29));
 			button = new JButton("<< Test...");
 			button.setActionCommand("network");
 			button.addActionListener(this);
-			builder.add(button, cc.xyw(5, 25, 2));
+			builder.add(button, cc.xyw(5, 29, 2));
+			builder.addLabel("Public IP Address", cc.xy(1, 31));
+			builder.add(mPublicIPAddressField, cc.xyw(3, 31, 2));
+			builder.addLabel("PIN", cc.xy(1, 33));
+			builder.add(mPINField, cc.xyw(3, 33, 2));
 
 			getContentPane().add(builder.getPanel(), "Center");
 
@@ -888,9 +946,30 @@ public class MainFrame extends JFrame {
 				}
 			}
 		}
+		
+		public String valid()
+		{
+			String pin = mPINField.getText().trim();
+			if (pin.length()<4)
+				return "PIN must be at least 4 digits";
+			for (int i=0;i<pin.length();i++)
+			{
+				if (!Character.isDigit(pin.charAt(i)))
+						return "PIN can only contain characters";
+			}
+			
+			return null;
+		}
 
 		public void actionPerformed(ActionEvent e) {
 			if ("ok".equals(e.getActionCommand())) {
+				String error = valid();
+				if (error!=null)
+				{
+					JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					mServerConfiguration.setName(mNameField.getText());
@@ -902,6 +981,11 @@ public class MainFrame extends JFrame {
 					} catch (NumberFormatException ex) {
 						Tools.logException(MainFrame.class, ex, "Invalid port: " + mPort.getText());
 					}
+					try {
+						mServerConfiguration.setHttpPort(Integer.parseInt(mHTTPPort.getText()));
+					} catch (NumberFormatException ex) {
+						Tools.logException(MainFrame.class, ex, "Invalid http port: " + mHTTPPort.getText());
+					}
 					mServerConfiguration.setIPAddress(((NameValue) mIPAddress.getSelectedItem()).getValue());
 					mServerConfiguration.setShuffleItems(mShuffleItems.isSelected());
 					mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
@@ -909,6 +993,9 @@ public class MainFrame extends JFrame {
 					mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText().trim()));
 					mServerConfiguration.setDebug(mDebug.isSelected());
 					mServerConfiguration.setDisableTimeout(mDisableTimeout.isSelected());
+					mServerConfiguration.setMenu(mMenu.isSelected());
+					mServerConfiguration.setPublicIPAddress(mPublicIPAddressField.getText());
+					mServerConfiguration.setPin(Tools.encrypt(mPINField.getText()));
 
 					Galleon.updateServerConfiguration(mServerConfiguration);
 				} catch (Exception ex) {
@@ -926,10 +1013,8 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					URL url = getClass().getClassLoader().getResource("server.html");
-					mMainFrame.displayHelp(mMainFrame, url);
+					BrowserLauncher.openURL("http://galleon.tv/content/view/93/52/");
 				} catch (Exception ex) {
-					Tools.logException(MainFrame.class, ex, "Could not find server help ");
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				return;
@@ -984,14 +1069,22 @@ public class MainFrame extends JFrame {
 		private JCheckBox mDebug;
 		
 		private JCheckBox mDisableTimeout;
+		
+		private JCheckBox mMenu;
 
 		private JFormattedTextField mPort;
+		
+		private JFormattedTextField mHTTPPort;
 
 		private JComboBox mIPAddress;
 
 		private JTextField mRecordingsPath;
 
 		private JTextField mMediaAccessKey;
+		
+		private JTextField mPublicIPAddressField;
+		
+		private JPasswordField mPINField;
 
 		private ServerConfiguration mServerConfiguration;
 	}
@@ -1169,10 +1262,8 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					URL url = getClass().getClassLoader().getResource("musicplayer.html");
-					mMainFrame.displayHelp(mMainFrame, url);
+					BrowserLauncher.openURL("http://galleon.tv/content/view/99/37/");
 				} catch (Exception ex) {
-					Tools.logException(MainFrame.class, ex, "Could not find server help ");
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				return;
@@ -1285,10 +1376,8 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					URL url = getClass().getClassLoader().getResource("network.html");
-					mServerDialog.mMainFrame.displayHelp(mServerDialog.mMainFrame, url);
+					BrowserLauncher.openURL("http://galleon.tv/content/view/100/37/");
 				} catch (Exception ex) {
-					Tools.logException(MainFrame.class, ex, "Could not find network help ");
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				return;
@@ -1535,10 +1624,8 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					URL url = getClass().getClassLoader().getResource("goback.html");
-					mMainFrame.displayHelp(mMainFrame, url);
+					BrowserLauncher.openURL("http://galleon.tv/content/view/89/49/");
 				} catch (Exception ex) {
-					Tools.logException(MainFrame.class, ex, "Could not find goback help ");
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				return;
@@ -1572,62 +1659,17 @@ public class MainFrame extends JFrame {
 			
 			final DataConfiguration dataConfiguration = mServerConfiguration.getDataConfiguration();
 			
-			JButton codeButton = null;
-			try
-			{
-				int [] pix = (int [])Galleon.getCodeImage();
-				Image image = createImage(new MemoryImageSource(150, 30, pix, 0, 150)); 
-				ImageIcon imageIcon = new ImageIcon(image);
-				codeButton = new JButton(imageIcon);
-			}
-			catch (Exception ex)
-			{
-				Tools.logException(MainFrame.class, ex, "Could get image");
-				codeButton = new JButton();
-			}
-			codeButton.setBorder(BorderFactory.createEmptyBorder());
-			codeButton.setPreferredSize(new Dimension(150,30));
-			
-			final JButton okButton = new JButton("OK");
-			okButton.setEnabled(false);
-
 			mUsernameField = new JTextField(20);
-			mUsernameField.setText(dataConfiguration.getUsername());
-			if (dataConfiguration.getUsername()!=null)
-				mUsernameField.setEditable(false);
+			mUsernameField.setText(Tools.decrypt(dataConfiguration.getUsername()));
 			mPasswordField = new JPasswordField(20);
 			mPasswordField.setText(Tools.decrypt(dataConfiguration.getPassword()));
-			mPassword2Field = new JPasswordField(20);
-			mPassword2Field.setText(Tools.decrypt(dataConfiguration.getPassword()));
-			mCodeField = new JTextField(20);
-			mAgree = new JCheckBox("I want to share my listening and viewing habits under the conditions in Help");
-			mAgree.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent e)
-				{
-					if (mAgree.isSelected() && mUsernameField.getText().trim().length()>0 && mPasswordField.getText().trim().length()>0 && mPassword2Field.getText().trim().length()>0)
-						okButton.setEnabled(true);
-					else
-					if (dataConfiguration.isAgree())
-						okButton.setEnabled(true);
-					else
-						okButton.setEnabled(false);
-				}
-			});
-			mAgree.setSelected(dataConfiguration.isAgree());
-			mAnonymous = new JCheckBox("I want to stay anonymous");
-			mAnonymous.setSelected(dataConfiguration.isAnonymous());
 
 			getContentPane().setLayout(new BorderLayout());
 
 			FormLayout layout = new FormLayout("right:pref, 3dlu, left:pref, 3dlu, left:pref:grow", 
 					"pref, " + // settings
 					"6dlu, " + "pref, " + // username
-					"3dlu, " + "pref, " + // password
-					"3dlu, " + "pref, " + // password
-					"3dlu, " + "pref, " + // code
-					"3dlu, " + "pref, " + // agreements
-					"3dlu, " + "pref, " + // agree
-					"3dlu, " + "pref " // anonymous
+					"3dlu, " + "pref " // password
 			);
 
 			PanelBuilder builder = new PanelBuilder(layout);
@@ -1641,19 +1683,11 @@ public class MainFrame extends JFrame {
 			builder.add(mUsernameField, cc.xy(3, 3));
 			builder.addLabel("Password", cc.xy(1, 5));
 			builder.add(mPasswordField, cc.xy(3, 5));
-			builder.addLabel("Confirm Password", cc.xy(1, 7));
-			builder.add(mPassword2Field, cc.xy(3, 7));
-			builder.addLabel("Confirmation Code", cc.xy(1, 9));
-			builder.add(mCodeField, cc.xy(3, 9));
-			builder.add(codeButton, cc.xy(5, 9));
-			builder.addSeparator("Agreement", cc.xyw(1, 11, 5));
-			builder.add(mAgree, cc.xyw(3, 13, 3));
-			builder.add(mAnonymous, cc.xyw(3, 15, 3));
 
 			getContentPane().add(builder.getPanel(), "Center");
 
 			JButton[] array = new JButton[3];
-			array[0] = okButton;
+			array[0] = new JButton("OK");
 			array[0].setActionCommand("ok");
 			array[0].addActionListener(this);
 			array[1] = new JButton("Cancel");
@@ -1673,53 +1707,13 @@ public class MainFrame extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			if ("ok".equals(e.getActionCommand())) {
 				String username = mUsernameField.getText().trim();
-				if (username.length()<2)
-				{
-					JOptionPane.showMessageDialog(
-							this,
-							"Username must be at least 2 characters",
-							"Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
 				String password = mPasswordField.getText().trim();
-				if (password.length()<5)
-				{
-					JOptionPane.showMessageDialog(
-							this,
-							"Password must be at least 5 characters",
-							"Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				String password2 = mPassword2Field.getText().trim();
-				if (!password2.equals(password))
-				{
-					JOptionPane.showMessageDialog(
-							this,
-							"Passwords do not match",
-							"Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				String code = mCodeField.getText().trim();
-				if (code.length()<6)
-				{
-					JOptionPane.showMessageDialog(
-							this,
-							"Confirmation Code must have a value",
-							"Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
 				
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				DataConfiguration dataConfiguration = new DataConfiguration();
 				try {
-					dataConfiguration.setUsername(username);
+					dataConfiguration.setUsername(Tools.encrypt(username));
 					dataConfiguration.setPassword(Tools.encrypt(password));
-					dataConfiguration.setAgree(mAgree.isSelected());
-					dataConfiguration.setAnonymous(mAnonymous.isSelected());
-					dataConfiguration.storeCode(code);
 					Galleon.updateDataConfiguration(dataConfiguration);
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not configure data");
@@ -1737,10 +1731,8 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					URL url = getClass().getClassLoader().getResource("data.html");
-					mMainFrame.displayHelp(mMainFrame, url);
+					BrowserLauncher.openURL("http://galleon.tv/component/option,com_comprofiler/task,registers/");
 				} catch (Exception ex) {
-					Tools.logException(MainFrame.class, ex, "Could not find data help ");
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				return;
@@ -1752,14 +1744,6 @@ public class MainFrame extends JFrame {
 
 		private JPasswordField mPasswordField;
 		
-		private JPasswordField mPassword2Field;
-		
-		private JTextField mCodeField;
-
-		private JCheckBox mAgree;
-
-		private JCheckBox mAnonymous;
-
 		private ServerConfiguration mServerConfiguration;
 		
 		private MainFrame mMainFrame;

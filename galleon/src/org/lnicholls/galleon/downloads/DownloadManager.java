@@ -220,6 +220,13 @@ public class DownloadManager implements Serializable {
 				}
 		}
 	}
+	
+	public void stopDownload(Download download) {
+		for (int i = 0; i < da.length; i++) {
+			if (da[i].getDownload().getURL().equals(download.getURL()))
+				da[i].stopDownload();
+		}
+	}	
 
 	SL dsl = new SL();
 

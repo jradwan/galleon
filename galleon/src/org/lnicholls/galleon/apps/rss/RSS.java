@@ -19,6 +19,7 @@ package org.lnicholls.galleon.apps.rss;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,11 +30,17 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.data.Users;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
@@ -83,18 +90,104 @@ public class RSS extends DefaultApplication {
         mViewerBackground = getSkinImage("viewer", "background");
         mFolderIcon = getSkinImage("menu", "folder");
         mItemIcon = getSkinImage("menu", "item");
-
-        push(new RSSMenuScreen(this), TRANSITION_NONE);
         
-        checkVersion(this);
-    }
+        RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+        
+        Tracker tracker = new Tracker(rssConfiguration.getSharedFeeds(), 0);
+		
+		if (Server.getServer().getDataConfiguration().isConfigured())
+			push(new RssMenuScreen(this), TRANSITION_NONE);
+		else
+			push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
 
-    public class RSSMenuScreen extends DefaultMenuScreen {
-        public RSSMenuScreen(RSS app) {
+		initialize();
+    }
+    
+	public class RssMenuScreen extends DefaultMenuScreen {
+		public RssMenuScreen(RSS app) {
+			super(app, "RSS");
+
+			//setFooter("Press ENTER for options");
+
+			getBelow().setResource(mMenuBackground);
+
+			mMenuList.add("My Favorites");
+			mMenuList.add("Find by Tag");
+		}
+
+		public boolean handleAction(BView view, Object action) {
+			if (action.equals("push")) {
+				if (mMenuList.size() > 0) {
+					load();
+					
+					final RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+
+					new Thread() {
+						public void run() {
+							try {
+								if (mMenuList.getFocus()==0)
+								{
+									Tracker tracker = new Tracker(rssConfiguration.getSharedFeeds(), 0);
+									getBApp().push(new FavoritesMenuScreen((RSS)getBApp(), tracker), TRANSITION_NONE);
+								}
+								else
+									getBApp().push(new TagsMenuScreen((RSS)getBApp()), TRANSITION_NONE);
+								getBApp().flush();
+								
+							} catch (Exception ex) {
+								Tools.logException(RSS.class, ex);
+							}
+						}
+					}.start();
+					return true;
+				}
+			}
+			return super.handleAction(view, action);
+		}
+
+		protected void createRow(BView parent, int index) {
+			try
+			{
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				icon.setResource(mFolderIcon);
+				String title = (String) mMenuList.get(index);
+
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(title), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "push"));
+				return true;
+			}
+			return super.handleKeyPress(code, rawcode);
+		}
+	}
+	
+    public class FavoritesMenuScreen extends DefaultMenuScreen {
+    	
+    	public FavoritesMenuScreen(RSS app, Tracker tracker) {
+    		this(app, tracker, false);
+    	}
+
+    	public FavoritesMenuScreen(RSS app, Tracker tracker, boolean first) {	
             super(app, "RSS");
+            
+            mTracker = tracker;
+			mFirst = first;
 
             getBelow().setResource(mMenuBackground);
 
+            /*
             RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory())
                     .getAppContext().getConfiguration();
             List feeds = rssConfiguration.getSharedFeeds();
@@ -114,10 +207,19 @@ public class RSS extends DefaultApplication {
                 if (stories != null)
                     mMenuList.add(nameValue);
             }
+            */
+            
+            Iterator iterator = mTracker.getList().iterator();
+			while (iterator.hasNext()) {
+				RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) iterator.next();
+				List stories = (List) ((RSSFactory) getFactory()).mChannels.get(nameValue.getValue());
+                if (stories != null)
+                    mMenuList.add(nameValue);
+			}
         }
 
         public boolean handleAction(BView view, Object action) {
-            if (action.equals("push")) {
+        	if (action.equals("push")) {
                 if (mMenuList.size() > 0) {
                     load();
                     RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) mMenuList.get(mMenuList.getFocus());
@@ -131,6 +233,23 @@ public class RSS extends DefaultApplication {
             }
             return super.handleAction(view, action);
         }
+        
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_PLAY:
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "play"));
+				return true;
+			case KEY_LEFT:
+				if (!mFirst) {
+					postEvent(new BEvent.Action(this, "pop"));
+					return true;
+				}
+				break;				
+			}
+
+			return super.handleKeyPress(code, rawcode);
+		}
 
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 10, 3, 30, 30);
@@ -142,6 +261,10 @@ public class RSS extends DefaultApplication {
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(nameValue.getName(), 40));
         }
+        
+        private Tracker mTracker;
+		
+		private boolean mFirst;
     }
 
     public class RSSFeedMenuScreen extends DefaultMenuScreen {
@@ -289,13 +412,229 @@ public class RSS extends DefaultApplication {
         
         private Tracker mTracker;
     }
+    
+	public class TagsMenuScreen extends DefaultMenuScreen {
+		public TagsMenuScreen(RSS app) {
+			super(app, "RSS Tags");
+
+			getBelow().setResource(mMenuBackground);
+			
+			DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
+			
+			try
+			{
+				String result = Users.retrieveRssTags(dataConfiguration);
+	            if (result != null && result.length()>0)
+	            {
+	            	SAXReader saxReader = new SAXReader();
+		            log.debug("Tags: " + result);
+		            StringReader stringReader = new StringReader(result);
+		            Document document = saxReader.read(stringReader);
+		            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+		
+		            Element root = document.getRootElement(); 
+		            Element tags = root.element("tags");
+		            if (tags!=null)
+		            {
+			            for (Iterator i = tags.elementIterator("tag"); i.hasNext();) {
+			                Element element = (Element) i.next();
+			                mMenuList.add(Tools.getAttribute(element, "name"));
+			            }
+		            }
+	            }
+			} catch (Exception ex) {
+				Tools.logException(RSS.class, ex);
+			}
+		}
+
+		public boolean handleAction(BView view, Object action) {
+			if (action.equals("push")) {
+				if (mMenuList.size() > 0) {
+					load();
+					
+					final RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+
+					new Thread() {
+						public void run() {
+							try {
+								String tag = (String)mMenuList.get(mMenuList.getFocus()); 
+								
+								DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
+								
+								ArrayList list = new ArrayList();
+								String result = Users.retrieveRssFromTag(dataConfiguration, tag);
+					            if (result != null && result.length()>0)
+					            {
+					            	SAXReader saxReader = new SAXReader();
+						            log.debug("Tags: " + result);
+						            StringReader stringReader = new StringReader(result);
+						            Document document = saxReader.read(stringReader);
+						            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+						
+						            Element root = document.getRootElement(); 
+						            Element rss = root.element("rss");
+						            if (rss!=null)
+						            {
+							            for (Iterator i = rss.elementIterator("feed"); i.hasNext();) {
+							                Element element = (Element) i.next();
+							                RSSConfiguration.SharedFeed sharedFeed = new RSSConfiguration.SharedFeed(Tools.getAttribute(element, "name"), Tools.getAttribute(element, "url"), Tools.getAttribute(element, "description"), tag, RSSConfiguration.SharedFeed.PRIVATE); 
+							                list.add(sharedFeed);
+							            }
+						            }
+					            }
+								
+					            Tracker tracker = new Tracker(list, 0);
+					            getBApp().push(new FavoritesMenuScreen((RSS)getBApp(), tracker), TRANSITION_NONE);
+								getBApp().flush();
+								
+							} catch (Exception ex) {
+								Tools.logException(RSS.class, ex);
+							}
+						}
+					}.start();
+					return true;
+				}
+			}
+			return super.handleAction(view, action);
+		}
+
+		protected void createRow(BView parent, int index) {
+			try
+			{
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				icon.setResource(mFolderIcon);
+				String title = (String) mMenuList.get(index);
+
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(title), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "push"));
+				return true;
+			case KEY_LEFT:
+				postEvent(new BEvent.Action(this, "pop"));
+				return true;
+			}
+			return super.handleKeyPress(code, rawcode);
+		}
+	}	
+	
+	public class TagMenuScreen extends DefaultMenuScreen {
+		public TagMenuScreen(RSS app, String tag) {
+			super(app, "Internet Tag");
+
+			setFooter("Press ENTER for options");
+
+			getBelow().setResource(mMenuBackground);
+			
+			DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
+			
+			try
+			{
+				String result = Users.retrieveRssFromTag(dataConfiguration, tag);
+	            if (result != null && result.length()>0)
+	            {
+	            	SAXReader saxReader = new SAXReader();
+		            log.debug("Tags: " + result);
+		            StringReader stringReader = new StringReader(result);
+		            Document document = saxReader.read(stringReader);
+		            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+		
+		            Element root = document.getRootElement(); 
+		            Element internet = root.element("internet");
+		            if (internet!=null)
+		            {
+			            for (Iterator i = internet.elementIterator("url"); i.hasNext();) {
+			                Element element = (Element) i.next();
+			                mMenuList.add(Tools.getAttribute(element, "name"));
+			            }
+		            }
+	            }
+			} catch (Exception ex) {
+				Tools.logException(RSS.class, ex);
+			}
+		}
+
+		public boolean handleAction(BView view, Object action) {
+			if (action.equals("push")) {
+				if (mMenuList.size() > 0) {
+					load();
+					
+					final RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+
+					new Thread() {
+						public void run() {
+							try {
+								/*
+								if (mMenuList.getFocus()==0)
+								{
+									Tracker tracker = new Tracker(internetConfiguration.getSharedUrls(), 0);
+									getBApp().push(new FavoritesMenuScreen((Internet)getBApp(), tracker), TRANSITION_NONE);
+								}
+								else
+									getBApp().push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
+								getBApp().flush();
+								*/
+								
+							} catch (Exception ex) {
+								Tools.logException(RSS.class, ex);
+							}
+						}
+					}.start();
+					return true;
+				}
+			}
+			return super.handleAction(view, action);
+		}
+
+		protected void createRow(BView parent, int index) {
+			try
+			{
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				icon.setResource(mFolderIcon);
+				String title = (String) mMenuList.get(index);
+
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(title), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "push"));
+				return true;
+			case KEY_LEFT:
+				postEvent(new BEvent.Action(this, "pop"));
+				return true;
+			}
+			return super.handleKeyPress(code, rawcode);
+		}
+	}	
 
     public static class RSSFactory extends AppFactory {
 
-        public void setAppContext(AppContext appContext) {
-            super.setAppContext(appContext);
+        public void updateAppContext(AppContext appContext) {
+            super.updateAppContext(appContext);
 
             updateChannels();
+            updateData();
         }
 
         private void updateChannels() {
@@ -363,18 +702,71 @@ public class RSS extends DefaultApplication {
         }
 
         public void initialize() {
-            
+        	final RSSConfiguration rssConfiguration = (RSSConfiguration) getAppContext().getConfiguration();
+        	
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
-                    	log.debug("RSS");
                         updateChannels();
                     } catch (Exception ex) {
                         log.error("Could not download stations", ex);
                     }
                 }
             }), 5);
+            
+            Server.getServer().scheduleData(new ReloadTask(new ReloadCallback() {
+				public void reload() {
+					try {
+                        updateData();
+                    } catch (Exception ex) {
+                        log.error("Could not update internet dat", ex);
+                    }
+				}
+			}), 60*24);
         }
+        
+        private void updateData() {
+        	RSSConfiguration rssConfiguration = (RSSConfiguration) getAppContext().getConfiguration();
+
+			try {
+				StringBuffer buffer = new StringBuffer();
+				synchronized(buffer)
+				{
+					buffer.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+					buffer.append("<data>\n");
+					buffer.append("<rss>\n");
+					Iterator iterator = rssConfiguration.getSharedFeeds().iterator();
+					while (iterator.hasNext())
+					{
+						RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) iterator.next();
+						if (nameValue.getPrivacy().equals(RSSConfiguration.SharedFeed.PUBLIC))
+						{
+							buffer.append("<feed");
+							buffer.append(" name=\""+Tools.escapeXMLChars(nameValue.getName())+"\"");
+							buffer.append(" url=\""+Tools.escapeXMLChars(nameValue.getValue())+"\"");
+							buffer.append(" description=\""+Tools.escapeXMLChars(nameValue.getDescription())+"\"");
+							buffer.append(" tags=\""+Tools.escapeXMLChars(nameValue.getTags())+"\"");
+							if (nameValue.getPrivacy().equals(RSSConfiguration.SharedFeed.PRIVATE))
+								buffer.append(" privacy=\"0\"");
+							else
+							if (nameValue.getPrivacy().equals(RSSConfiguration.SharedFeed.PUBLIC))
+								buffer.append(" privacy=\"1\"");
+							else
+							if (nameValue.getPrivacy().equals(RSSConfiguration.SharedFeed.FRIENDS))
+								buffer.append(" privacy=\"2\"");
+							else
+								buffer.append(" privacy=\"0\"");
+							buffer.append(" />\n");
+						}
+					}
+					buffer.append("</rss>\n");
+					buffer.append("</data>\n");
+				}
+				Users.updateRss(Server.getServer().getDataConfiguration(), buffer.toString());
+			} catch (Exception ex) {
+				log.error("Could not update rss data", ex);
+			}
+		}        
 
         private static Hashtable mChannels = new Hashtable();
     }

@@ -76,6 +76,8 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 public class DownloadManagerDialog extends JDialog implements ActionListener {
 	
 	private static Logger log = Logger.getLogger(DownloadManagerDialog.class.getName());
@@ -151,6 +153,18 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 		
 		JPanel tablePanel = new JPanel();
         tablePanel.setLayout(new BorderLayout());
+        
+        JButton[] array = new JButton[1];
+        JPanel buttonPanel = new JPanel();
+        mDeleteButton = new JButton("Delete");
+        array[0] = mDeleteButton;
+        buttonPanel.add(mDeleteButton);
+        mDeleteButton.setActionCommand("delete");
+        mDeleteButton.addActionListener(this);
+        mDeleteButton.setEnabled(false);
+        JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+        buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        tablePanel.add(buttons, BorderLayout.NORTH);
 
         mTable.setModel(downloadsTableData);
         TableColumn column = null;
@@ -160,11 +174,11 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
         }
         mTable.setDragEnabled(true);
         mTable.setRowSelectionAllowed(true);
-        mTable.setCellSelectionEnabled(false);
+        //mTable.setCellSelectionEnabled(false);
         mTable.getColumnModel().getColumn(2).setCellRenderer( new ProgressBarCellRenderer() );
         mTable.getColumnModel().getColumn(3).setCellRenderer( new TextCellRenderer(JLabel.RIGHT) );
         mTable.getColumnModel().getColumn(4).setCellRenderer( new TextCellRenderer(JLabel.RIGHT) );
-        //mTable.setColumnSelectionAllowed(false);
+        mTable.setColumnSelectionAllowed(false);
         ListSelectionModel selectionModel = mTable.getSelectionModel();
         selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         selectionModel.addListSelectionListener(new ListSelectionListener() {
@@ -181,10 +195,12 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
                         int selectedRow = lsm.getMinSelectionIndex();
                         //mTitleField.setText((String) mTable.getModel().getValueAt(selectedRow, 1));
                     }
+                    mDeleteButton.setEnabled(true);
                 } else {
                     if (!mUpdating) {
                         //mTitleField.setText(" ");
                     }
+                    mDeleteButton.setEnabled(false);
                 }
             }
         });
@@ -202,7 +218,7 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 
 		getContentPane().add(tablePanel, "Center");
 
-		JButton[] array = new JButton[3];
+		array = new JButton[3];
 		array[0] = new JButton("OK");
 		array[0].setActionCommand("ok");
 		array[0].addActionListener(this);
@@ -212,7 +228,7 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 		array[2] = new JButton("Help");
 		array[2].setActionCommand("help");
 		array[2].addActionListener(this);
-		JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
+		buttons = ButtonBarFactory.buildCenteredBar(array);
 
 		buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		getContentPane().add(buttons, "South");
@@ -267,14 +283,36 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 		} else if ("help".equals(e.getActionCommand())) {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try {
-                URL url = getClass().getClassLoader().getResource("downloadmanager.html");
-                mMainFrame.displayHelp(mMainFrame, url);
-            } catch (Exception ex) {
-                //HMOTools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
-            }
+				BrowserLauncher.openURL("http://galleon.tv/content/view/97/45/");
+			} catch (Exception ex) {
+			}
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             return;
         } 
+		else
+		if ("delete".equals(e.getActionCommand())) {
+            if (JOptionPane.showConfirmDialog(this, "Are you sure you want to delete these download(s) ?", "Warning",
+                    JOptionPane.WARNING_MESSAGE | JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                mUpdating = true;
+                try {
+                    ShowTableData model = (ShowTableData) mTable.getModel();
+                    int[] selectedRows = mTable.getSelectedRows();
+                    if (selectedRows.length > 0) {
+                        for (int i = 0; i < selectedRows.length; i++) {
+                        	Download download = (Download) mDownloads.get(selectedRows[i]);
+                            Galleon.stopDownload(download);
+                            model.removeRow(selectedRows[i]);
+                        }
+                    }
+                } catch (Exception ex) {
+                    Tools.logException(RulesPanel.class, ex);
+                }
+                mUpdating = false;
+                refresh();
+            }
+            return;
+        }			
+		
 		this.setVisible(false);
 	}
 	
@@ -607,4 +645,6 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 	private Thread mRefreshThread;
 	
 	private HelpDialog mHelpDialog;
+	
+	private JButton mDeleteButton;
 }

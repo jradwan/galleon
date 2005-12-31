@@ -79,6 +79,8 @@ public interface ServerControl extends Remote {
 	public List getSkins() throws RemoteException;
 
 	public int getPort() throws RemoteException;
+	
+	public int getHttpPort() throws RemoteException;
 
 	public List getPodcasts() throws RemoteException;
 
@@ -90,13 +92,13 @@ public interface ServerControl extends Remote {
 
 	public boolean isCurrentVersion() throws RemoteException;
 
-	public Object getCodeImage() throws RemoteException;
-
 	public List getDownloads() throws RemoteException;
 
 	public void pauseDownload(Download download) throws RemoteException;
 
 	public void resumeDownload(Download download) throws RemoteException;
+	
+	public void stopDownload(Download download) throws RemoteException;
 	
 	public void setDisableTimeout(boolean value) throws RemoteException;
 	

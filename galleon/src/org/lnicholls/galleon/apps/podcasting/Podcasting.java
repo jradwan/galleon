@@ -117,7 +117,7 @@ public class Podcasting extends DefaultApplication {
 
 		push(new PodcastingMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public static Element getDocument(String location) {
@@ -309,7 +309,15 @@ public class Podcasting extends DefaultApplication {
 								if ((value = Tools.getAttribute(item, "url")) != null) {
 									channelImage1 = value; // rss
 								}
-							} else if (item.attribute("href") != null) {
+							} 
+							else
+							if (item.element("image") != null) {
+								item = item.element("image");
+								if ((value = Tools.getAttribute(item, "href")) != null) {
+									channelImage1 = value; // itunes
+								}
+							} 
+							else if (item.attribute("href") != null) {
 								channelImage2 = item.attributeValue("href"); // itunes
 							}
 						}
@@ -379,7 +387,7 @@ public class Podcasting extends DefaultApplication {
 						if (channelKeywords != null && channelKeywords.length() > 0)
 							podcast.setKeywords(Tools.cleanHTML(channelKeywords));
 						if (channelSummary != null && channelSummary.length() > 0)
-							podcast.setSummary(Tools.trim(channelSummary, 4096));
+							podcast.setSummary(Tools.trim(Tools.cleanHTML(channelSummary), 4096));
 						if (channelTtl != null && channelTtl.length() > 0) {
 							try {
 								podcast.setTtl(new Integer(channelTtl));
@@ -2656,8 +2664,8 @@ public class Podcasting extends DefaultApplication {
 	
 	public static class PodcastingFactory extends AppFactory {
 
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 			
 			update();
 		}

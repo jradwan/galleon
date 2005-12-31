@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -49,6 +50,9 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) appConfiguration;
 
         mTitleField = new JTextField(podcastingConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(podcastingConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mDownloadCombo = new JComboBox();
         mDownloadCombo.addItem(new ComboWrapper("All", "-1"));
         mDownloadCombo.addItem(new ComboWrapper("1", "1"));
@@ -65,6 +69,7 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, pref, " + // title
+                "3dlu, pref, " + // share
                 "9dlu, pref, " + // download
                 "9dlu, pref, " + // directories
                 "9dlu, pref, " + // name
@@ -84,15 +89,16 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addLabel("Download", cc.xy(1, 5));
-        builder.add(mDownloadCombo, cc.xyw(3, 5, 1));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addLabel("Download", cc.xy(1, 7));
+        builder.add(mDownloadCombo, cc.xyw(3, 7, 1));
 
-        builder.addSeparator("Subscriptions", cc.xyw(1, 7, 4));
+        builder.addSeparator("Subscriptions", cc.xyw(1, 9, 4));
         
-        builder.addLabel("Name", cc.xy(1, 9));
-        builder.add(mSubscriptionsNameField, cc.xyw(3, 9, 1));
-        builder.addLabel("URL", cc.xy(1, 11));
-        builder.add(mSubscriptionsUrlField, cc.xyw(3, 11, 1));
+        builder.addLabel("Name", cc.xy(1, 11));
+        builder.add(mSubscriptionsNameField, cc.xyw(3, 11, 1));
+        builder.addLabel("URL", cc.xy(1, 13));
+        builder.add(mSubscriptionsUrlField, cc.xyw(3, 13, 1));
 
         mSubscriptionsColumnValues = new ArrayList();
         int counter = 0;
@@ -121,14 +127,14 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         fields.add(mSubscriptionsNameField);
         fields.add(mSubscriptionsUrlField);
         mSubscriptionsOptionsTable = new OptionsTable(this, columnNames, mSubscriptionsColumnValues, fields);
-        builder.add(mSubscriptionsOptionsTable, cc.xyw(1, 13, 4));        
+        builder.add(mSubscriptionsOptionsTable, cc.xyw(1, 15, 4));        
         
-        builder.addSeparator("Directories", cc.xyw(1, 15, 4));
+        builder.addSeparator("Directories", cc.xyw(1, 17, 4));
         
-        builder.addLabel("Name", cc.xy(1, 17));
-        builder.add(mDirectoriesNameField, cc.xyw(3, 17, 1));
-        builder.addLabel("URL", cc.xy(1, 19));
-        builder.add(mDirectoriesUrlField, cc.xyw(3, 19, 1));
+        builder.addLabel("Name", cc.xy(1, 19));
+        builder.add(mDirectoriesNameField, cc.xyw(3, 19, 1));
+        builder.addLabel("URL", cc.xy(1, 21));
+        builder.add(mDirectoriesUrlField, cc.xyw(3, 21, 1));
 
         mDirectoriesColumnValues = new ArrayList();
         counter = 0;
@@ -147,7 +153,7 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
         fields.add(mDirectoriesNameField);
         fields.add(mDirectoriesUrlField);
         mDirectoriesOptionsTable = new OptionsTable(this, columnNames, mDirectoriesColumnValues, fields);
-        builder.add(mDirectoriesOptionsTable, cc.xyw(1, 21, 4));        
+        builder.add(mDirectoriesOptionsTable, cc.xyw(1, 23, 4));        
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -198,6 +204,7 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
             newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
         }
         podcastConfiguration.setDirectorys(newItems);
+        podcastConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -219,4 +226,6 @@ public class PodcastingOptionsPanel extends AppConfigurationPanel {
     private OptionsTable mDirectoriesOptionsTable;
 
     private ArrayList mDirectoriesColumnValues;
+    
+    private JCheckBox mSharedField;
 }

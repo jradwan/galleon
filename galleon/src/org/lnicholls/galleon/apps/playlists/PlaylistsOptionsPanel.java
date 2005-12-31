@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -45,10 +46,13 @@ public class PlaylistsOptionsPanel extends AppConfigurationPanel {
         PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) appConfiguration;
 
         mTitleField = new JTextField(playlistsConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(playlistsConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
-                "pref, 9dlu, pref, 9dlu, pref, 9dlu, pref");
-
+                "pref, 9dlu, pref, 3dlu, pref, 9dlu, pref, 9dlu, pref");
+        
         PanelBuilder builder = new PanelBuilder(layout);
         //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
         builder.setDefaultDialogBorder();
@@ -58,7 +62,8 @@ public class PlaylistsOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Playlists", cc.xyw(1, 5, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Playlists", cc.xyw(1, 7, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -74,7 +79,7 @@ public class PlaylistsOptionsPanel extends AppConfigurationPanel {
         ArrayList columnNames = new ArrayList();
         columnNames.add(0, "Name");
         columnNames.add(1, "Path");
-        builder.add(mFileOptionsTable, cc.xyw(1, 7, 4));
+        builder.add(mFileOptionsTable, cc.xyw(1, 9, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -109,6 +114,7 @@ public class PlaylistsOptionsPanel extends AppConfigurationPanel {
             newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
         }
         playlistsConfiguration.setPlaylists(newItems);
+        playlistsConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -116,4 +122,6 @@ public class PlaylistsOptionsPanel extends AppConfigurationPanel {
     private FileOptionsTable mFileOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

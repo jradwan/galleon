@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,6 +47,9 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         InternetConfiguration internetConfiguration = (InternetConfiguration) appConfiguration;
 
         mTitleField = new JTextField(internetConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(internetConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mReloadCombo = new JComboBox();
         mReloadCombo.addItem(new ComboWrapper("5 minutes", "5"));
         mReloadCombo.addItem(new ComboWrapper("10 minutes", "10"));
@@ -57,15 +61,26 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         mReloadCombo.addItem(new ComboWrapper("6 hours", "720"));
         mReloadCombo.addItem(new ComboWrapper("24 hours", "1440"));
         defaultCombo(mReloadCombo, Integer.toString(internetConfiguration.getReload()));
-        mNameField = new JTextField("");
-        mUrlField = new JTextField("");
+        mNameField = new JTextField("", 255);
+        mUrlField = new JTextField("", 255);
+        mDescriptionField = new JTextField("", 255);
+        mTagsField = new JTextField("", 255);
+        mPrivacyCombo = new JComboBox();
+        mPrivacyCombo.addItem(new ComboWrapper(InternetConfiguration.SharedUrl.PRIVATE, InternetConfiguration.SharedUrl.PRIVATE));
+        mPrivacyCombo.addItem(new ComboWrapper(InternetConfiguration.SharedUrl.PUBLIC, InternetConfiguration.SharedUrl.PUBLIC));
+        //mPrivacyCombo.addItem(new ComboWrapper(InternetConfiguration.SharedUrl.FRIENDS, InternetConfiguration.SharedUrl.FRIENDS));
+        defaultCombo(mPrivacyCombo, InternetConfiguration.SharedUrl.PRIVATE);        
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
                 + // title
+                "3dlu, " + "pref, " + // share
                 "3dlu, " + "pref, " + // reload
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // name
                 "3dlu, " + "pref, " + // url
+                "3dlu, " + "pref, " + // description
+                "3dlu, " + "pref, " + // tags
+                "3dlu, " + "pref, " + // privacy                
                 "3dlu, " + "pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
@@ -77,33 +92,49 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addLabel("Reload", cc.xy(1, 5));
-        builder.add(mReloadCombo, cc.xyw(3, 5, 1));
-        builder.addSeparator("URLs", cc.xyw(1, 7, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addLabel("Reload", cc.xy(1, 7));
+        builder.add(mReloadCombo, cc.xyw(3, 7, 1));
+        builder.addSeparator("URLs", cc.xyw(1, 9, 4));
 
-        builder.addLabel("Name", cc.xy(1, 9));
-        builder.add(mNameField, cc.xyw(3, 9, 1));
-        builder.addLabel("URL", cc.xy(1, 11));
-        builder.add(mUrlField, cc.xyw(3, 11, 1));
+        builder.addLabel("Name", cc.xy(1, 11));
+        builder.add(mNameField, cc.xyw(3, 11, 1));
+        builder.addLabel("URL", cc.xy(1, 13));
+        builder.add(mUrlField, cc.xyw(3, 13, 1));
+        builder.addLabel("Description", cc.xy(1, 15));
+        builder.add(mDescriptionField, cc.xyw(3, 15, 1));
+        builder.addLabel("Tags", cc.xy(1, 17));
+        builder.add(mTagsField, cc.xyw(3, 17, 1));
+        builder.addLabel("Privacy", cc.xy(1, 19));
+        builder.add(mPrivacyCombo, cc.xyw(3, 19, 1));        
 
         mColumnValues = new ArrayList();
         int counter = 0;
-        for (Iterator i = internetConfiguration.getUrls().iterator(); i.hasNext();) {
-            NameValue value = (NameValue) i.next();
+        for (Iterator i = internetConfiguration.getSharedUrls().iterator(); i.hasNext();) {
+        	InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) i.next();
             ArrayList values = new ArrayList();
             values.add(0, value.getName());
             values.add(1, value.getValue());
+            values.add(2, value.getDescription());
+            values.add(3, value.getTags());
+            values.add(4, value.getPrivacy());
             mColumnValues.add(counter++, values);
         }
 
         ArrayList columnNames = new ArrayList();
         columnNames.add(0, "Name");
         columnNames.add(1, "URL");
+        columnNames.add(2, "Description");
+        columnNames.add(3, "Tags");
+        columnNames.add(4, "Privacy");
         ArrayList fields = new ArrayList();
         fields.add(mNameField);
         fields.add(mUrlField);
+        fields.add(mDescriptionField);
+        fields.add(mTagsField);
+        fields.add(mPrivacyCombo);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 13, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 21, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -127,7 +158,6 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
     }    
 
     public void save() {
-        log.debug("save()");
         InternetConfiguration internetConfiguration = (InternetConfiguration) mAppConfiguration;
         internetConfiguration.setName(mTitleField.getText());
         internetConfiguration.setReload(Integer.parseInt(((NameValue) mReloadCombo.getSelectedItem()).getValue()));
@@ -136,9 +166,10 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         while (iterator.hasNext()) {
             ArrayList rows = (ArrayList) iterator.next();
             log.debug("Url=" + rows.get(0));
-            newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
+            newItems.add(new InternetConfiguration.SharedUrl((String) rows.get(0), (String) rows.get(1), (String) rows.get(2), (String) rows.get(3), (String) rows.get(4)));
         }
-        internetConfiguration.setUrls(newItems);
+        internetConfiguration.setSharedUrls(newItems);
+        internetConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -148,8 +179,16 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
     private JTextComponent mNameField;
 
     private JTextComponent mUrlField;
+    
+    private JTextComponent mDescriptionField;
+    
+    private JTextComponent mTagsField;
+    
+    private JComboBox mPrivacyCombo;
 
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

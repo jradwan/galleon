@@ -63,8 +63,6 @@ import org.lnicholls.galleon.togo.*;
 public class Configurator implements Constants {
     private static Logger log = Logger.getLogger(Configurator.class.getName());
 
-    private static int DEFAULT_PORT = 8081;
-
     private static String TAG_CONFIGURATION = "configuration";
 
     private static String TAG_SERVER = "server";
@@ -88,6 +86,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_URL = "url";
 
     private static String ATTRIBUTE_PORT = "port";
+    
+    private static String ATTRIBUTE_HTTP_PORT = "httpPort";
 
     private static String ATTRIBUTE_TITLE = "title";
     
@@ -98,6 +98,10 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_RELOAD = "reload";
 
     private static String ATTRIBUTE_IP_ADDRESS = "ipaddress";
+    
+    private static String ATTRIBUTE_PUBLIC_IP_ADDRESS = "publicIpAddress";
+    
+    private static String ATTRIBUTE_PIN = "pin";
 
     private static String ATTRIBUTE_NET_MASK = "netmask";
 
@@ -106,6 +110,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_DEBUG = "debug";
     
     private static String ATTRIBUTE_TIMEOUT = "disableTimeout";
+    
+    private static String ATTRIBUTE_MENU = "menu";
 
     private static String ATTRIBUTE_GENERATE_THUMBNAILS = "generateThumbnails";
 
@@ -249,6 +255,20 @@ public class Configurator implements Constants {
                                             + attribute.getNodeValue());
                                 }
                             }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_HTTP_PORT);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue());
+                                try {
+                                    int port = Integer.parseInt(attribute.getNodeValue());
+                                    serverConfiguration.setHttpPort(port);
+                                } catch (NumberFormatException ex) {
+                                    log.error("Invalid " + ATTRIBUTE_HTTP_PORT + " for " + TAG_SERVER + ": "
+                                            + attribute.getNodeValue());
+                                }
+                            }
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_TITLE);
                             if (attribute != null) {
@@ -264,6 +284,22 @@ public class Configurator implements Constants {
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
                                 serverConfiguration.setIPAddress(attribute.getNodeValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_PUBLIC_IP_ADDRESS);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue());
+                                serverConfiguration.setPublicIPAddress(attribute.getNodeValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_PIN);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue());
+                                serverConfiguration.setPin(attribute.getNodeValue());
                             }
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_SHUFFLE_ITEMS);
@@ -323,6 +359,15 @@ public class Configurator implements Constants {
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
                                 serverConfiguration.setDisableTimeout(Boolean.valueOf(attribute.getNodeValue())
+                                        .booleanValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_MENU);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue());
+                                serverConfiguration.setMenu(Boolean.valueOf(attribute.getNodeValue())
                                         .booleanValue());
                             }
                         }
@@ -647,10 +692,17 @@ public class Configurator implements Constants {
                 buffer.append("<").append(TAG_SERVER).append(" ").append(ATTRIBUTE_TITLE).append("=\"").append(
                         serverConfiguration.getName()).append("\" ").append(ATTRIBUTE_RELOAD).append("=\"").append(
                         serverConfiguration.getReload()).append("\" ").append(ATTRIBUTE_PORT).append("=\"").append(
-                        serverConfiguration.getPort()).append("\"");
+                        serverConfiguration.getPort()).append("\" ").append(ATTRIBUTE_HTTP_PORT).append("=\"").append(
+                                serverConfiguration.getHttpPort()).append("\"");
                 if (serverConfiguration.getIPAddress() != null && serverConfiguration.getIPAddress().length() > 0)
                     buffer.append(" ").append(ATTRIBUTE_IP_ADDRESS).append("=\"").append(
                             serverConfiguration.getIPAddress()).append("\"");
+                if (serverConfiguration.getPublicIPAddress() != null && serverConfiguration.getPublicIPAddress().length() > 0)
+                    buffer.append(" ").append(ATTRIBUTE_PUBLIC_IP_ADDRESS).append("=\"").append(
+                            serverConfiguration.getPublicIPAddress()).append("\"");
+                if (serverConfiguration.getPin() != null && serverConfiguration.getPin().length() > 0)
+                    buffer.append(" ").append(ATTRIBUTE_PIN).append("=\"").append(
+                            serverConfiguration.getPin()).append("\"");                             
                 buffer.append(" ").append(ATTRIBUTE_SHUFFLE_ITEMS).append("=\"").append(
                         serverConfiguration.getShuffleItems()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_GENERATE_THUMBNAILS).append("=\"").append(
@@ -665,6 +717,8 @@ public class Configurator implements Constants {
                         serverConfiguration.isDebug()).append("\"");                
                 buffer.append(" ").append(ATTRIBUTE_TIMEOUT).append("=\"").append(
                         serverConfiguration.isDisableTimeout()).append("\"");
+                buffer.append(" ").append(ATTRIBUTE_MENU).append("=\"").append(
+                        serverConfiguration.isMenu()).append("\"");                
                 buffer.append("/>\n");
 
                 // Apps

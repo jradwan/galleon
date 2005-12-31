@@ -122,7 +122,7 @@ public class Movies extends DefaultApplication {
 
 		push(new TheaterMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class TheaterMenuScreen extends DefaultMenuScreen {
@@ -1228,7 +1228,7 @@ public class Movies extends DefaultApplication {
 														if (tag.getAttribute("class") != null
 																&& tag.getAttribute("class").equals("rating")) {
 															NodeList children = tag.getChildren();
-															if (children.size() > 0) {
+															if (children!=null && children.size() > 0) {
 																REGEX = "\\((.*)\\)"; // Rated
 																						// PG-13
 																						// for

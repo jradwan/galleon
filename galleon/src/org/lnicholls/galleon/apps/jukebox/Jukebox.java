@@ -125,7 +125,7 @@ public class Jukebox extends DefaultApplication {
 
 		push(new JukeboxMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 	
 	public class JukeboxMenuScreen extends DefaultMenuScreen {
@@ -244,6 +244,7 @@ public class Jukebox extends DefaultApplication {
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_NUM1:
+			case KEY_THUMBSDOWN:
 				getBApp().play("select.snd");
 				getBApp().flush();
 
@@ -357,6 +358,7 @@ public class Jukebox extends DefaultApplication {
 			switch (code) {
 			case KEY_SELECT:
 			case KEY_RIGHT:
+			case KEY_PLAY:
 				if (list.getFocus() == 0) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
@@ -420,7 +422,7 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("play")) {
+			if (action.equals("play") || action.equals("push")) {
 
 				getBApp().play("select.snd");
 				getBApp().flush();

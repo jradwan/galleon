@@ -119,8 +119,8 @@ public class AudioScrobbler extends DefaultApplication {
 
     public static class AudioScrobblerFactory extends AppFactory implements ApplicationEventListener {
 
-        public void setAppContext(AppContext appContext) {
-            super.setAppContext(appContext);
+        public void updateAppContext(AppContext appContext) {
+            super.updateAppContext(appContext);
 
             updateData();
         }

@@ -124,11 +124,11 @@ public class MusicPlayerConfiguration implements Serializable {
 
     private boolean mUseAmazon = true;
 
-    private boolean mShowImages = false;
+    private boolean mShowImages = true;
     
     private boolean mScreensaver = true;
     
-    private String mPlayer = WINAMP;
+    private String mPlayer = CLASSIC;
     
     private boolean mRandomPlayFolders = true;
 

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -120,6 +121,9 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         setLayout(new GridLayout(0, 1));
 
         mTitleField = new JTextField(musicConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(musicConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mPathField = new JTextField("");
         JButton button = new JButton("...");
         button.setActionCommand("pick");
@@ -168,6 +172,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, 3dlu, left:pref:grow", "pref, " + //general
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // path
                 "3dlu, " + "pref," + // table
@@ -184,7 +189,8 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         builder.addSeparator("General", cc.xyw(1, 1, 5));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Directories", cc.xyw(1, 5, 5));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Directories", cc.xyw(1, 7, 5));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -204,32 +210,32 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
         mOptionsTable.setTransferHandler(new FileTransferHandler(mOptionsTable));
 
-        builder.addLabel("Path", cc.xy(1, 7));
-        builder.add(mPathField, cc.xy(3, 7));
-        builder.add(button, cc.xy(5, 7));
+        builder.addLabel("Path", cc.xy(1, 9));
+        builder.add(mPathField, cc.xy(3, 9));
+        builder.add(button, cc.xy(5, 9));
 
-        builder.add(mOptionsTable, cc.xyw(1, 9, 5));
-        builder.addSeparator("Categories", cc.xyw(1, 11, 5));
-        builder.addLabel("Category 1", cc.xy(1, 13));
-        builder.add(mCategoryCombo1, cc.xyw(3, 13, 1));
-        builder.addLabel("Category 2", cc.xy(1, 15));
-        builder.add(mCategoryCombo2, cc.xyw(3, 15, 1));
-        builder.addLabel("Category 3", cc.xy(1, 17));
-        builder.add(mCategoryCombo3, cc.xyw(3, 17, 1));
-        builder.addLabel("Category 4", cc.xy(1, 19));
-        builder.add(mCategoryCombo4, cc.xyw(3, 19, 1));
-        builder.addLabel("Category 5", cc.xy(1, 21));
-        builder.add(mCategoryCombo5, cc.xyw(3, 21, 1));
-        builder.addLabel("Category 6", cc.xy(1, 23));
-        builder.add(mCategoryCombo6, cc.xyw(3, 23, 1));
-        builder.addLabel("Category 7", cc.xy(1, 25));
-        builder.add(mCategoryCombo7, cc.xyw(3, 25, 1));
-        builder.addLabel("Category 8", cc.xy(1, 27));
-        builder.add(mCategoryCombo8, cc.xyw(3, 27, 1));
-        builder.addLabel("Category 9", cc.xy(1, 29));
-        builder.add(mCategoryCombo9, cc.xyw(3, 29, 1));
-        builder.addLabel("Category 10", cc.xy(1, 31));
-        builder.add(mCategoryCombo10, cc.xyw(3, 31, 1));
+        builder.add(mOptionsTable, cc.xyw(1, 11, 5));
+        builder.addSeparator("Categories", cc.xyw(1, 13, 5));
+        builder.addLabel("Category 1", cc.xy(1, 15));
+        builder.add(mCategoryCombo1, cc.xyw(3, 15, 1));
+        builder.addLabel("Category 2", cc.xy(1, 17));
+        builder.add(mCategoryCombo2, cc.xyw(3, 17, 1));
+        builder.addLabel("Category 3", cc.xy(1, 19));
+        builder.add(mCategoryCombo3, cc.xyw(3, 19, 1));
+        builder.addLabel("Category 4", cc.xy(1, 21));
+        builder.add(mCategoryCombo4, cc.xyw(3, 21, 1));
+        builder.addLabel("Category 5", cc.xy(1, 23));
+        builder.add(mCategoryCombo5, cc.xyw(3, 23, 1));
+        builder.addLabel("Category 6", cc.xy(1, 25));
+        builder.add(mCategoryCombo6, cc.xyw(3, 25, 1));
+        builder.addLabel("Category 7", cc.xy(1, 27));
+        builder.add(mCategoryCombo7, cc.xyw(3, 27, 1));
+        builder.addLabel("Category 8", cc.xy(1, 29));
+        builder.add(mCategoryCombo8, cc.xyw(3, 29, 1));
+        builder.addLabel("Category 9", cc.xy(1, 31));
+        builder.add(mCategoryCombo9, cc.xyw(3, 31, 1));
+        builder.addLabel("Category 10", cc.xy(1, 33));
+        builder.add(mCategoryCombo10, cc.xyw(3, 33, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -312,6 +318,7 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
         MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) mAppConfiguration;
         boolean first = musicConfiguration.getPaths().size() == 0 || musicConfiguration.getGroups().size() == 0;
         musicConfiguration.setName(mTitleField.getText());
+        musicConfiguration.setShared(mSharedField.isSelected());
         ArrayList newItems = new ArrayList();
         Iterator iterator = mColumnValues.iterator();
         while (iterator.hasNext()) {
@@ -383,4 +390,6 @@ public class MusicOrganizerOptionsPanel extends AppConfigurationPanel implements
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

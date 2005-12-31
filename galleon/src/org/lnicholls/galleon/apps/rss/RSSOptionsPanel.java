@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -47,6 +48,9 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         RSSConfiguration rssConfiguration = (RSSConfiguration) appConfiguration;
 
         mTitleField = new JTextField(rssConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(rssConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mNameField = new JTextField("");
         mFeedField = new JTextField("");
         mDescriptionField = new JTextField("");
@@ -54,11 +58,12 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         mPrivacyCombo = new JComboBox();
         mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.PRIVATE, RSSConfiguration.SharedFeed.PRIVATE));
         mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.PUBLIC, RSSConfiguration.SharedFeed.PUBLIC));
-        mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.FRIENDS, RSSConfiguration.SharedFeed.FRIENDS));
+        //mPrivacyCombo.addItem(new ComboWrapper(RSSConfiguration.SharedFeed.FRIENDS, RSSConfiguration.SharedFeed.FRIENDS));
         defaultCombo(mPrivacyCombo, RSSConfiguration.SharedFeed.PRIVATE);
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
                 + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // name
                 "3dlu, " + "pref, " + // feed
@@ -76,18 +81,19 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Feeds", cc.xyw(1, 5, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Feeds", cc.xyw(1, 7, 4));
 
-        builder.addLabel("Name", cc.xy(1, 7));
-        builder.add(mNameField, cc.xyw(3, 7, 1));
-        builder.addLabel("URL", cc.xy(1, 9));
-        builder.add(mFeedField, cc.xyw(3, 9, 1));
-        builder.addLabel("Description", cc.xy(1, 11));
-        builder.add(mDescriptionField, cc.xyw(3, 11, 1));
-        builder.addLabel("Tags", cc.xy(1, 13));
-        builder.add(mTagsField, cc.xyw(3, 13, 1));
-        builder.addLabel("Privacy", cc.xy(1, 15));
-        builder.add(mPrivacyCombo, cc.xyw(3, 15, 1));
+        builder.addLabel("Name", cc.xy(1, 9));
+        builder.add(mNameField, cc.xyw(3, 9, 1));
+        builder.addLabel("URL", cc.xy(1, 11));
+        builder.add(mFeedField, cc.xyw(3, 11, 1));
+        builder.addLabel("Description", cc.xy(1, 13));
+        builder.add(mDescriptionField, cc.xyw(3, 13, 1));
+        builder.addLabel("Tags", cc.xy(1, 15));
+        builder.add(mTagsField, cc.xyw(3, 15, 1));
+        builder.addLabel("Privacy", cc.xy(1, 17));
+        builder.add(mPrivacyCombo, cc.xyw(3, 17, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -115,7 +121,7 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         fields.add(mTagsField);
         fields.add(mPrivacyCombo);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 17, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 19, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -148,7 +154,8 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
             ArrayList rows = (ArrayList) iterator.next();
             newItems.add(new RSSConfiguration.SharedFeed((String) rows.get(0), (String) rows.get(1), (String) rows.get(2), (String) rows.get(3), (String) rows.get(4)));
         }
-        rssConfiguration.setFeeds(newItems);
+        rssConfiguration.setSharedFeeds(newItems);
+        rssConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -166,4 +173,6 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

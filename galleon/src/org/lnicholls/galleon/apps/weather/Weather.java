@@ -88,7 +88,7 @@ public class Weather extends DefaultApplication {
         	Tools.logException(Weather.class, ex);
         }
         
-        checkVersion(this);
+        initialize();
     }
 
     public class WeatherMenuScreen extends DefaultMenuScreen {
@@ -843,14 +843,11 @@ public class Weather extends DefaultApplication {
 
         public void initialize() {
             WeatherConfiguration weatherConfiguration = (WeatherConfiguration) getAppContext().getConfiguration();
-            weatherData = new WeatherData(weatherConfiguration.getId(), weatherConfiguration.getCity(),
-                    weatherConfiguration.getState(), weatherConfiguration.getZip(), 512, 384); // TODO get real
-            // dimensions
         }
-
+        
         public InputStream getStream(String uri) throws IOException {
         	if (uri.toLowerCase().equals("icon.png")) {
-        		if (weatherData.hasAlerts()) 
+        		if (getWeatherData().hasAlerts()) 
         			return super.getStream("alerticon.png");
             }
 
@@ -858,7 +855,13 @@ public class Weather extends DefaultApplication {
         }
 
         public WeatherData getWeatherData() {
-            return weatherData;
+            if (weatherData==null)
+            {
+            	WeatherConfiguration weatherConfiguration = (WeatherConfiguration) getAppContext().getConfiguration();
+                weatherData = new WeatherData(weatherConfiguration.getId(), weatherConfiguration.getCity(),
+                        weatherConfiguration.getState(), weatherConfiguration.getZip(), 512, 384); // TODO get real
+            }
+        	return weatherData;
         }
     }
 

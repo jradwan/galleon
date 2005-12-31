@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,6 +109,116 @@ public final class VideoFile {
 			Tools.logException(VideoFile.class, ex, filename);
 		}
 
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+			// {Lost}{2005-11-16}{The Other 48 Days}{10.00 PM Wed Nov 16, 2005}{KGO}.mpg 
+			// {SeriesTitle}{OriginalAirDate}{EpisodeTitle}{DateRecorded}{CallSign}
+			Pattern pattern = Pattern.compile("^\\{(.*)\\}\\{(.*)\\}\\{(.*)\\}\\{(.*)\\}\\{(.*)\\}$");
+			Matcher matcher = pattern.matcher(value);
+			if (matcher.find()) {
+				video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("yyyy-MM-dd"); // 2005-11-16
+					Date date = timeDateFormat.parse(matcher.group(2));
+					video.setOriginalAirDate(date);
+				}
+				catch (Exception ex) {}
+				video.setEpisodeTitle(matcher.group(3));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("HH.mm a EEE MMM dd, yyyy"); // 10.00 PM Wed Nov 16, 2005
+					Date date = timeDateFormat.parse(matcher.group(4));
+					video.setDateRecorded(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(5));
+			}
+		}
+		
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+			// Lost - ''Collision'' (Recorded Nov 23, 2005, KGO).TiVo;
+			// SeriesTitle [- ''EpisodeTitle''] (DateRecorded, CallSign)
+			Pattern pattern = Pattern.compile("^(.*) - ''(.*)'' \\(Recorded (.*), ([^,]*)\\)$");
+			Matcher matcher = pattern.matcher(value);
+			if (matcher.find()) {
+				video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				video.setEpisodeTitle(matcher.group(2));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("MMM dd, yyyy"); // Nov 23, 2005
+					Date date = timeDateFormat.parse(matcher.group(3));
+					video.setDateRecorded(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(4));
+			}
+		}
+		
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+			Pattern pattern = Pattern.compile("^([^-]*) \\(Recorded (.*), ([^,]*)\\)$");
+		    Matcher matcher = pattern.matcher(value);
+		    if (matcher.find()) {
+		    	video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("MMM dd, yyyy"); // Nov 23, 2005
+					Date date = timeDateFormat.parse(matcher.group(2));
+					video.setDateRecorded(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(3));
+		    }
+		}
+		
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+		    Pattern pattern = Pattern.compile("^(.*) - (.*) \\(Recorded (.*), ([^,]*)\\)$");
+		    Matcher matcher = pattern.matcher(value);
+		    if (matcher.find()) {
+		    	video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				video.setEpisodeTitle(matcher.group(2));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("EEE MMM d yyyy hh mma");  //Sat Nov 12 2005 08 00PM
+					Date date = timeDateFormat.parse(matcher.group(3));
+					video.setDateRecorded(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(4));
+		    }
+		}
+		
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+		    Pattern pattern = Pattern.compile("^([^-]*) \\(Recorded (.*), ([^,]*)\\)$");
+		    Matcher matcher = pattern.matcher(value);
+		    if (matcher.find()) {
+		    	video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("EEE MMM d yyyy hh mma");  //Sat Nov 12 2005 08 00PM
+					Date date = timeDateFormat.parse(matcher.group(2));
+					video.setDateRecorded(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(3));
+		    }
+		}
+		
 		if (video.getTitle().equals(DEFAULT_TITLE)) {
 			String value = Tools.trimSuffix(file.getName());
 			Pattern pattern = Pattern.compile("(.*) - (.*)");

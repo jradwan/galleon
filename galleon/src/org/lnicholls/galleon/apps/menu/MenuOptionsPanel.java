@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.jukebox;
+package org.lnicholls.galleon.apps.menu;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -17,8 +17,11 @@ package org.lnicholls.galleon.apps.jukebox;
  */
 
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -27,29 +30,29 @@ import javax.swing.text.JTextComponent;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
+import org.lnicholls.galleon.gui.OptionsTable;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-public class JukeboxOptionsPanel extends AppConfigurationPanel {
-	private static Logger log = Logger.getLogger(JukeboxOptionsPanel.class.getName());
+public class MenuOptionsPanel extends AppConfigurationPanel {
+	private static Logger log = Logger.getLogger(MenuOptionsPanel.class.getName());
 
-	public JukeboxOptionsPanel(AppConfiguration appConfiguration) {
+	public MenuOptionsPanel(AppConfiguration appConfiguration) {
 		super(appConfiguration);
 		setLayout(new GridLayout(0, 1));
 
-		JukeboxConfiguration musicConfiguration = (JukeboxConfiguration) appConfiguration;
+		MenuConfiguration trafficConfiguration = (MenuConfiguration) appConfiguration;
 
-		mTitleField = new JTextField(musicConfiguration.getName());
+		mTitleField = new JTextField(trafficConfiguration.getName());
 		mSharedField = new JCheckBox("Share");
-        mSharedField.setSelected(musicConfiguration.isShared());
+        mSharedField.setSelected(trafficConfiguration.isShared());
         mSharedField.setToolTipText("Share this app");
-
 		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
-				"9dlu, pref, " +  // title
-				"3dlu, pref " // share
-		);
+				"3dlu, " + "pref, " +  // title
+				"3dlu, " + "pref " // share
+				);
 
 		PanelBuilder builder = new PanelBuilder(layout);
 		// DefaultFormBuilder builder = new DefaultFormBuilder(new
@@ -68,9 +71,6 @@ public class JukeboxOptionsPanel extends AppConfigurationPanel {
 		add(panel);
 	}
 
-	public void load() {
-	}
-
 	public boolean valid() {
 		if (mTitleField.getText().trim().length() == 0) {
 			JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -79,10 +79,13 @@ public class JukeboxOptionsPanel extends AppConfigurationPanel {
 		return true;
 	}
 
+	public void load() {
+	}
+
 	public void save() {
-		JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) mAppConfiguration;
-		jukeboxConfiguration.setName(mTitleField.getText());
-		jukeboxConfiguration.setShared(mSharedField.isSelected());
+		MenuConfiguration trafficConfiguration = (MenuConfiguration) mAppConfiguration;
+		trafficConfiguration.setName(mTitleField.getText());
+		trafficConfiguration.setShared(mSharedField.isSelected());
 	}
 
 	private JTextComponent mTitleField;

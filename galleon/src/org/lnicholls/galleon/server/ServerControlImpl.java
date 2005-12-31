@@ -160,6 +160,10 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
 	public int getPort() throws RemoteException {
 		return Server.getServer().getPort();
 	}
+	
+	public int getHttpPort() throws RemoteException {
+		return Server.getServer().getHMOPort();
+	}
 
 	public List getPodcasts() throws RemoteException {
 		return Server.getServer().getPodcasts();
@@ -181,10 +185,6 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
 		return Server.getServer().isCurrentVersion();
 	}
 
-	public Object getCodeImage() throws RemoteException {
-		return Server.getServer().getCodeImage();
-	}
-
 	public List getDownloads() throws RemoteException {
 		return Server.getServer().getDownloads();
 	}
@@ -195,6 +195,10 @@ public class ServerControlImpl extends UnicastRemoteObject implements ServerCont
 
 	public void resumeDownload(Download download) throws RemoteException {
 		Server.getServer().resumeDownload(download);
+	}
+	
+	public void stopDownload(Download download) throws RemoteException {
+		Server.getServer().stopDownload(download);
 	}
 
 	public void setDisableTimeout(boolean value) throws RemoteException {

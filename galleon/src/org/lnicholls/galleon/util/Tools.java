@@ -459,6 +459,35 @@ public class Tools {
 		}
 		return "127.0.0.1";
 	}
+	
+	public static boolean isLocal(String address) {
+		if (address!=null)
+		{
+			try {
+				if (address.equals("127.0.0.1"))
+					return true;
+				String prefix = null;
+				StringTokenizer tokenizer = new StringTokenizer(address, ".");
+				if (tokenizer.hasMoreTokens())
+					prefix = tokenizer.nextToken();
+				if (prefix!=null)
+				{
+					for (Enumeration interfaceEnum = NetworkInterface.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
+						NetworkInterface ni = (NetworkInterface) interfaceEnum.nextElement();
+						Enumeration inetAddresses = ni.getInetAddresses();
+						while (inetAddresses.hasMoreElements()) {
+							InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
+							if (inetAddress.getHostAddress().startsWith(prefix))
+								return true;
+						}
+					}
+				}
+			} catch (Exception ex) {
+				Tools.logException(Tools.class, ex);
+			}
+		}
+		return false;
+	}
 
 	public static String getVersion() {
 		// TODO Handle development version
@@ -903,7 +932,9 @@ public class Tools {
 			FileChannel dstChannel = new FileOutputStream(dst).getChannel();
 			dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
 			srcChannel.close();
+			srcChannel = null;
 			dstChannel.close();
+			dstChannel = null;
 		} catch (IOException ex) {
 			Tools.logException(Tools.class, ex, dst.getAbsolutePath());
 		}

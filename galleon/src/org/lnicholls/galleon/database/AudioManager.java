@@ -72,9 +72,7 @@ public class AudioManager {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			audio.setComments(Tools.trim(audio.getComments(), 4096));
-			audio.setLyrics(Tools.trim(audio.getLyrics(), 4096));
-			session.save(audio);
+			session.save(trim(audio));
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -92,9 +90,7 @@ public class AudioManager {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			audio.setComments(Tools.trim(audio.getComments(), 4096));
-			audio.setLyrics(Tools.trim(audio.getLyrics(), 4096));
-			session.update(audio);
+			session.update(trim(audio));
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -427,5 +423,22 @@ public class AudioManager {
 		} finally {
 			HibernateUtil.closeSession();
 		}
+	}
+	
+	private static Audio trim (Audio audio)
+	{
+		audio.setAlbum(Tools.trim(audio.getAlbum(), 255));
+		audio.setArtist(Tools.trim(audio.getArtist(), 255));
+		audio.setComments(Tools.trim(audio.getComments(), 4096));
+		audio.setExternalId(Tools.trim(audio.getExternalId(), 255));
+		audio.setGenre(Tools.trim(audio.getGenre(), 50));
+		audio.setLyrics(Tools.trim(audio.getLyrics(), 4096));
+		audio.setMimeType(Tools.trim(audio.getMimeType(), 50));
+		audio.setOrigen(Tools.trim(audio.getOrigen(), 30));
+		audio.setPath(Tools.trim(audio.getPath(), 1024));
+		audio.setTitle(Tools.trim(audio.getTitle(), 255));
+		audio.setTone(Tools.trim(audio.getTone(), 50));
+		return audio;
+		
 	}
 }

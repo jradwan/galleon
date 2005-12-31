@@ -36,8 +36,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Constants;
@@ -49,9 +52,11 @@ import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
+import org.lnicholls.galleon.media.*;
 
 import com.tivo.hme.host.http.server.HttpRequest;
 import com.tivo.hme.host.http.server.HttpServer;
+import com.tivo.hme.host.http.share.Headers;
 import com.tivo.hme.host.util.Config;
 
 public class VideoServer extends HttpServer {
@@ -92,6 +97,8 @@ public class VideoServer extends HttpServer {
 	public void handle(HttpRequest httprequest) throws IOException {
 		String s = httprequest.getURI();
 		log.debug(s);
+		String remoteAddress = httprequest.getInetAddress().getHostAddress();
+		log.debug(remoteAddress);
 
 		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
 		GoBackConfiguration goBackConfiguration = serverConfiguration.getGoBackConfiguration();
@@ -104,7 +111,7 @@ public class VideoServer extends HttpServer {
 				PrintWriter printWriter = null;
 				try {
 					httprequest.reply(200, "Success");
-					String container = getContainer(itemURL);
+					String container = getContainer(itemURL, remoteAddress);
 					OutputStream outputstream = httprequest.getOutputStream(container.length());
 					printWriter = new PrintWriter(outputstream);
 					printWriter.print(container);
@@ -154,10 +161,12 @@ public class VideoServer extends HttpServer {
 							httprequest.reply(200, "Success");
 
 							String details = getVideoDetails(file);
-							log.debug(details);
-							OutputStream outputstream = httprequest.getOutputStream(details.length());
-							printWriter = new PrintWriter(outputstream);
-							printWriter.print(details);
+							if (details!=null)
+							{
+								OutputStream outputstream = httprequest.getOutputStream(details.length());
+								printWriter = new PrintWriter(outputstream);
+								printWriter.print(details);
+							}
 						} finally {
 							if (printWriter != null)
 								printWriter.close();
@@ -175,7 +184,9 @@ public class VideoServer extends HttpServer {
 				if (itemURL.getPath().startsWith("/TiVoConnect/GalleonRecordings/"))
 					path = serverConfiguration.getRecordingsPath() + "/"
 							+ itemURL.getPath().substring("/TiVoConnect/GalleonRecordings/".length());
-				else {
+				else 
+				if (itemURL.getPath().startsWith("/TiVoConnect/GalleonExtra/"))  
+				{
 					String container = itemURL.getPath().substring("/TiVoConnect/GalleonExtra/".length());
 					StringTokenizer tokenizer = new StringTokenizer(container, "/");
 					if (tokenizer.hasMoreTokens()) {
@@ -197,86 +208,128 @@ public class VideoServer extends HttpServer {
 						}
 					}
 				}
-
-				File file = new File(path);
-				if (!file.exists()) {
-					// Handle shortcuts
-					File directory = new File(serverConfiguration.getRecordingsPath());
-					FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
-							true);
-					List files = fileSystemContainer.getItems(FileFilters.videoFilter);
-					for (int i = 0; i < files.size(); i++) {
-						Item nameFile = (Item) files.get(i);
-						File match = (File) nameFile.getValue();
-						if (match.getName().equals(path)) {
-							file = match;
-							break;
+				if (path!=null)
+				{
+					File file = new File(path);
+					if (!file.exists()) {
+						// Handle shortcuts
+						File directory = new File(serverConfiguration.getRecordingsPath());
+						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
+								true);
+						List files = fileSystemContainer.getItems(FileFilters.videoFilter);
+						for (int i = 0; i < files.size(); i++) {
+							Item nameFile = (Item) files.get(i);
+							File match = (File) nameFile.getValue();
+							if (match.getName().equals(path)) {
+								file = match;
+								break;
+							}
 						}
 					}
-				}
-
-				if (file.exists()) {
-					httprequest.reply(200, "Success");
-					InputStream inputstream = new FileInputStream(file);
-					if (inputstream!=null)
-					{
-						if (itemURL.getParameter(Constants.PARAMETER_SEEK)!=null)
+					if (file.exists()) {
+						InputStream inputstream = new FileInputStream(file);
+						if (inputstream!=null && inputstream.available()>0)
 						{
-							try {
-								int seek = Integer.parseInt(itemURL.getParameter(Constants.PARAMETER_SEEK));
-								inputstream.skip(seek);
-							} catch (Exception ex) {
-							}	
-						}
-						
-						try {
-							long startTime = System.currentTimeMillis(); 
-							OutputStream outputstream = new BufferedOutputStream(httprequest.getOutputStream(inputstream.available()));
-							byte abyte0[] = new byte[4380];
-							int i;
-							while ((i = inputstream.read(abyte0, 0, abyte0.length)) > 0)
-								outputstream.write(abyte0, 0, i);
-							outputstream.close();
-							long endTime = System.currentTimeMillis();
-	
-							Video video = null;
-							try {
-								List list = VideoManager.findByPath(file.getCanonicalPath());
-								if (list != null && list.size() > 0) {
-									video = (Video) list.get(0);
-								} else {
-									path = file.getAbsolutePath();
-									path = path.substring(0, 1).toLowerCase() + path.substring(1);
-									list = VideoManager.findByPath(path);
-									if (list != null && list.size() > 0) {
-										video = (Video) list.get(0);
-									}
-								}
-								if (video!=null)
+							if (itemURL.getParameter(Constants.PARAMETER_SEEK)!=null)
+							{
+								httprequest.reply(206, "Partial Content");
+								try {
+									int seek = Integer.parseInt(itemURL.getParameter(Constants.PARAMETER_SEEK));
+									inputstream.skip(seek);
+								} catch (Exception ex) {
+								}	
+							}
+							else
+							{
+								Headers headers = httprequest.getHeaders();
+								String range = headers.get("range");
+								if (range!=null)
 								{
-									video.setDateUploaded(new Date());
-									VideoManager.updateVideo(video);
+									Pattern pattern = Pattern.compile("bytes=(.*)-");
+									Matcher matcher = pattern.matcher(range);
+									if (matcher.find()) {
+							           range = matcher.group(1);
+									}
+									try {
+										int seek = Integer.parseInt(range);
+										log.debug("retry at: "+seek);
+										if (seek>0)
+										{
+											httprequest.reply(206, "Partial Content");
+											inputstream.skip(seek);
+										}
+										else
+											httprequest.reply(200, "Success");
+									} catch (Exception ex) {
+									}	
 								}
-							} catch (Exception ex) {
-								Tools.logException(VideoServer.class, ex);
+								else
+									httprequest.reply(200, "Success");
 							}
 							
-							log.info("GoBack upload duration: " + (endTime - startTime) / 1000 + " sec for " + file);
-						} finally {
-							inputstream.close();
+							try {
+								long startTime = System.currentTimeMillis();
+								long lastTime = startTime;
+								PersistentValueManager.savePersistentValue("VideoServer.lastUpdate", new Date().toString());
+								OutputStream outputstream = httprequest.getOutputStream(inputstream.available());
+								byte abyte0[] = new byte[4380];
+								int i;
+								while ((i = inputstream.read(abyte0, 0, abyte0.length)) > 0)
+								{
+									outputstream.write(abyte0, 0, i);
+									
+									if ((System.currentTimeMillis()-lastTime) > 1000*30)
+									{
+										PersistentValueManager.savePersistentValue("VideoServer.lastUpdate", new Date().toString());
+										lastTime = System.currentTimeMillis();
+									}
+								}
+								outputstream.close();
+								long endTime = System.currentTimeMillis();
+		
+								Video video = null;
+								try {
+									List list = VideoManager.findByPath(file.getCanonicalPath());
+									if (list != null && list.size() > 0) {
+										video = (Video) list.get(0);
+									} else {
+										path = file.getAbsolutePath();
+										path = path.substring(0, 1).toLowerCase() + path.substring(1);
+										list = VideoManager.findByPath(path);
+										if (list != null && list.size() > 0) {
+											video = (Video) list.get(0);
+										}
+									}
+									if (video!=null)
+									{
+										video.setDateUploaded(new Date());
+										video.setUploaded(remoteAddress);
+										VideoManager.updateVideo(video);
+									}
+								} catch (Exception ex) {
+									Tools.logException(VideoServer.class, ex);
+								}
+								
+								log.info("GoBack upload duration: " + (endTime - startTime) / 1000 + " sec for " + file);
+							} finally {
+								inputstream.close();
+							}
 						}
-					}
-				} else
+					} else
+						httprequest.reply(404, "File not found");
+				}
+				else
 					httprequest.reply(404, "File not found");
-
 			} catch (IOException ioexception1) {
 				log.debug(httprequest.getInetAddress().getHostAddress() + " I/O Exception handling " + " HTTP "
 						+ httprequest.getMethod() + " " + s + ": " + ioexception1.getMessage());
+			} catch (Exception ex) {
+				Tools.logException(VideoServer.class, ex);
 			}
 		}
 	}
 
-	private String getContainer(ItemURL itemURL) {
+	private String getContainer(ItemURL itemURL, String address) {
 		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
 		GoBackConfiguration goBackConfiguration = serverConfiguration.getGoBackConfiguration();
 
@@ -285,6 +338,51 @@ public class VideoServer extends HttpServer {
 			if (itemURL.getParameter(Constants.PARAMETER_CONTAINER).equals("/")) {
 				StringBuffer buffer = new StringBuffer();
 				synchronized (buffer) {
+					if (!Tools.isLocal(address) && serverConfiguration.canShare())
+					{
+						log.info("Remote connection: "+address);
+						List apps = Server.getServer().getAppUrls(true);
+						int counter = apps.size();
+						
+						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
+						buffer.append("<TiVoContainer>\n");
+						buffer.append("<Details>\n");
+						buffer.append("<Title>" + mHost + "</Title>\n");
+						buffer.append("<ContentType>x-container/tivo-server</ContentType>\n");
+						buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
+						buffer.append("<TotalItems>" + counter + "</TotalItems>\n");
+						buffer.append("</Details>\n");
+						if (apps.size() > 0)
+						{
+							Pattern pattern = Pattern.compile("^http://(.*):(.*)/(.*)/$");
+							Iterator iterator = apps.iterator();
+							while (iterator.hasNext())
+							{
+								NameValue nameValue = (NameValue)iterator.next();
+								Matcher matcher = pattern.matcher(nameValue.getValue());
+								if (matcher.find()) {
+									buffer.append("<Item>\n");
+									buffer.append("<Details>\n");
+									buffer.append("<ContentType>application/x-hme</ContentType>\n");
+									buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
+									buffer.append("<Title>"+Tools.escapeXMLChars(nameValue.getName())+"</Title>\n");
+									buffer.append("</Details>\n");
+									buffer.append("<Links>\n");
+									buffer.append("<Content>\n");
+									buffer.append("<Url>"+"http://"+serverConfiguration.getPublicIPAddress()+":"+serverConfiguration.getPort()+"/"+matcher.group(3)+"/"+"</Url>\n");
+									buffer.append("</Content>\n");
+									buffer.append("</Links>\n");
+									buffer.append("</Item>\n");
+								}
+							}
+						}
+
+						buffer.append("<ItemStart>0</ItemStart>\n");
+						buffer.append("<ItemCount>" + counter + "</ItemCount>\n");
+						buffer.append("</TiVoContainer>\n");
+						buffer.append("<!-- Copyright (c) 2005, 2006 Leon Nicholls. All rights reserved.-->\n");
+					}
+					else
 					if (goBackConfiguration.isEnabled()) {
 						int counter = 0;
 						if (goBackConfiguration.isPublishTiVoRecordings())
@@ -293,7 +391,7 @@ public class VideoServer extends HttpServer {
 							counter = counter + goBackConfiguration.getPaths().size();
 						if (mPublished.size() > 0)
 							counter = counter + mPublished.size();
-
+						
 						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
 						buffer.append("<TiVoContainer>\n");
 						buffer.append("<Details>\n");
@@ -376,7 +474,7 @@ public class VideoServer extends HttpServer {
 						buffer.append("<ItemStart>0</ItemStart>\n");
 						buffer.append("<ItemCount>" + counter + "</ItemCount>\n");
 						buffer.append("</TiVoContainer>\n");
-						buffer.append("<!-- Copyright (c) 2005 Leon Nicholls. All rights reserved.-->\n");
+						buffer.append("<!-- Copyright (c) 2005, 2006 Leon Nicholls. All rights reserved.-->\n");
 					} else {
 						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
 						buffer.append("<TiVoContainer>\n");
@@ -389,7 +487,7 @@ public class VideoServer extends HttpServer {
 						buffer.append("<ItemStart>0</ItemStart>\n");
 						buffer.append("<ItemCount>0</ItemCount>\n");
 						buffer.append("</TiVoContainer>\n");
-						buffer.append("<!-- Copyright (c) 2005 Leon Nicholls. All rights reserved.-->\n");
+						buffer.append("<!-- Copyright (c) 2005, 2006 Leon Nicholls. All rights reserved.-->\n");
 					}
 				}
 				return buffer.toString();
@@ -411,7 +509,10 @@ public class VideoServer extends HttpServer {
 								while (iterator.hasNext()) {
 									NameValue nameValue = (NameValue) iterator.next();
 									if (nameValue.getName().equals(name)) {
-										directory = new File(nameValue.getValue());
+										String rest = "";
+										while (tokenizer.hasMoreTokens()) 
+											rest = rest + "/" + tokenizer.nextToken();
+										directory = new File(nameValue.getValue()+rest);
 										break;
 									}
 								}
@@ -419,9 +520,21 @@ public class VideoServer extends HttpServer {
 						}
 					}
 
-					FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
-							true);
-					List files = fileSystemContainer.getItemsSorted(FileFilters.videoFilter);
+					boolean folders = false;
+					List files = new ArrayList();
+					if (itemURL.getParameter(Constants.PARAMETER_RECURSE) != null)
+					{
+						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
+								true);
+						files = fileSystemContainer.getItemsSorted(FileFilters.videoFilter);
+					}
+					else
+					{
+						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
+								false);
+						files = fileSystemContainer.getItemsSorted(FileFilters.videoDirectoryFilter);
+						folders = true;
+					}
 
 					if (itemURL.getParameter(Constants.PARAMETER_SORT_ORDER) != null) {
 						if (!itemURL.getParameter(Constants.PARAMETER_SORT_ORDER)
@@ -447,6 +560,11 @@ public class VideoServer extends HttpServer {
 								} catch (Exception ex) {
 									Tools.logException(VideoServer.class, ex);
 								}
+								
+								if (video == null) {
+									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
+								}
+								
 								long date = file.lastModified();
 								if (video != null) {
 									if (video.getOriginalAirDate() != null)
@@ -494,9 +612,19 @@ public class VideoServer extends HttpServer {
 							ItemURL anchorItemURL = new ItemURL(anchorItem);
 							String path = null;
 							if (anchorItemURL.getPath().startsWith("/TiVoConnect/GalleonRecordings/")) {
+								// TODO add real path
 								path = anchorItemURL.getPath().substring("/TiVoConnect/GalleonRecordings/".length());
 							} else {
-								String container = anchorItemURL.getPath().substring(
+								String container = anchorItemURL.getParameter(Constants.PARAMETER_CONTAINER);
+								if (container!=null)
+								{
+									if (container.indexOf("GalleonExtra/")!=-1)
+										container = container.substring(
+											"GalleonExtra/".length());
+								}
+								else
+								if (anchorItemURL.getPath().indexOf("/TiVoConnect/GalleonExtra/")!=-1)
+									container = anchorItemURL.getPath().substring(
 										"/TiVoConnect/GalleonExtra/".length());
 								StringTokenizer tokenizer = new StringTokenizer(container, "/");
 								if (tokenizer.hasMoreTokens()) {
@@ -510,33 +638,42 @@ public class VideoServer extends HttpServer {
 									while (iterator.hasNext()) {
 										NameValue nameValue = (NameValue) iterator.next();
 										if (nameValue.getName().equals(extra)) {
-											path = tokenizer.nextToken();
-											while (tokenizer.hasMoreTokens())
-												path = path + "/" + tokenizer.nextToken();
+											String rest = "";
+											while (tokenizer.hasMoreTokens()) 
+												rest = rest + "/" + tokenizer.nextToken();
+											path = nameValue.getValue()+rest;
 											break;
 										}
 									}
 
 								}
 							}
-							path = path.replaceAll("\\\\", "/");
-							for (int i = 0; i < files.size(); i++) {
-								Item nameFile = (Item) files.get(i);
-								File file = (File) nameFile.getValue();
-								String filePath = getFilePath(file, directory);
-								if (filePath.equals(path)) {
-									start = i;
-									String anchorOffset = itemURL.getParameter(Constants.PARAMETER_ANCHOR_OFFSET);
-									if (anchorOffset != null) {
-										try {
-											start = start + Integer.parseInt(anchorOffset) + 1;
-										} catch (Exception ex) {
+							if (path!=null)
+							{
+								path = path.replaceAll("\\\\", "/");
+								File pathFile = new File(path);
+								for (int i = 0; i < files.size(); i++) {
+									Item nameFile = (Item) files.get(i);
+									File file = (File) nameFile.getValue();
+									String filePath = getFilePath(file, directory);
+									
+									boolean match = pathFile.equals(file) || filePath.equals(path);
+									
+									if (match) {
+										start = i;
+										String anchorOffset = itemURL.getParameter(Constants.PARAMETER_ANCHOR_OFFSET);
+										if (anchorOffset != null) {
+											try {
+												start = start + Integer.parseInt(anchorOffset) + 1;
+											} catch (Exception ex) {
+											}
 										}
+										break;
 									}
-									break;
 								}
 							}
 						}
+						
 						if (start < 0)
 							start = 0;
 
@@ -553,7 +690,7 @@ public class VideoServer extends HttpServer {
 								limit = -limit;
 							}
 						}
-
+						
 						if (itemCount == 1) {
 							Item nameFile = (Item) files.get(start);
 							String filename = nameFile.getName();
@@ -589,8 +726,8 @@ public class VideoServer extends HttpServer {
 								buffer.append("<Item>\n");
 								buffer.append("<Details>\n");
 								buffer.append("<Title>" + Tools.escapeXMLChars(filename) + "</Title>\n");
-								buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-								buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
+								buffer.append("<ContentType>x-tivo-container/folder</ContentType>\n");
+								buffer.append("<SourceFormat>x-tivo-container/tivo-dvr</SourceFormat>\n");
 								buffer.append("<LastChangeDate>0x" + Tools.dateToHex(new Date(file.lastModified()))
 										+ "</LastChangeDate>\n");
 								buffer.append("</Details>\n");
@@ -602,8 +739,8 @@ public class VideoServer extends HttpServer {
 										+ Server.getServer().getHMOPort()
 										+ "/TiVoConnect?Command=QueryContainer&amp;Container="
 										+ URLEncoder.encode(itemURL.getParameter(Constants.PARAMETER_CONTAINER) + "/"
-												+ filePath) + "</Url>\n");
-								buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
+												+ Tools.escapeXMLChars(filePath)) + "</Url>\n");
+								buffer.append("<ContentType>x-tivo-container/folder</ContentType>\n");
 								buffer.append("</Content>\n");
 								buffer.append("</Links>\n");
 								buffer.append("</Item>\n");
@@ -624,8 +761,18 @@ public class VideoServer extends HttpServer {
 								} catch (Exception ex) {
 									log.error("Video retrieve failed", ex);
 								}
+								
+								if (video == null) {
+									try {
+										video = (Video)MediaManager.getMedia(file.getAbsolutePath());
+										VideoManager.createVideo(video);
+									} catch (Exception ex) {
+										log.error("Video create failed", ex);
+									}
+								}
+								
 								// TODO Why details for not tivo does not work?
-								if (video == null || !file.getName().toLowerCase().endsWith(".tivo")) {
+								if (video == null ) { // || !file.getName().toLowerCase().endsWith(".tivo")) {
 									buffer.append("<Item>\n");
 									buffer.append("<Details>\n");
 									buffer.append("<Title>" + Tools.escapeXMLChars(filename) + "</Title>\n");
@@ -648,7 +795,7 @@ public class VideoServer extends HttpServer {
 													+ "/" + Tools.escapeXMLChars(filePath)) + "</Url>\n");
 									buffer.append("</Content>\n");
 									buffer.append("<CustomIcon>\n");
-									buffer.append("<ContentType>image/*</ContentType>\n");
+									buffer.append("<ContentType>video/*</ContentType>\n");
 									buffer.append("<AcceptsParams>No</AcceptsParams>\n");
 									buffer.append("<Url>urn:tivo:image:save-until-i-delete-recording</Url>\n");
 									buffer.append("</CustomIcon>\n");
@@ -708,7 +855,7 @@ public class VideoServer extends HttpServer {
 													+ "/" + Tools.escapeXMLChars(filePath)) + "</Url>\n");
 									buffer.append("</Content>\n");
 									buffer.append("<CustomIcon>\n");
-									buffer.append("<ContentType>image/*</ContentType>\n");
+									buffer.append("<ContentType>video/*</ContentType>\n");
 									buffer.append("<AcceptsParams>No</AcceptsParams>\n");
 									buffer.append("<Url>urn:tivo:image:save-until-i-delete-recording</Url>\n");
 									buffer.append("</CustomIcon>\n");
@@ -726,7 +873,7 @@ public class VideoServer extends HttpServer {
 							}
 						}
 						buffer.append("</TiVoContainer>\n");
-						buffer.append("<!-- Copyright (c) 2005 Leon Nicholls. All rights reserved.-->\n");
+						buffer.append("<!-- Copyright (c) 2005, 2006 Leon Nicholls. All rights reserved.-->\n");
 						return buffer.toString();
 					}
 				} catch (Exception ex) {
@@ -1029,19 +1176,19 @@ public class VideoServer extends HttpServer {
 		try {
 			List list = VideoManager.findByPath(file.getCanonicalPath());
 			if (list != null && list.size() > 0) {
-				video = (Video) list.get(0);
+				return (Video) list.get(0);
 			} else {
 				String path = file.getAbsolutePath();
 				path = path.substring(0, 1).toLowerCase() + path.substring(1);
 				list = VideoManager.findByPath(path);
 				if (list != null && list.size() > 0) {
-					video = (Video) list.get(0);
+					return (Video) list.get(0);
 				}
 			}
 		} catch (Exception ex) {
 			log.error("Video retrieve failed", ex);
 		}
-		return video;
+		return (Video)MediaManager.getMedia(file.getAbsolutePath());
 	}
 
 	public void publish(NameValue nameValue) {

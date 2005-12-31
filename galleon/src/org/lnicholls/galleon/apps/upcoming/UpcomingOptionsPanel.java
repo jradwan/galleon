@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -51,6 +52,9 @@ public class UpcomingOptionsPanel extends AppConfigurationPanel {
 		UpcomingConfiguration upcomingConfiguration = (UpcomingConfiguration) appConfiguration;
 
 		mTitleField = new JTextField(upcomingConfiguration.getName());
+		mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(upcomingConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 		mNameField = new JTextField("");
 		mCountryCombo = new JComboBox();
 		mCountryCombo.addItem(new ComboWrapper("", ""));
@@ -154,6 +158,7 @@ public class UpcomingOptionsPanel extends AppConfigurationPanel {
 
 		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
 				+ // title
+				"3dlu, " + "pref, " + // share
 				"9dlu, " + "pref, " + // Metros
 				"9dlu, " + "pref, " + // country
 				"3dlu, " + "pref, " + // state
@@ -170,14 +175,15 @@ public class UpcomingOptionsPanel extends AppConfigurationPanel {
 		builder.addSeparator("General", cc.xyw(1, 1, 4));
 		builder.addLabel("Title", cc.xy(1, 3));
 		builder.add(mTitleField, cc.xyw(3, 3, 1));
-		builder.addSeparator("Metros", cc.xyw(1, 5, 4));
+		builder.add(mSharedField, cc.xyw(3, 5, 1));
+		builder.addSeparator("Metros", cc.xyw(1, 7, 4));
 
-		builder.addLabel("Country", cc.xy(1, 7));
-		builder.add(mCountryCombo, cc.xyw(3, 7, 1));
-		builder.addLabel("State", cc.xy(1, 9));
-		builder.add(mStateCombo, cc.xyw(3, 9, 1));
-		builder.addLabel("Metro", cc.xy(1, 11));
-		builder.add(mMetroCombo, cc.xyw(3, 11, 1));
+		builder.addLabel("Country", cc.xy(1, 9));
+		builder.add(mCountryCombo, cc.xyw(3, 9, 1));
+		builder.addLabel("State", cc.xy(1, 11));
+		builder.add(mStateCombo, cc.xyw(3, 11, 1));
+		builder.addLabel("Metro", cc.xy(1, 13));
+		builder.add(mMetroCombo, cc.xyw(3, 13, 1));
 
 		mColumnValues = new ArrayList();
 		int counter = 0;
@@ -199,7 +205,7 @@ public class UpcomingOptionsPanel extends AppConfigurationPanel {
 		fields.add(mStateCombo);
 		fields.add(mMetroCombo);
 		mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-		builder.add(mOptionsTable, cc.xyw(1, 13, 4));
+		builder.add(mOptionsTable, cc.xyw(1, 15, 4));
 
 		JPanel panel = builder.getPanel();
 		// FormDebugUtils.dumpAll(panel);
@@ -233,6 +239,7 @@ public class UpcomingOptionsPanel extends AppConfigurationPanel {
 					.get(2)));
 		}
 		upcomingConfiguration.setLocations(newItems);
+		upcomingConfiguration.setShared(mSharedField.isSelected());
 	}
 
 	private JTextComponent mTitleField;
@@ -254,4 +261,6 @@ public class UpcomingOptionsPanel extends AppConfigurationPanel {
 	private List mStates;
 
 	private List mMetros;
+	
+	private JCheckBox mSharedField;
 }

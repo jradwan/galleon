@@ -72,6 +72,14 @@ public class ServerConfiguration implements Serializable {
     public int getPort() {
         return mPort;
     }
+    
+    public void setHttpPort(int port) {
+        mHttpPort = port;
+    }
+
+    public int getHttpPort() {
+        return mHttpPort;
+    }    
 
     public void setIPAddress(String ipaddress) {
         if (ipaddress.length() > 0) {
@@ -90,6 +98,32 @@ public class ServerConfiguration implements Serializable {
         	return Tools.getLocalIpAddress();
     	return mIPAddress;
     }
+    
+    public void setPublicIPAddress(String ipaddress) {
+        if (ipaddress.length() > 0) {
+            try {
+                InetAddress address = InetAddress.getByName(ipaddress);
+                mPublicIPAddress = ipaddress;
+                return;
+            } catch (UnknownHostException ex) {
+            }
+        }
+        mPublicIPAddress = "";
+    }
+
+    public String getPublicIPAddress() {
+        if (mPublicIPAddress==null)
+        	return "";
+    	return mPublicIPAddress;
+    }
+    
+    public void setPin(String value) {
+        mPin = value;
+    }
+
+    public String getPin() {
+        return mPin;
+    }    
 
     public void setShuffleItems(boolean shuffleItems) {
         mShuffleItems = shuffleItems;
@@ -181,6 +215,14 @@ public class ServerConfiguration implements Serializable {
         return mDisableTimeout;
     }
     
+    public void setMenu(boolean value) {
+        mMenu = value;
+    }
+
+    public boolean isMenu() {
+        return mMenu;
+    }    
+    
     public void setMusicPlayerConfiguration(MusicPlayerConfiguration value) {
         mMusicPlayerConfiguration = value;
     }
@@ -213,6 +255,11 @@ public class ServerConfiguration implements Serializable {
         return mDownloadConfiguration;
     }
     
+    public boolean canShare()
+    {
+    	return getPublicIPAddress()!=null && getPublicIPAddress().trim().length()>0 && getPin()!=null && getPin().trim().length() > 0;
+    }
+    
     private String mVersion = Tools.getVersion();
 
     private String mName;
@@ -220,8 +267,14 @@ public class ServerConfiguration implements Serializable {
     private int mReload = 60;
 
     private int mPort = 7288;
+    
+    private int mHttpPort = 8081;
 
     private String mIPAddress;
+    
+    private String mPublicIPAddress;
+    
+    private String mPin;
 
     private boolean mShuffleItems = true; // defaults to true, the same shuffle style as the TiVo HMO server.
 
@@ -240,6 +293,8 @@ public class ServerConfiguration implements Serializable {
     private boolean mDebug;
     
     private boolean mDisableTimeout;
+    
+    private boolean mMenu;
     
     private MusicPlayerConfiguration mMusicPlayerConfiguration = new MusicPlayerConfiguration();
     

@@ -60,12 +60,6 @@ import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-/**
- * @author Owner
- * 
- * TODO To change the template for this generated type comment go to Window - Preferences - Java - Code Style - Code
- * Templates
- */
 public class RecordedPanel extends JPanel {
 
     private static Logger log = Logger.getLogger(RecordedPanel.class.getName());
@@ -85,9 +79,9 @@ public class RecordedPanel extends JPanel {
     }
 
     private static final ColumnData mColumns[] = { new ColumnData(" ", 5, JLabel.CENTER),
-            new ColumnData("Title", 160, JLabel.LEFT), new ColumnData("Episode", 140, JLabel.LEFT),
-            new ColumnData("Date Recorded", 80, JLabel.RIGHT), new ColumnData("Duration", 30, JLabel.RIGHT),
-            new ColumnData("Size", 30, JLabel.RIGHT), new ColumnData("Status", 100, JLabel.RIGHT) };
+        new ColumnData("Title", 160, JLabel.LEFT), new ColumnData("Episode", 140, JLabel.LEFT),
+        new ColumnData("Date Recorded", 80, JLabel.RIGHT), new ColumnData("Duration", 30, JLabel.RIGHT),
+        new ColumnData("Size", 30, JLabel.RIGHT), new ColumnData("Status", 100, JLabel.RIGHT) };
 
     public RecordedPanel() {
         super();
@@ -237,7 +231,7 @@ public class RecordedPanel extends JPanel {
             if (nCol == 0)
             {
                 Video show = (Video) mRecorded.get(nRow);
-                return show.getStatus()!=Video.STATUS_RECORDING;
+                return show.getStatus()!=Video.STATUS_RECORDING && show.getStatus()!=Video.STATUS_DOWNLOADED;
             }
             else
                 return false;
@@ -536,7 +530,8 @@ public class RecordedPanel extends JPanel {
                     }
                     catch (Exception ex)
                     {
-                        return;
+                    	Tools.logException(RecordedPanel.class, ex); 
+                    	return;
                     }
                 }
             }

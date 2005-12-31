@@ -35,11 +35,14 @@ import com.tivo.hme.host.sample.Main;
 import com.tivo.hme.host.util.*;
 import com.tivo.hme.interfaces.IFactory;
 
+import org.lnicholls.galleon.apps.menu.Menu;
 import org.lnicholls.galleon.database.Application;
 import org.lnicholls.galleon.database.ApplicationManager;
+import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.*;
+import org.lnicholls.galleon.data.*;
 
 /**
  * Manage all app jar files. The directory in which app jars are deployed are scanned and queried for their app
@@ -59,6 +62,16 @@ public final class AppManager {
         mHMEApps = new ArrayList();
         //mAppFactory = new AppFactory(this);
         //loadAppDescriptors();
+        
+        Server.getServer().scheduleData(new ReloadTask(new ReloadCallback() {
+            public void reload() {
+                try {
+                	Users.updateApplications(Server.getServer().getDataConfiguration());
+                } catch (Exception ex) {
+                    log.error("Could updata data", ex);
+                }
+            }
+        }), 60*24);
     }
     
     public void loadApps() {
@@ -77,12 +90,66 @@ public final class AppManager {
         
         try
     	{
-        	getAppHost().listen();
+        	if (Server.getServer().getServerConfiguration().isMenu())
+        	{
+        		Iterator iterator = mAppDescriptors.iterator();
+        		while (iterator.hasNext())
+        		{
+        			AppDescriptor appDescriptor = (AppDescriptor)iterator.next();
+        			if (appDescriptor.getClassName().equals("org.lnicholls.galleon.apps.menu.Menu"))
+        			{
+        				AppContext appContext =  new AppContext(appDescriptor);
+        				ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+        				appContext.setTitle(serverConfiguration.getName());
+                		IFactory factory = createApp(appContext);
+                		break;
+        			}
+        		}
+        		
+        		getAppHost().listen(false);
+        	}
+        	else
+        		getAppHost().listen(true);
     	}
     	catch (Exception ex)
     	{
     		log.error("Could not listen", ex);
     	}
+    }
+    
+    public List getAppUrls(boolean shared)
+    {
+    	ArrayList list = new ArrayList();
+    	try
+    	{
+    		Iterator iterator = getAppHost().getAppUrls().iterator();
+    		while (iterator.hasNext())
+    		{
+    			NameValue nameValue = (NameValue)iterator.next();
+    			if (!nameValue.getName().startsWith("org.lnicholls.galleon.apps.menu.Menu"))
+    			{
+    				Iterator appsIterator = mApps.iterator();
+	    	        while (appsIterator.hasNext()) {
+	    	            Factory app = (Factory) appsIterator.next();
+	    	            if (app instanceof AppFactory)
+	    	            {
+	    	            	AppFactory appFactory = (AppFactory)app;
+	    	            	AppConfiguration appConfiguration = (AppConfiguration)appFactory.getAppContext().getConfiguration();
+	    	            	if (shared && !appConfiguration.isShared())
+	    	            		continue;
+	    	            	AppDescriptor appDescriptor = appFactory.getAppContext().getDescriptor();
+		    	            if (nameValue.getName().startsWith(appDescriptor.getClassName()))
+		    	            {
+		    	            	list.add(new NameValue(appConfiguration.getName(), nameValue.getValue()));
+		    	                break;
+		    	            }
+	    	            }
+	    	        }
+    			}
+    		}
+    	}
+    	catch (Exception ex) {}
+    	return list;
     }
 
     private void getJars() {
@@ -183,7 +250,16 @@ public final class AppManager {
     */
 
     public List getAppDescriptors() {
-    	return mAppDescriptors;
+    	ArrayList list = new ArrayList();
+    	Iterator iterator = mAppDescriptors.iterator();
+		while (iterator.hasNext())
+		{
+			AppDescriptor appDescriptor = (AppDescriptor)iterator.next();
+			if (!appDescriptor.getClassName().equals("org.lnicholls.galleon.apps.menu.Menu"))
+				list.add(appDescriptor);
+		}
+    	
+    	return list;
     }
     
     public List getApps() {
@@ -193,7 +269,9 @@ public final class AppManager {
             Factory app = (Factory) iterator.next();
             if (app instanceof AppFactory)
             {
-            	appContexts.add(((AppFactory)app).getAppContext());
+            	AppFactory factory = (AppFactory)app;
+            	if (!factory.getClass().getName().endsWith("MenuFactory"))
+            		appContexts.add(factory.getAppContext());
             }
         }
         iterator = mAppContexts.iterator();
@@ -326,7 +404,7 @@ public final class AppManager {
             	AppFactory appFactory = (AppFactory)app;
 	            if (appContext.getId()==appFactory.getAppContext().getId())
 	            {
-	            	appFactory.setAppContext(appContext);
+	            	appFactory.updateAppContext(appContext);
 	                return;
 	            }
             }
@@ -410,6 +488,8 @@ public final class AppManager {
 	            arguments = arguments + (arguments.length() == 0 ? "" : " ") + "--port "
 	                    + Server.getServer().getPort();
 	        }
+	        if("true".equals(System.getProperty("hme.nomdns")))
+	        	arguments = arguments + (arguments.length() == 0 ? "" : " ") + "--nomdns " + serverConfiguration.getIPAddress();
 	        log.debug("Arguments: "+arguments);
 	        ArgumentList argumentList = new ArgumentList(arguments);
 	        

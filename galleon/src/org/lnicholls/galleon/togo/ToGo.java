@@ -45,6 +45,8 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Server;
@@ -89,6 +91,26 @@ public class ToGo {
 		ArrayList videos = new ArrayList();
 		log.debug("getRecordings: " + tivos.size());
 		log.debug("mServerConfiguration.getMediaAccessKey()=" + serverConfiguration.getMediaAccessKey().length());
+		
+		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue("VideoServer.lastUpdate");
+        if (persistentValue != null) {
+            try
+            {
+                String value = persistentValue.getValue();
+                Date date = new Date(value);
+                Date now = new Date();
+                if (now.getTime()-date.getTime() < 60*1000)
+                {
+                	log.debug("backoff: tivo busy with goback download");
+                	return videos;
+                }
+            }
+            catch (Throwable ex)
+            {
+                log.error("Could not retrieve video server last update", ex);
+            }
+        }
+		
 		if (serverConfiguration.getMediaAccessKey().length() > 0) {
 			GetMethod get = null;
 			Iterator tivosIterator = tivos.iterator();
@@ -810,7 +832,16 @@ public class ToGo {
 		value = value.replaceAll("\\\\", " ");
 		value = value.replaceAll("/", " ");
 		value = value.replaceAll("\"", " ");
+		value = value.replaceAll("<", " ");
+		value = value.replaceAll(">", " ");
+		value = value.replaceAll("=", " ");
+		value = value.replaceAll("\\*", " ");
 		value = value.replaceAll("\\?", " ");
+		value = value.replaceAll("'", "");
+		value = value.replaceAll(",", "");
+		value = value.replaceAll("\\(", " ");
+		value = value.replaceAll("\\)", " ");
+		value = value.replaceAll("-", " ");
 		return value;
 	}
 

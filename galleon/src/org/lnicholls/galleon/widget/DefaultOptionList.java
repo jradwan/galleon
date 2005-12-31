@@ -36,6 +36,9 @@ public class DefaultOptionList extends BList {
 
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
+        case KEY_SELECT:
+		case KEY_RIGHT:
+		case KEY_PLAY:
         case KEY_CHANNELUP:
         case KEY_CHANNELDOWN:
             return getParent().handleKeyPress(code, rawcode);

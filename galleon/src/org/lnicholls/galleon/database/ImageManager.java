@@ -27,6 +27,8 @@ import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class ImageManager {
 
     private static Logger log = Logger.getLogger(ImageManager.class.getName());
@@ -64,7 +66,7 @@ public class ImageManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(image);
+            session.save(trim(image));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -82,7 +84,7 @@ public class ImageManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(image);
+            session.update(trim(image));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -202,5 +204,16 @@ public class ImageManager {
         } finally {
             HibernateUtil.closeSession();
         }
+    }
+    
+    private static Image trim(Image image)
+    {
+    	image.setComments(Tools.trim(image.getComments(), 2048));
+    	image.setMimeType(Tools.trim(image.getMimeType(), 50));
+    	image.setOrigen(Tools.trim(image.getOrigen(), 30));
+    	image.setPath(Tools.trim(image.getPath(), 1024));
+    	image.setTitle(Tools.trim(image.getTitle(), 255));
+    	image.setTone(Tools.trim(image.getTone(), 50));
+    	return image;
     }
 }

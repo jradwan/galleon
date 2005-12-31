@@ -16,6 +16,8 @@ package org.lnicholls.galleon.apps.desktop;
  * See the file "COPYING" for more details.
  */
 
+import java.util.*;
+import java.net.*;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -43,6 +45,7 @@ import sun.awt.ComponentFactory;
 
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
+import com.tivo.hme.host.sample.HostContext;
 
 public class Desktop extends DefaultApplication {
 
@@ -52,10 +55,10 @@ public class Desktop extends DefaultApplication {
 
     public void init(IContext context) throws Exception {
         super.init(context);
-
+        
         push(new DesktopScreen(this), TRANSITION_NONE);
         
-        checkVersion(this);
+        initialize();
     }
 
     public class DesktopScreen extends DefaultScreen {

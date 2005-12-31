@@ -42,12 +42,16 @@ public class ToGoOptionsPanel extends AppConfigurationPanel {
         ToGoConfiguration togoConfiguration = (ToGoConfiguration) appConfiguration;
 
         mTitleField = new JTextField(togoConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(togoConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mShowStatsField = new JCheckBox("Show statistics");
         mShowStatsField.setToolTipText("Check to specify that ToGo statistics should be shown");
         mShowStatsField.setSelected(togoConfiguration.isShowStats());
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // Options
                 "9dlu, " + "pref"); // show stats
 
@@ -60,9 +64,10 @@ public class ToGoOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Options", cc.xyw(1, 5, 4));
-        builder.addLabel("", cc.xy(1, 7));
-        builder.add(mShowStatsField, cc.xyw(3, 7, 1));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Options", cc.xyw(1, 7, 4));
+        builder.addLabel("", cc.xy(1, 9));
+        builder.add(mShowStatsField, cc.xyw(3, 9, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -84,9 +89,12 @@ public class ToGoOptionsPanel extends AppConfigurationPanel {
         ToGoConfiguration togoConfiguration = (ToGoConfiguration) mAppConfiguration;
         togoConfiguration.setName(mTitleField.getText());
         togoConfiguration.setShowStats(mShowStatsField.isSelected());
+        togoConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
 
     private JCheckBox mShowStatsField;
+    
+    private JCheckBox mSharedField;
 }

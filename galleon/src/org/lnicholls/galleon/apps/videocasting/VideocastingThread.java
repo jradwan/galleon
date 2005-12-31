@@ -509,6 +509,13 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 										File file = new File(video.getPath());
 										if (file.exists())
 											file.delete();
+										
+										File data = new File(System.getProperty("data") + File.separator + "temp");
+										if (data.exists() && data.isDirectory()) {
+											File[] files = data.listFiles();
+											for (int i=0;i<files.length;i++)
+												files[i].delete();
+										}
 									}
 								}
 							}

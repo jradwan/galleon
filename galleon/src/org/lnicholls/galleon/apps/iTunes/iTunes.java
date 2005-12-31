@@ -160,7 +160,7 @@ public class iTunes extends DefaultApplication {
 		} else
 			push(new MusicMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -556,6 +556,7 @@ public class iTunes extends DefaultApplication {
 			switch (code) {
 			case KEY_SELECT:
 			case KEY_RIGHT:
+			case KEY_PLAY:
 				if (list.getFocus() == 0) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
@@ -619,7 +620,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("play")) {
+			if (action.equals("play") || action.equals("push")) {
 
 				getBApp().play("select.snd");
 				getBApp().flush();
@@ -1181,8 +1182,8 @@ public class iTunes extends DefaultApplication {
 			}), 1);
 		}
 
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 
 			reloadItunesLibrary(true);
 		}
@@ -1224,8 +1225,7 @@ public class iTunes extends DefaultApplication {
 							}
 						} else
 							reload = true;
-						// PlaylistParser PlaylistParser = new
-						// PlaylistParser("D:/galleon/iTunes Music Library.xml");
+						//PlaylistParser PlaylistParser = new PlaylistParser("D:/galleon/iTunes Music Library.xml");
 						
 						if (reload) {
 							log.info("Reloading iTunes Library");

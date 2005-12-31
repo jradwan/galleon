@@ -39,6 +39,8 @@ import org.lnicholls.galleon.app.*;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 public final class OptionsPanelManager extends InternalFrame implements ActionListener {
 	private static Logger log = Logger.getLogger(OptionsPanelManager.class.getName());
 
@@ -143,18 +145,36 @@ public final class OptionsPanelManager extends InternalFrame implements ActionLi
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				try {
-					String path = mAppNode.getAppContext().getDescriptor().getClassName();
-					path = path.substring(0, path.lastIndexOf("."));
-					path = path.replaceAll("\\.", "/");
-					URL url = mAppNode.getConfigurationPanel().getClass().getClassLoader().getResource(
-							path + "/" + mAppNode.getAppContext().getDescriptor().getDocumentation());
-					mMainFrame.displayHelp(mMainFrame, url);
-				} catch (Exception ex) {
-					Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
-							+ mAppNode.getAppContext().getDescriptor().getDocumentation());
-					JOptionPane.showMessageDialog(mMainFrame, "No help available for this app.", "Help",
-							JOptionPane.INFORMATION_MESSAGE);
+				String documentation = mAppNode.getAppContext().getDescriptor().getDocumentation();
+				if (documentation!=null)
+				{
+					if (documentation.startsWith("http://"))
+					{
+						try {
+							BrowserLauncher.openURL(documentation);
+						} catch (Exception ex) {
+							Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
+									+ documentation);
+							JOptionPane.showMessageDialog(mMainFrame, "No help available for this app.", "Help",
+									JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
+					else
+					{
+						try {
+							String path = mAppNode.getAppContext().getDescriptor().getClassName();
+							path = path.substring(0, path.lastIndexOf("."));
+							path = path.replaceAll("\\.", "/");
+							URL url = mAppNode.getConfigurationPanel().getClass().getClassLoader().getResource(
+									path + "/" + documentation);
+							mMainFrame.displayHelp(mMainFrame, url);
+						} catch (Exception ex) {
+							Tools.logException(OptionsPanelManager.class, ex, "Could not help app : "
+									+ documentation);
+							JOptionPane.showMessageDialog(mMainFrame, "No help available for this app.", "Help",
+									JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			} else if ("delete".equals(e.getActionCommand())) {

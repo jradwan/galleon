@@ -98,7 +98,7 @@ public class Shoutcast extends DefaultApplication {
 
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -374,6 +374,7 @@ public class Shoutcast extends DefaultApplication {
 			switch (code) {
 			case KEY_SELECT:
 			case KEY_RIGHT:
+			case KEY_PLAY:
 				if (list.getFocus() == 0) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
@@ -434,7 +435,7 @@ public class Shoutcast extends DefaultApplication {
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("play")) {
+			if (action.equals("play") || action.equals("push")) {
 
 				getBApp().play("select.snd");
 				getBApp().flush();
@@ -966,8 +967,8 @@ public class Shoutcast extends DefaultApplication {
 			mShoutcastStations.remove();
 		}
 		
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 
 			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) appContext.getConfiguration();
 			try {

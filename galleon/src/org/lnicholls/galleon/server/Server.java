@@ -82,6 +82,7 @@ public class Server {
 
 		mShortTermTasks = new ArrayList();
 		mLongTermTasks = new ArrayList();
+		mDataTasks = new ArrayList();
 
 		try {
 			System.out.println("Galleon " + Tools.getVersion() + " is starting...");
@@ -251,6 +252,7 @@ public class Server {
 			// Start time task for period operations such as internet downloads
 			mLongTermTimer = new Timer();
 			mShortTermTimer = new Timer();
+			mDataTimer = new Timer();
 			
 			mDownloadManager = new DownloadManager();
 
@@ -302,8 +304,9 @@ public class Server {
 			mRegistry.bind("serverControl", new ServerControlImpl());
 			
 			mTCMs = new LinkedList();
-			mHMOPort = Tools.findAvailablePort(8081);
-			if (mHMOPort != 8081) {
+			int port = mServerConfiguration.getHttpPort();
+			mHMOPort = Tools.findAvailablePort(port);
+			if (mHMOPort != port) {
 				log.info("Changed HMO port to " + mHMOPort);
 			}
 			
@@ -343,10 +346,12 @@ public class Server {
                 mConnectionThread.start();
             }			
 			
+            //mDataUpdateThread = new DataUpdateThread();
+            //mDataUpdateThread.start();
 
 			System.out.println("Galleon is ready.");
 			mReady = true;
-
+			
 			Iterator iterator = mShortTermTasks.iterator();
 			while (iterator.hasNext()) {
 				TaskInfo taskInfo = (TaskInfo) iterator.next();
@@ -359,6 +364,12 @@ public class Server {
 				scheduleLongTerm(taskInfo.task, 30, taskInfo.time);
 			}
 			mLongTermTasks.clear();
+			iterator = mDataTasks.iterator();
+			while (iterator.hasNext()) {
+				TaskInfo taskInfo = (TaskInfo) iterator.next();
+				scheduleData(taskInfo.task, 0, taskInfo.time);
+			}
+			mDataTasks.clear();
 			
 			iterator = mPublishedVideos.iterator();
 			while (iterator.hasNext()) {
@@ -511,6 +522,15 @@ public class Server {
 			Tools.logException(Server.class, ex);
 		}
 		mShortTermTimer = new Timer();
+		try {
+			if (mDataTimer != null) {
+				mDataTimer.cancel();
+				mDataTimer = null;
+			}
+		} catch (IllegalStateException ex) {
+			Tools.logException(Server.class, ex);
+		}
+		mDataTimer = new Timer();
 	}
 
 	public synchronized void reconfigure() {
@@ -694,6 +714,32 @@ public class Server {
 			}
 		}
 	}
+	
+	public synchronized void scheduleData(TimerTask task, long time) {
+		if (mReady)
+			scheduleData(task, 0, time);
+		else
+			mDataTasks.add(new TaskInfo(task, time));
+	}
+
+	public synchronized void scheduleData(TimerTask task, long delay, long time) {
+		if (log.isDebugEnabled())
+			log.debug("Server schedule data: " + task + " for " + time);
+		if (time <= 0)
+			time = getReload();
+		try {
+			mDataTimer.schedule(task, 1000 * delay, time * 1000 * 60);
+		} catch (IllegalStateException ex) {
+			Tools.logException(Server.class, ex);
+			// Try again...
+			reset();
+			try {
+				mDataTimer.schedule(task, 1000 * delay * 2, time * 1000 * 60);
+			} catch (IllegalStateException ex2) {
+				Tools.logException(Server.class, ex2);
+			}
+		}
+	}	
 
 	private void preLoadFonts() {
 		if (log.isDebugEnabled())
@@ -806,24 +852,11 @@ public class Server {
 	public void updateDataConfiguration(DataConfiguration dataConfiguration) throws Exception {
 		try
 		{
-			if (dataConfiguration.isModified())
-			{
-				if (getDataConfiguration().getUsername()!=null && getDataConfiguration().getUsername().equals(dataConfiguration.getUsername()))
-				{
-					if (getDataConfiguration().isAgree() && !dataConfiguration.isAgree()) {
-						Users.deleteUser(dataConfiguration);
-						mServerConfiguration.setDataConfiguration(new DataConfiguration());
-						save();
-						return;
-					}
-					Users.updateUser(dataConfiguration, mServerConfiguration);
-				}
-				else
-					Users.createUser(dataConfiguration);
-				
-				mServerConfiguration.setDataConfiguration(dataConfiguration);
-				save();
-			}
+			Users.login(dataConfiguration);
+			Users.logout(dataConfiguration);
+			
+			mServerConfiguration.setDataConfiguration(dataConfiguration);
+			save();
 		}
 		catch (Exception ex)
 		{
@@ -874,10 +907,6 @@ public class Server {
 		}
 	}	
 	
-	public Object getCodeImage() {
-		return Users.getCode();
-	}
-
 	public List getAppDescriptors() {
 		return mAppManager.getAppDescriptors();
 	}
@@ -1149,6 +1178,11 @@ public class Server {
 		mDownloadManager.resumeDownload(download);
 	}
 	
+	public void stopDownload(Download download) throws RemoteException
+	{
+		mDownloadManager.stopDownload(download);
+	}
+	
 	public boolean isFileExists(String path)
 	{
 		File file = new File(path);
@@ -1160,6 +1194,11 @@ public class Server {
 		File file = new File(path);
 		if (file.exists())
 			file.delete();
+	}
+	
+	public List getAppUrls(boolean shared)
+	{
+		return mAppManager.getAppUrls(shared);
 	}
 	
 	public static void main(String args[]) {
@@ -1181,6 +1220,8 @@ public class Server {
 	private Timer mLongTermTimer;
 
 	private Timer mShortTermTimer;
+	
+	private Timer mDataTimer;
 
 	private Configurator mConfigurator;
 
@@ -1216,6 +1257,8 @@ public class Server {
 
 	private ArrayList mLongTermTasks;
 	
+	private ArrayList mDataTasks;
+	
 	private BroadcastThread mBroadcastThread;
 
     private TiVoBeacon mTiVoBeacon;
@@ -1233,4 +1276,6 @@ public class Server {
     private List mPublishedVideos = new ArrayList();
     
     private DownloadManager mDownloadManager;
+    
+    //private DataUpdateThread mDataUpdateThread;
 }

@@ -266,6 +266,15 @@ public class Downloader extends Thread implements DownloadWork, Serializable {
 
 		download.setStatus(ThreadStatus.RESUMING.getID());
 	}
+	
+	public void stopDownload() {
+		for (int x = 0; x < getThreadNumber(); ++x)
+			dt[x].stopDownload();
+
+		notifyStatusChange(new StatusEvent(d, getStatus(), ThreadStatus.STOPPED.getID()));
+
+		download.setStatus(ThreadStatus.STOPPED.getID());
+	}	
 
 	public Download getDownload() {
 		return download;

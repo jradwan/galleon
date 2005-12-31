@@ -89,7 +89,19 @@ public class RSSConfiguration implements AppConfiguration {
     	public SharedFeed(String name, String value, String description, String tags, String privacy) {
     		super(name, value, description, tags, privacy);
     	}
-    }    
+    }
+    
+    public boolean isShared()
+    {
+    	return mShared;
+    }
+    
+    public void setShared(boolean value)
+    {
+    	mShared = value;
+    }
+    
+    private boolean mShared;    
 
     private String mName;
 

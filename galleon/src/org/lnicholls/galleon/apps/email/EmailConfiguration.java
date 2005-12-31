@@ -143,6 +143,18 @@ public class EmailConfiguration implements AppConfiguration {
 
 		private boolean mValid = true;
 	}
+	
+	public boolean isShared()
+    {
+    	return mShared;
+    }
+    
+    public void setShared(boolean value)
+    {
+    	mShared = value;
+    }
+    
+    private boolean mShared;
 
 	private String mName;
 

@@ -327,6 +327,7 @@ public class PlaylistParser {
 	        	boolean found = false;
 	        	if (track.containsKey("Track ID")) {
 	        		externalId = decode((String) track.get("Track ID"));
+	        		/*
 	        		try {
 		                List list = AudioManager.findByExternalId(externalId);
 		                if (list != null && list.size() > 0) {
@@ -337,6 +338,7 @@ public class PlaylistParser {
 		            } catch (Exception ex) {
 		                Tools.logException(PlaylistParser.class, ex);
 		            }
+		            */
 	        	}
 	        	
 	        	if (!found)
@@ -471,7 +473,6 @@ public class PlaylistParser {
 
 	            audio.setOrigen("iTunes");
 	            try {
-
 	                if (audio.getId()==null) {
 	                    AudioManager.createAudio(audio);
 	                } 

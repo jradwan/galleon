@@ -25,6 +25,7 @@ import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.util.Tools;
 
 public class ApplicationManager {
 
@@ -63,7 +64,7 @@ public class ApplicationManager {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.save(Application);
+			session.save(trim(Application));
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -81,7 +82,7 @@ public class ApplicationManager {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.update(Application);
+			session.update(trim(Application));
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -162,4 +163,12 @@ public class ApplicationManager {
 			application.setTotal(application.getTotal()+1);
 		}
 	}
+	
+    private static Application trim(Application application)
+    {
+    	application.setClazz(Tools.trim(application.getClazz(), 255));
+    	application.setName(Tools.trim(application.getName(), 255));
+    	application.setVersion(Tools.trim(application.getVersion(), 255));
+    	return application;
+    }
 }

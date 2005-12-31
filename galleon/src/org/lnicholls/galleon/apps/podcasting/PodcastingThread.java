@@ -344,6 +344,30 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 	}
 
 	public void statusChanged(StatusEvent se) {
+		if (se.getNewStatus() == StatusEvent.STOPPED) {
+			synchronized (this) {
+				try {
+					mTrack = mPodcast.getTrack(mTrack.getUrl());
+				} catch (Exception ex) {
+					Tools.logException(PodcastingThread.class, ex, "Track update failed");
+				}
+			}
+
+			synchronized (this) {
+				try {
+					mTrack.setStatus(PodcastTrack.STATUS_DOWNLOAD_CANCELLED);
+					PodcastManager.updatePodcast(mPodcast);
+					mTrack = mPodcast.getTrack(mTrack.getUrl());
+				} catch (HibernateException ex) {
+					Tools.logException(PodcastingThread.class, ex, "Track update failed");
+				}
+			}
+			
+			mDownloadNext = true;
+			mWaiting = false;
+			interrupt();
+		}
+		else		
 		if (se.getNewStatus() == StatusEvent.ERROR) {
 			synchronized (this) {
 				try {

@@ -106,7 +106,7 @@ public class Email extends DefaultApplication {
         } else
             push(new EmailMenuScreen(this), TRANSITION_NONE);
         
-        checkVersion(this);
+        initialize();
     }
 
     public class EmailMenuScreen extends DefaultMenuScreen {
@@ -492,8 +492,8 @@ public class Email extends DefaultApplication {
 
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
 
-        public void setAppContext(AppContext appContext) {
-            super.setAppContext(appContext);
+        public void updateAppContext(AppContext appContext) {
+            super.updateAppContext(appContext);
 
             updateAccounts();
         }
@@ -584,15 +584,26 @@ public class Email extends DefaultApplication {
                                     }
                                     if (message.isMimeType("text/plain")) {
                                         description = (String) message.getContent();
-                                    } else if (message.isMimeType("multipart/*")) {
-                                        Multipart mp = (Multipart) message.getContent();
-                                        for (int p = 0; p < mp.getCount(); p++) {
-                                            Part part = mp.getBodyPart(p);
-                                            if (part.isMimeType("text/plain")) {
-                                                description = (String) part.getContent();
-                                                break;
-                                            }
-                                        }
+                                    } 
+                                    else 
+                                	if (message.isMimeType("text/html")) {
+                                        description = Tools.cleanHTML((String) message.getContent());
+                                    } 
+                                    else                                    	
+                                	if (message.isMimeType("multipart/*")) {
+	                                    Multipart mp = (Multipart) message.getContent();
+	                                    for (int p = 0; p < mp.getCount(); p++) {
+	                                        Part part = mp.getBodyPart(p);
+	                                        if (part.isMimeType("text/plain")) {
+	                                            description = (String) part.getContent();
+	                                            break;
+	                                        }
+	                                        else
+                                        	if (part.isMimeType("text/html")) {
+	                                            description = Tools.cleanHTML((String) part.getContent());
+	                                            break;
+	                                        }	                                        	
+	                                    }
                                     }
                                     EmailItem emailItem = new EmailItem(message.getSubject(), from, description,
                                             message.getSentDate());
@@ -620,7 +631,6 @@ public class Email extends DefaultApplication {
             Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
                 public void reload() {
                     try {
-                    	log.debug("Email");
                     	updateAccounts();
                     } catch (Exception ex) {
                         log.error("Could not download email", ex);

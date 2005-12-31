@@ -51,6 +51,9 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         WeatherConfiguration weatherConfiguration = (WeatherConfiguration) appConfiguration;
 
         mTitleField = new JTextField(weatherConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(weatherConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mCityField = new JTextField(weatherConfiguration.getCity());
         mStateCombo = new JComboBox();
         mStateCombo.addItem(new ComboWrapper("Alabama", "AL"));
@@ -109,6 +112,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // location
                 "9dlu, " + "pref, " + // city
                 "3dlu, " + "pref, " + // state
@@ -116,6 +120,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
                 "9dlu, " + "pref, " + // links
                 "3dlu, " + "pref, " + // 1
                 "3dlu, " + "pref, " + // 2
+                "3dlu, " + "pref, " + // 3
                 "3dlu, " + "pref");
 
         PanelBuilder builder = new PanelBuilder(layout);
@@ -127,14 +132,15 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Location", cc.xyw(1, 5, 4));
-        builder.addLabel("City", cc.xy(1, 7));
-        builder.add(mCityField, cc.xyw(3, 7, 1));
-        builder.addLabel("State", cc.xy(1, 9));
-        builder.add(mStateCombo, cc.xyw(3, 9, 1));
-        builder.addLabel("Zip", cc.xy(1, 11));
-        builder.add(mZipField, cc.xyw(3, 11, 1));
-        builder.addSeparator("Web Links", cc.xyw(1, 13, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Location", cc.xyw(1, 7, 4));
+        builder.addLabel("City", cc.xy(1, 9));
+        builder.add(mCityField, cc.xyw(3, 9, 1));
+        builder.addLabel("State", cc.xy(1, 11));
+        builder.add(mStateCombo, cc.xyw(3, 11, 1));
+        builder.addLabel("Zip", cc.xy(1, 13));
+        builder.add(mZipField, cc.xyw(3, 13, 1));
+        builder.addSeparator("Featured on weather.com®", cc.xyw(1, 15, 4));
         // TODO Add location id parameter
         // TODO Determine list dynamically
         JLabel label = new JLabel("Pollen Reports");
@@ -149,7 +155,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
                 }
             }
         });
-        builder.add(label, cc.xyw(1, 15, 3));
+        builder.add(label, cc.xyw(1, 17, 3));
         label = new JLabel("Airport Delays");
         label.setForeground(Color.blue);
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -162,7 +168,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
                 }
             }
         });
-        builder.add(label, cc.xyw(1, 17, 3));
+        builder.add(label, cc.xyw(1, 19, 3));
         label = new JLabel("Special Events");
         label.setForeground(Color.blue);
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -175,7 +181,20 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
                 }
             }
         });
-        builder.add(label, cc.xyw(1, 19, 3));
+        builder.add(label, cc.xyw(1, 21, 3));
+        label = new JLabel("Weather data provided by weather.com®");
+        label.setForeground(Color.blue);
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.setToolTipText("Open site in web browser");
+        label.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                try {
+                    BrowserLauncher.openURL("http://www.weather.com");
+                } catch (Exception ex) {
+                }
+            }
+        });
+        builder.add(label, cc.xyw(1, 23, 3));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -253,6 +272,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         weatherConfiguration.setCity(mCityField.getText());
         weatherConfiguration.setState(((NameValue) mStateCombo.getSelectedItem()).getValue());
         weatherConfiguration.setZip(mZipField.getText());
+        weatherConfiguration.setShared(mSharedField.isSelected());
     }
     
     private String mId;
@@ -266,4 +286,6 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
     private JComboBox mStateCombo;
 
     private JTextComponent mZipField;
+    
+    private JCheckBox mSharedField;
 }

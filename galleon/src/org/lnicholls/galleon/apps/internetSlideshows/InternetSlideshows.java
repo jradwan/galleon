@@ -151,7 +151,7 @@ public class InternetSlideshows extends DefaultApplication {
 
 		push(new PhotosMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 	
 	public class OptionsScreen extends DefaultOptionsScreen {

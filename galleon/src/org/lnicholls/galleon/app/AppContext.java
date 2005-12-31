@@ -44,6 +44,18 @@ public class AppContext implements Serializable {
 				public void setName(String value) {
 					mName = value;
 				}
+				
+				public boolean isShared()
+			    {
+			    	return mShared;
+			    }
+			    
+			    public void setShared(boolean value)
+			    {
+			    	mShared = value;
+			    }
+			    
+			    private boolean mShared;
 
 				private String mName;
 			};

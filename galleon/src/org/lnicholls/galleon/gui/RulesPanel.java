@@ -120,6 +120,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
             mCriteriaField.addItem(new ReloadWrapper("Date", Rule.CRITERIA_DATE));
             mCriteriaField.addItem(new ReloadWrapper("Duration (mins)", Rule.CRITERIA_DURATION));
             mCriteriaField.addItem(new ReloadWrapper("Size (MB)", Rule.CRITERIA_SIZE));
+            mCriteriaField.addItem(new ReloadWrapper("Flag", Rule.CRITERIA_FLAG));
             mComparisonField = new JComboBox();
             mComparisonField.setToolTipText("Select a comparison for the selected criteria");
             mComparisonField.addItem(new ReloadWrapper("Contains", Rule.COMPARISON_CONTAINS));

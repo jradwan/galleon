@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.upcoming;
+package org.lnicholls.galleon.apps.menu;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 
-public class UpcomingConfiguration implements AppConfiguration {
+public class MenuConfiguration implements AppConfiguration {
 
 	public String getName() {
 		return mName;
@@ -33,18 +33,6 @@ public class UpcomingConfiguration implements AppConfiguration {
 		if (mName != null && !mName.equals(value))
 			mModified = true;
 		mName = value;
-	}
-
-	public List getLocations() {
-		return mLocations;
-	}
-
-	public void setLocations(List value) {
-		mLocations = value;
-	}
-
-	public void addLocation(Location value) {
-		mLocations.add(value);
 	}
 
 	public void setModified(boolean value) {
@@ -57,48 +45,6 @@ public class UpcomingConfiguration implements AppConfiguration {
 
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
-	}
-
-	public static class Location implements Serializable {
-		public Location() {
-
-		}
-
-		public Location(String country, String state, String metro) {
-			mCountry = country;
-			mState = state;
-			mMetro = metro;
-		}
-
-		public String getCountry() {
-			return mCountry;
-		}
-
-		public void setCountry(String value) {
-			mCountry = value;
-		}
-
-		public String getState() {
-			return mState;
-		}
-
-		public void setState(String value) {
-			mState = value;
-		}
-
-		public String getMetro() {
-			return mMetro;
-		}
-
-		public void setMetro(String value) {
-			mMetro = value;
-		}
-
-		private String mCountry;
-
-		private String mState;
-
-		private String mMetro;
 	}
 	
 	public boolean isShared()
@@ -114,8 +60,6 @@ public class UpcomingConfiguration implements AppConfiguration {
     private boolean mShared;	
 
 	private String mName;
-
-	private List mLocations = new ArrayList();
 
 	private boolean mModified;
 }

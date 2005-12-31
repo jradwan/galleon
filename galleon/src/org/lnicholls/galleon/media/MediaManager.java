@@ -61,7 +61,7 @@ public final class MediaManager {
 				|| filename.toLowerCase().endsWith(".mov") || filename.toLowerCase().endsWith(".mpg")
 				|| filename.toLowerCase().endsWith(".mp4") || filename.toLowerCase().endsWith(".mkv")
 				|| filename.toLowerCase().endsWith(".ogm") || filename.toLowerCase().endsWith(".wmv")
-				|| filename.toLowerCase().endsWith(".mpeg")) {
+				|| filename.toLowerCase().endsWith(".mpeg") || filename.toLowerCase().endsWith(".tivo")) {
 			return VideoFile.getVideo(filename);
 		}
 		return null;

@@ -27,6 +27,8 @@ import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class PlaylistsManager {
 
     private static Logger log = Logger.getLogger(PlaylistsManager.class.getName());
@@ -64,7 +66,7 @@ public class PlaylistsManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(Playlists);
+            session.save(trim(Playlists));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -82,7 +84,7 @@ public class PlaylistsManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(Playlists);
+            session.update(trim(Playlists));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -314,5 +316,13 @@ public class PlaylistsManager {
         } finally {
             HibernateUtil.closeSession();
         }
+    }
+    
+    private static Playlists trim(Playlists playlists)
+    {
+    	playlists.setExternalId(Tools.trim(playlists.getExternalId(), 255));
+    	playlists.setOrigen(Tools.trim(playlists.getOrigen(), 30));
+    	playlists.setTitle(Tools.trim(playlists.getTitle(), 255));
+    	return playlists;
     }
 }

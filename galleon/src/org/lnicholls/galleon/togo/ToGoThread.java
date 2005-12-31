@@ -126,6 +126,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                             next.setDownloadTime(video.getDownloadTime());
                                             next.setDateDownloaded(video.getDateDownloaded());
                                             next.setDateUploaded(video.getDateUploaded());
+                                            next.setUploaded(video.getUploaded());
                                         }
                                         PropertyUtils.copyProperties(video, next);
                                         VideoManager.updateVideo(video);
@@ -158,10 +159,10 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                     recordings.clear();
                     downloaded.clear();
                     
-                    sleep(1000 * 60 * 10);
+                    sleep(1000 * 60 * serverConfiguration.getReload());
                 }
                 else
-                    sleep(1000 * 60 * 5);
+                    sleep(1000 * 60 * serverConfiguration.getReload());
                 
             } catch (InterruptedException ex) {
                 Tools.logException(ToGoThread.class, ex);
@@ -189,9 +190,9 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
     {
         try
         {
-            return VideoManager.listAll();
+            return VideoManager.listAllTiVo();
         } catch (HibernateException ex) {
-            log.error("Video listAll failed", ex);
+            log.error("Video listAllTiVo failed", ex);
         }
         return null;
     }

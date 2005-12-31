@@ -22,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -48,6 +49,9 @@ public class iTunesOptionsPanel extends AppConfigurationPanel implements ActionL
         iTunesConfiguration iTunesConfiguration = (iTunesConfiguration) appConfiguration;
 
         mTitleField = new JTextField(iTunesConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(iTunesConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 
         String playlistPath = iTunesConfiguration.getPlaylistPath();
         if (playlistPath == null) {
@@ -61,6 +65,7 @@ public class iTunesOptionsPanel extends AppConfigurationPanel implements ActionL
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, 3dlu, pref, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "3dlu, " + "pref, " // username
         );
 
@@ -73,13 +78,14 @@ public class iTunesOptionsPanel extends AppConfigurationPanel implements ActionL
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
 
-        builder.addLabel("Playlist Path", cc.xy(1, 5));
-        builder.add(mPlaylistPathField, cc.xyw(3, 5, 1));
+        builder.addLabel("Playlist Path", cc.xy(1, 7));
+        builder.add(mPlaylistPathField, cc.xyw(3, 7, 1));
         JButton button = new JButton("...");
         button.setActionCommand("pick");
         button.addActionListener(this);
-        builder.add(button, cc.xyw(5, 5, 1));
+        builder.add(button, cc.xyw(5, 7, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -137,6 +143,7 @@ public class iTunesOptionsPanel extends AppConfigurationPanel implements ActionL
         iTunesConfiguration iTunesConfiguration = (iTunesConfiguration) mAppConfiguration;
         iTunesConfiguration.setName(mTitleField.getText());
         iTunesConfiguration.setPlaylistPath(mPlaylistPathField.getText());
+        iTunesConfiguration.setShared(mSharedField.isSelected());
 
         JOptionPane
                 .showMessageDialog(
@@ -148,4 +155,6 @@ public class iTunesOptionsPanel extends AppConfigurationPanel implements ActionL
     private JTextComponent mTitleField;
 
     private JTextComponent mPlaylistPathField;
+    
+    private JCheckBox mSharedField;
 }

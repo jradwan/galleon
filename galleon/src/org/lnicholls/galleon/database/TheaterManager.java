@@ -27,6 +27,8 @@ import net.sf.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 
+import org.lnicholls.galleon.util.Tools;
+
 public class TheaterManager {
 
     private static Logger log = Logger.getLogger(TheaterManager.class.getName());
@@ -82,7 +84,7 @@ public class TheaterManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(Theater);
+            session.update(trim(Theater));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -98,7 +100,7 @@ public class TheaterManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.delete(Theater);
+            session.delete(trim(Theater));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -289,5 +291,13 @@ public class TheaterManager {
         } finally {
             HibernateUtil.closeSession();
         }
+    }
+    
+    private static Theater trim(Theater theater)
+    {
+    	theater.setAddress(Tools.trim(theater.getAddress(), 255));
+    	theater.setName(Tools.trim(theater.getName(), 255));
+    	theater.setTelephone(Tools.trim(theater.getTelephone(), 255));
+    	return theater;
     }
 }

@@ -48,25 +48,9 @@ public class DataConfiguration implements Serializable {
 			mModified = true;
 		mPassword = value;
 	}
-
-	public void setAgree(boolean value) {
-		if (mAgree != value)
-			mModified = true;
-		mAgree = value;
-	}
-
-	public boolean isAgree() {
-		return mAgree;
-	}
-
-	public void setAnonymous(boolean value) {
-		if (mAnonymous != value)
-			mModified = true;
-		mAnonymous = value;
-	}
-
-	public boolean isAnonymous() {
-		return mAnonymous;
+	
+	public boolean isConfigured() {
+		return mPassword!=null && mUsername!=null & mUsername.trim().length()>0 && mPassword.trim().length()>0;
 	}
 
 	public void setModified(boolean value) {
@@ -77,14 +61,6 @@ public class DataConfiguration implements Serializable {
 		return mModified;
 	}
 
-	public void storeCode(String value) {
-		mCode = value;
-	}
-
-	public String retrieveCode() {
-		return mCode;
-	}
-
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
@@ -92,12 +68,6 @@ public class DataConfiguration implements Serializable {
 	private String mUsername;
 
 	private String mPassword;
-
-	private String mCode;
-
-	private boolean mAgree = false;
-
-	private boolean mAnonymous = true;
 
 	private boolean mModified;
 }

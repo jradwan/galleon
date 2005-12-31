@@ -120,7 +120,7 @@ public class MusicOrganizer extends DefaultApplication {
 		
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -301,7 +301,7 @@ public class MusicOrganizer extends DefaultApplication {
 		public PathScreen(MusicOrganizer app, PathScreen pathScreen, boolean first, FormatString formatString, int level) {
 			super(app, "Music");
 			
-			setFooter("Press ENTER for options");
+			setFooter("Press ENTER for options, 1 for Jukebox");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -516,6 +516,7 @@ public class MusicOrganizer extends DefaultApplication {
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_NUM1:
+			case KEY_THUMBSUP:
 				try
 				{
 					Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
@@ -656,6 +657,7 @@ public class MusicOrganizer extends DefaultApplication {
 			switch (code) {
 			case KEY_SELECT:
 			case KEY_RIGHT:
+			case KEY_PLAY:
 				if (list.getFocus() == 0) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
@@ -719,7 +721,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("play")) {
+			if (action.equals("play") || action.equals("push")) {
 
 				getBApp().play("select.snd");
 				getBApp().flush();
@@ -2120,8 +2122,8 @@ public class MusicOrganizer extends DefaultApplication {
 			}), 60 * 6);
 		}
 
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 
 			updatePaths(true);
 		}

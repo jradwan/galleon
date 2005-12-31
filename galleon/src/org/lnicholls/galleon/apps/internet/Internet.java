@@ -18,25 +18,43 @@ package org.lnicholls.galleon.apps.internet;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.io.File;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.internet.InternetConfiguration.SharedUrl;
+import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.FileFilters;
+import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
+import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
+import org.lnicholls.galleon.widget.DefaultList;
+import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
-import org.lnicholls.galleon.widget.Grid;
+import org.lnicholls.galleon.widget.*;
 import org.lnicholls.galleon.widget.OptionsButton;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
+import org.lnicholls.galleon.data.*;
+import org.lnicholls.galleon.database.Application;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -52,7 +70,7 @@ public class Internet extends DefaultApplication {
 	private final static Runtime runtime = Runtime.getRuntime();
 
 	public final static String TITLE = "Internet";
-
+	
 	private Resource mMenuBackground;
 
 	private Resource mInfoBackground;
@@ -75,69 +93,73 @@ public class Internet extends DefaultApplication {
 		InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory())
 				.getAppContext().getConfiguration();
 
-		Tracker tracker = new Tracker(internetConfiguration.getUrls(), 0);
-
-		push(new PathScreen(this, tracker), TRANSITION_NONE);
+		Tracker tracker = new Tracker(internetConfiguration.getSharedUrls(), 0);
 		
-		checkVersion(this);
+		if (Server.getServer().getDataConfiguration().isConfigured())
+			push(new InternetMenuScreen(this), TRANSITION_NONE);
+		else
+			push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
+		
+		initialize();
 	}
+	
+	public class InternetMenuScreen extends DefaultMenuScreen {
+		public InternetMenuScreen(Internet app) {
+			super(app, "Internet");
 
-	public class PGrid extends Grid {
-		public PGrid(BView parent, int x, int y, int width, int height, int rowHeight) {
-			super(parent, x, y, width, height, rowHeight);
-			mThreads = new Vector();
+			setFooter("Press ENTER for options");
+
+			getBelow().setResource(mMenuBackground);
+
+			mMenuList.add("My Favorites");
+			mMenuList.add("Find by Tag");
 		}
 
-		public void createCell(final BView parent, int row, int column, boolean selected) {
-			ArrayList photos = (ArrayList) get(row);
-			if (column < photos.size()) {
-				final NameValue nameValue = (NameValue) photos.get(column);
-				// TODO Handle: Photos[#1,uri=null]
-				// handleApplicationError(4,view 1402 not found)
-				final BView imageView = new BView(parent, 0, 0, parent.getWidth(), parent.getHeight() - 20);
+		public boolean handleAction(BView view, Object action) {
+			if (action.equals("push")) {
+				if (mMenuList.size() > 0) {
+					load();
+					
+					final InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
 
-				BText nameText = new BText(parent, 0, parent.getHeight() - 20, parent.getWidth(), 20);
-				nameText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_BOTTOM);
-				nameText.setFont("default-18-bold.font");
-				nameText.setShadow(true);
-				nameText.setValue(nameValue.getName());
-				parent.flush();
-				Thread thread = new Thread() {
-					public void run() {
-						try {
-							synchronized (this) {
-								imageView.setResource(Color.GRAY);
-								imageView.setTransparency(0.5f);
-								imageView.flush();
-							}
-
-							Image image = null;
-							synchronized (this) {
-								image = getImage(nameValue.getValue(), false);
-							}
-
-							if (image != null) {
-								synchronized (this) {
-									imageView.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-									imageView.setTransparency(0.0f);
-									imageView.flush();
+					new Thread() {
+						public void run() {
+							try {
+								if (mMenuList.getFocus()==0)
+								{
+									Tracker tracker = new Tracker(internetConfiguration.getSharedUrls(), 0);
+									getBApp().push(new FavoritesMenuScreen((Internet)getBApp(), tracker), TRANSITION_NONE);
 								}
+								else
+									getBApp().push(new TagsMenuScreen((Internet)getBApp()), TRANSITION_NONE);
+								getBApp().flush();
+								
+							} catch (Exception ex) {
+								Tools.logException(Internet.class, ex);
 							}
-						} catch (Throwable ex) {
-							log.error(ex);
-						} finally {
-							mThreads.remove(this);
 						}
-					}
+					}.start();
+					return true;
+				}
+			}
+			return super.handleAction(view, action);
+		}
 
-					public void interrupt() {
-						synchronized (this) {
-							super.interrupt();
-						}
-					}
-				};
-				mThreads.add(thread);
-				thread.start();
+		protected void createRow(BView parent, int index) {
+			try
+			{
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				icon.setResource(mFolderIcon);
+				String title = (String) mMenuList.get(index);
+
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(title), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
 			}
 		}
 
@@ -146,36 +168,13 @@ public class Internet extends DefaultApplication {
 			case KEY_SELECT:
 				postEvent(new BEvent.Action(this, "push"));
 				return true;
-			case KEY_CHANNELUP:
-			case KEY_CHANNELDOWN:
-				boolean result = super.handleKeyPress(code, rawcode);
-				if (!result) {
-					getBApp().play("bonk.snd");
-					getBApp().flush();
-				}
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Internet) getBApp()), TRANSITION_LEFT);
 				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
-
-		public void shutdown() {
-			try {
-				setPainting(false);
-				Iterator iterator = mThreads.iterator();
-				while (iterator.hasNext()) {
-					Thread thread = (Thread) iterator.next();
-					if (thread.isAlive()) {
-						thread.interrupt();
-					}
-				}
-				mThreads.clear();
-			} finally {
-				setPainting(true);
-			}
-		}
-
-		private Vector mThreads;
-	}
+	}	
 
 	public class OptionsScreen extends DefaultOptionsScreen {
 
@@ -229,80 +228,63 @@ public class Internet extends DefaultApplication {
 
 		private OptionsButton mReloadButton;
 	}
+	
+	public class FavoritesMenuScreen extends DefaultMenuScreen {
+		public FavoritesMenuScreen(Internet app, Tracker tracker) {
+			this(app, tracker, false);
+		}
 
-	public class PathScreen extends DefaultScreen {
-		private PGrid grid;
-
-		public PathScreen(Internet app, Tracker tracker) {
-			super(app);
-
+		public FavoritesMenuScreen(Internet app, Tracker tracker, boolean first) {
+			super(app, "Internet");
+			
+			mTracker = tracker;
+			mFirst = first;
+			
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
-			setTitle("Internet");
-
-			mTracker = tracker;
-
-			int w = getWidth() - 2 * BORDER_LEFT;
-			int h = getHeight() - TOP - SAFE_TITLE_V - 2 * PAD;
-			grid = new PGrid(this.getNormal(), BORDER_LEFT, BORDER_TOP, w, h, h / 3);
-			BHighlights highlights = grid.getHighlights();
-			highlights.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
-			highlights.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
-
-			setFocusDefault(grid);
-
-			mBusy = new BView(getNormal(), SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
-			mBusy.setResource(getBusyIcon());
-			mBusy.setVisible(false);
+			Iterator iterator = mTracker.getList().iterator();
+			while (iterator.hasNext()) {
+				InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) iterator.next();
+				mMenuList.add(value);
+			}
+		}
+		
+		public DefaultList createMenuList()
+		{
+			BlockList defaultList = new BlockList(this, SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 290, getWidth()
+	                - ((SAFE_TITLE_H * 2) + 32), 280, 280/3) {
+	                	protected void createRow(BView parent, int index) {
+         			   		FavoritesMenuScreen.this.createRow(parent, index);
+        				}
+	                };
+			return defaultList;
+		}
+		
+		public boolean handleExit() {
+			mTop = mMenuList.getTop();
+			//mMenuList.clear();
+			return super.handleExit();
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("push")) {
-				if (grid.getFocus() != -1) {
-					Object object = grid.get(grid.getFocus());
-					getBApp().play("select.snd");
-					getBApp().flush();
-
-					mTop = grid.getTop();
-
-					ArrayList photos = (ArrayList) object;
-					final NameValue nameValue = (NameValue) photos.get(grid.getPos() % 3);
-					new Thread() {
-						public void run() {
-							try {
-								ImageScreen imageScreen = new ImageScreen((Internet) getBApp());
-								mTracker.setPos(grid.getPos());
-								imageScreen.setTracker(mTracker);
-
-								getBApp().push(imageScreen, TRANSITION_LEFT);
-								getBApp().flush();
-							} catch (Exception ex) {
-								Tools.logException(Internet.class, ex);
-							}
-						}
-					}.start();
-
-					return true;
-				}
-			} else if (action.equals("play")) {
-				Object object = grid.get(grid.getFocus());
+			if (action.equals("play")) {
 				getBApp().play("select.snd");
 				getBApp().flush();
 
-				mTop = grid.getTop();
+				mTop = mMenuList.getTop();
 
-				ArrayList photos = (ArrayList) object;
-				final NameValue nameValue = (NameValue) photos.get(grid.getPos() % 3);
+				final InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) mMenuList.get(mMenuList.getFocus());
 				new Thread() {
 					public void run() {
 						try {
 							ImageScreen imageScreen = new ImageScreen((Internet) getBApp());
-							mTracker.setPos(grid.getPos());
-							// getBApp().push(new SlideshowScreen((Internet)
-							// getBApp(), mTracker), TRANSITION_LEFT);
-							// getBApp().flush();
+							mTracker.setPos(mMenuList.getFocus());
+							imageScreen.setTracker(mTracker);
+
+							getBApp().push(imageScreen, TRANSITION_LEFT);
+							getBApp().flush();
 						} catch (Exception ex) {
 							Tools.logException(Internet.class, ex);
 						}
@@ -314,62 +296,47 @@ public class Internet extends DefaultApplication {
 			return super.handleAction(view, action);
 		}
 
-		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 
-			if (grid.size() == 0) {
-				try {
-					setPainting(false);
-					// mBusy.setVisible(true);
+		protected void createRow(BView parent, int index) {
+			BView icon = new BView(parent, 10, 10, parent.getHeight()-20, parent.getHeight()-20);
+			InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) mMenuList.get(index);
+			icon.setResource(createImage(getImage(value.getValue(), false)), RSRC_IMAGE_BESTFIT);
 
-					ArrayList photos = new ArrayList();
-					Iterator iterator = mTracker.getList().iterator();
-					while (iterator.hasNext()) {
-						NameValue nameValue = (NameValue) iterator.next();
-						photos.add(nameValue);
-						if (photos.size() == 3) {
-							grid.add(photos);
-							photos = new ArrayList();
-						}
-					}
-					if (photos.size() > 0)
-						grid.add(photos);
-					// mBusy.setVisible(false);
-					// mBusy.flush();
-
-					grid.setTop(mTop);
-					grid.setPos(mTracker.getPos());
-				} catch (Exception ex) {
-					Tools.logException(Internet.class, ex);
-				} finally {
-					setPainting(true);
-				}
-			}
-			return super.handleEnter(arg, isReturn);
-		}
-
-		public boolean handleExit() {
-			grid.shutdown();
-			mTop = grid.getTop();
-			grid.clear();
-			return super.handleExit();
+			BText name = new BText(parent, parent.getHeight() + 20, 10, parent.getWidth() - 20 - parent.getHeight(), parent.getHeight() - 20);
+			name.setShadow(true);
+			name.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_TOP);
+			name.setFont("default-18-bold.font");
+			if (value.getDescription()!=null)
+				name.setValue(Tools.trim(value.getName() + " : " + value.getDescription(), 120));
+			else
+				name.setValue(Tools.trim(value.getName(), 120));
 		}
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_PLAY:
+			case KEY_SELECT:
 				postEvent(new BEvent.Action(this, "play"));
 				return true;
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Internet) getBApp()), TRANSITION_LEFT);
+			case KEY_LEFT:
+				if (!mFirst) {
+					postEvent(new BEvent.Action(this, "pop"));
+					return true;
+				}
+				break;				
 			}
 
 			return super.handleKeyPress(code, rawcode);
 		}
-
+		
 		private Tracker mTracker;
+		
+		private boolean mFirst;
 
-		private int mTop;
-	}
+		private int mTop;		
+	}	
 
 	public class ImageScreen extends DefaultScreen {
 
@@ -497,7 +464,7 @@ public class Internet extends DefaultApplication {
 		private Image currentImage(boolean reload) {
 			if (mTracker != null) {
 				try {
-					NameValue nameValue = (NameValue) mTracker.getList().get(mTracker.getPos());
+					InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) mTracker.getList().get(mTracker.getPos());
 					if (nameValue != null) {
 						return getImage(nameValue.getValue(), reload);
 					}
@@ -529,28 +496,263 @@ public class Internet extends DefaultApplication {
 		}
 		return null;
 	}
+	
+	public class TagsMenuScreen extends DefaultMenuScreen {
+		public TagsMenuScreen(Internet app) {
+			super(app, "Internet Tags");
+
+			setFooter("Press ENTER for options");
+
+			getBelow().setResource(mMenuBackground);
+			
+			DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
+			
+			try
+			{
+				String result = Users.retrieveInternetTags(dataConfiguration);
+	            if (result != null && result.length()>0)
+	            {
+	            	SAXReader saxReader = new SAXReader();
+		            log.debug("Tags: " + result);
+		            StringReader stringReader = new StringReader(result);
+		            Document document = saxReader.read(stringReader);
+		            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+		
+		            Element root = document.getRootElement(); 
+		            Element tags = root.element("tags");
+		            if (tags!=null)
+		            {
+			            for (Iterator i = tags.elementIterator("tag"); i.hasNext();) {
+			                Element element = (Element) i.next();
+			                mMenuList.add(Tools.getAttribute(element, "name"));
+			            }
+		            }
+	            }
+			} catch (Exception ex) {
+				Tools.logException(Internet.class, ex);
+			}
+		}
+
+		public boolean handleAction(BView view, Object action) {
+			if (action.equals("push")) {
+				if (mMenuList.size() > 0) {
+					load();
+					
+					final InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
+
+					new Thread() {
+						public void run() {
+							try {
+								String tag = (String)mMenuList.get(mMenuList.getFocus()); 
+								//Tracker tracker = new Tracker(mMenuList.getRows(), 0);
+								
+								DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
+								
+								ArrayList list = new ArrayList();
+								String result = Users.retrieveInternetFromTag(dataConfiguration, tag);
+					            if (result != null && result.length()>0)
+					            {
+					            	SAXReader saxReader = new SAXReader();
+						            log.debug("Tags: " + result);
+						            StringReader stringReader = new StringReader(result);
+						            Document document = saxReader.read(stringReader);
+						            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+						
+						            Element root = document.getRootElement(); 
+						            Element internet = root.element("internet");
+						            if (internet!=null)
+						            {
+							            for (Iterator i = internet.elementIterator("url"); i.hasNext();) {
+							                Element element = (Element) i.next();
+							                InternetConfiguration.SharedUrl sharedUrl = new InternetConfiguration.SharedUrl(Tools.getAttribute(element, "name"), Tools.getAttribute(element, "url"), Tools.getAttribute(element, "description"), tag, SharedUrl.PRIVATE); 
+							                list.add(sharedUrl);
+							            }
+						            }
+					            }
+								
+					            Tracker tracker = new Tracker(list, 0);
+					            getBApp().push(new FavoritesMenuScreen((Internet)getBApp(), tracker), TRANSITION_NONE);
+								//getBApp().push(new TagMenuScreen((Internet)getBApp(), tag), TRANSITION_NONE);
+								getBApp().flush();
+								
+							} catch (Exception ex) {
+								Tools.logException(Internet.class, ex);
+							}
+						}
+					}.start();
+					return true;
+				}
+			}
+			return super.handleAction(view, action);
+		}
+
+		protected void createRow(BView parent, int index) {
+			try
+			{
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				icon.setResource(mFolderIcon);
+				String title = (String) mMenuList.get(index);
+
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(title), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "push"));
+				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Internet) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_LEFT:
+				postEvent(new BEvent.Action(this, "pop"));
+				return true;
+			}
+			return super.handleKeyPress(code, rawcode);
+		}
+	}	
+	
+	public class TagMenuScreen extends DefaultMenuScreen {
+		public TagMenuScreen(Internet app, String tag) {
+			super(app, "Internet Tag");
+
+			setFooter("Press ENTER for options");
+
+			getBelow().setResource(mMenuBackground);
+			
+			DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
+			
+			try
+			{
+				String result = Users.retrieveInternetFromTag(dataConfiguration, tag);
+	            if (result != null && result.length()>0)
+	            {
+	            	SAXReader saxReader = new SAXReader();
+		            log.debug("Tags: " + result);
+		            StringReader stringReader = new StringReader(result);
+		            Document document = saxReader.read(stringReader);
+		            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
+		
+		            Element root = document.getRootElement(); 
+		            Element internet = root.element("internet");
+		            if (internet!=null)
+		            {
+			            for (Iterator i = internet.elementIterator("url"); i.hasNext();) {
+			                Element element = (Element) i.next();
+			                mMenuList.add(Tools.getAttribute(element, "name"));
+			            }
+		            }
+	            }
+			} catch (Exception ex) {
+				Tools.logException(Internet.class, ex);
+			}
+		}
+
+		public boolean handleAction(BView view, Object action) {
+			if (action.equals("push")) {
+				if (mMenuList.size() > 0) {
+					load();
+					
+					final InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
+
+					new Thread() {
+						public void run() {
+							try {
+								/*
+								if (mMenuList.getFocus()==0)
+								{
+									Tracker tracker = new Tracker(internetConfiguration.getSharedUrls(), 0);
+									getBApp().push(new FavoritesMenuScreen((Internet)getBApp(), tracker), TRANSITION_NONE);
+								}
+								else
+									getBApp().push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
+								getBApp().flush();
+								*/
+								
+							} catch (Exception ex) {
+								Tools.logException(Internet.class, ex);
+							}
+						}
+					}.start();
+					return true;
+				}
+			}
+			return super.handleAction(view, action);
+		}
+
+		protected void createRow(BView parent, int index) {
+			try
+			{
+				BView icon = new BView(parent, 9, 2, 32, 32);
+				icon.setResource(mFolderIcon);
+				String title = (String) mMenuList.get(index);
+
+				BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+				name.setShadow(true);
+				name.setFlags(RSRC_HALIGN_LEFT);
+				name.setValue(Tools.trim(Tools.clean(title), 40));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "push"));
+				return true;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Internet) getBApp()), TRANSITION_LEFT);
+				return true;
+			case KEY_LEFT:
+				postEvent(new BEvent.Action(this, "pop"));
+				return true;
+			}
+			return super.handleKeyPress(code, rawcode);
+		}
+	}	
 
 	public static class InternetFactory extends AppFactory {
 
 		public void initialize() {
-			InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext().getConfiguration();
+			final InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext().getConfiguration();
 
 			Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
 				public void reload() {
 					try {
-						log.debug("Internet");
 						updateImages();
 					} catch (Exception ex) {
 						log.error("Could not download internet images", ex);
 					}
 				}
 			}), internetConfiguration.getReload());
+			
+			Server.getServer().scheduleData(new ReloadTask(new ReloadCallback() {
+				public void reload() {
+					try {
+						updateData();
+					} catch (Exception ex) {
+						log.error("Could not updata internet data", ex);
+					}
+				}
+			}), 60*24);
 		}
 
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 
 			updateImages();
+			updateData();
 		}
 
 		private void updateImages() {
@@ -559,9 +761,9 @@ public class Internet extends DefaultApplication {
 
 			new Thread() {
 				public void run() {
-					Iterator iterator = internetConfiguration.getUrls().iterator();
+					Iterator iterator = internetConfiguration.getSharedUrls().iterator();
 					while (iterator.hasNext()) {
-						NameValue nameValue = (NameValue) iterator.next();
+						InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) iterator.next();
 
 						try {
 							URL url = new URL(nameValue.getValue());
@@ -573,6 +775,50 @@ public class Internet extends DefaultApplication {
 					}
 				}
 			}.start();
+		}
+		
+		private void updateData() {
+			InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext()
+					.getConfiguration();
+
+			try {
+				StringBuffer buffer = new StringBuffer();
+				synchronized(buffer)
+				{
+					buffer.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+					buffer.append("<data>\n");
+					buffer.append("<internet>\n");
+					Iterator iterator = internetConfiguration.getSharedUrls().iterator();
+					while (iterator.hasNext())
+					{
+						InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) iterator.next();
+						if (nameValue.getPrivacy().equals(InternetConfiguration.SharedUrl.PUBLIC))
+						{
+							buffer.append("<url");
+							buffer.append(" name=\""+Tools.escapeXMLChars(nameValue.getName())+"\"");
+							buffer.append(" url=\""+Tools.escapeXMLChars(nameValue.getValue())+"\"");
+							buffer.append(" description=\""+Tools.escapeXMLChars(nameValue.getDescription())+"\"");
+							buffer.append(" tags=\""+Tools.escapeXMLChars(nameValue.getTags())+"\"");
+							if (nameValue.getPrivacy().equals(InternetConfiguration.SharedUrl.PRIVATE))
+								buffer.append(" privacy=\"0\"");
+							else
+							if (nameValue.getPrivacy().equals(InternetConfiguration.SharedUrl.PUBLIC))
+								buffer.append(" privacy=\"1\"");
+							else
+							if (nameValue.getPrivacy().equals(InternetConfiguration.SharedUrl.FRIENDS))
+								buffer.append(" privacy=\"2\"");
+							else
+								buffer.append(" privacy=\"0\"");
+							buffer.append(" />\n");
+						}
+					}
+					buffer.append("</internet>\n");
+					buffer.append("</data>\n");
+				}
+				Users.updateInternet(Server.getServer().getDataConfiguration(), buffer.toString());
+			} catch (Exception ex) {
+				log.error("Could not update internet data", ex);
+			}
 		}
 	}
 }

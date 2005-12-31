@@ -32,6 +32,7 @@ import javax.jmdns.ServiceInfo;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.NameValue;
 
 public class AppHost implements ILogger
 {
@@ -173,7 +174,7 @@ public class AppHost implements ILogger
         */
     }
     
-    public void listen()
+    public void listen(boolean activate)
     {
         try
         {
@@ -203,15 +204,38 @@ public class AppHost implements ILogger
             }
             listener.setFactories(factories);
             IFactory ifactory;
-            for(Iterator iterator = factories.iterator(); iterator.hasNext(); register(ifactory))
+            for(Iterator iterator = factories.iterator(); iterator.hasNext(); )
+            {
                 ifactory = (IFactory)iterator.next();
-
+                if (!activate)
+                {
+                	if (ifactory.getClass().getName().endsWith("MenuFactory"))
+                		register(ifactory);
+                }
+                else
+                	register(ifactory);
+            }
         }
         catch(Exception ex)
         {
         	Tools.logException(AppFactory.class, ex);
         }
-    	
+    }
+    
+    public List getAppUrls()
+    {
+    	ArrayList list = new ArrayList();
+    	String as[] = listener.getInterfaces();
+        int ai[] = listener.getPorts();
+        
+        IFactory ifactory;
+        for(Iterator iterator = factories.iterator(); iterator.hasNext();)
+        {
+            ifactory = (IFactory)iterator.next();
+            
+            list.add(new NameValue(ifactory.getClass().getName(), "http://" + as[0] + ":" + ai[0] + ifactory.getAppName()));
+        }
+        return list;
     }
     
     public void listen(IFactory factory)
@@ -434,13 +458,13 @@ public class AppHost implements ILogger
     public void register(IFactory ifactory)
         throws IOException
     {
-        String as[] = listener.getInterfaces();
+    	String as[] = listener.getInterfaces();
         int ai[] = listener.getPorts();
         for(int i = 0; i < as.length; i++)
         {
             for(int j = 0; j < ai.length; j++)
             {
-                String s = "http://" + as[i] + ":" + ai[j] + ifactory.getAppName();
+            	String s = "http://" + as[i] + ":" + ai[j] + ifactory.getAppName();
                 if(rv == null)
                 {
                     log.info(s + " [no mdns]");
@@ -467,7 +491,6 @@ public class AppHost implements ILogger
                     }
                 rv[j].registerService(getServiceInfo(ifactory, ai[j]));
             }
-
         }
     }
     

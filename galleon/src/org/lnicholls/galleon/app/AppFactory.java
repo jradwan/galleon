@@ -128,6 +128,10 @@ public class AppFactory extends Factory {
 	public void setAppContext(AppContext appContext) {
 		mAppContext = appContext;
 	}
+	
+	public void updateAppContext(AppContext appContext) {
+		mAppContext = appContext;
+	}
 
 	public AppContext getAppContext() {
 		return mAppContext;

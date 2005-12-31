@@ -59,6 +59,9 @@ public class InternetSlideshowsOptionsPanel extends AppConfigurationPanel {
 		InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) appConfiguration;
 
 		mTitleField = new JTextField(imagesConfiguration.getName());
+		mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(imagesConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 		mUseSafeField = new JCheckBox("Use safe viewing area");
 		mUseSafeField.setToolTipText("Check to specify that photos should fit within the safe viewing area of the TV");
 		mUseSafeField.setSelected(imagesConfiguration.isUseSafe());
@@ -122,7 +125,8 @@ public class InternetSlideshowsOptionsPanel extends AppConfigurationPanel {
 		defaultCombo(mTransitionTimeField, String.valueOf(imagesConfiguration.getTransitionTime()));
 
 		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, 9dlu, " + // general
-				"pref, 9dlu, " + // title
+				"pref, 3dlu, " + // title
+				"pref, 9dlu, " + // share
 				"pref, 9dlu, " + // options
 				"pref, 9dlu, " + // safe
 				"pref, 9dlu, " + // slideshow effects
@@ -142,16 +146,17 @@ public class InternetSlideshowsOptionsPanel extends AppConfigurationPanel {
 		builder.addSeparator("General", cc.xyw(1, 1, 4));
 		builder.addLabel("Title", cc.xy(1, 3));
 		builder.add(mTitleField, cc.xyw(3, 3, 1));
-		builder.addSeparator("Options", cc.xyw(1, 5, 4));
-		builder.add(mUseSafeField, cc.xyw(3, 7, 1));
-		builder.addSeparator("Slideshow Effects", cc.xyw(1, 9, 4));
-		builder.addLabel("Effect", cc.xy(1, 11));
-		builder.add(mEffectsField, cc.xyw(3, 11, 1));
-		builder.addLabel("Display Time", cc.xy(1, 13));
-		builder.add(mDisplayTimeField, cc.xy(3, 13));
-		builder.addLabel("Transition Time", cc.xy(1, 15));
-		builder.add(mTransitionTimeField, cc.xy(3, 15));
-        builder.addSeparator("Feeds", cc.xyw(1, 17, 4));
+		builder.add(mSharedField, cc.xyw(3, 5, 1));
+		builder.addSeparator("Options", cc.xyw(1, 7, 4));
+		builder.add(mUseSafeField, cc.xyw(3, 9, 1));
+		builder.addSeparator("Slideshow Effects", cc.xyw(1, 11, 4));
+		builder.addLabel("Effect", cc.xy(1, 13));
+		builder.add(mEffectsField, cc.xyw(3, 13, 1));
+		builder.addLabel("Display Time", cc.xy(1, 15));
+		builder.add(mDisplayTimeField, cc.xy(3, 15));
+		builder.addLabel("Transition Time", cc.xy(1, 17));
+		builder.add(mTransitionTimeField, cc.xy(3, 17));
+        builder.addSeparator("Feeds", cc.xyw(1, 19, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -169,7 +174,7 @@ public class InternetSlideshowsOptionsPanel extends AppConfigurationPanel {
         columnNames.add(1, "URL");
         //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
         // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 19, 4));		
+        builder.add(mFileOptionsTable, cc.xyw(1, 21, 4));		
 
 		JPanel panel = builder.getPanel();
 		// FormDebugUtils.dumpAll(panel);
@@ -210,6 +215,7 @@ public class InternetSlideshowsOptionsPanel extends AppConfigurationPanel {
             newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
         }
         imagesConfiguration.setPaths(newItems);
+        imagesConfiguration.setShared(mSharedField.isSelected());
 	}
 
 	private JTextComponent mTitleField;
@@ -225,4 +231,6 @@ public class InternetSlideshowsOptionsPanel extends AppConfigurationPanel {
     private FileOptionsTable mFileOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

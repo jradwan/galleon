@@ -22,6 +22,7 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -50,11 +51,15 @@ public class AudioScrobblerOptionsPanel extends AppConfigurationPanel {
         AudioScrobblerConfiguration audioScrobblerConfiguration = (AudioScrobblerConfiguration) appConfiguration;
 
         mTitleField = new JTextField(audioScrobblerConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(audioScrobblerConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mUsernameField = new JPasswordField(Tools.decrypt(audioScrobblerConfiguration.getUsername()));
         mPasswordField = new JPasswordField(Tools.decrypt(audioScrobblerConfiguration.getPassword()));
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
                 + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // account
                 "3dlu, " + "pref, " + // username
                 "3dlu, " + "pref");
@@ -68,7 +73,8 @@ public class AudioScrobblerOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Account", cc.xyw(1, 5, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Account", cc.xyw(1, 7, 4));
         JLabel label = new JLabel("Username");
         label.setForeground(Color.blue);
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -81,10 +87,10 @@ public class AudioScrobblerOptionsPanel extends AppConfigurationPanel {
                 }
             }
         });
-        builder.add(label, cc.xy(1, 7));        
-        builder.add(mUsernameField, cc.xyw(3, 7, 1));
-        builder.addLabel("Password", cc.xy(1, 9));
-        builder.add(mPasswordField, cc.xyw(3, 9, 1));
+        builder.add(label, cc.xy(1, 9));        
+        builder.add(mUsernameField, cc.xyw(3, 9, 1));
+        builder.addLabel("Password", cc.xy(1, 11));
+        builder.add(mPasswordField, cc.xyw(3, 11, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -107,6 +113,7 @@ public class AudioScrobblerOptionsPanel extends AppConfigurationPanel {
         audioScrobblerConfiguration.setName(mTitleField.getText());
         audioScrobblerConfiguration.setUsername(Tools.encrypt(mUsernameField.getText()));
         audioScrobblerConfiguration.setPassword(Tools.encrypt(mPasswordField.getText()));
+        audioScrobblerConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -114,4 +121,6 @@ public class AudioScrobblerOptionsPanel extends AppConfigurationPanel {
     private JPasswordField mUsernameField;
     
     private JPasswordField mPasswordField;
+    
+    private JCheckBox mSharedField;
 }

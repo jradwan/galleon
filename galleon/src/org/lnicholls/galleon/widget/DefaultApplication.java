@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +44,7 @@ import org.lnicholls.galleon.database.ApplicationManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Tools;
@@ -62,6 +64,7 @@ import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.StreamResource;
 import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
+import com.tivo.hme.host.sample.HostContext;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
 import com.tivo.core.ds.TeDict;
@@ -98,11 +101,23 @@ public class DefaultApplication extends BApplication {
         			application.setDateInstalled(new Date());
         		application.setLastUsed(new Date());
         		application.setTotal(application.getTotal()+1);
+        		if (appContext.getConfiguration() instanceof AppConfiguration)
+        		{
+        			AppConfiguration appConfiguration = (AppConfiguration)appContext.getConfiguration();
+        			application.setShared(Boolean.valueOf(appConfiguration.isShared()));
+        		}
         		ApplicationManager.updateApplication(application);
         	}
         	else
         	{
-        		Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getTitle(), appContext.getDescriptor().getVersion(), 1, new Date(), null, new Date());
+        		boolean shared = false;
+        		if (appContext.getConfiguration() instanceof AppConfiguration)
+        		{
+        			AppConfiguration appConfiguration = (AppConfiguration)appContext.getConfiguration();
+        			shared = appConfiguration.isShared();
+        		}
+        		
+        		Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getTitle(), appContext.getDescriptor().getVersion(), 1, new Date(), null, new Date(), Boolean.valueOf(shared));
         		ApplicationManager.createApplication(application);
         	}
         } catch (Exception ex) {
@@ -302,12 +317,33 @@ public class DefaultApplication extends BApplication {
         return super.handleKeyPress(code, rawcode);
     }
     
+    public boolean handleEvent(HmeEvent event)
+    {
+    	switch (event.getOpCode()) {
+	    	case EVT_INIT_INFO: {
+	    		HmeEvent.InitInfo info = (HmeEvent.InitInfo) event;
+	    		mParams = info.getParams();
+	    		mMemento = info.getMemento();
+	    		return handleInitInfo(info);
+	    	}
+    	}
+    	return super.handleEvent(event);
+    }
+    
     public boolean handleInitInfo(HmeEvent.InitInfo info)
     {
-    	mParams = info.getParams();
-    	byte mMemento[] = info.getMemento();
     	return true;
     }    
+    
+    public byte[] getMemento()
+    {
+    	return mMemento;
+    }    
+    
+    public TeDict getParams()
+    {
+    	return mParams;
+    }
 
     public static class Tracker {
         public Tracker(List list, int pos) {
@@ -1028,21 +1064,186 @@ public class DefaultApplication extends BApplication {
 			return true;
 		}
 	}
+	
+	public class PinScreen extends DefaultScreen {
 
-	public void checkVersion(DefaultApplication app) {
-		try
-		{
-			if (!Server.getServer().isCurrentVersion())
+		public PinScreen(DefaultApplication app) {
+			super(app, "", false);
+			
+			ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+			mPin = Tools.decrypt(serverConfiguration.getPin());
+			mValue = "";
+
+			getBelow().setResource(Color.WHITE);
+			
+			BView image = new BView(getNormal(), (getWidth()/2)-125, SAFE_TITLE_V, 250, 188, true);
+			image.setResource("galleon.png");
+			
+			BText text = new BText(getNormal(), BORDER_LEFT, (getHeight() - SAFE_TITLE_V) - 180, BODY_WIDTH, 100);
+			text.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
+			text.setFont("default-30-bold.font");
+			text.setColor(Color.BLACK);
+			text.setShadow(true);
+			text.setValue("Enter PIN:");
+			
+			mText = new BText(getNormal(), BORDER_LEFT, (getHeight() - SAFE_TITLE_V) - 140, BODY_WIDTH, 100);
+			mText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
+			mText.setFont("default-30-bold.font");
+			mText.setColor(Color.BLACK);
+			mText.setShadow(true);
+			mText.setValue("");
+
+			BButton button = new BButton(getNormal(), (getWidth()/2)-50, (getHeight() - SAFE_TITLE_V) - 40, 100, 30);
+			button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, null, null, null, true);
+			button.setResource(createText("default-24.font", Color.white, "OK"));
+	        setFocusDefault(mText);
+		}
+
+		public boolean handleKeyPress(int code, long rawcode) {
+			String value = null;
+			switch (code) {
+			case KEY_NUM0:
+                getBApp().play("right.snd");
+                getBApp().flush();
+				value = "0";
+				break;
+			case KEY_NUM1:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "1";
+				break;
+			case KEY_NUM2:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "2";
+				break;
+			case KEY_NUM3:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "3";
+				break;
+			case KEY_NUM4:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "4";
+				break;
+			case KEY_NUM5:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "5";
+				break;
+			case KEY_NUM6:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "6";
+				break;
+			case KEY_NUM7:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "7";
+				break;
+			case KEY_NUM8:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "8";
+				break;
+			case KEY_NUM9:
+				getBApp().play("right.snd");
+				getBApp().flush();
+				value = "9";
+				break;
+			case KEY_LEFT:
+				if (mValue.length()>0)
+				{
+					getBApp().play("pageup.snd");
+					getBApp().flush();
+					mValue = mValue.substring(0, mValue.length()-1);
+				}
+				else
+				{
+					getBApp().play("bonk.snd");
+					getBApp().flush();
+				}
+				break;				
+			case KEY_SELECT:
+				if (mValue.equals(mPin))
+				{
+					getBApp().play("thumbsup.snd");
+					getBApp().flush();
+					postEvent(new BEvent.Action(this, "pop"));
+				}
+				else
+				{
+					log.info("Invalid PIN");
+					getBApp().play("bonk.snd");
+					getBApp().flush();
+		            setActive(false); 
+				}
+				return true;
+			}
+			
+			if (value != null)
 			{
-				push(new VersionScreen(app), TRANSITION_NONE);			
+				mValue = mValue + value;
+			}
+			
+			String hidden = "";
+			for (int i=0;i < mValue.length(); i++)
+			{
+				hidden = hidden + "*";
+			}
+			mText.setValue(hidden);
+			getBApp().flush();
+			
+			return true;
+		}
+		
+		private BText mText;
+		
+		private String mValue;
+		
+		private String mPin;
+	}	
+
+	public void initialize() {
+		boolean interrupted = false;
+
+		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+		IContext context = this.getContext();
+		if (context!=null && context instanceof HostContext)
+        {
+        	HostContext hostContext = (HostContext)context;
+        	Socket socket = hostContext.getSocket();
+        	if (!Tools.isLocal(socket.getInetAddress().getHostAddress()) && serverConfiguration.canShare())
+        	{
+        		log.info("Remote access attempted from " + socket.getInetAddress().getHostAddress());
+    			if (getFactory() instanceof AppFactory)
+    			{
+    				AppConfiguration appConfiguration = (AppConfiguration)((AppFactory)getFactory()).getAppContext().getConfiguration();
+    				if (appConfiguration.isShared())
+    				{
+    					push(new PinScreen(this), TRANSITION_NONE);
+    					interrupted = true;
+    				}
+    			}
+    		}
+        }
+		if (!interrupted)
+		{
+			try
+			{
+				if (!Server.getServer().isCurrentVersion())
+				{
+					push(new VersionScreen(this), TRANSITION_NONE);			
+				}
+			}
+			catch (Exception ex)
+			{
+				Tools.logException(DefaultApplication.class, ex);
 			}
 		}
-		catch (Exception ex)
-		{
-			Tools.logException(DefaultApplication.class, ex);
-		}
 	}
-
+	
     private Player mPlayer;
 
     private ArrayList mCallbacks;

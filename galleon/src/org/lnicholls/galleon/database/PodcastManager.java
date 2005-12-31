@@ -69,7 +69,7 @@ public class PodcastManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(Podcast);
+            session.save(trim(Podcast));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -87,7 +87,7 @@ public class PodcastManager {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(Podcast);
+            session.update(trim(Podcast));
             tx.commit();
         } catch (HibernateException he) {
         	log.debug(Podcast.getPath());
@@ -396,6 +396,39 @@ public class PodcastManager {
         } catch (Exception ex) {
             Tools.logException(PodcastManager.class, ex);
         }
-    }    
+    }
     
+    private static Podcast trim(Podcast podcast)
+    {
+    	podcast.setAuthor(Tools.trim(podcast.getAuthor(),255));
+    	podcast.setCategory(Tools.trim(podcast.getCategory(),255));
+    	podcast.setDescription(Tools.trim(podcast.getDescription(),4096));
+    	podcast.setExternalId(Tools.trim(podcast.getExternalId(),255));
+    	podcast.setKeywords(Tools.trim(podcast.getKeywords(),255));
+    	podcast.setLink(Tools.trim(podcast.getLink(),1024));
+    	podcast.setOrigen(Tools.trim(podcast.getOrigen(),30));
+    	podcast.setPath(Tools.trim(podcast.getPath(),1024));
+    	podcast.setSubtitle(Tools.trim(podcast.getSubtitle(),4096));
+    	podcast.setSummary(Tools.trim(podcast.getSummary(),4096));
+    	podcast.setTitle(Tools.trim(podcast.getTitle(),255));
+    	
+    	List list = podcast.getTracks();
+    	Iterator iterator = list.iterator();
+    	while (iterator.hasNext())
+    	{
+    		PodcastTrack track = (PodcastTrack)iterator.next();
+    		track.setAuthor(Tools.trim(track.getAuthor(),255));
+    		track.setCategory(Tools.trim(track.getCategory(),255));
+    		track.setDescription(Tools.trim(track.getDescription(),4096));
+    		track.setGuid(Tools.trim(track.getGuid(),255));
+    		track.setKeywords(Tools.trim(track.getKeywords(),255));
+    		track.setLink(Tools.trim(track.getLink(),1024));
+    		track.setMimeType(Tools.trim(track.getMimeType(),50));
+    		track.setSubtitle(Tools.trim(track.getSubtitle(),4096));
+    		track.setSummary(Tools.trim(track.getSummary(),4096));
+    		track.setTitle(Tools.trim(track.getTitle(),255));
+    		track.setUrl(Tools.trim(track.getUrl(),1024));
+    	}
+    	return podcast;
+    }
 }

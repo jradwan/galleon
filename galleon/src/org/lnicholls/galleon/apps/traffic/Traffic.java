@@ -89,7 +89,7 @@ public class Traffic extends DefaultApplication {
 		} else
 			push(new LocationMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class LocationMenuScreen extends DefaultMenuScreen {

@@ -122,7 +122,7 @@ public class Music extends DefaultApplication {
 		} else
 			push(new MusicMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
@@ -253,7 +253,7 @@ public class Music extends DefaultApplication {
 		public PathScreen(Music app, Tracker tracker, boolean first) {
 			super(app, "Music");
 			
-			setFooter("Press ENTER for options");
+			setFooter("Press ENTER for options, 1 for Jukebox");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -420,6 +420,7 @@ public class Music extends DefaultApplication {
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_NUM1:
+			case KEY_THUMBSUP:
 				try
 				{
 					Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
@@ -511,6 +512,7 @@ public class Music extends DefaultApplication {
 			switch (code) {
 			case KEY_SELECT:
 			case KEY_RIGHT:
+			case KEY_PLAY:
 				if (list.getFocus() == 0) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
@@ -574,7 +576,7 @@ public class Music extends DefaultApplication {
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("play")) {
+			if (action.equals("play") || action.equals("push")) {
 
 				getBApp().play("select.snd");
 				getBApp().flush();

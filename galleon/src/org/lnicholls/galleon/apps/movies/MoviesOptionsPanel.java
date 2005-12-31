@@ -50,6 +50,9 @@ public class MoviesOptionsPanel extends AppConfigurationPanel {
         MoviesConfiguration moviesConfiguration = (MoviesConfiguration) appConfiguration;
 
         mTitleField = new JTextField(moviesConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(moviesConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mCityField = new JTextField(moviesConfiguration.getCity());
         mStateCombo = new JComboBox();
         mStateCombo.addItem(new ComboWrapper("Alabama", "AL"));
@@ -108,6 +111,7 @@ public class MoviesOptionsPanel extends AppConfigurationPanel {
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // location
                 "9dlu, " + "pref, " + // city
                 "3dlu, " + "pref, " + // state
@@ -122,13 +126,14 @@ public class MoviesOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Location", cc.xyw(1, 5, 4));
-        builder.addLabel("City", cc.xy(1, 7));
-        builder.add(mCityField, cc.xyw(3, 7, 1));
-        builder.addLabel("State", cc.xy(1, 9));
-        builder.add(mStateCombo, cc.xyw(3, 9, 1));
-        builder.addLabel("Zip", cc.xy(1, 11));
-        builder.add(mZipField, cc.xyw(3, 11, 1));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Location", cc.xyw(1, 7, 4));
+        builder.addLabel("City", cc.xy(1, 9));
+        builder.add(mCityField, cc.xyw(3, 9, 1));
+        builder.addLabel("State", cc.xy(1, 11));
+        builder.add(mStateCombo, cc.xyw(3, 11, 1));
+        builder.addLabel("Zip", cc.xy(1, 13));
+        builder.add(mZipField, cc.xyw(3, 13, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -165,6 +170,7 @@ public class MoviesOptionsPanel extends AppConfigurationPanel {
         moviesConfiguration.setCity(mCityField.getText());
         moviesConfiguration.setState(((NameValue) mStateCombo.getSelectedItem()).getValue());
         moviesConfiguration.setZip(mZipField.getText());
+        moviesConfiguration.setShared(mSharedField.isSelected());
     }
     
     private String mId;
@@ -176,4 +182,6 @@ public class MoviesOptionsPanel extends AppConfigurationPanel {
     private JComboBox mStateCombo;
 
     private JTextComponent mZipField;
+    
+    private JCheckBox mSharedField;
 }

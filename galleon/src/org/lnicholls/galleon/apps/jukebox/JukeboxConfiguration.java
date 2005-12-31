@@ -42,6 +42,18 @@ public class JukeboxConfiguration implements AppConfiguration {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
+	
+	public boolean isShared()
+    {
+    	return mShared;
+    }
+    
+    public void setShared(boolean value)
+    {
+    	mShared = value;
+    }
+    
+    private boolean mShared;	
 
 	private String mName;
 

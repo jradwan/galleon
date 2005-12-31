@@ -24,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -65,6 +66,9 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         setLayout(new GridLayout(0, 1));
 
         mTitleField = new JTextField(shoutcastConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(shoutcastConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
         mGenreField = new JComboBox();
         mGenreField.addItem(new ComboWrapper("80s", "80s"));
         mGenreField.addItem(new ComboWrapper("Acid Jazz", "Acid Jazz"));
@@ -132,6 +136,7 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + 
                 "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref, " + // share
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // genre
                 "3dlu, " + "pref");
@@ -145,7 +150,8 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Options", cc.xyw(1, 5, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Options", cc.xyw(1, 7, 4));
         JLabel label = new JLabel("Genre");
         label.setForeground(Color.blue);
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -158,8 +164,8 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
                 }
             }
         });
-        builder.add(label, cc.xy(1, 7));
-        builder.add(mGenreField, cc.xyw(3, 7, 1));
+        builder.add(label, cc.xy(1, 9));
+        builder.add(mGenreField, cc.xyw(3, 9, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -175,7 +181,7 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         ArrayList fields = new ArrayList();
         fields.add(mGenreField);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 9, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 11, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -211,6 +217,7 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
             newItems.add((String) rows.get(0));
         }
         shoutcastConfiguration.setGenres(newItems);
+        shoutcastConfiguration.setShared(mSharedField.isSelected());
         
         if (first)
             JOptionPane.showMessageDialog(this,
@@ -225,4 +232,6 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
     private OptionsTable mOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

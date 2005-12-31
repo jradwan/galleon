@@ -142,7 +142,7 @@ public class Photos extends DefaultApplication {
 		} else
 			push(new PhotosMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class PhotosMenuScreen extends DefaultMenuScreen {
@@ -481,7 +481,7 @@ public class Photos extends DefaultApplication {
 
 			int w = getWidth() - 2 * BORDER_LEFT;
 			int h = getHeight() - TOP - SAFE_TITLE_V - 2 * PAD;
-			grid = new PGrid(this.getNormal(), BORDER_LEFT, BORDER_TOP, w, h, h / 3);
+			grid = new PGrid(this.getNormal(), BORDER_LEFT, BORDER_TOP, w, h, (int)(h / 2.9));
 
 			BHighlights highlights = grid.getHighlights();
 			highlights.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);

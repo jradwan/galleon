@@ -117,7 +117,7 @@ public class Videocasting extends DefaultApplication {
 
 		push(new VideocastingMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public static Element getDocument(String location) {
@@ -2546,8 +2546,8 @@ public class Videocasting extends DefaultApplication {
 
 	public static class VideocastingFactory extends AppFactory {
 
-		public void setAppContext(AppContext appContext) {
-			super.setAppContext(appContext);
+		public void updateAppContext(AppContext appContext) {
+			super.updateAppContext(appContext);
 
 			update();
 		}

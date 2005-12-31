@@ -212,11 +212,24 @@ public class WeatherData implements Serializable {
                     + "." + "date");
             String page = null;
 
-            if (persistentValue != null) {
+            if (persistentValue != null && persistentValue.getValue()!=null) {
                 String last = persistentValue.getValue();
-                Date lastTime = new Date(last);
+                Date lastTime = null;
+                try
+                {
+                	lastTime = new Date(last);
+                }
+                catch (Exception ex)
+                {
+                	try {
+                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "date", new Date()
+                                .toString());
+                    } catch (Exception ex2) {
+                        log.error("Could not cache weather data");
+                    }
+                }
                 Date current = new Date();
-                if ((current.getTime() - lastTime.getTime()) / (1000 * 60) >= 720) {
+                if (lastTime!=null && (current.getTime() - lastTime.getTime()) / (1000 * 60) >= 720) {
                     // http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
                     URL url = new URL("http://xoap.weather.com/weather/local/" + mId
                             + "?cc=*&dayf=5&link=xoap&prod=xoap&par=" + PARTNER_ID + "&key=" + LICENSE_KEY);
@@ -255,7 +268,7 @@ public class WeatherData implements Serializable {
                 parseWeather(page);
                 PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "id", mId);
             }
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
             log.error("Could not determine weather conditions", ex);
         }
         //parseWeather("");

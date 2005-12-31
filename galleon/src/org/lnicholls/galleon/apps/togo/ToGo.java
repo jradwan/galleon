@@ -92,7 +92,7 @@ public class ToGo extends DefaultApplication {
 
 		push(new ToGoMenuScreen(this), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 	
 	public class OptionsScreen extends DefaultOptionsScreen {

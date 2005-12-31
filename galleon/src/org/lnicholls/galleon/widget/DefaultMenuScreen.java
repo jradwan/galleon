@@ -33,15 +33,25 @@ public class DefaultMenuScreen extends DefaultScreen {
         super(app);
         setTitle(title);
 
-        mMenuList = new MenuList(this, SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 290, getWidth()
-                - ((SAFE_TITLE_H * 2) + 32), 280, 35);
+        mMenuList = createMenuList();
         BHighlights h = mMenuList.getHighlights();
         h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
         h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
 
         setFocusDefault(mMenuList);
     }
+    
+    public DefaultList createMenuList()
+    {
+    	return new MenuList(this, SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 290, getWidth()
+                - ((SAFE_TITLE_H * 2) + 32), 280, 35);
+    }
 
+    public DefaultList getMenuList()
+    {
+    	return mMenuList;
+    }
+    
     public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
         mMenuList.init();
         if (mFocus>0)
@@ -171,7 +181,7 @@ public class DefaultMenuScreen extends DefaultScreen {
         DefaultMenuScreen mDefaultMenuScreen;
     }
 
-    protected MenuList mMenuList;
+    protected DefaultList mMenuList;
     
     protected int mFocus;
     

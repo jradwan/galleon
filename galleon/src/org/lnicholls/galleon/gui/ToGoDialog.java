@@ -39,6 +39,8 @@ import org.lnicholls.galleon.util.*;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 /**
  * @author Owner
  * 
@@ -109,11 +111,9 @@ public class ToGoDialog extends JDialog implements ActionListener {
         if ("help".equals(e.getActionCommand())) {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try {
-                URL url = getClass().getClassLoader().getResource("togo.html");
-                mMainFrame.displayHelp(mMainFrame, url);
-            } catch (Exception ex) {
-                //HMOTools.logException(OptionsPanelManager.class, ex, "Could not find server help ");
-            }
+				BrowserLauncher.openURL("http://galleon.tv/content/view/14/29/");
+			} catch (Exception ex) {
+			}
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             return;
         }

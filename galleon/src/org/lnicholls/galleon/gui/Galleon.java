@@ -226,7 +226,7 @@ public final class Galleon implements Constants {
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					try {
 						BrowserLauncher
-								.openURL("http://galleon.sourceforge.net");
+								.openURL("http://galleon.tv");
 					} catch (Exception ex) {
 						Tools.logException(Galleon.class, ex);
 					}
@@ -566,6 +566,32 @@ public final class Galleon implements Constants {
 		}
 		return -1;
 	}
+	
+	public static int getHTTPPort() {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getHttpPort();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get http port from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return -1;
+	}
+	
+	public static int getHttpPort() {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.getHttpPort();
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get port from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return -1;
+	}
 
 	public static List getPodcasts() throws RemoteException {
 		try {
@@ -630,19 +656,6 @@ public final class Galleon implements Constants {
 		return true;
 	}
 	
-	public static Object getCodeImage() throws RemoteException {
-		try {
-			ServerControl serverControl = getServerControl();
-			return serverControl.getCodeImage();
-		} catch (Exception ex) {
-			Tools.logException(Galleon.class, ex, "Could not update podcasts to server: " + mServerAddress);
-
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-		return null;
-	}
-	
 	public static List getDownloads() throws RemoteException {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -662,7 +675,7 @@ public final class Galleon implements Constants {
 			ServerControl serverControl = getServerControl();
 			serverControl.pauseDownload(download);
 		} catch (Exception ex) {
-			Tools.logException(Galleon.class, ex, "Could not get downloads from server: " + mServerAddress);
+			Tools.logException(Galleon.class, ex, "Could not get pause downloads from server: " + mServerAddress);
 
 			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
 					JOptionPane.ERROR_MESSAGE);
@@ -675,7 +688,20 @@ public final class Galleon implements Constants {
 			ServerControl serverControl = getServerControl();
 			serverControl.resumeDownload(download);
 		} catch (Exception ex) {
-			Tools.logException(Galleon.class, ex, "Could not get downloads from server: " + mServerAddress);
+			Tools.logException(Galleon.class, ex, "Could not get resume downloads from server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public static void stopDownload(Download download) throws RemoteException
+	{
+		try {
+			ServerControl serverControl = getServerControl();
+			serverControl.stopDownload(download);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not get stop downloads from server: " + mServerAddress);
 
 			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
 					JOptionPane.ERROR_MESSAGE);

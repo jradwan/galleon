@@ -99,7 +99,7 @@ public class Playlists extends DefaultApplication {
 		Tracker tracker = new Tracker(list, 0);
 		push(new PathScreen(this, tracker, true), TRANSITION_NONE);
 		
-		checkVersion(this);
+		initialize();
 	}
 
 	public class PathScreen extends DefaultMenuScreen {
@@ -277,6 +277,7 @@ public class Playlists extends DefaultApplication {
 			switch (code) {
 			case KEY_SELECT:
 			case KEY_RIGHT:
+			case KEY_PLAY:
 				if (list.getFocus() == 0) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
@@ -337,7 +338,7 @@ public class Playlists extends DefaultApplication {
 		}
 
 		public boolean handleAction(BView view, Object action) {
-			if (action.equals("play")) {
+			if (action.equals("play") || action.equals("push")) {
 
 				getBApp().play("select.snd");
 				getBApp().flush();

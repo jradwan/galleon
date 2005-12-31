@@ -17,7 +17,10 @@ package org.lnicholls.galleon.apps.desktop;
  */
 
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -31,6 +34,8 @@ import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 public class DesktopOptionsPanel extends AppConfigurationPanel {
     private static Logger log = Logger.getLogger(DesktopOptionsPanel.class.getName());
 
@@ -41,9 +46,13 @@ public class DesktopOptionsPanel extends AppConfigurationPanel {
         DesktopConfiguration desktopConfiguration = (DesktopConfiguration) appConfiguration;
 
         mTitleField = new JTextField(desktopConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(desktopConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
-                "9dlu, " + "pref, " // title
+                "9dlu, " + "pref, " + // title
+                "3dlu, " + "pref " // shared
         );
 
         PanelBuilder builder = new PanelBuilder(layout);
@@ -55,6 +64,7 @@ public class DesktopOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -75,7 +85,10 @@ public class DesktopOptionsPanel extends AppConfigurationPanel {
     public void save() {
         DesktopConfiguration desktopConfiguration = (DesktopConfiguration) mAppConfiguration;
         desktopConfiguration.setName(mTitleField.getText());
+        desktopConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
+    
+    private JCheckBox mSharedField;
 }

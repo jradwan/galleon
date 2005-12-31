@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -45,9 +46,13 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         MusicConfiguration musicConfiguration = (MusicConfiguration) appConfiguration;
 
         mTitleField = new JTextField(musicConfiguration.getName());
+        mSharedField = new JCheckBox("Share");
+        mSharedField.setSelected(musicConfiguration.isShared());
+        mSharedField.setToolTipText("Share this app");
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, pref, " + // title
+                "3dlu, pref, " + // share
                 "9dlu, pref, " + // directories
                 "9dlu, pref");
 
@@ -60,7 +65,8 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         builder.addSeparator("General", cc.xyw(1, 1, 4));
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.addSeparator("Directories", cc.xyw(1, 5, 4));
+        builder.add(mSharedField, cc.xyw(3, 5, 1));
+        builder.addSeparator("Directories", cc.xyw(1, 7, 4));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -78,7 +84,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
         columnNames.add(1, "Path");
         //OptionsTable optionsTable = new OptionsTable(this, columnNames, new ArrayList(), new JTextField(), new
         // JTextField());
-        builder.add(mFileOptionsTable, cc.xyw(1, 7, 4));
+        builder.add(mFileOptionsTable, cc.xyw(1, 9, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -113,6 +119,7 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
             newItems.add(new NameValue((String) rows.get(0), (String) rows.get(1)));
         }
         musicConfiguration.setPaths(newItems);
+        musicConfiguration.setShared(mSharedField.isSelected());
     }
 
     private JTextComponent mTitleField;
@@ -120,4 +127,6 @@ public class MusicOptionsPanel extends AppConfigurationPanel {
     private FileOptionsTable mFileOptionsTable;
 
     private ArrayList mColumnValues;
+    
+    private JCheckBox mSharedField;
 }

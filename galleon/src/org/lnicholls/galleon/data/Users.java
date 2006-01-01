@@ -68,6 +68,8 @@ public class Users {
 			String protocol = "https";
 			if (HOST.equals("localhost"))
 				protocol = "http";
+			
+			protocol = "http";
 				
 			PostMethod post = new PostMethod(protocol+"://" + HOST + "/galleon/login.php");
 			post.setFollowRedirects(false);
@@ -158,7 +160,7 @@ public class Users {
 	}
 	
 	private static synchronized boolean update(DataConfiguration dataConfiguration, String payload, String url) throws Exception {
-		log.debug("updateApplications: ");
+		log.debug("update: ");
 		if (dataConfiguration.isConfigured())
 		{
 			PostMethod post = new PostMethod("http://" + HOST + url);

@@ -16,11 +16,11 @@
 !define PRODUCT_NAME "Galleon"
 !define PRODUCT_VERSION "2.0.0"
 !define PRODUCT_PUBLISHER "Galleon"
-!define PRODUCT_WEB_SITE "http://galleon.sourceforge.net"
+!define PRODUCT_WEB_SITE "http://galleon.tv"
 !define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar;hme-host-sample.jar;pja.jar;dom4j.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
 !define PRODUCT_BUILD_DIR "d:\galleon\build"
 
-!define JRE_VERSION "1.5.0"
+!define JRE_VERSION "1.5.0_05"
 !define JRE_URL "d:\download\jre-1_5_0_05-windows-i586-p.exe"
 !define JRE_PATH $R0
 !define TEMP $R1
@@ -265,6 +265,7 @@ CopyFiles:
   File ${PRODUCT_BUILD_DIR}\apps\upcoming.jar      
   File ${PRODUCT_BUILD_DIR}\apps\jukebox.jar        
   File ${PRODUCT_BUILD_DIR}\apps\traffic.jar 
+  File ${PRODUCT_BUILD_DIR}\apps\menu.jar 
   IfFileExists "$INSTDIR\apps\camera.jar" 0 HME
   Delete "$INSTDIR\apps\camera.jar"
   

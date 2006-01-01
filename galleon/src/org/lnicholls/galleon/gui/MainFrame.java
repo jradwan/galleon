@@ -139,6 +139,7 @@ public class MainFrame extends JFrame {
 			}
 
 		});
+		/*
 		fileMenu.add(new MenuAction("Galleon.tv Account...", null, "", new Integer(KeyEvent.VK_A)) {
 
 			public void actionPerformed(ActionEvent event) {
@@ -146,6 +147,7 @@ public class MainFrame extends JFrame {
 			}
 
 		});
+		*/
 		fileMenu.add(new MenuAction("Download Manager...", null, "", new Integer(KeyEvent.VK_D)) {
 
 			public void actionPerformed(ActionEvent event) {

@@ -98,7 +98,7 @@ public class RSS extends DefaultApplication {
 		if (Server.getServer().getDataConfiguration().isConfigured())
 			push(new RssMenuScreen(this), TRANSITION_NONE);
 		else
-			push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
+			push(new FavoritesMenuScreen(this, tracker, true), TRANSITION_NONE);
 
 		initialize();
     }
@@ -244,6 +244,37 @@ public class RSS extends DefaultApplication {
 				if (!mFirst) {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
+				}
+				break;
+			case KEY_NUM1:
+			case KEY_THUMBSUP:
+				try
+				{
+					RSSConfiguration.SharedFeed value = (RSSConfiguration.SharedFeed) mMenuList.get(mMenuList.getFocus());
+					RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+					
+					List list = rssConfiguration.getSharedFeeds();
+					boolean duplicate = false;
+					Iterator iterator = list.iterator();
+					while (iterator.hasNext())
+					{
+						RSSConfiguration.SharedFeed sharedFeed = (RSSConfiguration.SharedFeed)iterator.next();
+						if (sharedFeed.getValue().equals(value.getValue()))
+						{
+							duplicate = true;
+							break;
+						}
+					}
+					if (!duplicate)
+					{
+						getApp().play("thumbsup.snd");
+						getApp().flush();
+						list.add(value);
+						Server.getServer().updateApp(((RSSFactory) getFactory()).getAppContext());
+					}
+				}
+				catch (Exception ex) {
+					Tools.logException(RSS.class, ex);
 				}
 				break;				
 			}
@@ -531,7 +562,7 @@ public class RSS extends DefaultApplication {
 	
 	public class TagMenuScreen extends DefaultMenuScreen {
 		public TagMenuScreen(RSS app, String tag) {
-			super(app, "Internet Tag");
+			super(app, "RSS Tag");
 
 			setFooter("Press ENTER for options");
 
@@ -709,7 +740,7 @@ public class RSS extends DefaultApplication {
                     try {
                         updateChannels();
                     } catch (Exception ex) {
-                        log.error("Could not download stations", ex);
+                        log.error("Could not download channels", ex);
                     }
                 }
             }), 5);
@@ -719,7 +750,7 @@ public class RSS extends DefaultApplication {
 					try {
                         updateData();
                     } catch (Exception ex) {
-                        log.error("Could not update internet dat", ex);
+                        log.error("Could not update rss dats", ex);
                     }
 				}
 			}), 60*24);

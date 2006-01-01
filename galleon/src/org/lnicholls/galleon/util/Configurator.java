@@ -298,7 +298,7 @@ public class Configurator implements Constants {
                             if (attribute != null) {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
-                                            + attribute.getNodeValue());
+                                            + attribute.getNodeValue().length());
                                 serverConfiguration.setPin(attribute.getNodeValue());
                             }
 

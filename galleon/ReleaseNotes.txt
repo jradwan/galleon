@@ -15,9 +15,9 @@ App sharing
 Improved startup time
 Improved background images
 Galleon menu system
-Internet and RSS tag sharing
 ToGo reload controlled by server reload setting
 Fixed iTunes import
+Updated web site
 
 
 Version 1.9.2:

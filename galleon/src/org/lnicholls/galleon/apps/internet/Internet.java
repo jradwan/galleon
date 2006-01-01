@@ -98,7 +98,7 @@ public class Internet extends DefaultApplication {
 		if (Server.getServer().getDataConfiguration().isConfigured())
 			push(new InternetMenuScreen(this), TRANSITION_NONE);
 		else
-			push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
+			push(new FavoritesMenuScreen(this, tracker, true), TRANSITION_NONE);
 		
 		initialize();
 	}
@@ -324,6 +324,37 @@ public class Internet extends DefaultApplication {
 				if (!mFirst) {
 					postEvent(new BEvent.Action(this, "pop"));
 					return true;
+				}
+				break;
+			case KEY_NUM1:
+			case KEY_THUMBSUP:
+				try
+				{
+					InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) mMenuList.get(mMenuList.getFocus());
+					
+					InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
+					List list = internetConfiguration.getSharedUrls();
+					boolean duplicate = false;
+					Iterator iterator = list.iterator();
+					while (iterator.hasNext())
+					{
+						InternetConfiguration.SharedUrl sharedUrl = (InternetConfiguration.SharedUrl)iterator.next();
+						if (sharedUrl.getValue().equals(value.getValue()))
+						{
+							duplicate = true;
+							break;
+						}
+					}
+					if (!duplicate)
+					{
+						getApp().play("thumbsup.snd");
+						getApp().flush();
+						list.add(value);
+						Server.getServer().updateApp(((InternetFactory) getFactory()).getAppContext());
+					}
+				}
+				catch (Exception ex) {
+					Tools.logException(Internet.class, ex);
 				}
 				break;				
 			}
@@ -761,18 +792,22 @@ public class Internet extends DefaultApplication {
 
 			new Thread() {
 				public void run() {
-					Iterator iterator = internetConfiguration.getSharedUrls().iterator();
-					while (iterator.hasNext()) {
-						InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) iterator.next();
-
-						try {
-							URL url = new URL(nameValue.getValue());
-							Tools.cacheImage(url, nameValue.getValue());
-						} catch (Exception ex) {
-							Tools.logException(Internet.class, ex);
+					try
+					{
+						Iterator iterator = internetConfiguration.getSharedUrls().iterator();
+						while (iterator.hasNext()) {
+							InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) iterator.next();
+	
+							try {
+								URL url = new URL(nameValue.getValue());
+								Tools.cacheImage(url, nameValue.getValue());
+							} catch (Exception ex) {
+								Tools.logException(Internet.class, ex);
+							}
+	
 						}
-
 					}
+					catch (Exception ex) {}
 				}
 			}.start();
 		}

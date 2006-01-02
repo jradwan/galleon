@@ -1,6 +1,11 @@
 Galleon
 -------
 
+Version 2.0.1:
+----------------------
+Fix for app sharing configuration
+
+
 Version 2.0.0:
 ----------------------
 Dowload manager delete option

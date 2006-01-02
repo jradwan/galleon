@@ -806,20 +806,10 @@ public class MainFrame extends JFrame {
 			mDisableTimeout.setSelected(serverConfiguration.isDisableTimeout());
 			mMenu = new JCheckBox("Menu");
 			mMenu.setSelected(serverConfiguration.isMenu());
-			mPort = new JFormattedTextField();
-			try {
-				MaskFormatter formatter = new MaskFormatter("####");
-				mPort = new JFormattedTextField(formatter);
-				mPort.setValue(new Integer(serverConfiguration.getPort()));
-			} catch (Exception ex) {
-			}
-			mHTTPPort = new JFormattedTextField();
-			try {
-				MaskFormatter formatter = new MaskFormatter("####");
-				mHTTPPort = new JFormattedTextField(formatter);
-				mHTTPPort.setValue(new Integer(serverConfiguration.getHttpPort()));
-			} catch (Exception ex) {
-			}
+			mPort = new JTextField();
+			mPort.setText(String.valueOf(serverConfiguration.getPort()));
+			mHTTPPort = new JTextField();
+			mHTTPPort.setText(String.valueOf(serverConfiguration.getHttpPort()));
 			mIPAddress = new JComboBox();
 			mIPAddress.addItem(new NameValueWrapper("Default", ""));
 			try {
@@ -951,13 +941,27 @@ public class MainFrame extends JFrame {
 		
 		public String valid()
 		{
+			String port = mPort.getText().trim();
+			for (int i=0;i<port.length();i++)
+			{
+				if (!Character.isDigit(port.charAt(i)))
+						return "PC Application Port can only contain digits";
+			}
+			
+			String httpPort = mHTTPPort.getText().trim();
+			for (int i=0;i<httpPort.length();i++)
+			{
+				if (!Character.isDigit(httpPort.charAt(i)))
+						return "PC Publishing Port can only contain digits";
+			}
+			
 			String pin = mPINField.getText().trim();
 			if (pin.length()<4)
 				return "PIN must be at least 4 digits";
 			for (int i=0;i<pin.length();i++)
 			{
 				if (!Character.isDigit(pin.charAt(i)))
-						return "PIN can only contain characters";
+						return "PIN can only contain digits";
 			}
 			
 			return null;
@@ -1074,9 +1078,9 @@ public class MainFrame extends JFrame {
 		
 		private JCheckBox mMenu;
 
-		private JFormattedTextField mPort;
+		private JTextField mPort;
 		
-		private JFormattedTextField mHTTPPort;
+		private JTextField mHTTPPort;
 
 		private JComboBox mIPAddress;
 

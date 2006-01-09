@@ -269,6 +269,7 @@ public class RSS extends DefaultApplication {
 					{
 						getApp().play("thumbsup.snd");
 						getApp().flush();
+						mMenuList.flash();
 						list.add(value);
 						Server.getServer().updateApp(((RSSFactory) getFactory()).getAppContext());
 					}

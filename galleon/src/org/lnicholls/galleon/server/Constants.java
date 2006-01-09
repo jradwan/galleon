@@ -20,7 +20,7 @@ import org.lnicholls.galleon.database.Version;
 
 public interface Constants {
     
-    public static final Version CURRENT_VERSION = new Version(2, 0, 1, 0);
+    public static final Version CURRENT_VERSION = new Version(2, 1, 0, 0);
 
     public static String ENCODING = "UTF-8";
     

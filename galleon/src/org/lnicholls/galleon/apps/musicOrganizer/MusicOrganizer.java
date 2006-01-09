@@ -539,7 +539,8 @@ public class MusicOrganizer extends DefaultApplication {
 						String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
 								+ " AND substr(audio.path,1,4)<>'http'" + " AND audio.origen<>'Podcast'";
 						
-						setCurrentTrackerContext(queryString);						
+						setCurrentTrackerContext(queryString);	
+						mMenuList.flash();
 						return super.handleKeyPress(code, rawcode);
 					}
 					else

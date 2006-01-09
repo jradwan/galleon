@@ -595,6 +595,7 @@ public class MainFrame extends JFrame {
 					"9dlu, " + "pref, " + // author
 					"3dlu, " + "pref, " + // name
 					"3dlu, " + "pref, " + // email
+					"9dlu, " + "pref, " + // apps
 					"3dlu, " + "pref, " // homepage
 			);
 
@@ -605,26 +606,27 @@ public class MainFrame extends JFrame {
 
 			CellConstraints cc = new CellConstraints();
 
-			builder.addLabel("Title", cc.xy(1, 1));
-			builder.add(mNameField, cc.xy(3, 1));
-			builder.addSeparator("Apps", cc.xyw(1, 3, 5));
-			builder.addLabel("Type", cc.xy(1, 5));
-			builder.add(mAppsCombo, cc.xy(3, 5));
-			builder.addSeparator("Description", cc.xyw(1, 7, 5));
-			builder.add(paneScrollPane, cc.xywh(5, 9, 1, 11, CellConstraints.RIGHT, CellConstraints.TOP));
-			builder.addLabel("Version", cc.xy(1, 9));
-			builder.add(mVersionField, cc.xy(3, 9));
-			builder.addLabel("Release Date", cc.xy(1, 11));
-			builder.add(mReleaseDateField, cc.xy(3, 11));
-			builder.addLabel("Homepage", cc.xy(1, 13));
-			builder.add(mHomepageField, cc.xy(3, 13));
-			builder.addSeparator("Author", cc.xyw(1, 15, 3));
-			builder.addLabel("Name", cc.xy(1, 17));
-			builder.add(mAuthorNameField, cc.xy(3, 17));
-			builder.addLabel("Email", cc.xy(1, 19));
-			builder.add(mAuthorEmailField, cc.xy(3, 19));
-			builder.addLabel("Homepage", cc.xy(1, 21));
-			builder.add(mAuthorHomeField, cc.xy(3, 21));
+			builder.addSeparator("Apps", cc.xyw(1, 1, 5));
+			builder.addLabel("Type", cc.xy(1, 3));
+			builder.add(mAppsCombo, cc.xy(3, 3));
+			builder.addSeparator("Description", cc.xyw(1, 5, 5));
+			builder.add(paneScrollPane, cc.xywh(5, 7, 1, 11, CellConstraints.RIGHT, CellConstraints.TOP));
+			builder.addLabel("Version", cc.xy(1, 7));
+			builder.add(mVersionField, cc.xy(3, 7));
+			builder.addLabel("Release Date", cc.xy(1, 9));
+			builder.add(mReleaseDateField, cc.xy(3, 9));
+			builder.addLabel("Homepage", cc.xy(1, 11));
+			builder.add(mHomepageField, cc.xy(3, 11));
+			builder.addSeparator("Author", cc.xyw(1, 13, 3));
+			builder.addLabel("Name", cc.xy(1, 15));
+			builder.add(mAuthorNameField, cc.xy(3, 15));
+			builder.addLabel("Email", cc.xy(1, 17));
+			builder.add(mAuthorEmailField, cc.xy(3, 17));
+			builder.addLabel("Homepage", cc.xy(1, 19));
+			builder.add(mAuthorHomeField, cc.xy(3, 19));
+			builder.addSeparator("Custom", cc.xyw(1, 21, 5));
+			builder.addLabel("Title", cc.xy(1, 23));
+			builder.add(mNameField, cc.xy(3, 23));
 
 			getContentPane().add(builder.getPanel(), "Center");
 
@@ -681,6 +683,8 @@ public class MainFrame extends JFrame {
 				mAuthorEmailField.setText(appDescriptor.getAuthorEmail());
 				mAuthorHomeField.setText(appDescriptor.getAuthorHomepage());
 				mDocumentationField.setText(appDescriptor.getDescription());
+				
+				mNameField.setText(appDescriptor.getTitle());
 			} else {
 				mVersionField.setText("");
 				mReleaseDateField.setText("");
@@ -689,6 +693,8 @@ public class MainFrame extends JFrame {
 				mAuthorEmailField.setText("");
 				mAuthorHomeField.setText("");
 				mDocumentationField.setText("");
+				
+				mNameField.setText("");
 			}
 		}
 
@@ -956,12 +962,15 @@ public class MainFrame extends JFrame {
 			}
 			
 			String pin = mPINField.getText().trim();
-			if (pin.length()<4)
-				return "PIN must be at least 4 digits";
-			for (int i=0;i<pin.length();i++)
+			if (pin.length()>0)
 			{
-				if (!Character.isDigit(pin.charAt(i)))
-						return "PIN can only contain digits";
+				if (pin.length()<4)
+					return "PIN must be at least 4 digits";
+				for (int i=0;i<pin.length();i++)
+				{
+					if (!Character.isDigit(pin.charAt(i)))
+							return "PIN can only contain digits";
+				}
 			}
 			
 			return null;

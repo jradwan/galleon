@@ -1,6 +1,12 @@
 Galleon
 -------
 
+Version 2.1.0:
+----------------------
+Shoutcast app now supports all stations
+Shoutcast app supports station alternates
+
+
 Version 2.0.1:
 ----------------------
 Fix for app sharing configuration

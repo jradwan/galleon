@@ -23,6 +23,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.ShoutcastStationManager;
+import org.lnicholls.galleon.database.ShoutcastStation;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
@@ -59,56 +62,178 @@ public class ShoutcastStations {
                     log.error("Could not download stations", ex);
                 }
             }
-        }), 60);
+        }), 60 * 60 * 24);
     }
 
-    public void getPlaylists() {
-        List list = mConfiguration.getGenres();
-        PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + "genre");
-        int start = 0;
-        if (persistentValue != null) {
-            String lastGenre = persistentValue.getValue(); 
-            try {
-                start = Integer.parseInt(lastGenre);
-            } catch (Exception ex) {
-            }
-        }
-        int next = (start + 1) % list.size();
-        while (mCounter > 0) {
-            String genre = (String) list.get(next);
-            int genreCounter = MAX_REQUESTS_PER_DAY / 4;
-            try {
-                HttpClient httpclient = new HttpClient();
-                httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
-                httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
+    private void getStations(String genre) {
+    	try {
+	        HttpClient httpclient = new HttpClient();
+	        httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+	        httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
+	        
+	        ArrayList stations = new ArrayList();
+	        int total = 1;
+	        for (int i=0;i<total;i++)
+	        {
+	            GetMethod get = new GetMethod("http://www.shoutcast.com/directory/?sgenre="
+	                    + URLEncoder.encode(URLDecoder.decode(genre, "UTF-8"), "UTF-8"));
+	            get.setFollowRedirects(true);
+	
+	            try {
+	                int iGetResultCode = httpclient.executeMethod(get);
+	                final String strGetResponseBody = get.getResponseBodyAsString();
+	                //log.debug(strGetResponseBody);
+	
+	                if (strGetResponseBody != null) {
+	                	if (i==0)
+	            	   	{
+		            	   // Page 1 of 20
+		            	   String REGEX = "Page ([0-9]*) of ([0-9]*)";
+		                   Pattern p = Pattern.compile(REGEX);
+		                   Matcher m = p.matcher(strGetResponseBody);
+		                   if (m.find()) {
+		                       total = Integer.parseInt(m.group(2));
+		                   }
+		                   
+		                   // Servers - <font color="#FF0000">12,147</font>
+		                   REGEX = "Servers - <font color=\"#FF0000\">([^<]*)</font>";
+		                   p = Pattern.compile(REGEX);
+		                   m = p.matcher(strGetResponseBody);
+		                   if (m.find()) {
+		                      PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + "servers", m.group(1));
+		                   }
+	            	   	}
+	                	
+	                    //"/sbin/shoutcast-playlist.pls?rn=5224&file=filename.pls"
+	                    String REGEX = "=\"/sbin/shoutcast-playlist.pls([^<]*)\">";
+	                    Pattern p = Pattern.compile(REGEX);
+	                    Matcher m = p.matcher(strGetResponseBody);
+	                    boolean found = false;
+	                    while (m.find()) {
+	                        if (log.isDebugEnabled())
+	                            log.debug("Parameters: " + m.group(1));
+	                        String link = "http://www.shoutcast.com/sbin/shoutcast-playlist.pls" + m.group(1);
+	                        
+	                        stations.add(link);
+	                    }
+	                }
+	            } catch (Exception ex) {
+	                log.error("Could not download stations: " + genre, ex);
+	            } finally {
+	                get.releaseConnection();
+	            }
+	        }
+	        // Remove extinct stations
+	        List current = ShoutcastStationManager.findByGenre(genre);
+	        Iterator iterator = current.iterator();
+	        while (iterator.hasNext())
+	        {
+	        	ShoutcastStation station = (ShoutcastStation)iterator.next();
+	        	boolean found = false;
+	        	for (int i=0; i<stations.size();i++)
+	        	{
+	        		String url = (String)stations.get(i);
+	        		if (station.getUrl().equals(url))
+	        		{
+	        			found = true;
+	        			break;
+	        		}
+	        	}
+	        	if (!found)
+	        	{
+	        		try
+                    {
+	        			// TODO delete audio
+                       	ShoutcastStationManager.deleteShoutcastStation(station);
+                    } catch (Exception ex) {
+            	        Tools.logException(ShoutcastStations.class, ex);
+            	    }
+	        	}
+	        }
+	        iterator = stations.iterator();
+	        while (iterator.hasNext())
+	        {
+	        	String link = (String)iterator.next();
+	        	try
+                {
+                	List list = ShoutcastStationManager.findByUrl(link);
+                	if (list==null || list.size()==0)
+                	{
+                    	ShoutcastStation station = new ShoutcastStation(genre, link, ShoutcastStation.STATUS_PENDING);
+                    	ShoutcastStationManager.createShoutcastStation(station);
+                	}
+                } catch (Exception ex) {
+        	        Tools.logException(ShoutcastStations.class, ex);
+        	    }
+	        }
+	    } catch (Exception ex) {
+	        Tools.logException(ShoutcastStations.class, ex);
+	    }
+    }
 
-                GetMethod get = new GetMethod("http://www.shoutcast.com/directory/?sgenre="
-                        + URLEncoder.encode(URLDecoder.decode(genre, "UTF-8"), "UTF-8"));
-                get.setFollowRedirects(true);
-
-                try {
-                    int iGetResultCode = httpclient.executeMethod(get);
-                    final String strGetResponseBody = get.getResponseBodyAsString();
-                    //log.debug(strGetResponseBody);
-
-                    if (strGetResponseBody != null) {
-                        //"/sbin/shoutcast-playlist.pls?rn=5224&file=filename.pls"
-                        String REGEX = "=\"/sbin/shoutcast-playlist.pls([^<]*)\">";
-                        Pattern p = Pattern.compile(REGEX);
-                        Matcher m = p.matcher(strGetResponseBody);
-                        boolean found = false;
-                        while (m.find() && !found && !isLimit()) {
-                            if (log.isDebugEnabled())
-                                log.debug("Parameters: " + m.group(1));
-                            String link = "http://www.shoutcast.com/sbin/shoutcast-playlist.pls" + m.group(1);
-
-                            URL url = new URL(link);
+	public void getPlaylists() {
+		List list = mConfiguration.getGenres();
+	    int limit = MAX_REQUESTS_PER_DAY / list.size();
+	    
+	    Iterator iterator = list.iterator();
+	    while (iterator.hasNext())
+	    {
+	    	String genre = (String)iterator.next();
+	    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + genre);
+		    int start = 0;
+		    if (persistentValue != null) {
+		        try {
+		            start = Integer.parseInt(persistentValue.getValue());
+		        } catch (Exception ex) {
+		        }
+		    }
+		    
+		    try
+            {
+            	List stations = ShoutcastStationManager.findByGenre(genre);
+            	if (stations==null || stations.size()==0)
+            	{
+            		getStations(genre);
+            		stations = ShoutcastStationManager.findByGenre(genre);
+            	}
+            	if (stations!=null && stations.size()>0)
+            	{
+            		if (start > stations.size())
+            		{
+            			start = 0;
+            			// reset every station to pending to get latest info again
+            			for (int i=0; i < stations.size(); i++)
+            	    	{
+            	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
+            	    		try
+            	    		{
+            	    			station.setStatus(ShoutcastStation.STATUS_PENDING);
+            	    			ShoutcastStationManager.updateShoutcastStation(station);
+            	    		}
+            	    		catch (Exception ex)
+            	    		{
+            	    			Tools.logException(ShoutcastStations.class, ex);    			
+            	    		}
+            	    	}
+            			getStations(genre);
+            		}
+            		
+        		    int max = start + limit;
+        		    if (max > stations.size())
+        		    	max = stations.size();
+        	    	for (int i=start; i < max; i++)
+        	    	{
+        	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
+        	    		if (station.getStatus()==ShoutcastStation.STATUS_PENDING)
+        	    		{
+        	    			URL url = new URL(station.getUrl());
                             String page = Tools.getPage(url);
                             if (page != null && page.length()>0) {
-                                String inputLine = "";
+                                int total = 0;
+                            	String inputLine = "";
                                 BufferedReader reader = new BufferedReader(new StringReader(page));
-                                while ((inputLine = reader.readLine()) != null && !found) {
-                                    if (inputLine.startsWith("File")) {
+                                while ((inputLine = reader.readLine()) != null) {
+                                	if (inputLine.startsWith("File")) {
                                         String u = inputLine.substring(inputLine.indexOf("=") + 1);
                                         inputLine = reader.readLine();
                                         String t = inputLine.substring(inputLine.indexOf("=") + 1).trim();
@@ -121,12 +246,12 @@ public class ShoutcastStations {
                                         try {
                                             // Remove duplicates
                                             List all = AudioManager.findByOrigenGenre(SHOUTCAST, genre);
-                                            for (int i = 0; i < all.size(); i++) {
-                                                Audio audio = (Audio) all.get(i);
-                                                for (int j = i; j < all.size(); j++) {
-                                                    Audio other = (Audio) all.get(j);
+                                            for (int j = 0; j < all.size(); j++) {
+                                                Audio audio = (Audio) all.get(j);
+                                                for (int k = j; k < all.size(); k++) {
+                                                    Audio other = (Audio) all.get(k);
                                                     if (!audio.getId().equals(other.getId())) {
-                                                        if (audio.getTitle().equals(other.getTitle())) {
+                                                        if (audio.getPath()!=null && other.getPath()!=null && audio.getPath().equals(other.getPath())) {
                                                             AudioManager.deleteAudio(other);
                                                         }
                                                     }
@@ -134,43 +259,48 @@ public class ShoutcastStations {
                                             }
 
                                             Audio current = null;
-                                            List same = AudioManager.findByTitle(t);
+                                            List same = AudioManager.findByPath(u);
                                             if (same.size() > 0)
                                                 current = (Audio) same.get(0);
 
                                             if (current != null) {
-                                                current.setPath(u);
-                                                AudioManager.updateAudio(current);
+                                            	current.setTitle(t);
+                                            	current.setGenre(genre);
+                                            	current.setOrigen(SHOUTCAST);
+                                            	current.setExternalId(String.valueOf(++total));
+                                            	AudioManager.updateAudio(current);
                                             } else {
                                                 Audio audio = (Audio) MediaManager.getMedia(u);
                                                 audio.setTitle(t);
                                                 audio.setGenre(genre);
                                                 audio.setOrigen(SHOUTCAST);
+                                                audio.setExternalId(String.valueOf(++total));
                                                 AudioManager.createAudio(audio);
                                             }
-                                            found = true;
                                         } catch (Exception ex) {
                                         }
                                     }
                                 }
                                 reader.close();
                             }
-                            found = genreCounter-- == 0;
-                        }
-                        PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + "genre", String.valueOf(next));
-                    }
-                } catch (Exception ex) {
-                    log.error("Could not download stations", ex);
-                    return;
-                } finally {
-                    get.releaseConnection();
-                }
+                            try
+            	    		{
+            	    			station.setStatus(ShoutcastStation.STATUS_DOWNLOADED);
+            	    			ShoutcastStationManager.updateShoutcastStation(station);
+            	    		}
+            	    		catch (Exception ex)
+            	    		{
+            	    			Tools.logException(ShoutcastStations.class, ex);    			
+            	    		}
+        	    		}
+        	    	}
+        	    	PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + genre, String.valueOf(max));
+            	}
             } catch (Exception ex) {
-                Tools.logException(ShoutcastStations.class, ex);
-            }
-            next = (next + 1) % list.size();
-        }
-    }
+    	        Tools.logException(ShoutcastStations.class, ex);
+    	    }
+	    }
+	}
     
     public void remove()
     {
@@ -189,6 +319,13 @@ public class ShoutcastStations {
     public void remove(String genre)
     {
     	try {
+    		List current = ShoutcastStationManager.findByGenre(genre);
+	        Iterator iterator = current.iterator();
+	        while (iterator.hasNext())
+	        {
+	        	ShoutcastStation station = (ShoutcastStation)iterator.next();
+	        	ShoutcastStationManager.deleteShoutcastStation(station);
+	        }
     		List all = AudioManager.findByOrigenGenre(SHOUTCAST, genre);
             for (int j = 0; j < all.size(); j++) {
                 Audio audio = (Audio) all.get(j);
@@ -197,22 +334,16 @@ public class ShoutcastStations {
     	} catch (Exception ex) {
     		Tools.logException(ShoutcastStations.class, ex);
         }
-    }    
-
-    private boolean isLimit() {
-        if ((System.currentTimeMillis() - mTime < 1000 * 60 * 60 * 24)) {
-            if (mCounter <= 0) {
-                // Not allowed to exceed daily limit
-                log.info("Exceeded daily search limit for Shoutcast.com");
-                return true;
-            }
-        } else {
-            mTime = System.currentTimeMillis();
-            mCounter = MAX_REQUESTS_PER_DAY;
-        }
-
-        mCounter--;
-        return false;
+    }
+    
+    public String getServers()
+    {
+    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + "servers");
+    	if (persistentValue!=null)
+    	{
+            return persistentValue.getValue();
+    	}
+    	return null;
     }
 
     private ShoutcastConfiguration mConfiguration;

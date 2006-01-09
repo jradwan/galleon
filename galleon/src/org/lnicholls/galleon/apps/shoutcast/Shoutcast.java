@@ -21,6 +21,8 @@ import java.awt.Image;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,8 +30,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
+import org.lnicholls.galleon.apps.togo.ToGoConfiguration;
+import org.lnicholls.galleon.apps.togo.ToGo.ToGoFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.Playlist;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
@@ -56,6 +62,7 @@ import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
@@ -106,6 +113,19 @@ public class Shoutcast extends DefaultApplication {
 			super(app, "Music");
 
 			getBelow().setResource(mMenuBackground);
+			
+			int start = TOP - 25;
+
+			String servers = mShoutcastStations.getServers();
+			if (servers!=null)
+			{
+				BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
+				text.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
+				text.setFont("default-18.font");
+				text.setColor(Color.GREEN);
+				text.setShadow(true);
+				text.setValue("Servers: " + servers);
+			}
 
 			ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
 
@@ -128,14 +148,15 @@ public class Shoutcast extends DefaultApplication {
 					public void run() {
 						try {
 							NameValue nameValue = (NameValue) (mMenuList.get(mMenuList.getFocus()));
-							List list = AudioManager.findByOrigenGenre(ShoutcastStations.SHOUTCAST, nameValue
+							List list = AudioManager.findByOrigenGenreOrdered(ShoutcastStations.SHOUTCAST, nameValue
 									.getValue());
 							List nameFiles = new ArrayList();
 							for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
 								Audio audio = (Audio) i.next();
-								nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
+								if (audio.getExternalId()== null || audio.getExternalId().equals("1"))
+									nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
 							}
-
+							
 							Tracker tracker = new Tracker(nameFiles, 0);
 							PathScreen pathScreen = new PathScreen((Shoutcast) getBApp(), tracker);
 							getBApp().push(pathScreen, TRANSITION_LEFT);
@@ -160,7 +181,6 @@ public class Shoutcast extends DefaultApplication {
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(StringUtils.capitalize(Tools.clean(nameValue.getName()).toLowerCase()), 40));
 		}
-
 	}
 
 	public class PathScreen extends DefaultMenuScreen {
@@ -176,7 +196,7 @@ public class Shoutcast extends DefaultApplication {
 
 			mTracker = tracker;
 			mFirst = first;
-
+			
 			Iterator iterator = mTracker.getList().iterator();
 			while (iterator.hasNext()) {
 				Item nameFile = (Item) iterator.next();

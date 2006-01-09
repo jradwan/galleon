@@ -428,6 +428,8 @@ public class Music extends DefaultApplication {
 					// TODO Playlists?
 					if (nameFile.isFolder() || nameFile.isFile()) {
 						setCurrentTrackerContext(file.getCanonicalPath());
+						
+						mMenuList.flash();
 						return super.handleKeyPress(code, rawcode);
 					}
 				}

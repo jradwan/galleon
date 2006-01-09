@@ -103,4 +103,22 @@ public class DefaultList extends BList {
         refresh();
         setFocus(getFocus(),false);
     }
+    
+    public void flash()
+    {
+    	if (getFocus()!=-1)
+    	{
+    		BView row = getRow(getFocus());
+    		if (row.getChildCount()>0)
+    		{
+    			BView icon = (BView) row.getChild(0);
+    			if (icon!=null)
+    			{
+    				icon.setTransparency(1.0f);
+    				icon.setTransparency(0.0f, getResource("*500"));
+    				icon.flush();
+    			}
+    		}
+    	}
+    }
 }

@@ -21,11 +21,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import javazoom.spi.mpeg.sampled.file.tag.IcyInputStream;
 import javazoom.spi.mpeg.sampled.file.tag.MP3Tag;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseEvent;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseListener;
+
+import net.sf.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
@@ -55,55 +58,83 @@ public final class Mp3Url {
         if (uri.toLowerCase().endsWith(".http.mp3")) {
             log.debug("getStream: " + uri + ", " + application);
 
-            try {
-                class TimedThread implements Callable {
-                    private DefaultApplication mApplication = null;
+            boolean hasmore = false;
+            int counter = 1;
 
-                    private String mPath = null;
-
-                    public TimedThread(String path, DefaultApplication application) {
-                        mPath = path;
-                        mApplication = application;
-                    }
-
-                    public synchronized java.lang.Object call() throws java.lang.Exception {
-                        //URL url = new URL("http://64.236.34.4:80/stream/1065");
-                        URL url = new URL(mPath);
-                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setRequestProperty("Icy-Metadata", "1");
-                        conn.setRequestProperty("User-Agent", "WinampMPEG/5.0");
-                        conn.setRequestProperty("Accept", "audio/mpeg");
-                        conn.setInstanceFollowRedirects(true);
-
-                        try
-                        {
-	                        IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
-	                                .getContentLength(), mApplication));
-	                        final IcyListener icyListener = new IcyListener(mApplication);
-	                        input.addTagParseListener(icyListener);
-	                        return input;
-                        }
-                        catch (Throwable ex)
-                        {
-                        	Tools.logException(Mp3Url.class, ex, mPath);        	
-                        }
-                        return conn.getInputStream();
-                    }
-                }
-
-                String id = Tools.extractName(Tools.extractName(uri));
-                Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
-                log.debug("getStream: audio=" + audio.getPath());
-
-            	TimedThread timedThread = new TimedThread(audio.getPath(), application);
-            	TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 10);
-            	InputStream mp3Stream = (InputStream) timedCallable.call();
-
-            	if (mp3Stream != null)
-                    return mp3Stream;
+            try
+            {
+	            String id = Tools.extractName(Tools.extractName(uri));
+	            Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+	            do
+	            {
+	            	log.debug("getStream: audio=" + audio.getPath());
+	            	try {
+		                class TimedThread implements Callable {
+		                    private DefaultApplication mApplication = null;
+		
+		                    private String mPath = null;
+		
+		                    public TimedThread(String path, DefaultApplication application) {
+		                        mPath = path;
+		                        mApplication = application;
+		                    }
+		
+		                    public synchronized java.lang.Object call() throws java.lang.Exception {
+		                        //URL url = new URL("http://64.236.34.4:80/stream/1065");
+		                        URL url = new URL(mPath);
+		                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		                        conn.setRequestProperty("Icy-Metadata", "1");
+		                        conn.setRequestProperty("User-Agent", "WinampMPEG/5.0");
+		                        conn.setRequestProperty("Accept", "audio/mpeg");
+		                        conn.setInstanceFollowRedirects(true);
+		
+		                        try
+		                        {
+			                        IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
+			                                .getContentLength(), mApplication));
+			                        final IcyListener icyListener = new IcyListener(mApplication);
+			                        input.addTagParseListener(icyListener);
+			                        return input;
+		                        }
+		                        catch (Throwable ex)
+		                        {
+		                        	Tools.logException(Mp3Url.class, ex, mPath);        	
+		                        }
+		                        return conn.getInputStream();
+		                    }
+		                }
+		
+		            	TimedThread timedThread = new TimedThread(audio.getPath(), application);
+		            	TimedCallable timedCallable = new TimedCallable(timedThread, 1000 * 10);
+		            	InputStream mp3Stream = (InputStream) timedCallable.call();
+		
+		            	if (mp3Stream != null)
+		                    return mp3Stream;
+		            } catch (Exception ex) {
+		                if (audio!=null && counter < 5)
+		                {
+			                try
+			                {
+			                	// Hack to support Shoutcast backup servers
+			                	List list = AudioManager.findByTitleOrigenGenreExternalId(audio.getTitle(), audio.getOrigen(), audio.getGenre(), String.valueOf(++counter));
+			                	if (list!=null && list.size()>0)
+			                	{
+			                		audio = (Audio)list.get(0);
+			                		log.debug("Trying alternate: " + audio.getPath());
+			                		hasmore = true;
+			                	}
+		                	} catch (Exception ex2) {
+		    	                Tools.logException(Mp3Url.class, ex, uri);
+		                	}
+		                }
+		                else
+		                	Tools.logException(Mp3Url.class, ex, uri);
+		            }
+	            }
+	            while (hasmore);
             } catch (Exception ex) {
                 Tools.logException(Mp3Url.class, ex, uri);
-            }
+        	}
         }
         return Mp3Url.class.getResourceAsStream("/couldnotconnect.mp3");
     }

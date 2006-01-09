@@ -349,6 +349,7 @@ public class Internet extends DefaultApplication {
 					{
 						getApp().play("thumbsup.snd");
 						getApp().flush();
+						mMenuList.flash();
 						list.add(value);
 						Server.getServer().updateApp(((InternetFactory) getFactory()).getAppContext());
 					}

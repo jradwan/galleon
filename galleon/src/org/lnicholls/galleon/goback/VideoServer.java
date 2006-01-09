@@ -1163,6 +1163,7 @@ public class VideoServer extends HttpServer {
 								+ "</expirationTime>\n");
 					buffer.append("</TvBusMarshalledStruct:TvBusEnvelope>\n");
 				}
+				log.debug(buffer.toString());
 				return buffer.toString();
 			} catch (Exception ex) {
 				Tools.logException(VideoServer.class, ex);

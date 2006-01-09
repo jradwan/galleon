@@ -221,6 +221,23 @@ public final class VideoFile {
 		
 		if (video.getTitle().equals(DEFAULT_TITLE)) {
 			String value = Tools.trimSuffix(file.getName());
+			// The 4400 1x01 - ''The Return'' Pilot.mpg
+			Pattern pattern = Pattern.compile("^(.*) (.*)x(.*) - ''(.*)''(.*)$");
+			Matcher matcher = pattern.matcher(value);
+			if (matcher.find()) {
+				video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				video.setEpisodeTitle(matcher.group(4));
+				try
+				{
+					video.setEpisodeNumber(Integer.parseInt(matcher.group(3)));
+				}
+				catch (Exception ex) {}
+			}
+		}		
+		
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
 			Pattern pattern = Pattern.compile("(.*) - (.*)");
 			Matcher matcher = pattern.matcher(value);
 			if (matcher != null && matcher.matches()) {

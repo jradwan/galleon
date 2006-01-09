@@ -289,6 +289,33 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	
+	public static List findByOrigenGenreOrdered(String origen, String genre) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+
+			List list = new ArrayList();
+			if (origen != null)
+				list = session.createQuery(
+						"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.genre=? order by rating desc")
+						.setString(0, origen).setString(1, genre).list();
+			else
+				list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.genre= ? order by rating desc")
+						.setString(0, genre).list();
+
+			tx.commit();
+
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
 
 	public static List findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
@@ -365,6 +392,28 @@ public class AudioManager {
 			List list = session.createQuery(
 					"from org.lnicholls.galleon.database.Audio as audio where audio.externalId=?").setString(0, id)
 					.list();
+
+			tx.commit();
+
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+	
+	public static List findByTitleOrigenGenreExternalId(String title, String origen, String genre, String id) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+
+			List list = session.createQuery(
+				"from org.lnicholls.galleon.database.Audio as audio where audio.title=? audio.origen=? and audio.genre=? and audio.externalId=?")
+				.setString(0, title).setString(1, origen).setString(2, genre).setString(3, id).list();
 
 			tx.commit();
 

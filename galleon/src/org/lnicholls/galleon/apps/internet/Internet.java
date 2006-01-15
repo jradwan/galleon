@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -33,6 +35,7 @@ import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.internet.InternetConfiguration.SharedUrl;
+import org.lnicholls.galleon.apps.rss.RSSConfiguration;
 import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.FileFilters;
@@ -203,6 +206,19 @@ public class Internet extends DefaultApplication {
 					new NameValue("10 minutes", "10"), new NameValue("24 hours", "1440") };
 			mReloadButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(internetConfiguration.getReload()));
+
+			start = start + increment;
+
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Sort");
+			nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
+			mSortedButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(internetConfiguration.isSorted()));
+			
+			
 			setFocusDefault(mReloadButton);
 		}
 
@@ -218,6 +234,7 @@ public class Internet extends DefaultApplication {
 				InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory())
 						.getAppContext().getConfiguration();
 				internetConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
+				internetConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
 
 				Server.getServer().updateApp(((InternetFactory) getFactory()).getAppContext());
 			} catch (Exception ex) {
@@ -227,6 +244,8 @@ public class Internet extends DefaultApplication {
 		}
 
 		private OptionsButton mReloadButton;
+		
+		private OptionsButton mSortedButton;
 	}
 	
 	public class FavoritesMenuScreen extends DefaultMenuScreen {
@@ -244,11 +263,40 @@ public class Internet extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			Iterator iterator = mTracker.getList().iterator();
-			while (iterator.hasNext()) {
-				InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) iterator.next();
-				mMenuList.add(value);
+			createMenu();
+		}
+		
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+    		if (isReturn)
+    		{
+    			createMenu();
+    		}
+			return super.handleEnter(arg, isReturn);
+		}
+		
+		private void createMenu()
+		{
+			InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
+			mMenuList.clear();			
+			InternetConfiguration.SharedUrl urls[] = new InternetConfiguration.SharedUrl[0];
+			urls = (InternetConfiguration.SharedUrl[]) mTracker.getList().toArray(urls);
+			if (internetConfiguration.isSorted())
+			{
+				Arrays.sort(urls, new Comparator() {
+					public int compare(Object o1, Object o2) {
+						InternetConfiguration.SharedUrl url1 = (InternetConfiguration.SharedUrl) o1;
+						InternetConfiguration.SharedUrl url2 = (InternetConfiguration.SharedUrl) o2;
+						
+						return url1.getName().compareTo(url2.getName());
+					}
+				});
 			}
+			ArrayList list = new ArrayList();
+			for (int i = 0; i < urls.length; i++) {
+				mMenuList.add(urls[i]);
+				list.add(urls[i]);
+			}
+			mTracker = new Tracker(list, 0);
 		}
 		
 		public DefaultList createMenuList()

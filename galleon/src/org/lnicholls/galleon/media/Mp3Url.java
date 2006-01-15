@@ -19,6 +19,7 @@ package org.lnicholls.galleon.media;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -90,8 +91,8 @@ public final class Mp3Url {
 		
 		                        try
 		                        {
-			                        IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn
-			                                .getContentLength(), mApplication));
+			                        //IcyInputStream input = new IcyInputStream(new URLStream(conn.getInputStream(), conn.getContentLength(), mApplication));
+		                        	IcyInputStream input = new IcyInputStream(conn.getInputStream());
 			                        final IcyListener icyListener = new IcyListener(mApplication);
 			                        input.addTagParseListener(icyListener);
 			                        return input;
@@ -109,7 +110,7 @@ public final class Mp3Url {
 		            	InputStream mp3Stream = (InputStream) timedCallable.call();
 		
 		            	if (mp3Stream != null)
-		                    return mp3Stream;
+		                    return new BufferedInputStream(mp3Stream, 1024*100);
 		            } catch (Exception ex) {
 		                if (audio!=null && counter < 5)
 		                {
@@ -198,16 +199,22 @@ public final class Mp3Url {
         }
 
         public void tagParsed(TagParseEvent tpe) {
-            mLastTag = tpe.getTag();
-            String name = mLastTag.getName();
-            log.debug("tagParsed=" + name + "=" + mLastTag.getValue());
-            if ((name != null) && (name.equalsIgnoreCase("streamtitle"))) {
-                mLastTitle = (String) mLastTag.getValue();
-            } else if ((name != null) && (name.equalsIgnoreCase("streamurl"))) {
-                mLastUrl = (String) mLastTag.getValue();
-            }
-
-            mApplication.getPlayer().setTitle(mLastTitle);
+        	try
+        	{
+	            mLastTag = tpe.getTag();
+	            String name = mLastTag.getName();
+	            log.debug("tagParsed=" + name + "=" + mLastTag.getValue());
+	            if ((name != null) && (name.equalsIgnoreCase("streamtitle"))) {
+	                mLastTitle = (String) mLastTag.getValue();
+	            } else if ((name != null) && (name.equalsIgnoreCase("streamurl"))) {
+	                mLastUrl = (String) mLastTag.getValue();
+	            }
+	
+	            mApplication.getPlayer().setTitle(mLastTitle);
+        	}
+        	catch (Throwable th) {
+        		Tools.logException(Mp3Url.class, th);
+        	}
         }
 
         public MP3Tag getLastTag() {

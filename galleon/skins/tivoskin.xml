@@ -51,6 +51,7 @@
     <image source="togo/redball.png" id="recording"/>                        
     <image source="togo/blueball.png" id="suggestion"/>                            
     <image source="togo/empty.png" id="empty"/>                                
+    <image source="togo/lock.png" id="lock"/>
   </app>    
   
   

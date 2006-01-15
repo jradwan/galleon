@@ -113,7 +113,19 @@ public class InternetConfiguration implements AppConfiguration {
     	mShared = value;
     }
     
+    public boolean isSorted()
+    {
+    	return mSorted;
+    }
+    
+    public void setSorted(boolean value)
+    {
+    	mSorted = value;
+    }        
+    
     private boolean mShared;    
+    
+    private boolean mSorted;
 
     private String mName;
 

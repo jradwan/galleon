@@ -311,7 +311,8 @@ public class Server {
 			}
 			
 			Config config = new Config();
-	        config.put("http.ports", ""+mHMOPort);
+	        config.put("http.ports", String.valueOf(mHMOPort));
+	        config.put("http.interfaces", mServerConfiguration.getIPAddress());
 	        mVideoServer = new VideoServer(config);
 			
 			// TiVo Beacon API

@@ -63,6 +63,7 @@ public class ToGo {
 	 * using user: tivo pass: <MAK>
 	 * 
 	 * http://<your tivoip>/TiVoConnect?AnchorOffset=0&Command=QueryContainer&Details=All&ItemCount=1
+	 * 
 	 */
 
 	private static String QUERY_CONTAINER = "/TiVoConnect?Command=QueryContainer&Container=%2FNowPlaying";
@@ -189,6 +190,7 @@ public class ToGo {
 									Video video = new Video();
 									video.setMimeType("mpeg");
 									video.setDateModified(new Date());
+									video.setParentalControls(Boolean.FALSE);
 
 									counter = counter + 1;
 									if (progressIndicator != null) {
@@ -208,6 +210,12 @@ public class ToGo {
 										value = Tools.getAttribute(details, "Title");
 										if (value != null)
 											video.setTitle(value);
+										value = Tools.getAttribute(details, "ParentalControls");
+										if (value != null)
+										{
+											if (value.equalsIgnoreCase("yes"))
+												video.setParentalControls(Boolean.TRUE);
+										}
 										value = Tools.getAttribute(details, "SourceSize");
 										if (value != null)
 											video.setSize(Long.parseLong(value));
@@ -696,13 +704,23 @@ public class ToGo {
 			HttpClient client = new HttpClient();
 			// TODO How to get TiVo address??
 			client.getHostConfiguration().setHost(url.getHost(), 443, protocol);
-			Credentials credentials = new UsernamePasswordCredentials("tivo", Tools.decrypt(serverConfiguration
-					.getMediaAccessKey()));
-			client.getState().setCredentials("TiVo DVR", url.getHost(), credentials);
+			String password = Tools.decrypt(serverConfiguration.getMediaAccessKey());
+			if (video.getParentalControls()!=null && video.getParentalControls().booleanValue())
+			{
+				if (serverConfiguration.getPassword()==null)
+					throw new NullPointerException("Parental Controls Password is null");
+				password = password + Tools.decrypt(serverConfiguration.getPassword());
+			}
+			Credentials credentials = new UsernamePasswordCredentials("tivo", password);
+			//client.getState().setCredentials("TiVo DVR", url.getHost(), credentials);
+			client.getState().setCredentials(null, url.getHost(), credentials);
 			get = new GetMethod(video.getUrl());
 			client.executeMethod(get);
 			if (get.getStatusCode() != 200)
+			{
+				log.debug("Status code: " + get.getStatusCode());
 				return false;
+			}
 			InputStream input = get.getResponseBodyAsStream();
 
 			String path = serverConfiguration.getRecordingsPath();
@@ -899,6 +917,7 @@ public class ToGo {
 				Video video = (Video) iterator.next();
 				if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED
 						&& video.getStatus() != Video.STATUS_USER_CANCELLED
+						&& video.getStatus() != Video.STATUS_INCOMPLETE
 						&& video.getStatus() != Video.STATUS_DELETED) {
 					boolean prohibited = false;
 

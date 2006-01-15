@@ -850,19 +850,25 @@ public final class Galleon implements Constants {
 	}
 
 	private static ServerControl getServerControl() {
-		ConnectionDialog connectionDialog = new ConnectionDialog();
+		ConnectionDialog connectionDialog = null;
 		try {
+			connectionDialog = new ConnectionDialog();
 			ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
 			return serverControl;
-		} catch (Exception ex) {
-			connectionDialog.setVisible(true);
-			if (connectionDialog.mServerControl != null)
-				return connectionDialog.mServerControl;
-			else {
-				Tools.logException(Galleon.class, connectionDialog.mException, "Could connect to server: "
-						+ mServerAddress);
-				return null;
+		} catch (Throwable ex) {
+			if (connectionDialog!=null)
+			{
+				connectionDialog.setVisible(true);
+				if (connectionDialog.mServerControl != null)
+					return connectionDialog.mServerControl;
+				else {
+					Tools.logException(Galleon.class, connectionDialog.mException, "Could connect to server: "
+							+ mServerAddress);
+				}
 			}
+			else
+				Tools.logException(Galleon.class, ex, "Could connect to server: " + mServerAddress);
+			return null;
 		}
 	}
 

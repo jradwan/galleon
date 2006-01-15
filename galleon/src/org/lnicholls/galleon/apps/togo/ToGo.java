@@ -76,6 +76,10 @@ public class ToGo extends DefaultApplication {
 	private Resource mBlueIcon;
 
 	private Resource mEmptyIcon;
+	
+	private Resource mIcon;
+	
+	private Resource mLockIcon;	
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -89,6 +93,8 @@ public class ToGo extends DefaultApplication {
 		mRedIcon = getSkinImage("menu", "recording");
 		mBlueIcon = getSkinImage("menu", "suggestion");
 		mEmptyIcon = getSkinImage("menu", "empty");
+		mIcon = getSkinImage("menu", "icon");
+		mLockIcon = getSkinImage("menu", "lock");
 
 		push(new ToGoMenuScreen(this), TRANSITION_NONE);
 		
@@ -182,7 +188,17 @@ public class ToGo extends DefaultApplication {
 				List tivos = Server.getServer().getTiVos();
 				for (int i = 0; i < videoArray.length; i++) {
 					Video video = (Video) videoArray[i];
-					if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED && video.getStatus() != Video.STATUS_DELETED) {
+					if (video.getStatus() != Video.STATUS_RECORDING) {
+						// Only display recordings that are still on the recorder 
+						if (video.getStatus() == Video.STATUS_DOWNLOADED || video.getStatus() == Video.STATUS_DELETED) 
+						{
+							if (video.getAvailability()==null)
+								continue;
+							else
+							if (video.getAvailability().intValue()==Video.RECORDING_DELETED)
+								continue;
+						}
+						
 						boolean match = false;
 						if (video.getSource() != null) {
 							for (int j = 0; j < tivos.size(); j++) {
@@ -263,6 +279,11 @@ public class ToGo extends DefaultApplication {
 		protected void createRow(BView parent, int index) {
 			BView icon = new BView(parent, 10, 3, 30, 30);
 			Video video = (Video) mMenuList.get(index);
+			if (video.getStatus() == Video.STATUS_DOWNLOADED)
+			{
+				icon.setResource(mIcon);
+			}
+			else
 			if (video.getIcon() != null) {
 				if (video.getIcon().equals("in-progress-recording"))
 					icon.setResource(mRedIcon);
@@ -278,7 +299,7 @@ public class ToGo extends DefaultApplication {
 
 			BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
 			name.setShadow(true);
-			if (video.getStatus() == Video.STATUS_DOWNLOADING)
+			if (video.getStatus() == Video.STATUS_DOWNLOADING || video.getStatus() == Video.STATUS_DOWNLOADED)
 				name.setFont("default-24-italic.font");
 			else
 				name.setFont("default-24.font");
@@ -424,6 +445,10 @@ public class ToGo extends DefaultApplication {
 			 * speedText.setShadow(Color.DARK_GRAY,1); speedText.setValue(" ");
 			 * speedText.setVisible(false);
 			 */
+			
+			mLock = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
+			mLock.setResource(mLockIcon);
+			mLock.setVisible(false);
 
 			list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H, (getHeight() - SAFE_TITLE_V) - 80,
 					(getWidth() - (SAFE_TITLE_H * 2)) / 2, 90, 35);
@@ -520,6 +545,11 @@ public class ToGo extends DefaultApplication {
 
 				sizeText.setLabel("Size:");
 				sizeText.setValue(mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");
+				
+				if (video.getParentalControls()!=null && video.getParentalControls().booleanValue())
+					mLock.setVisible(true);
+				else
+					mLock.setVisible(false);
 
 				statusText.setValue(video.getStatusString());
 
@@ -540,8 +570,12 @@ public class ToGo extends DefaultApplication {
 							if ((statusBarBg.getWidth() - 4) * barFraction < 1)
 								statusBar.setSize(1, statusBar.getHeight());
 							else
-								statusBar.setSize((int) (barFraction * (statusBarBg.getWidth() - 4)), statusBar
-										.getHeight());
+							{
+								int size = (int) (barFraction * (statusBarBg.getWidth() - 4));
+								if (size < 1)
+									size = 1;
+								statusBar.setSize(size, statusBar.getHeight());
+							}
 						}
 					} else {
 						String progress = "";
@@ -748,6 +782,8 @@ public class ToGo extends DefaultApplication {
 		private BView statusBarBg;
 
 		private BView statusBar;
+		
+		private BView mLock;
 
 		// private BText speedText;
 		private Thread mUpdateThread;

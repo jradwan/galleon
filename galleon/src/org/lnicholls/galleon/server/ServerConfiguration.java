@@ -124,6 +124,14 @@ public class ServerConfiguration implements Serializable {
     public String getPin() {
         return mPin;
     }    
+    
+    public void setPassword(String value) {
+        mPassword = value;
+    }
+
+    public String getPassword() {
+        return mPassword;
+    }
 
     public void setShuffleItems(boolean shuffleItems) {
         mShuffleItems = shuffleItems;
@@ -275,6 +283,8 @@ public class ServerConfiguration implements Serializable {
     private String mPublicIPAddress;
     
     private String mPin;
+    
+    private String mPassword;
 
     private boolean mShuffleItems = true; // defaults to true, the same shuffle style as the TiVo HMO server.
 

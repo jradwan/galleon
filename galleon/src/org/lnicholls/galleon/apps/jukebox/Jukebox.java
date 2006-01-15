@@ -84,8 +84,6 @@ public class Jukebox extends DefaultApplication {
 
 	private Resource mPlaylistIcon;
 
-	// TODO Allow individual tracks to be added to jukebox list
-
 	public void init(IContext context) throws Exception {
 		super.init(context);
 
@@ -188,7 +186,6 @@ public class Jukebox extends DefaultApplication {
 								.getMusicPlayerConfiguration();
 								mPlayerTracker = (Tracker) mTracker.clone();
 								mPlayerTracker.setPos(mMenuList.getFocus());
-								//mPlayerTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
 								JukeboxScreen jukeboxScreen = new JukeboxScreen((Jukebox) getBApp());
 								jukeboxScreen.setTracker(mPlayerTracker);
 								getBApp().push(jukeboxScreen, TRANSITION_LEFT);
@@ -209,7 +206,9 @@ public class Jukebox extends DefaultApplication {
 							.getMusicPlayerConfiguration();
 							mPlayerTracker = (Tracker) mTracker.clone();
 							mPlayerTracker.setPos(mMenuList.getFocus());
-							//mPlayerTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+							mPlayerTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
+							if (musicPlayerConfiguration.isRandomPlayFolders())
+								mPlayerTracker.setPos(mPlayerTracker.getNextPos());
 							PlayerScreen playerScreen = new PlayerScreen((Jukebox) getBApp(), mPlayerTracker);
 							getBApp().push(playerScreen, TRANSITION_LEFT);
 							getBApp().flush();
@@ -471,7 +470,7 @@ public class Jukebox extends DefaultApplication {
 			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
-
+			
 			boolean sameTrack = false;
 			DefaultApplication defaultApplication = (DefaultApplication) getApp();
 			Audio currentAudio = defaultApplication.getCurrentAudio();
@@ -507,9 +506,9 @@ public class Jukebox extends DefaultApplication {
 					synchronized (this) {
 						try {
 							setPainting(false);
-							MusicPlayerConfiguration jukeboxPlayerConfiguration = Server.getServer()
+							MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
 									.getMusicPlayerConfiguration();
-							if (jukeboxPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
+							if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
 								player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
 										BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
 							else

@@ -70,8 +70,8 @@ public class ShoutcastConfiguration implements AppConfiguration {
     	mShared = value;
     }
     
-    private boolean mShared;    
-
+    private boolean mShared;
+    
     private String mName;
 
     private boolean mModified;

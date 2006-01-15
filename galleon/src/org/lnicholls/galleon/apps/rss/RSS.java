@@ -38,8 +38,10 @@ import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.data.Users;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
+import org.lnicholls.galleon.database.PodcastTrack;
 import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.Effects;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
@@ -47,7 +49,9 @@ import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
+import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
@@ -173,6 +177,53 @@ public class RSS extends DefaultApplication {
 		}
 	}
 	
+	public class OptionsScreen extends DefaultOptionsScreen {
+
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+
+			getBelow().setResource(mInfoBackground);
+
+			RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+
+			int start = TOP;
+			int width = 280;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Sort");
+			NameValue[] nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
+			mSortedButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
+					true, nameValues, String.valueOf(rssConfiguration.isSorted()));
+			
+			setFocusDefault(mSortedButton);
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+
+			try {
+				RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+				rssConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
+
+				Server.getServer().updateApp(((RSSFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(RSS.class, ex, "Could not configure rss app");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mSortedButton;
+	}
+	
     public class FavoritesMenuScreen extends DefaultMenuScreen {
     	
     	public FavoritesMenuScreen(RSS app, Tracker tracker) {
@@ -184,8 +235,12 @@ public class RSS extends DefaultApplication {
             
             mTracker = tracker;
 			mFirst = first;
+			
+			setFooter("Press ENTER for options");
 
             getBelow().setResource(mMenuBackground);
+            
+            RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
 
             /*
             RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory())
@@ -209,14 +264,47 @@ public class RSS extends DefaultApplication {
             }
             */
             
+            createMenu();
+        }
+    	
+    	public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+    		if (isReturn)
+    		{
+    			createMenu();
+    		}
+			return super.handleEnter(arg, isReturn);
+		}
+    	
+    	private void createMenu()
+    	{
+    		RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+    		mMenuList.clear();
+    		ArrayList list = new ArrayList();
             Iterator iterator = mTracker.getList().iterator();
 			while (iterator.hasNext()) {
 				RSSConfiguration.SharedFeed nameValue = (RSSConfiguration.SharedFeed) iterator.next();
 				List stories = (List) ((RSSFactory) getFactory()).mChannels.get(nameValue.getValue());
                 if (stories != null)
-                    mMenuList.add(nameValue);
+                    list.add(nameValue);
 			}
-        }
+			
+			RSSConfiguration.SharedFeed feeds[] = new RSSConfiguration.SharedFeed[0];
+			feeds = (RSSConfiguration.SharedFeed[]) list.toArray(feeds);
+			if (rssConfiguration.isSorted())
+			{
+				Arrays.sort(feeds, new Comparator() {
+					public int compare(Object o1, Object o2) {
+						RSSConfiguration.SharedFeed feed1 = (RSSConfiguration.SharedFeed) o1;
+						RSSConfiguration.SharedFeed feed2 = (RSSConfiguration.SharedFeed) o2;
+						
+						return feed1.getName().compareTo(feed2.getName());
+					}
+				});
+			}
+			for (int i = 0; i < feeds.length; i++) {
+				mMenuList.add(feeds[i]);
+			}    		
+    	}
 
         public boolean handleAction(BView view, Object action) {
         	if (action.equals("push")) {
@@ -246,6 +334,8 @@ public class RSS extends DefaultApplication {
 					return true;
 				}
 				break;
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((RSS) getBApp()), TRANSITION_LEFT);
 			case KEY_NUM1:
 			case KEY_THUMBSUP:
 				try

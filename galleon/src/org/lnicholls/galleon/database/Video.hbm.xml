@@ -77,6 +77,10 @@ See the file "COPYING" for more details.
     
     public static int STATUS_DELETED = 256;    
     
+    public static int RECORDING_AVAILABLE = 1;    
+    
+    public static int RECORDING_DELETED = 2;        
+    
   </meta>          
   
     <cache usage="read-write"/>
@@ -186,7 +190,11 @@ See the file "COPYING" for more details.
     
     <property name="dateUploaded" type="timestamp"/>    
     
-    <property name="uploaded" type="string"/>                                            
+    <property name="uploaded" type="string"/>               
+    
+    <property name="availability" type="int"/>                                 
+    
+    <property name="parentalControls" type="boolean"/>                        
   </class>
 
 </hibernate-mapping>

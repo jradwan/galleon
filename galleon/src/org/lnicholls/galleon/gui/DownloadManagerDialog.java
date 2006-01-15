@@ -267,7 +267,7 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 				downloadConfiguration.setBandwidth(Integer.parseInt(((NameValue) mBandwidthCombo.getSelectedItem())
 						.getValue()));
 				Galleon.updateDownloadConfiguration(downloadConfiguration);
-			} catch (Exception ex) {
+			} catch (Throwable ex) {
 				Tools.logException(MainFrame.class, ex, "Could not configure download manager");
 				
 				JOptionPane.showMessageDialog(

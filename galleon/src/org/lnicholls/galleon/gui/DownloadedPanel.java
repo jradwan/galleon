@@ -129,14 +129,20 @@ public class DownloadedPanel extends JPanel implements ActionListener {
         JPanel tablePanel = new JPanel();
         tablePanel.setLayout(new BorderLayout());
 
-        JButton[] array = new JButton[1];
+        JButton[] array = new JButton[2];
         JPanel buttonPanel = new JPanel();
         mDeleteButton = new JButton("Delete");
         array[0] = mDeleteButton;
+        mReloadButton = new JButton("Download Again");
+        array[1] = mReloadButton;
         buttonPanel.add(mDeleteButton);
         mDeleteButton.setActionCommand("delete");
         mDeleteButton.addActionListener(this);
         mDeleteButton.setEnabled(false);
+        buttonPanel.add(mReloadButton);
+        mReloadButton.setActionCommand("reload");
+        mReloadButton.addActionListener(this);
+        mReloadButton.setEnabled(false);
         JPanel buttons = ButtonBarFactory.buildCenteredBar(array);
         buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         tablePanel.add(buttons, BorderLayout.NORTH);
@@ -168,6 +174,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     mRatingField.setText((String) mTable.getModel().getValueAt(selectedRow, 8));
                     mQualityField.setText((String) mTable.getModel().getValueAt(selectedRow, 9));
                     mDeleteButton.setEnabled(true);
+                    mReloadButton.setEnabled(true);
                 } else {
                     mTitleField.setText(" ");
                     mDescriptionField.setText(" ");
@@ -176,6 +183,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                     mRatingField.setText(" ");
                     mQualityField.setText(" ");
                     mDeleteButton.setEnabled(false);
+                    mReloadButton.setEnabled(false);
                 }
             }
         });
@@ -218,12 +226,40 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                         }
                     }
                 } catch (Exception ex) {
-                    Tools.logException(RulesPanel.class, ex);
+                    Tools.logException(DownloadedPanel.class, ex);
                 }
                 mUpdating = false;
                 activate();
             }
         }
+        else
+    	if ("reload".equals(e.getActionCommand())) {
+            mUpdating = true;
+            try {
+                ShowTableData model = (ShowTableData) mTable.getModel();
+                int[] selectedRows = mTable.getSelectedRows();
+                if (selectedRows.length > 0) {
+                    for (int i = 0; i < selectedRows.length; i++) {
+                        Video video = (Video) mShows.get(selectedRows[i]);
+                        if (Galleon.isFileExists(video.getPath()))
+                        	Galleon.deleteFile(video.getPath());
+                        video.setPath(null);
+                        video.setDownloadSize(0);
+                        video.setDownloadTime(0);
+                        if (video.getAvailability()!=null && video.getAvailability().intValue()==Video.RECORDING_AVAILABLE)
+                        	video.setStatus(Video.STATUS_USER_SELECTED);
+                        else
+                        	video.setStatus(Video.STATUS_DELETED);
+                        Galleon.updateVideo(video);
+                        model.removeRow(selectedRows[i]);
+                    }
+                }
+            } catch (Exception ex) {
+                Tools.logException(DownloadedPanel.class, ex);
+            }
+            mUpdating = false;
+            activate();
+        }        	
     }
 
     class ShowTableData extends AbstractTableModel {
@@ -436,20 +472,23 @@ public class DownloadedPanel extends JPanel implements ActionListener {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         mShows.clear();
         List recordings = Galleon.getRecordings();
-        Iterator iterator = recordings.iterator();
-        while (iterator.hasNext())
+        if (recordings!=null)
         {
-            Video video = (Video)iterator.next();
-            if (video.getStatus()==Video.STATUS_DOWNLOADED)
-            {
-            	try
-            	{
-            		if (Galleon.isFileExists(video.getPath()))
-            			mShows.add(video);
-	            } catch (Exception ex) {
-	                Tools.logException(DownloadedPanel.class, ex);
+	        Iterator iterator = recordings.iterator();
+	        while (iterator.hasNext())
+	        {
+	            Video video = (Video)iterator.next();
+	            if (video.getStatus()==Video.STATUS_DOWNLOADED)
+	            {
+	            	try
+	            	{
+	            		if (Galleon.isFileExists(video.getPath()))
+	            			mShows.add(video);
+		            } catch (Exception ex) {
+		                Tools.logException(DownloadedPanel.class, ex);
+		            }
 	            }
-            }
+	        }
         }
         ShowTableData model = (ShowTableData) mTable.getModel();
         Collections.sort(mShows, new ShowComparator(2, false));
@@ -479,4 +518,6 @@ public class DownloadedPanel extends JPanel implements ActionListener {
     private boolean mUpdating;
 
     private JButton mDeleteButton;
+    
+    private JButton mReloadButton;
 }

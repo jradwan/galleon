@@ -27,39 +27,39 @@ import org.lnicholls.galleon.util.NameValue;
  */
 
 public abstract class AppConfigurationPanel extends JPanel implements ConfigurationPanel {
-    private static Logger log = Logger.getLogger(AppConfigurationPanel.class.getName());
+	private static Logger log = Logger.getLogger(AppConfigurationPanel.class.getName());
 
-    public static class ComboWrapper extends NameValue {
-        public ComboWrapper(String name, String value) {
-            super(name, value);
-        }
+	public static class ComboWrapper extends NameValue {
+		public ComboWrapper(String name, String value) {
+			super(name, value);
+		}
 
-        public String toString() {
-            return getName();
-        }
-    }
+		public String toString() {
+			return getName();
+		}
+	}
 
-    public AppConfigurationPanel(AppConfiguration appConfiguration) {
-        super();
-        mAppConfiguration = appConfiguration;
-    }
+	public AppConfigurationPanel(AppConfiguration appConfiguration) {
+		super();
+		mAppConfiguration = appConfiguration;
+	}
 
-    public static void defaultCombo(JComboBox combo, String value) {
-        for (int i = 0; i < combo.getItemCount(); i++) {
-            if (((NameValue) combo.getItemAt(i)).getValue().equals(value)) {
-                combo.setSelectedIndex(i);
-                return;
-            }
-        }
-    }
+	public static void defaultCombo(JComboBox combo, String value) {
+		for (int i = 0; i < combo.getItemCount(); i++) {
+			if (((NameValue) combo.getItemAt(i)).getValue().equals(value)) {
+				combo.setSelectedIndex(i);
+				return;
+			}
+		}
+	}
 
-    public boolean valid() {
-        return true;
-    }
+	public boolean valid() {
+		return true;
+	}
 
-    public abstract void load();
+	public abstract void load();
 
-    public abstract void save();
+	public abstract void save();
 
-    protected AppConfiguration mAppConfiguration;
+	protected AppConfiguration mAppConfiguration;
 }

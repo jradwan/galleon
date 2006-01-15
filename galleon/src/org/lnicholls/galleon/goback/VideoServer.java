@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +61,10 @@ import com.tivo.hme.host.http.share.Headers;
 import com.tivo.hme.host.util.Config;
 
 public class VideoServer extends HttpServer {
+	
+	// http://<your tivoip>/TiVoConnect?Command=QueryContainer&Container=%2F
+	
+	// http://<your tivoip>/TiVoConnect?Command=QueryContainer&Container=GalleonRecordings&Recurse=Yes&SortOrder=!CaptureDate&ItemCount=8&Filter=x-tivo-container%2Ftivo-videos,x-tivo-container%2Ffolder,video%2Fx-tivo-mpeg,video%2F*
 
 	private static Logger log = Logger.getLogger(VideoServer.class.getName());
 
@@ -73,8 +78,10 @@ public class VideoServer extends HttpServer {
 		mFileDateFormat = new SimpleDateFormat();
 		mFileDateFormat.applyPattern("EEE MMM d yyyy hh mma");
 		mTimeDateFormat = new SimpleDateFormat();
+		mTimeDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		mTimeDateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"); // 2005-02-23T11:59:58Z
 		mDurationFormat = new SimpleDateFormat();
+		mDurationFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		mDurationFormat.applyPattern("'PT'HH'H'mm'M'"); // PT1H30M
 		mCalendar = new GregorianCalendar();
 
@@ -161,6 +168,7 @@ public class VideoServer extends HttpServer {
 							httprequest.reply(200, "Success");
 
 							String details = getVideoDetails(file);
+							//details = Tools.getFile(new File("d:/galleon/TiVoVideoDetails.xml"));
 							if (details!=null)
 							{
 								OutputStream outputstream = httprequest.getOutputStream(details.length());
@@ -673,7 +681,6 @@ public class VideoServer extends HttpServer {
 								}
 							}
 						}
-						
 						if (start < 0)
 							start = 0;
 
@@ -690,7 +697,6 @@ public class VideoServer extends HttpServer {
 								limit = -limit;
 							}
 						}
-						
 						if (itemCount == 1) {
 							Item nameFile = (Item) files.get(start);
 							String filename = nameFile.getName();
@@ -771,7 +777,6 @@ public class VideoServer extends HttpServer {
 									}
 								}
 								
-								// TODO Why details for not tivo does not work?
 								if (video == null ) { // || !file.getName().toLowerCase().endsWith(".tivo")) {
 									buffer.append("<Item>\n");
 									buffer.append("<Details>\n");
@@ -823,12 +828,13 @@ public class VideoServer extends HttpServer {
 									else
 										buffer.append("<CaptureDate>0x" + Tools.dateToHex(video.getDateRecorded())
 												+ "</CaptureDate>\n");
-									if (video != null)
+									if (video.getDescription() != null && video.getDescription().trim().length()>0)
 										buffer.append("<Description>" + Tools.escapeXMLChars(video.getDescription())
 												+ "</Description>\n");
-									else
-										buffer.append("<Description></Description>\n");
-									buffer.append("<EpisodeTitle>" + Tools.escapeXMLChars(video.getEpisodeTitle())
+									//else
+									//	buffer.append("<Description></Description>\n");
+									if (video.getEpisodeTitle()!=null && video.getEpisodeTitle().trim().length()>0)
+										buffer.append("<EpisodeTitle>" + Tools.escapeXMLChars(video.getEpisodeTitle())
 											+ "</EpisodeTitle>\n");
 									String channel = String.valueOf(video.getChannelMajorNumber());
 									if (channel.equals("0")) {
@@ -908,9 +914,9 @@ public class VideoServer extends HttpServer {
 						buffer.append("<duration>PT00M</duration>\n"); // PT1H,
 					// PT30M
 					if (video.getPartCount() != null)
-						buffer.append("<partCount>1</partCount>\n");
+						buffer.append("<partCount>"+video.getPartCount()+"</partCount>\n");
 					if (video.getPartIndex() != null)
-						buffer.append("<partIndex>1</partIndex>\n");
+						buffer.append("<partIndex>"+video.getPartIndex()+"</partIndex>\n");
 					buffer.append("<program>\n");
 					buffer.append("<vActor>\n");
 					if (video.getActors() != null) {
@@ -922,8 +928,12 @@ public class VideoServer extends HttpServer {
 					buffer.append("</vActor>\n");
 					buffer.append("<vAdvisory/>\n");
 					buffer.append("<vChoreographer/>\n");
-					buffer.append("<colorCode value=\"" + video.getColorCode() + "\">COLOR</colorCode>\n");
-					buffer.append("<description>" + Tools.escapeXMLChars(video.getDescription()) + "</description>\n");
+					if (video.getColorCode()!=0)
+						buffer.append("<colorCode value=\"" + video.getColorCode() + "\">COLOR</colorCode>\n");
+					else
+						buffer.append("<colorCode value=\"4\">COLOR</colorCode>\n");
+					if (video.getDescription() != null && video.getDescription().trim().length()>0)
+						buffer.append("<description>" + Tools.escapeXMLChars(video.getDescription()) + "</description>\n");
 					buffer.append("<vDirector>\n");
 					if (video.getDirectors() != null) {
 						StringTokenizer tokenizer = new StringTokenizer(video.getDirectors(), ";");
@@ -933,7 +943,8 @@ public class VideoServer extends HttpServer {
 					}
 					buffer.append("</vDirector>\n");
 					buffer.append("<episodeNumber>" + video.getEpisodeNumber() + "</episodeNumber>\n");
-					buffer.append("<episodeTitle>" + Tools.escapeXMLChars(video.getEpisodeTitle())
+					if (video.getEpisodeTitle()!=null && video.getEpisodeTitle().trim().length()>0)
+						buffer.append("<episodeTitle>" + Tools.escapeXMLChars(video.getEpisodeTitle())
 							+ "</episodeTitle>\n");
 					buffer.append("<vExecProducer>\n");
 					if (video.getExecProducers() != null) {
@@ -973,9 +984,9 @@ public class VideoServer extends HttpServer {
 					buffer.append("</vProducer>\n");
 					buffer.append("<series>\n");
 					if (video.getEpisodic() != null)
-						buffer.append("<isEpisode>" + video.getEpisodic() + "</isEpisode>\n");
+						buffer.append("<isEpisodic>" + video.getEpisodic() + "</isEpisodic>\n");
 					else
-						buffer.append("<isEpisode>false</isEpisode>\n");
+						buffer.append("<isEpisodic>false</isEpisodic>\n");
 					buffer.append("<vSeriesGenre>\n");
 					if (video.getSeriesGenre() != null) {
 						StringTokenizer tokenizer = new StringTokenizer(video.getSeriesGenre(), ";");
@@ -1039,9 +1050,9 @@ public class VideoServer extends HttpServer {
 						buffer.append("<duration>PT00M</duration>\n"); // PT1H,
 					// PT30M
 					if (video.getPartCount() != null)
-						buffer.append("<partCount>1</partCount>\n");
+						buffer.append("<partCount>"+video.getPartCount()+"</partCount>\n");
 					if (video.getPartIndex() != null)
-						buffer.append("<partIndex>1</partIndex>\n");
+						buffer.append("<partIndex>"+video.getPartIndex()+"</partIndex>\n");
 					buffer.append("<program>\n");
 					buffer.append("<vActor>\n");
 					if (video.getActors() != null) {
@@ -1053,7 +1064,10 @@ public class VideoServer extends HttpServer {
 					buffer.append("</vActor>\n");
 					buffer.append("<vAdvisory/>\n");
 					buffer.append("<vChoreographer/>\n");
-					buffer.append("<colorCode value=\"" + video.getColorCode() + "\">COLOR</colorCode>\n");
+					if (video.getColorCode()!=0)
+						buffer.append("<colorCode value=\"" + video.getColorCode() + "\">COLOR</colorCode>\n");
+					else
+						buffer.append("<colorCode value=\"4\">COLOR</colorCode>\n");
 					buffer.append("<description>" + Tools.escapeXMLChars(video.getDescription()) + "</description>\n");
 					buffer.append("<vDirector>\n");
 					if (video.getDirectors() != null) {
@@ -1064,7 +1078,8 @@ public class VideoServer extends HttpServer {
 					}
 					buffer.append("</vDirector>\n");
 					buffer.append("<episodeNumber>" + video.getEpisodeNumber() + "</episodeNumber>\n");
-					buffer.append("<episodeTitle>" + Tools.escapeXMLChars(video.getEpisodeTitle())
+					if (video.getEpisodeTitle()!=null && video.getEpisodeTitle().trim().length()>0)
+						buffer.append("<episodeTitle>" + Tools.escapeXMLChars(video.getEpisodeTitle())
 							+ "</episodeTitle>\n");
 					buffer.append("<vExecProducer>\n");
 					if (video.getExecProducers() != null) {
@@ -1158,9 +1173,6 @@ public class VideoServer extends HttpServer {
 					if (video.getExpirationTime() != null)
 						buffer.append("<expirationTime>" + mTimeDateFormat.format(video.getExpirationTime())
 								+ "</expirationTime>\n");
-					else
-						buffer.append("<expirationTime>" + mTimeDateFormat.format(new Date(file.lastModified()))
-								+ "</expirationTime>\n");
 					buffer.append("</TvBusMarshalledStruct:TvBusEnvelope>\n");
 				}
 				log.debug(buffer.toString());
@@ -1193,7 +1205,15 @@ public class VideoServer extends HttpServer {
 	}
 
 	public void publish(NameValue nameValue) {
-		mPublished.add(nameValue);
+		try
+		{
+			File file = new File(nameValue.getValue());
+			mPublished.add(new NameValue(nameValue.getName(), file.getCanonicalPath()));
+		}
+		catch (Exception ex)
+		{
+			mPublished.add(nameValue);
+		}
 	}
 
 	private String getFilePath(File file, File directory) {
@@ -1210,7 +1230,7 @@ public class VideoServer extends HttpServer {
 		}
 		return "";
 	}
-
+	
 	private String mHost = "Galleon";
 
 	private SimpleDateFormat mFileDateFormat;

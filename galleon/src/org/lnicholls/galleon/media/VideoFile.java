@@ -103,6 +103,8 @@ public final class VideoFile {
 
 		video.setSize(file.length());
 		video.setDateModified(new Date(file.lastModified()));
+		video.setDateRecorded(new Date(file.lastModified()));
+		video.setOriginalAirDate(new Date(file.lastModified()));
 		try {
 			pass(file, video);
 		} catch (Exception ex) {
@@ -154,7 +156,9 @@ public final class VideoFile {
 					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
 					timeDateFormat.applyPattern("MMM dd, yyyy"); // Nov 23, 2005
 					Date date = timeDateFormat.parse(matcher.group(3));
+					video.setDateModified(date);
 					video.setDateRecorded(date);
+					video.setOriginalAirDate(date);
 				}
 				catch (Exception ex) {}
 				video.setCallsign(matcher.group(4));
@@ -163,25 +167,30 @@ public final class VideoFile {
 		
 		if (video.getTitle().equals(DEFAULT_TITLE)) {
 			String value = Tools.trimSuffix(file.getName());
-			Pattern pattern = Pattern.compile("^([^-]*) \\(Recorded (.*), ([^,]*)\\)$");
+			// Battlestar Galactica - Resurrection Ship (Recorded Fri Jan 13 2006 10 00PM SCIFI).TiVo
+		    Pattern pattern = Pattern.compile("^(.*) - (.*) \\(Recorded ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*)\\)$");
 		    Matcher matcher = pattern.matcher(value);
 		    if (matcher.find()) {
 		    	video.setTitle(matcher.group(1));
 				video.setSeriesTitle(matcher.group(1));
+				video.setEpisodeTitle(matcher.group(2));
 				try
 				{
 					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
-					timeDateFormat.applyPattern("MMM dd, yyyy"); // Nov 23, 2005
-					Date date = timeDateFormat.parse(matcher.group(2));
+					timeDateFormat.applyPattern("EEE MMM d yyyy hh mma");  //Sat Nov 12 2005 08 00PM
+					Date date = timeDateFormat.parse(matcher.group(3)+" "+matcher.group(4)+" "+matcher.group(5)+" "+matcher.group(6)+" "+matcher.group(7)+" "+matcher.group(8));
+					video.setDateModified(date);
 					video.setDateRecorded(date);
+					video.setOriginalAirDate(date);
 				}
 				catch (Exception ex) {}
-				video.setCallsign(matcher.group(3));
+				video.setCallsign(matcher.group(9));
 		    }
 		}
-		
+
 		if (video.getTitle().equals(DEFAULT_TITLE)) {
 			String value = Tools.trimSuffix(file.getName());
+			// Perfect Proposal - Ryan & Carrie (Recorded Sun Oct 30 2005 04 30PM, TLC).TiVo
 		    Pattern pattern = Pattern.compile("^(.*) - (.*) \\(Recorded (.*), ([^,]*)\\)$");
 		    Matcher matcher = pattern.matcher(value);
 		    if (matcher.find()) {
@@ -193,16 +202,61 @@ public final class VideoFile {
 					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
 					timeDateFormat.applyPattern("EEE MMM d yyyy hh mma");  //Sat Nov 12 2005 08 00PM
 					Date date = timeDateFormat.parse(matcher.group(3));
+					video.setDateModified(date);
 					video.setDateRecorded(date);
+					video.setOriginalAirDate(date);
 				}
 				catch (Exception ex) {}
 				video.setCallsign(matcher.group(4));
 		    }
-		}
+		}		
 		
 		if (video.getTitle().equals(DEFAULT_TITLE)) {
 			String value = Tools.trimSuffix(file.getName());
-		    Pattern pattern = Pattern.compile("^([^-]*) \\(Recorded (.*), ([^,]*)\\)$");
+			Pattern pattern = Pattern.compile("^(.*) \\(Recorded (.*), ([^,]*)\\)$");
+		    Matcher matcher = pattern.matcher(value);
+		    if (matcher.find()) {
+		    	video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("MMM dd, yyyy"); // Nov 23, 2005
+					Date date = timeDateFormat.parse(matcher.group(2));
+					video.setDateModified(date);
+					video.setDateRecorded(date);
+					video.setOriginalAirDate(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(3));
+		    }
+		}
+
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+			// Battlestar Galactica - Resurrection Ship (Recorded Fri Jan 13 2006 10 00PM SCIFI).TiVo
+		    Pattern pattern = Pattern.compile("^(.*) \\(Recorded ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*)\\)$");
+		    Matcher matcher = pattern.matcher(value);
+		    if (matcher.find()) {
+		    	video.setTitle(matcher.group(1));
+				video.setSeriesTitle(matcher.group(1));
+				try
+				{
+					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
+					timeDateFormat.applyPattern("EEE MMM d yyyy hh mma");  //Sat Nov 12 2005 08 00PM
+					Date date = timeDateFormat.parse(matcher.group(2)+" "+matcher.group(3)+" "+matcher.group(4)+" "+matcher.group(5)+" "+matcher.group(6)+" "+matcher.group(7));
+					video.setDateModified(date);
+					video.setDateRecorded(date);
+					video.setOriginalAirDate(date);
+				}
+				catch (Exception ex) {}
+				video.setCallsign(matcher.group(8));
+		    }
+		}		
+		
+		if (video.getTitle().equals(DEFAULT_TITLE)) {
+			String value = Tools.trimSuffix(file.getName());
+		    Pattern pattern = Pattern.compile("^(.*) \\(Recorded (.*), ([^,]*)\\)$");
 		    Matcher matcher = pattern.matcher(value);
 		    if (matcher.find()) {
 		    	video.setTitle(matcher.group(1));
@@ -212,7 +266,9 @@ public final class VideoFile {
 					SimpleDateFormat timeDateFormat = new SimpleDateFormat();
 					timeDateFormat.applyPattern("EEE MMM d yyyy hh mma");  //Sat Nov 12 2005 08 00PM
 					Date date = timeDateFormat.parse(matcher.group(2));
+					video.setDateModified(date);
 					video.setDateRecorded(date);
+					video.setOriginalAirDate(date);
 				}
 				catch (Exception ex) {}
 				video.setCallsign(matcher.group(3));
@@ -254,6 +310,7 @@ public final class VideoFile {
 		video.setMimeType(DEFAULT_MIME_TYPE);
 		video.setDateModified(new Date());
 		video.setDateRecorded(new Date());
+		video.setOriginalAirDate(new Date());
 		video.setPath(DEFAULT_PATH);
 		video.setPlayCount(new Integer(DEFAULT_PLAY_COUNT));
 		// video.setRating(DEFAULT_RATING);

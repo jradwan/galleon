@@ -523,6 +523,7 @@ public class MainFrame extends JFrame {
 			super(frame, "New App", true);
 			mMainFrame = frame;
 
+			mOKButton = new JButton("OK");
 			mNameField = new JTextField();
 			mNameField.addKeyListener(this);
 			mVersionField = new JTextField();
@@ -631,11 +632,10 @@ public class MainFrame extends JFrame {
 			getContentPane().add(builder.getPanel(), "Center");
 
 			JButton[] array = new JButton[3];
-			mOKButton = new JButton("OK");
 			array[0] = mOKButton;
 			array[0].setActionCommand("ok");
 			array[0].addActionListener(this);
-			array[0].setEnabled(false);
+			//array[0].setEnabled(false);
 			array[1] = new JButton("Cancel");
 			array[1].setActionCommand("cancel");
 			array[1].addActionListener(this);
@@ -685,6 +685,7 @@ public class MainFrame extends JFrame {
 				mDocumentationField.setText(appDescriptor.getDescription());
 				
 				mNameField.setText(appDescriptor.getTitle());
+				checkDups();
 			} else {
 				mVersionField.setText("");
 				mReleaseDateField.setText("");
@@ -705,6 +706,11 @@ public class MainFrame extends JFrame {
 		}
 
 		public void keyReleased(KeyEvent e) {
+			checkDups();
+		}
+		
+		private void checkDups()
+		{
 			String name = mNameField.getText();
 			if (name.length() > 0) {
 				if (mApps==null)
@@ -838,6 +844,8 @@ public class MainFrame extends JFrame {
 			mRecordingsPath.setText(serverConfiguration.getRecordingsPath());
 			mMediaAccessKey = new JTextField();
 			mMediaAccessKey.setText(Tools.decrypt(serverConfiguration.getMediaAccessKey()));
+			mPasswordField = new JPasswordField();
+			mPasswordField.setText(Tools.decrypt(serverConfiguration.getPassword()));
 			mPublicIPAddressField = new JTextField();
 			mPublicIPAddressField.setText(serverConfiguration.getPublicIPAddress());
 			// TODO Only digits
@@ -858,6 +866,7 @@ public class MainFrame extends JFrame {
 					"3dlu, " + "pref, " + // timeout
 					"3dlu, " + "pref, " + // recordings path
 					"3dlu, " + "pref, " + // media access key
+					"3dlu, " + "pref, " + // password
 					"9dlu, " + "pref, " + // network
 					"6dlu, " + "pref, " + // port
 					"6dlu, " + "pref, " + // http port
@@ -893,28 +902,30 @@ public class MainFrame extends JFrame {
 			builder.add(button, cc.xyw(6, 19, 1));
 			builder.addLabel("Media Access Key", cc.xy(1, 21));
 			builder.add(mMediaAccessKey, cc.xyw(3, 21, 2));
+			builder.addLabel("Parental Controls Password", cc.xy(1, 23));
+			builder.add(mPasswordField, cc.xyw(3, 23, 2));
 
-			builder.addSeparator("Network", cc.xyw(1, 23, 6));
-			builder.addLabel("PC Application Port", cc.xy(1, 25));
-			builder.add(mPort, cc.xy(3, 25));
+			builder.addSeparator("Network", cc.xyw(1, 25, 6));
+			builder.addLabel("PC Application Port", cc.xy(1, 27));
+			builder.add(mPort, cc.xy(3, 27));
 			if (serverConfiguration.getPort() != Galleon.getPort()) {
-				builder.addLabel("(" + Galleon.getPort() + ")", cc.xy(4, 25));
+				builder.addLabel("(" + Galleon.getPort() + ")", cc.xy(4, 27));
 			}
-			builder.addLabel("PC Publishing Port", cc.xy(1, 27));
-			builder.add(mHTTPPort, cc.xy(3, 27));
+			builder.addLabel("PC Publishing Port", cc.xy(1, 29));
+			builder.add(mHTTPPort, cc.xy(3, 29));
 			if (serverConfiguration.getHttpPort() != Galleon.getHTTPPort()) {
-				builder.addLabel("(" + Galleon.getHTTPPort() + ")", cc.xy(4, 27));
+				builder.addLabel("(" + Galleon.getHTTPPort() + ")", cc.xy(4, 29));
 			}
-			builder.addLabel("PC IP Address", cc.xy(1, 29));
-			builder.add(mIPAddress, cc.xy(3, 29));
+			builder.addLabel("PC IP Address", cc.xy(1, 31));
+			builder.add(mIPAddress, cc.xy(3, 31));
 			button = new JButton("<< Test...");
 			button.setActionCommand("network");
 			button.addActionListener(this);
-			builder.add(button, cc.xyw(5, 29, 2));
-			builder.addLabel("Public IP Address", cc.xy(1, 31));
-			builder.add(mPublicIPAddressField, cc.xyw(3, 31, 2));
-			builder.addLabel("PIN", cc.xy(1, 33));
-			builder.add(mPINField, cc.xyw(3, 33, 2));
+			builder.add(button, cc.xyw(5, 31, 2));
+			builder.addLabel("Public IP Address", cc.xy(1, 33));
+			builder.add(mPublicIPAddressField, cc.xyw(3, 33, 2));
+			builder.addLabel("PIN", cc.xy(1, 35));
+			builder.add(mPINField, cc.xyw(3, 35, 2));
 
 			getContentPane().add(builder.getPanel(), "Center");
 
@@ -959,6 +970,18 @@ public class MainFrame extends JFrame {
 			{
 				if (!Character.isDigit(httpPort.charAt(i)))
 						return "PC Publishing Port can only contain digits";
+			}
+			
+			String password = mPasswordField.getText().trim();
+			if (password.length()>0)
+			{
+				if (password.length()!=4)
+					return "Parental Controls Password must be 4 digits";
+				for (int i=0;i<password.length();i++)
+				{
+					if (!Character.isDigit(password.charAt(i)))
+							return "Parental Controls Password can only contain digits";
+				}
 			}
 			
 			String pin = mPINField.getText().trim();
@@ -1006,6 +1029,7 @@ public class MainFrame extends JFrame {
 					mServerConfiguration.setGenerateThumbnails(mGenerateThumbnails.isSelected());
 					mServerConfiguration.setRecordingsPath(mRecordingsPath.getText());
 					mServerConfiguration.setMediaAccessKey(Tools.encrypt(mMediaAccessKey.getText().trim()));
+					mServerConfiguration.setPassword(Tools.encrypt(mPasswordField.getText()));
 					mServerConfiguration.setDebug(mDebug.isSelected());
 					mServerConfiguration.setDisableTimeout(mDisableTimeout.isSelected());
 					mServerConfiguration.setMenu(mMenu.isSelected());
@@ -1100,6 +1124,8 @@ public class MainFrame extends JFrame {
 		private JTextField mPublicIPAddressField;
 		
 		private JPasswordField mPINField;
+		
+		private JPasswordField mPasswordField;
 
 		private ServerConfiguration mServerConfiguration;
 	}

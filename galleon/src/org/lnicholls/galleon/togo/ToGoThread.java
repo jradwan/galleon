@@ -72,6 +72,36 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                     while (iterator.hasNext()) {
                         Video next = (Video) iterator.next();
     
+                        if (next.getStatus() == Video.STATUS_DOWNLOADED || next.getStatus() == Video.STATUS_DELETED) {
+                        	boolean found = false;
+                            Iterator downloadedIterator = downloaded.iterator();
+                            while (downloadedIterator.hasNext()) {
+                                Video video = (Video) downloadedIterator.next();
+                                if (video.equals(next)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (found)
+                            {
+	                        	try {
+	                            	next.setAvailability(new Integer(Video.RECORDING_AVAILABLE));
+	                                VideoManager.updateVideo(next);
+	                            } catch (HibernateException ex) {
+	                                log.error("Video create failed", ex);
+	                            }
+                            }
+                            else
+                            {
+                            	try {
+	                            	next.setAvailability(new Integer(Video.RECORDING_DELETED));
+	                                VideoManager.updateVideo(next);
+	                            } catch (HibernateException ex) {
+	                                log.error("Video create failed", ex);
+	                            }
+                            }
+                        }
+                        else
                         if (next.getStatus() != Video.STATUS_DOWNLOADED && next.getStatus() != Video.STATUS_DELETED) {
                             boolean found = false;
                             Iterator downloadedIterator = downloaded.iterator();
@@ -117,8 +147,10 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                                 || video.getStatus() == Video.STATUS_DOWNLOADING
                                                 || video.getStatus() == Video.STATUS_USER_SELECTED
                                                 || video.getStatus() == Video.STATUS_USER_CANCELLED
+                                                || video.getStatus() == Video.STATUS_INCOMPLETE
                                                 || video.getStatus() == Video.STATUS_DELETED)
                                             next.setStatus(video.getStatus());
+                                        	next.setAvailability(new Integer(Video.RECORDING_AVAILABLE));
                                         if (video.getStatus() == Video.STATUS_DOWNLOADED)
                                         {
                                             next.setPath(video.getPath());
@@ -144,6 +176,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                             synchronized(mToGo)
                             {
                                 try {
+                                	next.setAvailability(new Integer(Video.RECORDING_AVAILABLE));
                                     VideoManager.createVideo(next);
                                 } catch (HibernateException ex) {
                                     log.error("Video create failed", ex);
@@ -151,6 +184,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                             }
                         }
                     }
+                    
                     synchronized(mToGo)
                     {
                         mToGo.applyRules();

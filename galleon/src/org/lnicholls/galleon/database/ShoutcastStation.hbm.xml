@@ -73,6 +73,8 @@ See the file "COPYING" for more details.
       <column name="url" index="SHOUTCAST_URL"/>
     </property>    
     
+    <property name="popularity" type="int" not-null="true"/>        
+    
     <property name="status" type="int" not-null="true"/>    
     
   </class>

@@ -35,6 +35,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -1015,5 +1017,30 @@ public class Tools {
 
 	public static Color darken(Color color) {
 		return new Color((int) (color.getRed() * 0.59), (int) (color.getGreen() * 0.59), (int) (color.getBlue() * 0.59));
+	}
+	
+	public static String getFile(File file)
+	{
+		try
+		{
+			FileInputStream input = new FileInputStream(file);
+			if (input!=null)
+			{
+				StringBuffer buffer = new StringBuffer();
+				byte abyte0[] = new byte[1024];
+				int i = 0;
+				while ((i = input.read(abyte0, 0, abyte0.length)) > 0)
+				{
+					buffer.append(new String(abyte0, 0, i));
+				}
+				
+				return buffer.toString();
+			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return null;
 	}
 }

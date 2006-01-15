@@ -351,7 +351,8 @@ StopTivo:
   nsSCM::Stop /NOUNLOAD "TivoBeacon2"
   Pop $6 ; return error/success
   StrCmp $6 "success" RemoveTiVoBeacon
-  MessageBox MB_ICONINFORMATION|MB_OK "The TiVo Beacon service could not be stopped."
+  ;MessageBox MB_ICONINFORMATION|MB_OK "The TiVo Beacon service could not be stopped."
+  DetailPrint "The TiVo Beacon service could not be stopped."
   Goto InstallService
   
 RemoveTiVoBeacon:
@@ -359,7 +360,8 @@ RemoveTiVoBeacon:
   nsSCM::Remove /NOUNLOAD "TivoBeacon2"
   Pop $6 ; return error/success
   StrCmp $6 "success" CopyBeaconFiles
-  MessageBox MB_ICONINFORMATION|MB_OK "The old TiVo Beacon service could not be removed."
+  ;MessageBox MB_ICONINFORMATION|MB_OK "The old TiVo Beacon service could not be removed."
+  DetailPrint "The old TiVo Beacon service could not be removed."
   Goto InstallService
   
 StopTivo2:
@@ -375,7 +377,8 @@ StopTivo2:
   nsSCM::Stop /NOUNLOAD "TivoBeacon2"
   Pop $6 ; return error/success
   StrCmp $6 "success" RemoveTiVoBeacon2
-  MessageBox MB_ICONINFORMATION|MB_OK "The TiVo Beacon service could not be stopped."
+  ;MessageBox MB_ICONINFORMATION|MB_OK "The TiVo Beacon service could not be stopped."
+  DetailPrint "The TiVo Beacon service could not be stopped."
   Goto InstallService
 
 RemoveTiVoBeacon2:
@@ -383,7 +386,8 @@ RemoveTiVoBeacon2:
   nsSCM::Remove /NOUNLOAD "TivoBeacon2"
   Pop $6 ; return error/success
   StrCmp $6 "success" CopyBeaconFiles
-  MessageBox MB_ICONINFORMATION|MB_OK "The old TiVo Beacon service could not be removed."
+  ;MessageBox MB_ICONINFORMATION|MB_OK "The old TiVo Beacon service could not be removed."
+  DetailPrint "The old TiVo Beacon service could not be removed."
   Goto InstallService
   
 CreateBeaconDir:
@@ -427,7 +431,8 @@ InstallBeaconService:
   Pop $3 ; return error/success
   StrCmp $3 "success" StartBeaconService
   Pop $3 ; return GetLastError/tag
-  MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be installed: $3"
+  ;MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be installed: $3"
+  DetailPrint "The TiVo Beacon service could not be installed: $3"
   Goto InstallService
 
 StartBeaconService:
@@ -450,7 +455,8 @@ StartBeaconService:
   StrCmp $7 "success" InstallService
 
 ErrorTiVoBeacon:
-  MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be started."  
+  ;MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be started."  
+  DetailPrint "The TiVo Beacon service could not be started."  
 
 InstallService:
   DetailPrint "Installing ${PRODUCT_NAME} service"
@@ -462,7 +468,7 @@ InstallService:
   StrCmp $3 "success" End
   Pop $3 ; return GetLastError/tag
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be installed: $3"
-  ;Quit
+  Quit
 End:  
 
 SectionEnd
@@ -1053,7 +1059,7 @@ FunctionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${jre} "The Java Runtime Environment 5.0 update 5 is required for Galleon to run. It will only be installed if it is not detected on you system."
+  !insertmacro MUI_DESCRIPTION_TEXT ${jre} "The Java Runtime Environment 5.0 (${JRE_VERSION}) is required for Galleon to run. It will only be installed if it is not detected on you system."
   !insertmacro MUI_DESCRIPTION_TEXT ${desktop} "Create a shortcut on your desktop to the Galleon configuration program."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 

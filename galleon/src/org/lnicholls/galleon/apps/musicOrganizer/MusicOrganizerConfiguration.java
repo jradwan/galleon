@@ -24,7 +24,7 @@ import org.lnicholls.galleon.app.AppConfiguration;
 
 public class MusicOrganizerConfiguration implements AppConfiguration {
 
-    private static final ArrayList mDefaultCategories = new ArrayList(21);
+    private static final ArrayList mDefaultCategories = new ArrayList(22);
 
     /*
      * Rough guide on the category syntax: Each category expression describes the format of the menu hierarchy. The ID3
@@ -45,6 +45,7 @@ public class MusicOrganizerConfiguration implements AppConfiguration {
         mDefaultCategories.add("Recently Played\\DatePlayed{RecentlyPlayed}\\Song [Artist]");
         mDefaultCategories.add("Album (Grouped)\\Album{ABC-XYZ}\\Album{A-Z}\\Album\\Song [Artist]");
         mDefaultCategories.add("Album\\Album [Artist]\\Track. Song");
+        mDefaultCategories.add("Artists\\Artist\\Song [Album]");
         mDefaultCategories.add("Artist\\Artist{A-Z}\\Artist\\Song [Album]");
         mDefaultCategories.add("Artist (Grouped)\\Artist{ABC-XYZ}\\Artist{A-Z}\\Artist\\Song [Album]");
         mDefaultCategories.add("Artist, Album\\Artist{A-Z}\\Artist\\Album\\Track. Song");

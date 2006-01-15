@@ -101,7 +101,19 @@ public class RSSConfiguration implements AppConfiguration {
     	mShared = value;
     }
     
-    private boolean mShared;    
+    public boolean isSorted()
+    {
+    	return mSorted;
+    }
+    
+    public void setSorted(boolean value)
+    {
+    	mSorted = value;
+    }    
+    
+    private boolean mShared;
+    
+    private boolean mSorted;
 
     private String mName;
 

@@ -123,33 +123,20 @@ public class ShoutcastStations {
 	                get.releaseConnection();
 	            }
 	        }
-	        // Remove extinct stations
 	        List current = ShoutcastStationManager.findByGenre(genre);
 	        Iterator iterator = current.iterator();
 	        while (iterator.hasNext())
 	        {
 	        	ShoutcastStation station = (ShoutcastStation)iterator.next();
-	        	boolean found = false;
-	        	for (int i=0; i<stations.size();i++)
-	        	{
-	        		String url = (String)stations.get(i);
-	        		if (station.getUrl().equals(url))
-	        		{
-	        			found = true;
-	        			break;
-	        		}
-	        	}
-	        	if (!found)
-	        	{
-	        		try
-                    {
-	        			// TODO delete audio
-                       	ShoutcastStationManager.deleteShoutcastStation(station);
-                    } catch (Exception ex) {
-            	        Tools.logException(ShoutcastStations.class, ex);
-            	    }
-	        	}
+	        	try
+                {
+        			// TODO delete audio
+                   	ShoutcastStationManager.deleteShoutcastStation(station);
+                } catch (Exception ex) {
+        	        Tools.logException(ShoutcastStations.class, ex);
+        	    }
 	        }
+	        int pos = 0;
 	        iterator = stations.iterator();
 	        while (iterator.hasNext())
 	        {
@@ -159,7 +146,7 @@ public class ShoutcastStations {
                 	List list = ShoutcastStationManager.findByUrl(link);
                 	if (list==null || list.size()==0)
                 	{
-                    	ShoutcastStation station = new ShoutcastStation(genre, link, ShoutcastStation.STATUS_PENDING);
+                    	ShoutcastStation station = new ShoutcastStation(genre, link, ++pos, ShoutcastStation.STATUS_PENDING);
                     	ShoutcastStationManager.createShoutcastStation(station);
                 	}
                 } catch (Exception ex) {

@@ -5,6 +5,16 @@ Version 2.1.0:
 ----------------------
 Shoutcast app now supports all stations
 Shoutcast app supports station alternates
+Shoutcast favorites
+ToGo downloaded recordings can now be downloaded repeatedly
+Added sorting to internet, RSS apps
+Jukebox random play
+Support parental controls for ToGo downloads
+Fixed Galleon menu duplicate app name bug
+Fixed network interface binding bug
+Fixed GoBack recording details
+Fixed video filename formats
+Fixed GoBack videocasting support
 
 
 Version 2.0.1:

@@ -16,8 +16,6 @@ package org.lnicholls.galleon.apps.desktop;
  * See the file "COPYING" for more details.
  */
 
-import java.util.*;
-import java.net.*;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -32,157 +30,152 @@ import java.awt.image.WritableRaster;
 import java.awt.peer.RobotPeer;
 
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.media.ImageManipulator;
-import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultScreen;
-import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import sun.awt.ComponentFactory;
 
 import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.interfaces.IArgumentList;
-import com.tivo.hme.host.sample.HostContext;
 
 public class Desktop extends DefaultApplication {
 
-    private static Logger log = Logger.getLogger(Desktop.class.getName());
+	private static Logger log = Logger.getLogger(Desktop.class.getName());
 
-    public final static String TITLE = "Desktop";
+	public final static String TITLE = "Desktop";
 
-    public void init(IContext context) throws Exception {
-        super.init(context);
-        
-        push(new DesktopScreen(this), TRANSITION_NONE);
-        
-        initialize();
-    }
+	public void init(IContext context) throws Exception {
+		super.init(context);
 
-    public class DesktopScreen extends DefaultScreen {
+		push(new DesktopScreen(this), TRANSITION_NONE);
 
-        public DesktopScreen(Desktop app) {
-            super(app, null, false);
-        }
+		initialize();
+	}
 
-        private void update() {
-            BufferedImage image = null;
-            try {
-                Toolkit toolkit = Toolkit.getDefaultToolkit();
-                Toolkit nativeToolkit = Tools.getDefaultToolkit();
-                if (toolkit != nativeToolkit) {
-                    GraphicsDevice screenDevice = GraphicsEnvironment.getLocalGraphicsEnvironment()
-                            .getDefaultScreenDevice();
+	public class DesktopScreen extends DefaultScreen {
 
-                    Robot robot = new Robot(screenDevice);
-                    RobotPeer peer = ((ComponentFactory) nativeToolkit).createRobot(robot, screenDevice);
+		public DesktopScreen(Desktop app) {
+			super(app, null, false);
+		}
 
-                    Dimension screenSize = nativeToolkit.getScreenSize();
-                    Rectangle screenRect = new Rectangle(screenSize);
+		private void update() {
+			BufferedImage image = null;
+			try {
+				Toolkit toolkit = Toolkit.getDefaultToolkit();
+				Toolkit nativeToolkit = Tools.getDefaultToolkit();
+				if (toolkit != nativeToolkit) {
+					GraphicsDevice screenDevice = GraphicsEnvironment.getLocalGraphicsEnvironment()
+							.getDefaultScreenDevice();
 
-                    DataBufferInt buffer;
-                    WritableRaster raster;
-                    DirectColorModel screenCapCM = screenCapCM = new DirectColorModel(24,
-                    /* red mask */0x00FF0000,
-                    /* green mask */0x0000FF00,
-                    /* blue mask */0x000000FF);
+					Robot robot = new Robot(screenDevice);
+					RobotPeer peer = ((ComponentFactory) nativeToolkit).createRobot(robot, screenDevice);
 
-                    int pixels[];
-                    int[] bandmasks = new int[3];
+					Dimension screenSize = nativeToolkit.getScreenSize();
+					Rectangle screenRect = new Rectangle(screenSize);
 
-                    pixels = peer.getRGBPixels(screenRect);
-                    buffer = new DataBufferInt(pixels, pixels.length);
+					DataBufferInt buffer;
+					WritableRaster raster;
+					DirectColorModel screenCapCM = screenCapCM = new DirectColorModel(24,
+					/* red mask */0x00FF0000,
+					/* green mask */0x0000FF00,
+					/* blue mask */0x000000FF);
 
-                    bandmasks[0] = screenCapCM.getRedMask();
-                    bandmasks[1] = screenCapCM.getGreenMask();
-                    bandmasks[2] = screenCapCM.getBlueMask();
+					int pixels[];
+					int[] bandmasks = new int[3];
 
-                    raster = Raster.createPackedRaster(buffer, screenRect.width, screenRect.height, screenRect.width,
-                            bandmasks, null);
+					pixels = peer.getRGBPixels(screenRect);
+					buffer = new DataBufferInt(pixels, pixels.length);
 
-                    image = new BufferedImage(screenCapCM, raster, false, null);
-                } else {
-                    Dimension screenSize = toolkit.getScreenSize();
-                    Rectangle screenRect = new Rectangle(screenSize);
-                    // create screen shot
-                    Robot robot = new Robot();
-                    image = robot.createScreenCapture(screenRect);
-                }
-            } catch (Exception ex) {
-                Tools.logException(Desktop.class, ex);
-            }
+					bandmasks[0] = screenCapCM.getRedMask();
+					bandmasks[1] = screenCapCM.getGreenMask();
+					bandmasks[2] = screenCapCM.getBlueMask();
 
-            try {
-                setPainting(false);
-                if (image != null && getApp().getContext()!=null) {
-                    if (image.getWidth() > 640 || image.getHeight() > 480) {
-                        BufferedImage scaled = ImageManipulator.getScaledImage(image, 640, 480);
-                        image.flush();
-                        image = null;
+					raster = Raster.createPackedRaster(buffer, screenRect.width, screenRect.height, screenRect.width,
+							bandmasks, null);
 
-                        getNormal().setResource(createImage(scaled));
-                        scaled.flush();
-                        scaled = null;
-                    } else {
-                        getNormal().setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-                        image.flush();
-                        image = null;
-                    }
-                }
-            } finally {
-                setPainting(true);
-            }
-            getNormal().flush();
-        }
+					image = new BufferedImage(screenCapCM, raster, false, null);
+				} else {
+					Dimension screenSize = toolkit.getScreenSize();
+					Rectangle screenRect = new Rectangle(screenSize);
+					// create screen shot
+					Robot robot = new Robot();
+					image = robot.createScreenCapture(screenRect);
+				}
+			} catch (Exception ex) {
+				Tools.logException(Desktop.class, ex);
+			}
 
-        public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-            if (mDesktopThread != null && mDesktopThread.isAlive())
-                mDesktopThread.interrupt();
+			try {
+				setPainting(false);
+				if (image != null && getApp().getContext() != null) {
+					if (image.getWidth() > 640 || image.getHeight() > 480) {
+						BufferedImage scaled = ImageManipulator.getScaledImage(image, 640, 480);
+						image.flush();
+						image = null;
 
-            mDesktopThread = new Thread() {
-                public void run() {
-                    try {
-                        while (true) {
-                            synchronized (this) {
-                                update();
-                            }
-                            sleep(1000);
-                        }
-                    } catch (Exception ex) {
-                        Tools.logException(Desktop.class, ex, "Could not retrieve desktop");
-                    }
-                }
+						getNormal().setResource(createImage(scaled));
+						scaled.flush();
+						scaled = null;
+					} else {
+						getNormal().setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+						image.flush();
+						image = null;
+					}
+				}
+			} finally {
+				setPainting(true);
+			}
+			getNormal().flush();
+		}
 
-                public void interrupt() {
-                    synchronized (this) {
-                        super.interrupt();
-                    }
-                }
-            };
-            mDesktopThread.start();
-            return super.handleEnter(arg, isReturn);
-        }
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			if (mDesktopThread != null && mDesktopThread.isAlive())
+				mDesktopThread.interrupt();
 
-        public boolean handleExit() {
-            if (mDesktopThread != null && mDesktopThread.isAlive())
-                mDesktopThread.interrupt();
-            mDesktopThread = null;
-            return super.handleExit();
-        }
+			mDesktopThread = new Thread() {
+				public void run() {
+					try {
+						while (true) {
+							synchronized (this) {
+								update();
+							}
+							sleep(1000);
+						}
+					} catch (Exception ex) {
+						Tools.logException(Desktop.class, ex, "Could not retrieve desktop");
+					}
+				}
 
-        public boolean handleKeyPress(int code, long rawcode) {
-            return super.handleKeyPress(KEY_LEFT, rawcode);
-        }
+				public void interrupt() {
+					synchronized (this) {
+						super.interrupt();
+					}
+				}
+			};
+			mDesktopThread.start();
+			return super.handleEnter(arg, isReturn);
+		}
 
-        private Thread mDesktopThread;
-    }
+		public boolean handleExit() {
+			if (mDesktopThread != null && mDesktopThread.isAlive())
+				mDesktopThread.interrupt();
+			mDesktopThread = null;
+			return super.handleExit();
+		}
 
-    public static class DesktopFactory extends AppFactory {
+		public boolean handleKeyPress(int code, long rawcode) {
+			return super.handleKeyPress(KEY_LEFT, rawcode);
+		}
 
-    	public void initialize() {
-            
-        }
-    }
+		private Thread mDesktopThread;
+	}
+
+	public static class DesktopFactory extends AppFactory {
+
+		public void initialize() {
+
+		}
+	}
 }

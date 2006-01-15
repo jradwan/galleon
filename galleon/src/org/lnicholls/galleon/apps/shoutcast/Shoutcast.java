@@ -30,9 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
-import org.lnicholls.galleon.apps.togo.ToGoConfiguration;
-import org.lnicholls.galleon.apps.togo.ToGo.ToGoFactory;
+import org.lnicholls.galleon.apps.internet.InternetConfiguration;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValueManager;
@@ -50,12 +48,15 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
+import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.OptionsButton;
 import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
+import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
@@ -114,6 +115,8 @@ public class Shoutcast extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 			
+			//setFooter("Press ENTER for options");
+			
 			int start = TOP - 25;
 
 			String servers = mShoutcastStations.getServers();
@@ -124,8 +127,10 @@ public class Shoutcast extends DefaultApplication {
 				text.setFont("default-18.font");
 				text.setColor(Color.GREEN);
 				text.setShadow(true);
-				text.setValue("Servers: " + servers);
+				text.setValue("Shoutcast Servers: " + servers);
 			}
+			
+			mMenuList.add(new NameValue("Favorites", "Favorites"));
 
 			ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
 
@@ -148,13 +153,25 @@ public class Shoutcast extends DefaultApplication {
 					public void run() {
 						try {
 							NameValue nameValue = (NameValue) (mMenuList.get(mMenuList.getFocus()));
-							List list = AudioManager.findByOrigenGenreOrdered(ShoutcastStations.SHOUTCAST, nameValue
-									.getValue());
 							List nameFiles = new ArrayList();
-							for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-								Audio audio = (Audio) i.next();
-								if (audio.getExternalId()== null || audio.getExternalId().equals("1"))
-									nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
+							if (mMenuList.getFocus()==0)
+							{
+								List list = AudioManager.findByOrigenRated(ShoutcastStations.SHOUTCAST);
+								for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+									Audio audio = (Audio) i.next();
+									if (audio.getExternalId()== null || audio.getExternalId().equals("1"))
+										nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
+								}	
+							}
+							else
+							{
+								List list = AudioManager.findByOrigenGenreOrdered(ShoutcastStations.SHOUTCAST, nameValue
+										.getValue());
+								for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
+									Audio audio = (Audio) i.next();
+									if (audio.getExternalId()== null || audio.getExternalId().equals("1"))
+										nameFiles.add(new Item(audio.getTitle(), audio.getPath()));
+								}
 							}
 							
 							Tracker tracker = new Tracker(nameFiles, 0);
@@ -181,6 +198,67 @@ public class Shoutcast extends DefaultApplication {
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(StringUtils.capitalize(Tools.clean(nameValue.getName()).toLowerCase()), 40));
 		}
+		
+		public boolean handleKeyPress(int code, long rawcode) {
+			switch (code) {
+			case KEY_SELECT:
+				postEvent(new BEvent.Action(this, "push"));
+				return true;
+			}
+			return super.handleKeyPress(code, rawcode);
+		}
+	}
+	
+	public class OptionsScreen extends DefaultOptionsScreen {
+
+		public OptionsScreen(DefaultApplication app) {
+			super(app);
+
+			getBelow().setResource(mInfoBackground);
+
+			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
+
+			int start = TOP;
+			int width = 280;
+			int increment = 37;
+			int height = 25;
+			BText text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Reload");
+
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Sort");
+			NameValue[] nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
+			//mSortedButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true, nameValues, String.valueOf(shoutcastConfiguration.isSorted()));
+			
+			setFocusDefault(mSortedButton);
+		}
+
+		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			getBelow().setResource(mInfoBackground);
+
+			return super.handleEnter(arg, isReturn);
+		}
+
+		public boolean handleExit() {
+
+			try {
+				ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
+				//shoutcastConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
+
+				Server.getServer().updateApp(((ShoutcastFactory) getFactory()).getAppContext());
+			} catch (Exception ex) {
+				Tools.logException(Shoutcast.class, ex, "Could not configure shoutcast app");
+			}
+			return super.handleExit();
+		}
+
+		private OptionsButton mSortedButton;
 	}
 
 	public class PathScreen extends DefaultMenuScreen {
@@ -193,6 +271,8 @@ public class Shoutcast extends DefaultApplication {
 			super(app, "Music");
 
 			getBelow().setResource(mMenuBackground);
+			
+			//setFooter("Press ENTER for options");
 
 			mTracker = tracker;
 			mFirst = first;
@@ -339,7 +419,12 @@ public class Shoutcast extends DefaultApplication {
 						}
 					}.start();
 				}
-				return true;				
+				return true;
+				/*
+			case KEY_ENTER:
+				getBApp().push(new OptionsScreen((Shoutcast) getBApp()), TRANSITION_LEFT);
+				return true;
+				*/				
 			}
 			return super.handleKeyPress(code, rawcode);
 		}

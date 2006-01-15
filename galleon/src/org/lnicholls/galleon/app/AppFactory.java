@@ -30,29 +30,27 @@ import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 
+import com.tivo.hme.interfaces.IHmeConstants;
 import com.tivo.hme.interfaces.IHttpRequest;
 import com.tivo.hme.sdk.Application;
 import com.tivo.hme.sdk.Factory;
-import com.tivo.hme.interfaces.IHmeConstants;
 
 public class AppFactory extends Factory {
 
 	private static Logger log = Logger.getLogger(AppFactory.class.getName());
-	
+
 	public AppFactory() {
 		super();
 	}
-	
-	public void initialize()
-	{
-		
+
+	public void initialize() {
+
 	}
-	
-	public void remove()
-	{
-		
+
+	public void remove() {
+
 	}
-	
+
 	public void setConfiguration(AppConfiguration appConfiguration) {
 		getAppContext().setConfiguration(appConfiguration);
 	}
@@ -128,7 +126,7 @@ public class AppFactory extends Factory {
 	public void setAppContext(AppContext appContext) {
 		mAppContext = appContext;
 	}
-	
+
 	public void updateAppContext(AppContext appContext) {
 		mAppContext = appContext;
 	}
@@ -136,9 +134,8 @@ public class AppFactory extends Factory {
 	public AppContext getAppContext() {
 		return mAppContext;
 	}
-	
-	public Class getClassName()
-	{
+
+	public Class getClassName() {
 		return clazz;
 	}
 

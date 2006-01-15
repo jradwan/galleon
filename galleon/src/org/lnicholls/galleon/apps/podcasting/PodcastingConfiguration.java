@@ -51,10 +51,13 @@ public class PodcastingConfiguration implements AppConfiguration {
 		if (mDirectories == null) {
 			mDirectories = new ArrayList();
 			mDirectories.add(new NameValue("iPodder.org", "http://www.ipodder.org/discuss/reader$4.opml"));
+			/*
 			mDirectories.add(new NameValue("iPodderX Top Picks",
 					"http://directory.ipodderx.com/opml/iPodderX_Picks.opml"));
 			mDirectories.add(new NameValue("iPodderX Most Popular",
 					"http://directory.ipodderx.com/opml/iPodderX_Popular.opml"));
+					*/
+			//mDirectories.add(new NameValue("Podfeed.net", "http://www.podfeed.net/opml/directory.opml"));
 			mDirectories
 					.add(new NameValue("Podcast Alley Top 50", "http://www.podcastalley.com/PodcastAlleyTop50.opml"));
 			mDirectories.add(new NameValue("Podcast Alley 10 Newest",
@@ -66,6 +69,7 @@ public class PodcastingConfiguration implements AppConfiguration {
 			mDirectories.add(new NameValue("GigaDial 25 Latest", "http://www.gigadial.net/public/opml/dial25.opml"));
 			mDirectories.add(new NameValue("GigaDial All", "http://www.gigadial.net/public/opml/dial.opml"));
 			mDirectories.add(new NameValue("Sports Podcast Network", "http://sportspodnet.com/opml/spn.opml"));
+			mDirectories.add(new NameValue("Sportspod", "http://thesportspod.com/opml/sports.opml"));
 		}
 		return mDirectories;
 	}

@@ -798,6 +798,7 @@
         <copy file="./media/images/togo/redball.png" tofile="${build}/skins/togo/redball.png" />                                                
         <copy file="./media/images/togo/blueball.png" tofile="${build}/skins/togo/blueball.png" />                                                        
         <copy file="./media/images/togo/empty.png" tofile="${build}/skins/togo/empty.png" />                                                                
+        <copy file="./media/images/togo/lock.png" tofile="${build}/skins/togo/lock.png" />                                                                        
         
         <copy file="./media/images/weather/background.jpg" tofile="${build}/skins/weather/background.jpg" />
         <copy todir="${build}/skins/weather/">
@@ -940,6 +941,7 @@
         <copy file="./media/images/togo/redball.png" tofile="${build}/skins/togo/redball.png" />                                                
         <copy file="./media/images/togo/blueball.png" tofile="${build}/skins/togo/blueball.png" />                                                        
         <copy file="./media/images/togo/empty.png" tofile="${build}/skins/togo/empty.png" />                                                                
+        <copy file="./media/images/togo/lock.png" tofile="${build}/skins/togo/lock.png" />                                                                        
         <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/togo/background.mpg" />        
         
         <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/weather/background.mpg" />

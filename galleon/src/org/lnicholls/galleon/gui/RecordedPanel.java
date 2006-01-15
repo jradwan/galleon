@@ -487,7 +487,8 @@ public class RecordedPanel extends JPanel {
         
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
-        mRecorded.clear();
+        if (mRecorded!=null)
+        	mRecorded.clear();
         mTitleField.setText("Retrieving recording data from your TiVo(s)...");
         new Thread() {
             public void run()
@@ -510,14 +511,23 @@ public class RecordedPanel extends JPanel {
                                 Video video = (Video)iterator.next();
 	                        	if (video.getStatus()==Video.STATUS_DOWNLOADED)
 	                            {
+	                        		/*
 	                        		if (Galleon.isFileExists(video.getPath()))
 	                        		{
-	                                	//shows.add(video);
+	                                	shows.add(video);
 	                        		}
+	                        		*/
 	                            }
 	                        	else
-                        		if (video.getStatus()!=Video.STATUS_DELETED)
-	                        		shows.add(video);
+	                        	{
+	                        		if (video.getStatus()==Video.STATUS_DELETED)
+	                        		{
+	                        			if (video.getAvailability()!=null && video.getAvailability().intValue()==Video.RECORDING_AVAILABLE)
+	                        				shows.add(video);
+	                        		}
+	                        		else
+	                        			shows.add(video);
+	                        	}
                             }
                             mRecorded = shows;
                         	

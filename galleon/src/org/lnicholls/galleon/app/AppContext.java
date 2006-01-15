@@ -44,18 +44,16 @@ public class AppContext implements Serializable {
 				public void setName(String value) {
 					mName = value;
 				}
-				
-				public boolean isShared()
-			    {
-			    	return mShared;
-			    }
-			    
-			    public void setShared(boolean value)
-			    {
-			    	mShared = value;
-			    }
-			    
-			    private boolean mShared;
+
+				public boolean isShared() {
+					return mShared;
+				}
+
+				public void setShared(boolean value) {
+					mShared = value;
+				}
+
+				private boolean mShared;
 
 				private String mName;
 			};
@@ -85,8 +83,7 @@ public class AppContext implements Serializable {
 	public String getTitle() {
 		if (mAppConfiguration instanceof AppConfiguration)
 			return ((AppConfiguration) mAppConfiguration).getName();
-		else
-		if (mTitle==null)
+		else if (mTitle == null)
 			return mAppDescriptor.getTitle();
 		else
 			return mTitle;

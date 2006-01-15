@@ -51,6 +51,9 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         mSharedField = new JCheckBox("Share");
         mSharedField.setSelected(rssConfiguration.isShared());
         mSharedField.setToolTipText("Share this app");
+        mSortedField = new JCheckBox("Sort");
+        mSortedField.setSelected(rssConfiguration.isSorted());
+        mSortedField.setToolTipText("Sort the list");
         mNameField = new JTextField("");
         mFeedField = new JTextField("");
         mDescriptionField = new JTextField("");
@@ -64,6 +67,7 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
                 + // title
                 "3dlu, " + "pref, " + // share
+                "3dlu, " + "pref, " + // sort
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // name
                 "3dlu, " + "pref, " + // feed
@@ -82,18 +86,19 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
         builder.add(mSharedField, cc.xyw(3, 5, 1));
-        builder.addSeparator("Feeds", cc.xyw(1, 7, 4));
+        builder.add(mSortedField, cc.xyw(3, 7, 1));
+        builder.addSeparator("Feeds", cc.xyw(1, 9, 4));
 
-        builder.addLabel("Name", cc.xy(1, 9));
-        builder.add(mNameField, cc.xyw(3, 9, 1));
-        builder.addLabel("URL", cc.xy(1, 11));
-        builder.add(mFeedField, cc.xyw(3, 11, 1));
-        builder.addLabel("Description", cc.xy(1, 13));
-        builder.add(mDescriptionField, cc.xyw(3, 13, 1));
-        builder.addLabel("Tags", cc.xy(1, 15));
-        builder.add(mTagsField, cc.xyw(3, 15, 1));
-        builder.addLabel("Privacy", cc.xy(1, 17));
-        builder.add(mPrivacyCombo, cc.xyw(3, 17, 1));
+        builder.addLabel("Name", cc.xy(1, 11));
+        builder.add(mNameField, cc.xyw(3, 11, 1));
+        builder.addLabel("URL", cc.xy(1, 13));
+        builder.add(mFeedField, cc.xyw(3, 13, 1));
+        builder.addLabel("Description", cc.xy(1, 15));
+        builder.add(mDescriptionField, cc.xyw(3, 15, 1));
+        builder.addLabel("Tags", cc.xy(1, 17));
+        builder.add(mTagsField, cc.xyw(3, 17, 1));
+        builder.addLabel("Privacy", cc.xy(1, 19));
+        builder.add(mPrivacyCombo, cc.xyw(3, 19, 1));
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -121,7 +126,7 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
         fields.add(mTagsField);
         fields.add(mPrivacyCombo);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 19, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 21, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -175,4 +180,6 @@ public class RSSOptionsPanel extends AppConfigurationPanel {
     private ArrayList mColumnValues;
     
     private JCheckBox mSharedField;
+    
+    private JCheckBox mSortedField;
 }

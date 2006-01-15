@@ -79,7 +79,14 @@ public class DownloadThread extends Thread implements Constants {
                         }
                     }
                     else
+                    {
+                    	synchronized (this) {
+                            mSelectedVideo = VideoManager.retrieveVideo(mSelectedVideo.getId());
+                            mSelectedVideo.setStatus(Video.STATUS_INCOMPLETE);
+                            VideoManager.updateVideo(mSelectedVideo);
+                        }
                     	sleep(1000 * 30);
+                    }
                 }
                 else
                 	sleep(1000 * 30);

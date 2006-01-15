@@ -50,6 +50,9 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         mSharedField = new JCheckBox("Share");
         mSharedField.setSelected(internetConfiguration.isShared());
         mSharedField.setToolTipText("Share this app");
+        mSortedField = new JCheckBox("Sort");
+        mSortedField.setSelected(internetConfiguration.isSorted());
+        mSortedField.setToolTipText("Sort the list");
         mReloadCombo = new JComboBox();
         mReloadCombo.addItem(new ComboWrapper("5 minutes", "5"));
         mReloadCombo.addItem(new ComboWrapper("10 minutes", "10"));
@@ -74,6 +77,7 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + "9dlu, " + "pref, "
                 + // title
                 "3dlu, " + "pref, " + // share
+                "3dlu, " + "pref, " + // sort
                 "3dlu, " + "pref, " + // reload
                 "9dlu, " + "pref, " + // directories
                 "9dlu, " + "pref, " + // name
@@ -93,20 +97,21 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         builder.addLabel("Title", cc.xy(1, 3));
         builder.add(mTitleField, cc.xyw(3, 3, 1));
         builder.add(mSharedField, cc.xyw(3, 5, 1));
-        builder.addLabel("Reload", cc.xy(1, 7));
-        builder.add(mReloadCombo, cc.xyw(3, 7, 1));
-        builder.addSeparator("URLs", cc.xyw(1, 9, 4));
+        builder.add(mSortedField, cc.xyw(3, 7, 1));
+        builder.addLabel("Reload", cc.xy(1, 9));
+        builder.add(mReloadCombo, cc.xyw(3, 9, 1));
+        builder.addSeparator("URLs", cc.xyw(1, 11, 4));
 
-        builder.addLabel("Name", cc.xy(1, 11));
-        builder.add(mNameField, cc.xyw(3, 11, 1));
-        builder.addLabel("URL", cc.xy(1, 13));
-        builder.add(mUrlField, cc.xyw(3, 13, 1));
-        builder.addLabel("Description", cc.xy(1, 15));
-        builder.add(mDescriptionField, cc.xyw(3, 15, 1));
-        builder.addLabel("Tags", cc.xy(1, 17));
-        builder.add(mTagsField, cc.xyw(3, 17, 1));
-        builder.addLabel("Privacy", cc.xy(1, 19));
-        builder.add(mPrivacyCombo, cc.xyw(3, 19, 1));        
+        builder.addLabel("Name", cc.xy(1, 13));
+        builder.add(mNameField, cc.xyw(3, 13, 1));
+        builder.addLabel("URL", cc.xy(1, 15));
+        builder.add(mUrlField, cc.xyw(3, 15, 1));
+        builder.addLabel("Description", cc.xy(1, 17));
+        builder.add(mDescriptionField, cc.xyw(3, 17, 1));
+        builder.addLabel("Tags", cc.xy(1, 19));
+        builder.add(mTagsField, cc.xyw(3, 19, 1));
+        builder.addLabel("Privacy", cc.xy(1, 21));
+        builder.add(mPrivacyCombo, cc.xyw(3, 21, 1));        
 
         mColumnValues = new ArrayList();
         int counter = 0;
@@ -134,7 +139,7 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
         fields.add(mTagsField);
         fields.add(mPrivacyCombo);
         mOptionsTable = new OptionsTable(this, columnNames, mColumnValues, fields);
-        builder.add(mOptionsTable, cc.xyw(1, 21, 4));
+        builder.add(mOptionsTable, cc.xyw(1, 23, 4));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -191,4 +196,6 @@ public class InternetOptionsPanel extends AppConfigurationPanel {
     private ArrayList mColumnValues;
     
     private JCheckBox mSharedField;
+    
+    private JCheckBox mSortedField;
 }

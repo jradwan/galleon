@@ -102,6 +102,8 @@ public class Configurator implements Constants {
     private static String ATTRIBUTE_PUBLIC_IP_ADDRESS = "publicIpAddress";
     
     private static String ATTRIBUTE_PIN = "pin";
+    
+    private static String ATTRIBUTE_PASSWORD = "password";
 
     private static String ATTRIBUTE_NET_MASK = "netmask";
 
@@ -300,6 +302,14 @@ public class Configurator implements Constants {
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue().length());
                                 serverConfiguration.setPin(attribute.getNodeValue());
+                            }
+                            
+                            attribute = namedNodeMap.getNamedItem(ATTRIBUTE_PASSWORD);
+                            if (attribute != null) {
+                                if (log.isDebugEnabled())
+                                    log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
+                                            + attribute.getNodeValue().length());
+                                serverConfiguration.setPassword(attribute.getNodeValue());
                             }
 
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_SHUFFLE_ITEMS);
@@ -702,7 +712,10 @@ public class Configurator implements Constants {
                             serverConfiguration.getPublicIPAddress()).append("\"");
                 if (serverConfiguration.getPin() != null && serverConfiguration.getPin().length() > 0)
                     buffer.append(" ").append(ATTRIBUTE_PIN).append("=\"").append(
-                            serverConfiguration.getPin()).append("\"");                             
+                            serverConfiguration.getPin()).append("\"");
+                if (serverConfiguration.getPassword() != null && serverConfiguration.getPassword().length() > 0)
+                    buffer.append(" ").append(ATTRIBUTE_PASSWORD).append("=\"").append(
+                            serverConfiguration.getPassword()).append("\"");                           
                 buffer.append(" ").append(ATTRIBUTE_SHUFFLE_ITEMS).append("=\"").append(
                         serverConfiguration.getShuffleItems()).append("\"");
                 buffer.append(" ").append(ATTRIBUTE_GENERATE_THUMBNAILS).append("=\"").append(

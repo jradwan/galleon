@@ -19,8 +19,11 @@ package org.lnicholls.galleon.app;
 import java.io.Serializable;
 
 public interface AppConfiguration extends Serializable {
-    public String getName();
-    public void setName(String value);
-    public boolean isShared();
-    public void setShared(boolean value);
+	public String getName();
+
+	public void setName(String value);
+
+	public boolean isShared();
+
+	public void setShared(boolean value);
 }

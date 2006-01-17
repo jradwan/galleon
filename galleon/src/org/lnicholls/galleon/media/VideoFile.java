@@ -113,9 +113,10 @@ public final class VideoFile {
 
 		if (video.getTitle().equals(DEFAULT_TITLE)) {
 			String value = Tools.trimSuffix(file.getName());
-			// {Lost}{2005-11-16}{The Other 48 Days}{10.00 PM Wed Nov 16, 2005}{KGO}.mpg 
-			// {SeriesTitle}{OriginalAirDate}{EpisodeTitle}{DateRecorded}{CallSign}
-			Pattern pattern = Pattern.compile("^\\{(.*)\\}\\{(.*)\\}\\{(.*)\\}\\{(.*)\\}\\{(.*)\\}$");
+			// MythTV:
+			// {Lost}{2005-11-16}{The Other 48 Days}{10.00 PM Wed Nov 16, 2005}{KGO}{3600}{The story of the other survivors over the prior 48 days.}1060_20060111230000_20060111233000.nuv.mpg  
+			// {SeriesTitle}{OriginalAirDate}{EpisodeTitle}{DateRecorded}{CallSign}{Duration}{Description}Ignored-Data.mpg
+			Pattern pattern = Pattern.compile("^\\{([^\\}]*)\\}\\{([^\\}]*)\\}\\{([^\\}]*)\\}\\{([^\\}]*)\\}\\{([^\\}]*)\\}(?:\\{([^\\}]*)\\}\\{([^\\}]*)\\})?");
 			Matcher matcher = pattern.matcher(value);
 			if (matcher.find()) {
 				video.setTitle(matcher.group(1));
@@ -138,6 +139,13 @@ public final class VideoFile {
 				}
 				catch (Exception ex) {}
 				video.setCallsign(matcher.group(5));
+				try
+				{
+					// stored in miliseconds, not seconds
+					video.setDuration(Integer.parseInt(matcher.group(6))*1000);
+				}
+				catch (Exception ex) {}
+				video.setDescription(matcher.group(7));				
 			}
 		}
 		

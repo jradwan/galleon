@@ -222,6 +222,24 @@ public class Music extends DefaultApplication {
 
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
+			case KEY_NUM1:
+			case KEY_THUMBSUP:
+				try
+				{
+					Item nameFile = (Item) (mMenuList.get(mMenuList.getFocus()));
+					File file = (File) nameFile.getValue();
+					// TODO Playlists?
+					if (nameFile.isFolder() || nameFile.isFile()) {
+						setCurrentTrackerContext(file.getCanonicalPath());
+						
+						mMenuList.flash();
+						return super.handleKeyPress(code, rawcode);
+					}
+				}
+				catch (Exception ex) {
+					Tools.logException(Music.class, ex);
+				}
+				break;
 			case KEY_PLAY:
 				postEvent(new BEvent.Action(this, "play"));
 				return true;
@@ -648,7 +666,7 @@ public class Music extends DefaultApplication {
 
 			setTitle(" ");
 
-			setFooter("Press INFO for lyrics");
+			setFooter("Press INFO for lyrics, REPLAY to return to this screen");
 
 			if (!sameTrack || getPlayer().getState() == Player.STOP)
 				getPlayer().startTrack();

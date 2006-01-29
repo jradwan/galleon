@@ -103,7 +103,7 @@ public class ToGoDialog extends JDialog implements ActionListener {
             }
         });
 
-        setSize(750, 450);
+        setSize(800, 450);
         setLocationRelativeTo(frame);
     }
 

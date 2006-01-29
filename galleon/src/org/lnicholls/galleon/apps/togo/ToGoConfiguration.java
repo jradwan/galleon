@@ -20,6 +20,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 
 public class ToGoConfiguration implements AppConfiguration {
+	
+	public static String SORT_DATE_OLDEST = "dateOldest";
+	
+	public static String SORT_DATE_LATEST = "dateLatest";
+	
+	public static String SORT_ALPHA = "alphabetic";
 
     public String getName() {
         return mName;
@@ -38,6 +44,16 @@ public class ToGoConfiguration implements AppConfiguration {
     public boolean isShowStats() {
         return mShowStats;
     }
+    
+    public String getSort() {
+        return mSort;
+    }
+
+    public void setSort(String value) {
+        if (mSort != null && !mSort.equals(value))
+            mModified = true;
+        mSort = value;
+    }    
 
     public void setModified(boolean value) {
         mModified = value;
@@ -66,6 +82,8 @@ public class ToGoConfiguration implements AppConfiguration {
     private String mName;
 
     private boolean mShowStats = true;
+    
+    private String mSort;
 
     private boolean mModified;
 }

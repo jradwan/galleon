@@ -67,7 +67,7 @@ public class VideocastManager {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.save(Videocast);
+			session.save(trim(Videocast));
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -85,7 +85,7 @@ public class VideocastManager {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.update(Videocast);
+			session.update(trim(Videocast));
 			tx.commit();
 		} catch (HibernateException he) {
 			log.debug(Videocast.getPath());

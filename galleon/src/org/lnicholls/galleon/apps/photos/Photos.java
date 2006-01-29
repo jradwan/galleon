@@ -437,14 +437,18 @@ public class Photos extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
-						.getAppContext().getConfiguration();
-				imagesConfiguration.setUseSafe(Boolean.valueOf(mUseSafeButton.getValue()).booleanValue());
-				imagesConfiguration.setEffect(mEffectButton.getValue());
-				imagesConfiguration.setDisplayTime(Integer.parseInt(mDisplayTimeButton.getValue()));
-				imagesConfiguration.setTransitionTime(Integer.parseInt(mTransitionTimeButton.getValue()));
-
-				Server.getServer().updateApp(((PhotosFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
+							.getAppContext().getConfiguration();
+					imagesConfiguration.setUseSafe(Boolean.valueOf(mUseSafeButton.getValue()).booleanValue());
+					imagesConfiguration.setEffect(mEffectButton.getValue());
+					imagesConfiguration.setDisplayTime(Integer.parseInt(mDisplayTimeButton.getValue()));
+					imagesConfiguration.setTransitionTime(Integer.parseInt(mTransitionTimeButton.getValue()));
+	
+					Server.getServer().updateApp(((PhotosFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(MusicOptionsScreen.class, ex, "Could not configure music player");
 			}
@@ -929,19 +933,23 @@ public class Photos extends DefaultApplication {
 				getBApp().play("select.snd");
 				getBApp().flush();
 
-				Image image = currentImage();
-				try {
-					int rotation = 0;
-					if (image.getRotation() != null)
-						rotation = image.getRotation().intValue();
-					rotation = rotation + 90;
-					image.setRotation(new Integer(rotation % 360));
-					ImageManager.updateImage(image);
-				} catch (Exception ex) {
-					Tools.logException(Photos.class, ex);
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					Image image = currentImage();
+					try {
+						int rotation = 0;
+						if (image.getRotation() != null)
+							rotation = image.getRotation().intValue();
+						rotation = rotation + 90;
+						image.setRotation(new Integer(rotation % 360));
+						ImageManager.updateImage(image);
+					} catch (Exception ex) {
+						Tools.logException(Photos.class, ex);
+					}
+	
+					updateView();
 				}
-
-				updateView();
 				return true;
 			} else if (action.equals("play")) {
 

@@ -1,6 +1,18 @@
 Galleon
 -------
 
+Version 2.2.0:
+----------------------
+Galleon menu sorting
+Internet app support for larger images
+TiVo space available in configuration GUI
+ToGo recordings list TiVo name in configuration GUI
+Improved database error handling
+ToGo sorting
+Jabber app
+Fixed iTunes date support
+
+
 Version 2.1.0:
 ----------------------
 Shoutcast app now supports all stations
@@ -416,6 +428,15 @@ The harder way:
 3. Zip the files (including the new skin.xml file) and rename to *.gln.
 4. Put the skin file in the skins directory.
 5. Use the configuration GUI File/Properties menu to change the selected skin.
+
+
+Demo mode:
+Galleon can run in a demo mode if the following parameter is added to
+the startup command: -Ddemo=true
+While running in demo mode, the user will not be allowed to make and
+configuration changes.
+
+
 
 =====================================================
 galleon.tv

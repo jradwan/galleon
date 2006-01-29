@@ -285,7 +285,16 @@ public class Configurator implements Constants {
                                 if (log.isDebugEnabled())
                                     log.debug(node.getNodeName() + ":" + attribute.getNodeName() + "="
                                             + attribute.getNodeValue());
-                                serverConfiguration.setIPAddress(attribute.getNodeValue());
+                                String address = attribute.getNodeValue();
+                    			// Fix IP address if needed
+                    			if (!Tools.isLocalAddress(address))
+                    			{
+                    				log.error("Invalid server IP address: "+address);
+                    				address = Tools.getLocalIpAddress();
+                    				log.debug("Changing IP address to: "+address);
+                    			}
+                                
+                                serverConfiguration.setIPAddress(address);
                             }
                             
                             attribute = namedNodeMap.getNamedItem(ATTRIBUTE_PUBLIC_IP_ADDRESS);

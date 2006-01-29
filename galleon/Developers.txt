@@ -50,11 +50,12 @@ The Java code should conform to the Sun Java Coding conventions.
 
 Database
 --------
-Galleon uses Apache Derby (http://incubator.apache.org/derby/manuals/index.html) as an embedded database. However,
+Galleon uses Apache Derby (http://db.apache.org/derby/manuals/index.html) as an embedded database. However,
 it can be replaced by any database supported by Hibernate (http://www.hibernate.org/80.html) by changing the conf/hibernate.properties file.
 
 While the Galleon server is running, Derby runs as a network server, meaning that you can connect to it remotely.
-You can use a program such as DBVisualizer (http://www.codework.com/dbvis/product.html) to connect to the Derby database. You need to have a JDBC driver (It is also possible to use ODBC: http://www-106.ibm.com/developerworks/db2/library/techarticle/dm-0409cline2/index.html) 
+You can use a program such as DBVisualizer (http://www.codework.com/dbvis/product.html) to connect to the Derby database. 
+You can use the embedded driver or a JDBC driver (It is also possible to use ODBC: http://www-106.ibm.com/developerworks/db2/library/techarticle/dm-0409cline2/index.html) 
 
 IBM provides a free JDBC driver:
 http://www-128.ibm.com/developerworks/db2/downloads/jcc/

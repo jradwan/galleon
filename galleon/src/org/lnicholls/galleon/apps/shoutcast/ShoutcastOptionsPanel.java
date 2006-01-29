@@ -89,6 +89,7 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         mGenreField.addItem(new ComboWrapper("Contemporary", "Contemporary"));
         mGenreField.addItem(new ComboWrapper("Comedy", "Comedy"));
         mGenreField.addItem(new ComboWrapper("Country", "Country"));
+        mGenreField.addItem(new ComboWrapper("Dance", "Dance"));
         mGenreField.addItem(new ComboWrapper("Downtempo", "Downtempo"));
         mGenreField.addItem(new ComboWrapper("Drum and Bass", "Drum and Bass"));
         mGenreField.addItem(new ComboWrapper("Eclectic", "Eclectic"));
@@ -106,6 +107,7 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         mGenreField.addItem(new ComboWrapper("Latin", "Latin"));
         mGenreField.addItem(new ComboWrapper("Metal", "Metal"));
         mGenreField.addItem(new ComboWrapper("Middle Eastern", "Middle Eastern"));
+        mGenreField.addItem(new ComboWrapper("Mixed", "Mixed"));
         mGenreField.addItem(new ComboWrapper("New School", "New School"));
         mGenreField.addItem(new ComboWrapper("Oldies", "Oldies"));
         mGenreField.addItem(new ComboWrapper("Old School", "Old School"));
@@ -114,7 +116,9 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         mGenreField.addItem(new ComboWrapper("Pop", "Pop"));
         mGenreField.addItem(new ComboWrapper("Pop/Rock", "Pop/Rock"));
         mGenreField.addItem(new ComboWrapper("Punk", "Punk"));
+        mGenreField.addItem(new ComboWrapper("Rap", "Rap"));
         mGenreField.addItem(new ComboWrapper("R&B/Soul", "R&B/Soul"));
+        mGenreField.addItem(new ComboWrapper("R&B", "RnB"));
         mGenreField.addItem(new ComboWrapper("Reggae/Island", "Reggae/Island"));
         mGenreField.addItem(new ComboWrapper("Rock", "Rock"));
         mGenreField.addItem(new ComboWrapper("Ska", "Ska"));
@@ -126,6 +130,8 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
         mGenreField.addItem(new ComboWrapper("Swing", "Swing"));
         mGenreField.addItem(new ComboWrapper("Talk", "Talk"));
         mGenreField.addItem(new ComboWrapper("Techno", "Techno"));
+        mGenreField.addItem(new ComboWrapper("The '70s", "70s"));
+        mGenreField.addItem(new ComboWrapper("The '80s", "80s"));
         mGenreField.addItem(new ComboWrapper("Top 40", "Top 40"));
         mGenreField.addItem(new ComboWrapper("TopTen", "TopTen"));
         mGenreField.addItem(new ComboWrapper("Trance", "Trance"));

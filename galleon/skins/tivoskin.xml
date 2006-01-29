@@ -244,4 +244,13 @@
     <image source="menu/background.mpg" id="background"/>
   </app>                              
 
+  <app id="org.lnicholls.galleon.apps.jabber.Jabber">  
+    <image source="jabber/icon.png" id="icon"/>  
+    <image source="jabber/background.mpg" id="background"/>
+    <image source="jabber/offline.png" id="offline"/>  
+    <image source="jabber/online.png" id="online"/>  
+    <image source="jabber/message.png" id="message"/>  
+    <image source="jabber/donotdisturb.png" id="dnd"/>  
+  </app>                      
+
 </skin>

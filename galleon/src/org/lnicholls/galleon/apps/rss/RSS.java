@@ -211,10 +211,14 @@ public class RSS extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
-				rssConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
-
-				Server.getServer().updateApp(((RSSFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory()).getAppContext().getConfiguration();
+					rssConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
+	
+					Server.getServer().updateApp(((RSSFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(RSS.class, ex, "Could not configure rss app");
 			}

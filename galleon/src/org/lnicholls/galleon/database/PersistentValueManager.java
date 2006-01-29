@@ -266,7 +266,11 @@ public class PersistentValueManager {
 						Tools.logException(Tools.class, ex, name);
 					}
 				} else {
-					PersistentValueManager.deletePersistentValue(existingPersistentValue);
+					try {
+						PersistentValueManager.deletePersistentValue(existingPersistentValue);
+					} catch (Exception ex) {
+						Tools.logException(Tools.class, ex, name);
+					}
 				}
 			}
 

@@ -248,10 +248,14 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
-				//shoutcastConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
-
-				Server.getServer().updateApp(((ShoutcastFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory()).getAppContext().getConfiguration();
+					//shoutcastConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
+	
+					Server.getServer().updateApp(((ShoutcastFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(Shoutcast.class, ex, "Could not configure shoutcast app");
 			}

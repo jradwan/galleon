@@ -690,7 +690,7 @@ public class iTunes extends DefaultApplication {
 
 			setTitle(" ");
 
-			setFooter("Press INFO for lyrics");
+			setFooter("Press INFO for lyrics, REPLAY to return to this screen");
 
 			if (!sameTrack || getPlayer().getState() == Player.STOP)
 				getPlayer().startTrack();
@@ -1206,11 +1206,11 @@ public class iTunes extends DefaultApplication {
 						boolean reload = false;
 						Date fileDate = new Date();
 						PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(iTunes.class.getName()
-								+ "." + "refresh2");
+								+ "." + "refresh3");
 						if (persistentValue != null) {
 							try
 							{
-								Date date = new Date(persistentValue.getValue());
+								Date date = new Date(Long.parseLong(persistentValue.getValue()));
 								File file = new File(iTunesConfiguration.getPlaylistPath());
 								if (file.exists()) {
 									fileDate = new Date(file.lastModified());
@@ -1253,8 +1253,7 @@ public class iTunes extends DefaultApplication {
 					            }
 					        }
 							
-							PersistentValueManager.savePersistentValue(iTunes.class.getName() + ".refresh2",
-									fileDate.toString());
+							PersistentValueManager.savePersistentValue(iTunes.class.getName() + ".refresh3", String.valueOf(fileDate.getTime()));
 							log.info("Reloaded iTunes Library");
 						}
 					} catch (Throwable ex) {

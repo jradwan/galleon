@@ -107,7 +107,7 @@ public final class VideoFile {
 		video.setOriginalAirDate(new Date(file.lastModified()));
 		try {
 			pass(file, video);
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
 			Tools.logException(VideoFile.class, ex, filename);
 		}
 

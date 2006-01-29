@@ -768,6 +768,29 @@
         </jar>
         <copy file="${build}/apps/menu.jar" tofile="./apps/menu.jar" />        
 
+        <copy file="./media/images/jabber/icon.png" tofile="${build}/org/lnicholls/galleon/apps/jabber/icon.png" />        
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.jabber.Jabber"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="Jabber"/>
+          <attribute name="ReleaseDate" value="01/25/06"/>          
+          <attribute name="Description" value="The Jabber app allows you to connect to the Jabber messenger service."/>
+          <attribute name="Documentation" value="http://galleon.tv/content/view/104/43/"/>
+          <attribute name="Author" value="Leon Nicholls"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.jabber.JabberOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.jabber.JabberConfiguration"/>                      
+          <attribute name="Tags" value="Chat"/>            
+        </manifest>        
+        <jar jarfile="${build}/apps/jabber.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/jabber/**"/>
+            <fileset dir="./src/org/lnicholls/galleon/apps/jabber" excludes="*.java" />
+        </jar>
+        <copy file="${build}/apps/jabber.jar" tofile="./apps/jabber.jar" />        
+
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
@@ -885,6 +908,14 @@
         <copy file="./media/images/menu/icon.png" tofile="${build}/skins/menu/folder.png" />                
         <copy file="./media/images/menu/background.jpg" tofile="${build}/skins/menu/background.jpg" />                                                        
 
+        <copy file="./media/images/jabber/icon.png" tofile="${build}/skins/jabber/icon.png" />                
+        <copy file="./media/images/jabber/background.jpg" tofile="${build}/skins/jabber/background.jpg" />                                                        
+        <copy file="./media/images/jabber/offline.png" tofile="${build}/skins/jabber/offline.png" />                
+        <copy file="./media/images/jabber/online.png" tofile="${build}/skins/jabber/online.png" />                
+        <copy file="./media/images/jabber/message.png" tofile="${build}/skins/jabber/message.png" />                
+        <copy file="./media/images/jabber/donotdisturb.png" tofile="${build}/skins/jabber/donotdisturb.png" />                
+
+
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
         <zip destfile="${build}/skins/galleon.gln" basedir="${build}/skins" compress="yes"/>
@@ -914,6 +945,7 @@
         <delete dir="${build}/skins/jukebox" />                                
         <delete dir="${build}/skins/traffic" />                                        
         <delete dir="${build}/skins/menu" />                                                
+        <delete dir="${build}/skins/jabber" />                                                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                
         
@@ -1029,6 +1061,13 @@
         <copy file="./media/images/menu/icon.png" tofile="${build}/skins/menu/folder.png" />                
         <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/menu/background.mpg" />                                        
 
+        <copy file="./media/images/jabber/icon.png" tofile="${build}/skins/jabber/icon.png" />        
+        <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/menu/background.mpg" />                                        
+        <copy file="./media/images/jabber/offline.png" tofile="${build}/skins/jabber/offline.png" />                
+        <copy file="./media/images/jabber/online.png" tofile="${build}/skins/jabber/online.png" />
+        <copy file="./media/images/jabber/message.png" tofile="${build}/skins/jabber/message.png" />
+        <copy file="./media/images/jabber/donotdisturb.png" tofile="${build}/skins/jabber/donotdisturb.png" />                
+
         <copy file="./skins/tivoskin.xml" tofile="${build}/skins/skin.xml" />        
         <copy file="./skins/Readme.txt" tofile="${build}/skins/Readme.txt" />                
         <zip destfile="${build}/skins/tivo.gln" basedir="${build}/skins" compress="yes"/>
@@ -1058,6 +1097,7 @@
         <delete dir="${build}/skins/jukebox" />                                
         <delete dir="${build}/skins/traffic" />                                        
         <delete dir="${build}/skins/menu" />                                                
+        <delete dir="${build}/skins/jabber" />                                                
         <delete file="${build}/skins/skin.xml" />                        
         <delete file="${build}/skins/Readme.txt" />                                        
     </target>
@@ -1127,13 +1167,18 @@
         </antcall>                                        
         
         <antcall target="combinejars">
+          <param name="fileset" value="**/smack.jar,**/smackx.jar"/>
+          <param name="jarfile" value="smack.jar"/>          
+        </antcall>                                                
+
+        <antcall target="combinejars">
           <param name="fileset" value="**/forms.jar,**/looks.jar"/>
           <param name="jarfile" value="forms.jar"/>          
         </antcall>                                                
         
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar"/>
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache.jar,**/jdbc2_0-stdext.jar,**/jta.jar,**/odmg.jar,**/cglib-full.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi.jar,**/tritonus_share.jar,**/forms.jar,**/looks.jar,**/smack.jar,**/smackx.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />
@@ -1192,6 +1237,7 @@
 
     <target name="package-lib-unix">
         <copy file="./lib/unix/libwrapper.so" tofile="${build}/lib/libwrapper.so" />
+        <copy file="./lib/pja.jar" tofile="${build}/lib/pja.jar" />        
     </target>
 
     <target name="package-bin-unix">

@@ -416,36 +416,44 @@ public class MusicInfo extends BView {
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
         case KEY_THUMBSDOWN:
-            if (mAudio != null && mAudio.getRating() > 0) {
-                getBApp().play("thumbsdown.snd");
-                getBApp().flush();
-                try {
-                    mAudio.setRating(Math.max(mAudio.getRating() - 1, 0));
-                    AudioManager.updateAudio(mAudio);
-                } catch (Exception ex) {
-                    Tools.logException(MusicInfo.class, ex);
-                }
-                setRating(mAudio);
-            } else {
-                getBApp().play("bonk.snd");
-                getBApp().flush();
-            }
+        	DefaultApplication application = (DefaultApplication)getApp();
+			if (!application.isDemoMode())
+			{
+	        	if (mAudio != null && mAudio.getRating() > 0) {
+	                getBApp().play("thumbsdown.snd");
+	                getBApp().flush();
+	                try {
+	                    mAudio.setRating(Math.max(mAudio.getRating() - 1, 0));
+	                    AudioManager.updateAudio(mAudio);
+	                } catch (Exception ex) {
+	                    Tools.logException(MusicInfo.class, ex);
+	                }
+	                setRating(mAudio);
+	            } else {
+	                getBApp().play("bonk.snd");
+	                getBApp().flush();
+	            }
+			}
             return true;
         case KEY_THUMBSUP:
-            if (mAudio != null && mAudio.getRating() < 5) {
-                getBApp().play("thumbsup.snd");
-                getBApp().flush();
-                try {
-                    mAudio.setRating(Math.min(mAudio.getRating() + 1, 5));
-                    AudioManager.updateAudio(mAudio);
-                } catch (Exception ex) {
-                    Tools.logException(MusicInfo.class, ex);
-                }
-                setRating(mAudio);
-            } else {
-                getBApp().play("bonk.snd");
-                getBApp().flush();
-            }
+        	application = (DefaultApplication)getApp();
+			if (!application.isDemoMode())
+			{
+	            if (mAudio != null && mAudio.getRating() < 5) {
+	                getBApp().play("thumbsup.snd");
+	                getBApp().flush();
+	                try {
+	                    mAudio.setRating(Math.min(mAudio.getRating() + 1, 5));
+	                    AudioManager.updateAudio(mAudio);
+	                } catch (Exception ex) {
+	                    Tools.logException(MusicInfo.class, ex);
+	                }
+	                setRating(mAudio);
+	            } else {
+	                getBApp().play("bonk.snd");
+	                getBApp().flush();
+	            }
+			}
             return true;
         }
         return super.handleKeyPress(code, rawcode);

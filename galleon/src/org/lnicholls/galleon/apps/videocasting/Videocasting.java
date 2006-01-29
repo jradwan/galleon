@@ -618,7 +618,7 @@ public class Videocasting extends DefaultApplication {
 										Boolean.FALSE, Boolean.FALSE, null, item.getDate(), item.getEnclosure()
 												.getLocation().toExternalForm(), "audio/mpeg", item.getEnclosure()
 												.getLength(), 0, new Long(0), new Integer(0), 0, 0, videocast.getId(),
-										null));
+												new Integer(0), null));
 							}
 							videocast.setTracks(tracks);
 						}
@@ -707,11 +707,15 @@ public class Videocasting extends DefaultApplication {
 
 		public boolean handleExit() {
 			try {
-				VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
-						.getAppContext().getConfiguration();
-				videocastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
-
-				Server.getServer().updateApp(((VideocastingFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+							.getAppContext().getConfiguration();
+					videocastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
+	
+					Server.getServer().updateApp(((VideocastingFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(Videocasting.class, ex, "Could not configure Videocasting app");
 			}
@@ -1587,26 +1591,30 @@ public class Videocasting extends DefaultApplication {
 						postEvent(new BEvent.Action(this, "view"));
 						return true;
 					} else if (list.getFocus() == 1) {
-						try {
-							Videocast videocast = (Videocast) mTracker.getList().get(mTracker.getPos());
-							if (videocast.getStatus() == Videocast.STATUS_SUBSCRIBED) {
-								videocast.setStatus(Videocast.STATUS_DELETED);
-								VideocastingFactory.remove(videocast);
-								list.set(1, "Subscribe");
-							} else {
-								videocast.setStatus(Videocast.STATUS_SUBSCRIBED);
-								try {
-									VideocastManager.updateVideocast(videocast);
-									((VideocastingFactory) getApp().getFactory()).update();
-								} catch (Exception ex) {
-									Tools.logException(Videocasting.class, ex);
+						DefaultApplication application = (DefaultApplication)getApp();
+						if (!application.isDemoMode())
+						{
+							try {
+								Videocast videocast = (Videocast) mTracker.getList().get(mTracker.getPos());
+								if (videocast.getStatus() == Videocast.STATUS_SUBSCRIBED) {
+									videocast.setStatus(Videocast.STATUS_DELETED);
+									VideocastingFactory.remove(videocast);
+									list.set(1, "Subscribe");
+								} else {
+									videocast.setStatus(Videocast.STATUS_SUBSCRIBED);
+									try {
+										VideocastManager.updateVideocast(videocast);
+										((VideocastingFactory) getApp().getFactory()).update();
+									} catch (Exception ex) {
+										Tools.logException(Videocasting.class, ex);
+									}
+									list.set(1, "Cancel subscription");
 								}
-								list.set(1, "Cancel subscription");
+	
+								list.flush();
+							} catch (Exception ex) {
+								Tools.logException(Videocasting.class, ex);
 							}
-
-							list.flush();
-						} catch (Exception ex) {
-							Tools.logException(Videocasting.class, ex);
 						}
 						return true;
 					} else {
@@ -1615,26 +1623,30 @@ public class Videocasting extends DefaultApplication {
 					}
 				} else {
 					if (list.getFocus() == 0) {
-						try {
-							Videocast videocast = (Videocast) mTracker.getList().get(mTracker.getPos());
-							if (videocast.getStatus() == Videocast.STATUS_SUBSCRIBED) {
-								videocast.setStatus(Videocast.STATUS_DELETED);
-								list.set(0, "Subscribe");
-							} else {
-								videocast.setStatus(Videocast.STATUS_SUBSCRIBED);
-								list.set(0, "Cancel subscription");
-							}
-
+						DefaultApplication application = (DefaultApplication)getApp();
+						if (!application.isDemoMode())
+						{
 							try {
-								VideocastManager.updateVideocast(videocast);
-								((VideocastingFactory) getApp().getFactory()).update();
+								Videocast videocast = (Videocast) mTracker.getList().get(mTracker.getPos());
+								if (videocast.getStatus() == Videocast.STATUS_SUBSCRIBED) {
+									videocast.setStatus(Videocast.STATUS_DELETED);
+									list.set(0, "Subscribe");
+								} else {
+									videocast.setStatus(Videocast.STATUS_SUBSCRIBED);
+									list.set(0, "Cancel subscription");
+								}
+	
+								try {
+									VideocastManager.updateVideocast(videocast);
+									((VideocastingFactory) getApp().getFactory()).update();
+								} catch (Exception ex) {
+									Tools.logException(Videocasting.class, ex);
+								}
+	
+								list.flush();
 							} catch (Exception ex) {
 								Tools.logException(Videocasting.class, ex);
 							}
-
-							list.flush();
-						} catch (Exception ex) {
-							Tools.logException(Videocasting.class, ex);
 						}
 						return true;
 					} else {
@@ -2196,76 +2208,88 @@ public class Videocasting extends DefaultApplication {
 			case KEY_RIGHT:
 				String command = getCommand();
 				if (command.equals("Delete")) {
-					VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
-					try {
-						Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-
-						VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
-						track.setStatus(VideocastTrack.STATUS_DELETED);
-						track.setDownloadSize(0);
-						track.setDownloadTime(0);
-						Video video = track.getTrack();
-						if (((DefaultApplication) getApp()).getCurrentAudio() != null
-								&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(video.getId())) {
-							((DefaultApplication) getApp()).getPlayer().stopTrack();
+					DefaultApplication application = (DefaultApplication)getApp();
+					if (!application.isDemoMode())
+					{
+						VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
+						try {
+							Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
+	
+							VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
+							track.setStatus(VideocastTrack.STATUS_DELETED);
+							track.setDownloadSize(0);
+							track.setDownloadTime(0);
+							Video video = track.getTrack();
+							if (((DefaultApplication) getApp()).getCurrentAudio() != null
+									&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(video.getId())) {
+								((DefaultApplication) getApp()).getPlayer().stopTrack();
+							}
+							track.setTrack(null);
+							VideocastManager.updateVideocast(videocast);
+							VideoManager.deleteVideo(video);
+							File file = new File(video.getPath());
+							if (file.exists()) {
+								file.delete();
+							}
+							((VideocastingFactory) getApp().getFactory()).update();
+							mListPlay.set(0, "Download");
+							mListPlay.set(1, "Don't do anything");
+							mListPlay.setFocus(0, false);
+							mListPlay.setVisible(true);
+							mListDelete.setVisible(false);
+							setFocus(mListPlay);
+						} catch (Exception ex) {
+							Tools.logException(Videocasting.class, ex);
 						}
-						track.setTrack(null);
-						VideocastManager.updateVideocast(videocast);
-						VideoManager.deleteVideo(video);
-						File file = new File(video.getPath());
-						if (file.exists()) {
-							file.delete();
-						}
-						((VideocastingFactory) getApp().getFactory()).update();
-						mListPlay.set(0, "Download");
-						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0, false);
-						mListPlay.setVisible(true);
-						mListDelete.setVisible(false);
-						setFocus(mListPlay);
-					} catch (Exception ex) {
-						Tools.logException(Videocasting.class, ex);
 					}
 					break;
 				} else if (command.equals("Play")) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
 				} else if (command.equals("Download")) {
-					VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
-					try {
-						Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-
-						VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
-						track.setStatus(VideocastTrack.STATUS_QUEUED);
-						VideocastManager.updateVideocast(videocast);
-						((VideocastingFactory) getApp().getFactory()).update();
-						mListPlay.set(0, "Cancel download");
-						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0, false);
-						mListPlay.setVisible(true);
-						mListDelete.setVisible(false);
-						setFocus(mListPlay);
-					} catch (Exception ex) {
-						Tools.logException(Videocasting.class, ex);
+					DefaultApplication application = (DefaultApplication)getApp();
+					if (!application.isDemoMode())
+					{
+						VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
+						try {
+							Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
+	
+							VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
+							track.setStatus(VideocastTrack.STATUS_QUEUED);
+							VideocastManager.updateVideocast(videocast);
+							((VideocastingFactory) getApp().getFactory()).update();
+							mListPlay.set(0, "Cancel download");
+							mListPlay.set(1, "Don't do anything");
+							mListPlay.setFocus(0, false);
+							mListPlay.setVisible(true);
+							mListDelete.setVisible(false);
+							setFocus(mListPlay);
+						} catch (Exception ex) {
+							Tools.logException(Videocasting.class, ex);
+						}
 					}
 					return true;
 				} else if (command.equals("Cancel download")) {
-					VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
-					try {
-						Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-
-						VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
-						track.setStatus(VideocastTrack.STATUS_DOWNLOAD_CANCELLED);
-						VideocastManager.updateVideocast(videocast);
-						((VideocastingFactory) getApp().getFactory()).update();
-						mListPlay.set(0, "Download");
-						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0, false);
-						mListPlay.setVisible(true);
-						mListDelete.setVisible(false);
-						setFocus(mListPlay);
-					} catch (Exception ex) {
-						Tools.logException(Videocasting.class, ex);
+					DefaultApplication application = (DefaultApplication)getApp();
+					if (!application.isDemoMode())
+					{
+						VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
+						try {
+							Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
+	
+							VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
+							track.setStatus(VideocastTrack.STATUS_DOWNLOAD_CANCELLED);
+							VideocastManager.updateVideocast(videocast);
+							((VideocastingFactory) getApp().getFactory()).update();
+							mListPlay.set(0, "Download");
+							mListPlay.set(1, "Don't do anything");
+							mListPlay.setFocus(0, false);
+							mListPlay.setVisible(true);
+							mListDelete.setVisible(false);
+							setFocus(mListPlay);
+						} catch (Exception ex) {
+							Tools.logException(Videocasting.class, ex);
+						}
 					}
 					return true;
 				} else {

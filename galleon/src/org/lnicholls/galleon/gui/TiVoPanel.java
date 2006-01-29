@@ -18,6 +18,7 @@ package org.lnicholls.galleon.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,6 +26,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,6 +52,9 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.gui.RecordedPanel.ShowComparator;
+import org.lnicholls.galleon.gui.RecordedPanel.ShowTableData;
 import org.lnicholls.galleon.server.*;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.server.*;
@@ -77,7 +83,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     private static final ColumnData mColumns[] = { new ColumnData("Name", 50, JLabel.LEFT),
-            new ColumnData("IP Address", 50, JLabel.LEFT), new ColumnData("Capacity", 5, JLabel.RIGHT) };
+            new ColumnData("IP Address", 50, JLabel.LEFT), new ColumnData("Capacity", 5, JLabel.RIGHT), new ColumnData("Space", 5, JLabel.RIGHT) };
 
     public TiVoPanel() {
         super();
@@ -299,7 +305,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
         }
 
         public int getColumnCount() {
-            return 3;
+            return 4;
         }
 
         public String getColumnName(int column) {
@@ -324,6 +330,8 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                 return tivo.getAddress();
             case 2:
                 return String.valueOf(tivo.getCapacity());                
+            case 3:
+                return String.valueOf(calculateSpace(tivo));
             }
             return " ";
         }
@@ -338,7 +346,9 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
             case 1:
                 return tivo.getAddress();
             case 2:
-                return String.valueOf(tivo.getCapacity());                
+                return String.valueOf(tivo.getCapacity());
+            case 3:
+                return String.valueOf(calculateSpace(tivo));                
             }
             return " ";
         }
@@ -439,6 +449,14 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                 case 1:
                     result = tivo1.getAddress().compareTo(tivo2.getAddress());
                     break;
+                case 2:
+                    if (tivo1.getCapacity() == tivo2.getCapacity())
+                    	return 0;
+                    else
+                	if (tivo1.getCapacity() < tivo2.getCapacity())
+                    	return -1;
+                	else
+                		return 1;
                 }
 
                 if (!mSortAsc)
@@ -479,6 +497,90 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
                             "Galleon could not automatically find any TiVo's on your network. Add your TiVo information manually for ToGo downloading to work.",
                             "Error", JOptionPane.ERROR_MESSAGE);
         }
+        
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
+        if (mRecorded!=null)
+        	mRecorded.clear();
+        new Thread() {
+            public void run()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        mTiVos = Galleon.getTiVos();
+                        mRecorded = Galleon.getRecordings();
+                        if (mRecorded==null || TiVoPanel.this.mRecorded.size()==0)
+                            sleep(1000*5);
+                        else
+                        {
+                        	ArrayList shows = new ArrayList();
+                        	
+                        	List recordings = Galleon.getRecordings();
+                            Iterator iterator = recordings.iterator();
+                            while (iterator.hasNext())
+                            {
+                                Video video = (Video)iterator.next();
+                                if (video.getStatus()==Video.STATUS_RECORDING)
+	                            {
+                                	
+	                            }
+                                else
+                                if (video.getStatus()==Video.STATUS_DOWNLOADED)
+	                            {
+	                        		/*
+	                        		if (Galleon.isFileExists(video.getPath()))
+	                        		{
+	                                	shows.add(video);
+	                        		}
+	                        		*/
+	                            }
+	                        	else
+	                        	{
+	                        		if (video.getStatus()==Video.STATUS_DELETED)
+	                        		{
+	                        			if (video.getAvailability()!=null && video.getAvailability().intValue()==Video.RECORDING_AVAILABLE)
+	                        				shows.add(video);
+	                        		}
+	                        		else
+	                        			shows.add(video);
+	                        	}
+                            }
+                            mRecorded = shows;
+                            ShowTableData model = (ShowTableData) mTable.getModel();
+                            model.fireTableDataChanged();
+                            if (model.getRowCount() > 0)
+                                mTable.setRowSelectionInterval(0, 0);
+                            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    	Tools.logException(RecordedPanel.class, ex); 
+                    	return;
+                    }
+                }
+            }
+        }.start();
+    }
+    
+    private int calculateSpace(TiVo tivo)
+    {
+    	if (mRecorded!=null)
+    	{
+    		long size = 0;
+    		Iterator iterator = mRecorded.iterator();
+	        while (iterator.hasNext())
+	        {
+	            Video video = (Video)iterator.next();
+	            size = size + video.getSize();
+	        }
+	        return (int)(((tivo.getCapacity() * 1024) - size / (1024 * 1024)) / 1024);
+    	}
+    	
+    	return 0;
     }
 
     private JTable mTable;
@@ -498,4 +600,6 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
     private boolean mUpdating;
 
     private List mTiVos;
+    
+    private List mRecorded;
 }

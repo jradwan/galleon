@@ -19,6 +19,7 @@ package org.lnicholls.galleon.apps.togo;
 import java.awt.GridLayout;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -27,74 +28,90 @@ import javax.swing.text.JTextComponent;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
+import org.lnicholls.galleon.app.AppConfigurationPanel.ComboWrapper;
+import org.lnicholls.galleon.util.NameValue;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 public class ToGoOptionsPanel extends AppConfigurationPanel {
-    private static Logger log = Logger.getLogger(ToGoOptionsPanel.class.getName());
+	private static Logger log = Logger.getLogger(ToGoOptionsPanel.class.getName());
 
-    public ToGoOptionsPanel(AppConfiguration appConfiguration) {
-        super(appConfiguration);
-        setLayout(new GridLayout(0, 1));
+	public ToGoOptionsPanel(AppConfiguration appConfiguration) {
+		super(appConfiguration);
+		setLayout(new GridLayout(0, 1));
 
-        ToGoConfiguration togoConfiguration = (ToGoConfiguration) appConfiguration;
+		ToGoConfiguration togoConfiguration = (ToGoConfiguration) appConfiguration;
 
-        mTitleField = new JTextField(togoConfiguration.getName());
-        mSharedField = new JCheckBox("Share");
-        mSharedField.setSelected(togoConfiguration.isShared());
-        mSharedField.setToolTipText("Share this app");
-        mShowStatsField = new JCheckBox("Show statistics");
-        mShowStatsField.setToolTipText("Check to specify that ToGo statistics should be shown");
-        mShowStatsField.setSelected(togoConfiguration.isShowStats());
+		mTitleField = new JTextField(togoConfiguration.getName());
+		mSharedField = new JCheckBox("Share");
+		mSharedField.setSelected(togoConfiguration.isShared());
+		mSharedField.setToolTipText("Share this app");
+		mShowStatsField = new JCheckBox("Show statistics");
+		mShowStatsField.setToolTipText("Check to specify that ToGo statistics should be shown");
+		mShowStatsField.setSelected(togoConfiguration.isShowStats());
+		mSortCombo = new JComboBox();
+		mSortCombo.addItem(new ComboWrapper("Alphabetic", ToGoConfiguration.SORT_ALPHA));
+		mSortCombo.addItem(new ComboWrapper("Latest First", ToGoConfiguration.SORT_DATE_LATEST));
+		mSortCombo.addItem(new ComboWrapper("Oldest First", ToGoConfiguration.SORT_DATE_OLDEST));
+		String sort = togoConfiguration.getSort();
+		if (sort == null)
+			sort = ToGoConfiguration.SORT_DATE_LATEST;
+		defaultCombo(mSortCombo, sort);
 
-        FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
-                "9dlu, " + "pref, " + // title
-                "3dlu, " + "pref, " + // share
-                "9dlu, " + "pref, " + // Options
-                "9dlu, " + "pref"); // show stats
+		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
+				"9dlu, " + "pref, " + // title
+				"3dlu, " + "pref, " + // share
+				"9dlu, " + "pref, " + // Options
+				"9dlu, " + "pref, " + // show stats
+				"9dlu, " + "pref"); // sort
 
-        PanelBuilder builder = new PanelBuilder(layout);
-        //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
-        builder.setDefaultDialogBorder();
+		PanelBuilder builder = new PanelBuilder(layout);
+		// DefaultFormBuilder builder = new DefaultFormBuilder(new
+		// FormDebugPanel(), layout);
+		builder.setDefaultDialogBorder();
 
-        CellConstraints cc = new CellConstraints();
+		CellConstraints cc = new CellConstraints();
 
-        builder.addSeparator("General", cc.xyw(1, 1, 4));
-        builder.addLabel("Title", cc.xy(1, 3));
-        builder.add(mTitleField, cc.xyw(3, 3, 1));
-        builder.add(mSharedField, cc.xyw(3, 5, 1));
-        builder.addSeparator("Options", cc.xyw(1, 7, 4));
-        builder.addLabel("", cc.xy(1, 9));
-        builder.add(mShowStatsField, cc.xyw(3, 9, 1));
+		builder.addSeparator("General", cc.xyw(1, 1, 4));
+		builder.addLabel("Title", cc.xy(1, 3));
+		builder.add(mTitleField, cc.xyw(3, 3, 1));
+		builder.add(mSharedField, cc.xyw(3, 5, 1));
+		builder.addSeparator("Options", cc.xyw(1, 7, 4));
+		builder.addLabel("", cc.xy(1, 9));
+		builder.add(mShowStatsField, cc.xyw(3, 9, 1));
+		builder.addLabel("Sort", cc.xy(1, 11));
+		builder.add(mSortCombo, cc.xyw(3, 11, 1));
 
-        JPanel panel = builder.getPanel();
-        //FormDebugUtils.dumpAll(panel);
-        add(panel);
-    }
+		JPanel panel = builder.getPanel();
+		// FormDebugUtils.dumpAll(panel);
+		add(panel);
+	}
 
-    public boolean valid() {
-        if (mTitleField.getText().trim().length() == 0) {
-            JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        return true;
-    }
+	public boolean valid() {
+		if (mTitleField.getText().trim().length() == 0) {
+			JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
 
-    public void load() {
-    }
+	public void load() {
+	}
 
-    public void save() {
-        ToGoConfiguration togoConfiguration = (ToGoConfiguration) mAppConfiguration;
-        togoConfiguration.setName(mTitleField.getText());
-        togoConfiguration.setShowStats(mShowStatsField.isSelected());
-        togoConfiguration.setShared(mSharedField.isSelected());
-    }
+	public void save() {
+		ToGoConfiguration togoConfiguration = (ToGoConfiguration) mAppConfiguration;
+		togoConfiguration.setName(mTitleField.getText());
+		togoConfiguration.setShowStats(mShowStatsField.isSelected());
+		togoConfiguration.setSort(((NameValue) mSortCombo.getSelectedItem()).getValue());
+	}
 
-    private JTextComponent mTitleField;
+	private JTextComponent mTitleField;
 
-    private JCheckBox mShowStatsField;
-    
-    private JCheckBox mSharedField;
+	private JCheckBox mShowStatsField;
+
+	private JCheckBox mSharedField;
+
+	private JComboBox mSortCombo;
 }

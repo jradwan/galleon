@@ -408,7 +408,7 @@ public class Playlists extends DefaultApplication {
 
 			setTitle(" ");
 
-			setFooter("Press INFO for lyrics");
+			setFooter("Press INFO for lyrics, REPLAY to return to this screen");
 
 			if (!sameTrack || getPlayer().getState() == Player.STOP)
 				getPlayer().startTrack();

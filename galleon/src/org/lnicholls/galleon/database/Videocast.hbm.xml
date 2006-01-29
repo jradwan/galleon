@@ -213,6 +213,8 @@ See the file "COPYING" for more details.
     </property>     
     
     <property name="videocast" type="int"/>
+    
+	<property name="errors" type="int"/>                    
 
       </composite-element>
       
@@ -221,7 +223,6 @@ See the file "COPYING" for more details.
     <property name="datePlayed" type="timestamp"/>
     
     <property name="playCount" type="int"/>        
-
   </class>
   
 </hibernate-mapping>

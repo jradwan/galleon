@@ -109,12 +109,15 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
                 tivo.setPort(info.getPort());
                 tivo.setAddress(info.getAddress());
 
+                found = info.getPropertyString(TIVO_PLATFORM)!=null && info.getPropertyString(TIVO_TSN)!=null;
                 for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
                     String prop = (String) names.nextElement();
                     if (prop.equals(TIVO_PLATFORM)) {
                         tivo.setPlatform(info.getPropertyString(prop));
+                        /*
                         if (tivo.getPlatform().startsWith(TIVO_PLATFORM_PREFIX))
                             found = true;
+                        */    
                     } else if (prop.equals(TIVO_TSN)) {
                         tivo.setServiceNumber(info.getPropertyString(prop));
                     } else if (prop.equals(TIVO_SW_VERSION)) {

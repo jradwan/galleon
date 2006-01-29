@@ -99,7 +99,7 @@ public final class Mp3Url {
 		                        }
 		                        catch (Throwable ex)
 		                        {
-		                        	Tools.logException(Mp3Url.class, ex, mPath);        	
+		                        	Tools.logException(Mp3Url.class, ex, mPath);
 		                        }
 		                        return conn.getInputStream();
 		                    }

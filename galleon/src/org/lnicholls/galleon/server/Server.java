@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.StringTokenizer;
+import java.rmi.RMISecurityManager;
 
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Level;
@@ -189,7 +191,25 @@ public class Server {
 			check = new File(System.getProperty("logs"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: logs=" + System.getProperty("logs"));
-
+			
+			if (System.getProperty("demo") != null)
+				mDemoMode = Boolean.valueOf(System.getProperty("demo")).booleanValue();
+			
+			if (System.getProperty("remoteHost") != null)
+			{
+				System.setSecurityManager (new RMISecurityManager() {
+				    public void checkConnect (String host, int port) {
+				    	if (host!=null && host.equals(System.getProperty("remoteHost")))
+				    		return;
+				    	throw new SecurityException("Invalid remote host: "+host);
+				    }
+				    public void checkConnect (String host, int port, Object context) {
+				    	if (host!=null && host.equals(System.getProperty("remoteHost")))
+				    		return;
+				    	throw new SecurityException("Invalid remote host: "+host);
+				    }
+				  });
+			}
 		} catch (Exception ex) {
 			Tools.logException(Server.class, ex);
 		}
@@ -292,11 +312,14 @@ public class Server {
 				// Is there already a RMI server?
 				mRegistry = LocateRegistry.getRegistry(1099);
 				String[] names = mRegistry.list();
+				log.info("Using RMI port " + 1099);
 			} catch (Exception ex) {
 				int port = Tools.findAvailablePort(1099);
 				if (port != 1099) {
-					log.info("Changed port to " + port);
+					log.info("Changed RMI port to " + port);
 				}
+				else
+					log.info("Using RMI port " + 1099);
 
 				mRegistry = LocateRegistry.createRegistry(port);
 			}
@@ -307,45 +330,61 @@ public class Server {
 			int port = mServerConfiguration.getHttpPort();
 			mHMOPort = Tools.findAvailablePort(port);
 			if (mHMOPort != port) {
-				log.info("Changed HMO port to " + mHMOPort);
+				log.info("Changed PC publishing port to " + mHMOPort);
 			}
+			else
+				log.info("Using PC publishing port " + mHMOPort);
 			
 			Config config = new Config();
 	        config.put("http.ports", String.valueOf(mHMOPort));
 	        config.put("http.interfaces", mServerConfiguration.getIPAddress());
 	        mVideoServer = new VideoServer(config);
 			
-			// TiVo Beacon API
-            publishTiVoBeacon();
-
-            if (!mPublished) {
-                mBeaconPort = Constants.TIVO_PORT;
-                while (true) {
-                    try {
-                        if (log.isDebugEnabled())
-                            log.debug("Using beacon port=" + mBeaconPort);
-                        mBroadcastThread = new BroadcastThread(this, mBeaconPort);
-                        mBroadcastThread.start();
-                        break;
-                    } catch (BindException ex) {
-                        Tools.logException(Server.class, ex);
-
-                        if (mBroadcastThread != null)
-                            mBroadcastThread.interrupt();
-
-                        mBroadcastThread = null;
-                        mBeaconPort = mBeaconPort + 1;
-                    }
-                }
-
-                log.info("Broadcast port=" + mBeaconPort);
-
-                mListenThread = new ListenThread(this);
-                mListenThread.start();
-
-                mConnectionThread = new ConnectionThread(this);
-                mConnectionThread.start();
-            }			
+	        if (System.getProperty("disableBeacon") != null && System.getProperty("disableBeacon").equals("true"))
+	        {
+	        	log.debug("Beacon disabled");
+	        }
+	        else
+			{
+		        // TiVo Beacon API
+	            publishTiVoBeacon();
+	
+	            if (!mPublished) {
+	                mBeaconPort = Constants.TIVO_PORT;
+	                // TODO
+	                int counter = 0;
+	                while (counter++<100) {
+	                    try {
+	                        if (log.isDebugEnabled())
+	                            log.debug("Using beacon port=" + mBeaconPort);
+	                        mBroadcastThread = new BroadcastThread(this, mBeaconPort);
+	                        mBroadcastThread.start();
+	                        break;
+	                    } catch (Throwable ex) {
+	                        Tools.logException(Server.class, ex);
+	
+	                        if (mBroadcastThread != null)
+	                            mBroadcastThread.interrupt();
+	
+	                        mBroadcastThread = null;
+	                        mBeaconPort = mBeaconPort + 1;
+	                    }
+	                }
+	
+	                if (mBroadcastThread!=null)
+	                {
+		                log.info("Broadcast port=" + mBeaconPort);
+		
+		                mListenThread = new ListenThread(this);
+		                mListenThread.start();
+	                }
+	                else
+	                	log.error("Cannot broadcast");
+	
+	                mConnectionThread = new ConnectionThread(this);
+	                mConnectionThread.start();
+	            }			
+			}
 			
             //mDataUpdateThread = new DataUpdateThread();
             //mDataUpdateThread.start();
@@ -574,6 +613,8 @@ public class Server {
 			if (mPort != mServerConfiguration.getPort()) {
 				log.info("Changed port to " + mPort);
 			}
+			else
+				log.info("Using port " + mPort);
 		}
 		return mPort;
 	}
@@ -1135,8 +1176,11 @@ public class Server {
                 mTiVoBeacon.PublishMediaServer(mHMOPort);
                 mPublished = true;
                 log.info("Using TiVo Beacon service");
-            } catch (Exception ex) {
-                Tools.logException(Server.class, ex);
+            } catch (Throwable ex) {
+            	if (ex.getCause()!=null)
+            		Tools.logException(Server.class, ex, ex.getCause().toString());
+            	else
+            		Tools.logException(Server.class, ex);
                 mTiVoBeacon = null;
                 log.info("Could not find TiVo Beacon service");
             }
@@ -1200,6 +1244,11 @@ public class Server {
 	public List getAppUrls(boolean shared)
 	{
 		return mAppManager.getAppUrls(shared);
+	}
+	
+	public boolean isDemoMode()
+	{
+		return mDemoMode;
 	}
 	
 	public static void main(String args[]) {
@@ -1279,4 +1328,6 @@ public class Server {
     private DownloadManager mDownloadManager;
     
     //private DataUpdateThread mDataUpdateThread;
+    
+    private static boolean mDemoMode;
 }

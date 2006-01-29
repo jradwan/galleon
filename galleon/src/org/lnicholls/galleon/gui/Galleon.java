@@ -45,6 +45,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
@@ -72,6 +73,16 @@ import com.jgoodies.plaf.Options;
 import edu.stanford.ejalbert.BrowserLauncher;
 
 public final class Galleon implements Constants {
+	
+	private static String mErrorMessageSuffix = "";
+	
+	static
+	{
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			mErrorMessageSuffix = "Check that the Galleon service is running. Make sure that the ports required by Galleon listed in the FAQ is configured in your PC firewall software.";
+		}		
+	}
 
 	static class SplashWindow extends JWindow {
 		public SplashWindow() {
@@ -281,7 +292,7 @@ public final class Galleon implements Constants {
 			} catch (Exception ex) {
 				Tools.logException(Galleon.class, ex, "Could not update server: " + mServerAddress);
 
-				JOptionPane.showMessageDialog(mMainFrame, "Could not update Galleon server.", "Error",
+				JOptionPane.showMessageDialog(mMainFrame, "Could not update Galleon server. "+getErrorMessageSuffix(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -295,7 +306,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get recordings from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -308,7 +319,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get TiVo's from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -321,7 +332,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not update TiVo's on server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -333,7 +344,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get apps from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -346,7 +357,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get app descriptors from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -359,7 +370,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not remove app from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -371,7 +382,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not update app from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -384,7 +395,7 @@ public final class Galleon implements Constants {
 			Tools.logException(Galleon.class, ex, "Could not get app server configuration from server: "
 					+ mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -414,7 +425,7 @@ public final class Galleon implements Constants {
 			Tools.logException(Galleon.class, ex, "Could not get app server data configuration from server: "
 					+ mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -433,7 +444,7 @@ public final class Galleon implements Constants {
 			Tools.logException(Galleon.class, ex, "Could not get app server data configuration from server: "
 					+ mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -452,7 +463,7 @@ public final class Galleon implements Constants {
 			Tools.logException(Galleon.class, ex, "Could not get app server goback configuration from server: "
 					+ mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -472,7 +483,7 @@ public final class Galleon implements Constants {
 			Tools.logException(Galleon.class, ex, "Could not get app server download configuration from server: "
 					+ mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -485,7 +496,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not update video at server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -497,7 +508,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not create app context at server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -510,7 +521,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get rules from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -523,7 +534,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not update rules on server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -535,7 +546,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get Winamp skins from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -548,7 +559,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get skins from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -561,7 +572,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get port from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return -1;
@@ -574,7 +585,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get http port from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return -1;
@@ -587,7 +598,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get port from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return -1;
@@ -600,7 +611,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get podcasts from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -613,7 +624,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not update podcasts to server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -625,7 +636,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get videocasts from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -638,7 +649,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not update videocasts to server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -650,7 +661,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not retrieve current version from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return true;
@@ -663,7 +674,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get downloads from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -677,7 +688,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get pause downloads from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
     }
@@ -690,7 +701,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get resume downloads from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -703,7 +714,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get stop downloads from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -716,7 +727,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get file from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
@@ -730,7 +741,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get file from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -743,7 +754,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get upcoming countries from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -757,7 +768,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get upcoming states from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -771,7 +782,7 @@ public final class Galleon implements Constants {
 		} catch (Exception ex) {
 			Tools.logException(Galleon.class, ex, "Could not get upcoming metros from server: " + mServerAddress);
 
-			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server.", "Error",
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
@@ -870,6 +881,11 @@ public final class Galleon implements Constants {
 				Tools.logException(Galleon.class, ex, "Could connect to server: " + mServerAddress);
 			return null;
 		}
+	}
+	
+	public static String getErrorMessageSuffix()
+	{
+		return mErrorMessageSuffix;
 	}
 
 	private static Logger log;

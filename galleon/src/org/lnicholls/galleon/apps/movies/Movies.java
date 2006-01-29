@@ -208,13 +208,17 @@ public class Movies extends DefaultApplication {
                 icon.setResource(mFolderIcon);
                 icon.flush();
                 
-                try
-                {
-	                Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
-	               	theater.setFavorite(new Integer(0));
-	               	TheaterManager.updateTheater(theater);
-				} catch (Exception ex) {
-					log.error("Could not update theater", ex);
+                DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{                
+	                try
+	                {
+		                Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
+		               	theater.setFavorite(new Integer(0));
+		               	TheaterManager.updateTheater(theater);
+					} catch (Exception ex) {
+						log.error("Could not update theater", ex);
+					}
 				}
                 
 	            return true;
@@ -227,13 +231,17 @@ public class Movies extends DefaultApplication {
                 icon.setResource(mFavoriteIcon);
                 icon.flush();
                 
-                try
-                {
-                	Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
-                	theater.setFavorite(new Integer(1));
-                	TheaterManager.updateTheater(theater);
-                } catch (Exception ex) {
-					log.error("Could not update theater", ex);
+                application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+	                try
+	                {
+	                	Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
+	                	theater.setFavorite(new Integer(1));
+	                	TheaterManager.updateTheater(theater);
+	                } catch (Exception ex) {
+						log.error("Could not update theater", ex);
+					}
 				}
                 
 	            return true;

@@ -213,6 +213,8 @@ See the file "COPYING" for more details.
     </property>     
     
     <property name="podcast" type="int"/>
+    
+    <property name="errors" type="int"/>        
 
       </composite-element>
       

@@ -17,6 +17,7 @@ package org.lnicholls.galleon.widget;
  */
 
 import java.awt.Font;
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -38,7 +39,7 @@ import com.tivo.hme.sdk.Resource;
 
 public class ScrollText extends BView {
 
-    private static Font DEFAULT_FONT = null;
+    public static Font DEFAULT_FONT = null;
 
     private static BufferedImage buffer = null;
     static {
@@ -335,6 +336,7 @@ public class ScrollText extends BView {
         text.setFlags(RSRC_HALIGN_LEFT);
         text.setFont("default-" + mRowHeight + ".font");
         text.setShadow(true);
+        text.setColor(mColor);
 
         text.setValue(mTextLines.get(index));
     }
@@ -363,6 +365,16 @@ public class ScrollText extends BView {
 
         calculateText();
     }
+    
+    public Color getColor() {
+        return mColor;
+    }
+
+    public void setColor(Color value) {
+        mColor = value;
+
+        calculateText();
+    }    
 
     public int getRowHeight() {
         return mRowHeight;
@@ -450,4 +462,6 @@ public class ScrollText extends BView {
     private int mDirty;
 
     boolean mAnimate;
+    
+    private Color mColor;
 }

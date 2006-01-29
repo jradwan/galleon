@@ -572,6 +572,11 @@ public class VideoServer extends HttpServer {
 								if (video == null) {
 									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
 								}
+								else
+								if (file.lastModified()!=video.getDateModified().getTime())
+								{
+									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
+								}
 								
 								long date = file.lastModified();
 								if (video != null) {
@@ -775,6 +780,11 @@ public class VideoServer extends HttpServer {
 									} catch (Exception ex) {
 										log.error("Video create failed", ex);
 									}
+								}
+								else
+								if (file.lastModified()!=video.getDateModified().getTime())
+								{
+									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
 								}
 								
 								if (video == null ) { // || !file.getName().toLowerCase().endsWith(".tivo")) {

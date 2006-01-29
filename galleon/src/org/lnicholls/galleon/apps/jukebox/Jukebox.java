@@ -247,15 +247,19 @@ public class Jukebox extends DefaultApplication {
 				getBApp().play("select.snd");
 				getBApp().flush();
 
-				if (mMenuList.size()>0)
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
 				{
-					int focus = mMenuList.getFocus();
-					mTracker.getList().remove(mMenuList.getFocus());
-					mMenuList.remove(mMenuList.getFocus());
-					mMenuList.setFocus(focus, false);
-	
-					String trackerString = getTrackerString(mTracker);
-					PersistentValueManager.savePersistentValue(TRACKER, trackerString);
+					if (mMenuList.size()>0)
+					{
+						int focus = mMenuList.getFocus();
+						mTracker.getList().remove(mMenuList.getFocus());
+						mMenuList.remove(mMenuList.getFocus());
+						mMenuList.setFocus(focus, false);
+		
+						String trackerString = getTrackerString(mTracker);
+						PersistentValueManager.savePersistentValue(TRACKER, trackerString);
+					}
 				}
 				return true;
 			case KEY_NUM9:
@@ -491,7 +495,7 @@ public class Jukebox extends DefaultApplication {
 
 			setTitle(" ");
 
-			setFooter("Press INFO for lyrics");
+			setFooter("Press INFO for lyrics, REPLAY to return to this screen");
 
 			if (!sameTrack || getPlayer().getState() == Player.STOP)
 				getPlayer().startTrack();
@@ -997,12 +1001,16 @@ public class Jukebox extends DefaultApplication {
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;
 			case KEY_SELECT:
-				if (list.getFocus() == 0) {
-					getBApp().play("select.snd");
-					getBApp().flush();
-
-					mTracker.getList().clear();
-					PersistentValueManager.savePersistentValue(TRACKER, "");
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					if (list.getFocus() == 0) {
+						getBApp().play("select.snd");
+						getBApp().flush();
+	
+						mTracker.getList().clear();
+						PersistentValueManager.savePersistentValue(TRACKER, "");
+					}
 				}
 				postEvent(new BEvent.Action(this, "pop"));
 				return true;

@@ -253,13 +253,17 @@ public class InternetSlideshows extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
-				imagesConfiguration.setUseSafe(Boolean.valueOf(mUseSafeButton.getValue()).booleanValue());
-				imagesConfiguration.setEffect(mEffectButton.getValue());
-				imagesConfiguration.setDisplayTime(Integer.parseInt(mDisplayTimeButton.getValue()));
-				imagesConfiguration.setTransitionTime(Integer.parseInt(mTransitionTimeButton.getValue()));
-
-				Server.getServer().updateApp(((InternetSlideshowsFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
+					imagesConfiguration.setUseSafe(Boolean.valueOf(mUseSafeButton.getValue()).booleanValue());
+					imagesConfiguration.setEffect(mEffectButton.getValue());
+					imagesConfiguration.setDisplayTime(Integer.parseInt(mDisplayTimeButton.getValue()));
+					imagesConfiguration.setTransitionTime(Integer.parseInt(mTransitionTimeButton.getValue()));
+	
+					Server.getServer().updateApp(((InternetSlideshowsFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(MusicOptionsScreen.class, ex, "Could not configure music player");
 			}

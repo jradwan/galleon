@@ -139,19 +139,22 @@ public class Tools {
 	}
 
 	public static void logException(Class inClass, Throwable inException, String message) {
-
-		Logger log = Logger.getLogger(inClass.getName());
-
-		if (message != null)
-			log.error(inException.toString() + ": " + message);
-		else
-			log.error(inException.toString());
-
-		if (log.isDebugEnabled()) {
-			StringWriter writer = new StringWriter();
-			inException.printStackTrace(new PrintWriter(writer));
-			log.debug(writer.toString());
+		try
+		{
+			Logger log = Logger.getLogger(inClass.getName());
+	
+			if (message != null)
+				log.error(inException.toString() + ": " + message);
+			else
+				log.error(inException.toString());
+	
+			if (log.isDebugEnabled()) {
+				StringWriter writer = new StringWriter();
+				inException.printStackTrace(new PrintWriter(writer));
+				log.debug(writer.toString());
+			}
 		}
+		catch (Throwable ex) {}
 	}
 
 	public static void addAll(Collection target, Object[] source) {
@@ -462,6 +465,26 @@ public class Tools {
 		return "127.0.0.1";
 	}
 	
+	public static boolean isLocalAddress(String address) {
+		if (address!=null)
+		{
+			try {
+				for (Enumeration interfaceEnum = NetworkInterface.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
+					NetworkInterface ni = (NetworkInterface) interfaceEnum.nextElement();
+					Enumeration inetAddresses = ni.getInetAddresses();
+					while (inetAddresses.hasMoreElements()) {
+						InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
+						if (inetAddress.getHostAddress().equals(address))
+							return true;
+					}
+				}
+			} catch (Exception ex) {
+				Tools.logException(Tools.class, ex);
+			}
+		}
+		return false;
+	}
+	
 	public static boolean isLocal(String address) {
 		if (address!=null)
 		{
@@ -700,31 +723,33 @@ public class Tools {
 
 					ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
 							.toByteArray());
-
-					BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-
-					Thumbnail thumbnail = null;
-					try {
-						List list = ThumbnailManager.findByKey(key);
-						if (list != null && list.size() > 0)
-							thumbnail = (Thumbnail) list.get(0);
-					} catch (HibernateException ex) {
-						log.error("Thumbnail create failed", ex);
-					}
-
-					try {
-						if (thumbnail == null) {
-							thumbnail = new Thumbnail("Cached", "jpg", key);
-							thumbnail.setImage(blob);
-							thumbnail.setDateModified(new Date());
-							ThumbnailManager.createThumbnail(thumbnail);
-						} else {
-							thumbnail.setImage(blob);
-							thumbnail.setDateModified(new Date());
-							ThumbnailManager.updateThumbnail(thumbnail);
+					if (byteArrayOutputStream.size()<102400)
+					{
+						BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
+	
+						Thumbnail thumbnail = null;
+						try {
+							List list = ThumbnailManager.findByKey(key);
+							if (list != null && list.size() > 0)
+								thumbnail = (Thumbnail) list.get(0);
+						} catch (HibernateException ex) {
+							log.error("Thumbnail create failed", ex);
 						}
-					} catch (HibernateException ex) {
-						log.error("Thumbnail create failed", ex);
+	
+						try {
+							if (thumbnail == null) {
+								thumbnail = new Thumbnail("Cached", "jpg", key);
+								thumbnail.setImage(blob);
+								thumbnail.setDateModified(new Date());
+								ThumbnailManager.createThumbnail(thumbnail);
+							} else {
+								thumbnail.setImage(blob);
+								thumbnail.setDateModified(new Date());
+								ThumbnailManager.updateThumbnail(thumbnail);
+							}
+						} catch (HibernateException ex) {
+							log.error("Thumbnail create failed", ex);
+						}
 					}
 				}
 				image.flush();

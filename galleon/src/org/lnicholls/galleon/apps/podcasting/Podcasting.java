@@ -605,7 +605,7 @@ public class Podcasting extends DefaultApplication {
 										Boolean.FALSE, Boolean.FALSE, null, item.getDate(), item.getEnclosure()
 												.getLocation().toExternalForm(), "audio/mpeg", item.getEnclosure()
 												.getLength(), 0, new Long(0), new Integer(0), 0, 0, podcast.getId(),
-										null));
+												new Integer(0), null));
 							}
 							podcast.setTracks(tracks);
 						}
@@ -695,11 +695,15 @@ public class Podcasting extends DefaultApplication {
 
 		public boolean handleExit() {
 			try {
-				PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
-						.getAppContext().getConfiguration();
-				podcastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
-
-				Server.getServer().updateApp(((PodcastingFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
+							.getAppContext().getConfiguration();
+					podcastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
+	
+					Server.getServer().updateApp(((PodcastingFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(Podcasting.class, ex, "Could not configure podcasting app");
 			}
@@ -1617,26 +1621,30 @@ public class Podcasting extends DefaultApplication {
 						postEvent(new BEvent.Action(this, "view"));
 						return true;
 					} else if (list.getFocus() == 1) {
-						try {
-							Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
-							if (podcast.getStatus() == Podcast.STATUS_SUBSCRIBED) {
-								podcast.setStatus(Podcast.STATUS_DELETED);
-								PodcastingFactory.remove(podcast);
-								list.set(1, "Subscribe");
-							} else {
-								podcast.setStatus(Podcast.STATUS_SUBSCRIBED);
-								try {
-									PodcastManager.updatePodcast(podcast);
-									((PodcastingFactory) getApp().getFactory()).update();
-								} catch (Exception ex) {
-									Tools.logException(Podcasting.class, ex);
+						DefaultApplication application = (DefaultApplication)getApp();
+						if (!application.isDemoMode())
+						{
+							try {
+								Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
+								if (podcast.getStatus() == Podcast.STATUS_SUBSCRIBED) {
+									podcast.setStatus(Podcast.STATUS_DELETED);
+									PodcastingFactory.remove(podcast);
+									list.set(1, "Subscribe");
+								} else {
+									podcast.setStatus(Podcast.STATUS_SUBSCRIBED);
+									try {
+										PodcastManager.updatePodcast(podcast);
+										((PodcastingFactory) getApp().getFactory()).update();
+									} catch (Exception ex) {
+										Tools.logException(Podcasting.class, ex);
+									}
+									list.set(1, "Cancel subscription");
 								}
-								list.set(1, "Cancel subscription");
+	
+								list.flush();
+							} catch (Exception ex) {
+								Tools.logException(Podcasting.class, ex);
 							}
-
-							list.flush();
-						} catch (Exception ex) {
-							Tools.logException(Podcasting.class, ex);
 						}
 						return true;
 					} else {
@@ -1645,26 +1653,30 @@ public class Podcasting extends DefaultApplication {
 					}
 				} else {
 					if (list.getFocus() == 0) {
-						try {
-							Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
-							if (podcast.getStatus() == Podcast.STATUS_SUBSCRIBED) {
-								podcast.setStatus(Podcast.STATUS_DELETED);
-								list.set(0, "Subscribe");
-							} else {
-								podcast.setStatus(Podcast.STATUS_SUBSCRIBED);
-								list.set(0, "Cancel subscription");
-							}
-
+						DefaultApplication application = (DefaultApplication)getApp();
+						if (!application.isDemoMode())
+						{
 							try {
-								PodcastManager.updatePodcast(podcast);
-								((PodcastingFactory) getApp().getFactory()).update();
+								Podcast podcast = (Podcast) mTracker.getList().get(mTracker.getPos());
+								if (podcast.getStatus() == Podcast.STATUS_SUBSCRIBED) {
+									podcast.setStatus(Podcast.STATUS_DELETED);
+									list.set(0, "Subscribe");
+								} else {
+									podcast.setStatus(Podcast.STATUS_SUBSCRIBED);
+									list.set(0, "Cancel subscription");
+								}
+	
+								try {
+									PodcastManager.updatePodcast(podcast);
+									((PodcastingFactory) getApp().getFactory()).update();
+								} catch (Exception ex) {
+									Tools.logException(Podcasting.class, ex);
+								}
+	
+								list.flush();
 							} catch (Exception ex) {
 								Tools.logException(Podcasting.class, ex);
 							}
-
-							list.flush();
-						} catch (Exception ex) {
-							Tools.logException(Podcasting.class, ex);
 						}
 						return true;
 					} else {
@@ -2261,76 +2273,88 @@ public class Podcasting extends DefaultApplication {
 			case KEY_RIGHT:
 				String command = getCommand();
 				if (command.equals("Delete")) {
-					PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
-					try {
-						Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-
-						PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
-						track.setStatus(PodcastTrack.STATUS_DELETED);
-						track.setDownloadSize(0);
-						track.setDownloadTime(0);
-						Audio audio = track.getTrack();
-						if (((DefaultApplication) getApp()).getCurrentAudio() != null
-								&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(audio.getId())) {
-							((DefaultApplication) getApp()).getPlayer().stopTrack();
+					DefaultApplication application = (DefaultApplication)getApp();
+					if (!application.isDemoMode())
+					{
+						PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
+						try {
+							Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
+	
+							PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
+							track.setStatus(PodcastTrack.STATUS_DELETED);
+							track.setDownloadSize(0);
+							track.setDownloadTime(0);
+							Audio audio = track.getTrack();
+							if (((DefaultApplication) getApp()).getCurrentAudio() != null
+									&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(audio.getId())) {
+								((DefaultApplication) getApp()).getPlayer().stopTrack();
+							}
+							track.setTrack(null);
+							PodcastManager.updatePodcast(podcast);
+							AudioManager.deleteAudio(audio);
+							File file = new File(audio.getPath());
+							if (file.exists()) {
+								file.delete();
+							}
+							((PodcastingFactory) getApp().getFactory()).update();
+							mListPlay.set(0, "Download");
+							mListPlay.set(1, "Don't do anything");
+							mListPlay.setFocus(0, false);
+							mListPlay.setVisible(true);
+							mListDelete.setVisible(false);
+							setFocus(mListPlay);
+						} catch (Exception ex) {
+							Tools.logException(Podcasting.class, ex);
 						}
-						track.setTrack(null);
-						PodcastManager.updatePodcast(podcast);
-						AudioManager.deleteAudio(audio);
-						File file = new File(audio.getPath());
-						if (file.exists()) {
-							file.delete();
-						}
-						((PodcastingFactory) getApp().getFactory()).update();
-						mListPlay.set(0, "Download");
-						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0, false);
-						mListPlay.setVisible(true);
-						mListDelete.setVisible(false);
-						setFocus(mListPlay);
-					} catch (Exception ex) {
-						Tools.logException(Podcasting.class, ex);
 					}
 					break;
 				} else if (command.equals("Play")) {
 					postEvent(new BEvent.Action(this, "play"));
 					return true;
 				} else if (command.equals("Download")) {
-					PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
-					try {
-						Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-
-						PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
-						track.setStatus(PodcastTrack.STATUS_QUEUED);
-						PodcastManager.updatePodcast(podcast);
-						((PodcastingFactory) getApp().getFactory()).update();
-						mListPlay.set(0, "Cancel download");
-						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0, false);
-						mListPlay.setVisible(true);
-						mListDelete.setVisible(false);
-						setFocus(mListPlay);
-					} catch (Exception ex) {
-						Tools.logException(Podcasting.class, ex);
+					DefaultApplication application = (DefaultApplication)getApp();
+					if (!application.isDemoMode())
+					{
+						PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
+						try {
+							Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
+	
+							PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
+							track.setStatus(PodcastTrack.STATUS_QUEUED);
+							PodcastManager.updatePodcast(podcast);
+							((PodcastingFactory) getApp().getFactory()).update();
+							mListPlay.set(0, "Cancel download");
+							mListPlay.set(1, "Don't do anything");
+							mListPlay.setFocus(0, false);
+							mListPlay.setVisible(true);
+							mListDelete.setVisible(false);
+							setFocus(mListPlay);
+						} catch (Exception ex) {
+							Tools.logException(Podcasting.class, ex);
+						}
 					}
 					return true;
 				} else if (command.equals("Cancel download")) {
-					PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
-					try {
-						Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-
-						PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
-						track.setStatus(PodcastTrack.STATUS_DOWNLOAD_CANCELLED);
-						PodcastManager.updatePodcast(podcast);
-						((PodcastingFactory) getApp().getFactory()).update();
-						mListPlay.set(0, "Download");
-						mListPlay.set(1, "Don't do anything");
-						mListPlay.setFocus(0, false);
-						mListPlay.setVisible(true);
-						mListDelete.setVisible(false);
-						setFocus(mListPlay);
-					} catch (Exception ex) {
-						Tools.logException(Podcasting.class, ex);
+					DefaultApplication application = (DefaultApplication)getApp();
+					if (!application.isDemoMode())
+					{
+						PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
+						try {
+							Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
+	
+							PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
+							track.setStatus(PodcastTrack.STATUS_DOWNLOAD_CANCELLED);
+							PodcastManager.updatePodcast(podcast);
+							((PodcastingFactory) getApp().getFactory()).update();
+							mListPlay.set(0, "Download");
+							mListPlay.set(1, "Don't do anything");
+							mListPlay.setFocus(0, false);
+							mListPlay.setVisible(true);
+							mListDelete.setVisible(false);
+							setFocus(mListPlay);
+						} catch (Exception ex) {
+							Tools.logException(Podcasting.class, ex);
+						}
 					}
 					return true;
 				} else {

@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.apps.rss.RSS.RSSFactory;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 
@@ -38,13 +39,21 @@ public class VersionCheck {
 	private static final Logger log = Logger.getLogger(VersionCheck.class.getName());
 
 	public boolean isCurrentSourceforgeVersion() {
+		ChannelBuilderIF builder = null;
 		try {
+			PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(VersionCheck.class.getName() + Tools.getVersion());
+			if (persistentValue != null){
+				if (!PersistentValueManager.isAged(persistentValue)) {
+					return true;
+				}
+			}
+			
 			String page = Tools.getPage(new URL(
 					"http://sourceforge.net/export/rss2_projnews.php?group_id=126291&rss_fulltext=1")); // Sourceforge
 			// RSS
 			// feed
 			if (page != null && page.length() > 0) {
-				ChannelBuilderIF builder = new ChannelBuilder();
+				builder = new ChannelBuilder();
 				ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((page.getBytes("UTF-8"))));
 				// ChannelIF channel = FeedParser.parse(builder, new
 				// FileInputStream(new
@@ -63,26 +72,36 @@ public class VersionCheck {
 							String version = m.group(1).trim();
 							if (log.isDebugEnabled())
 								log.debug("Current version: " + version);
-							PersistentValue persistentValue = PersistentValueManager
-									.loadPersistentValue(VersionCheck.class.getName() + ".version");
 							if (persistentValue != null) {
 								if (persistentValue.getValue().equals(version))
+								{
+									PersistentValueManager.savePersistentValue(VersionCheck.class.getName() + Tools.getVersion(), version, 6*60*60);
 									return true;
+								}
 							}
 
+							PersistentValueManager.savePersistentValue(VersionCheck.class.getName() + Tools.getVersion(), version, 6*60*60);
 							if (!Tools.getVersion().equals(version)) {
-								PersistentValueManager.savePersistentValue(VersionCheck.class.getName() + ".version",
-										version);
 								return false;
 							}
 						}
 					}
 				}
-				builder.close();
-				builder = null;
 			}
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex);
+		}
+		finally
+		{
+			if (builder!=null)
+			{
+				try
+				{
+					builder.close();
+					builder = null;
+				}
+				catch (Exception ex) {}
+			}
 		}
 		return true;
 	}

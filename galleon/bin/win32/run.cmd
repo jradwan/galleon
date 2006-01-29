@@ -38,6 +38,7 @@ set classpath=%classpath%;..\lib\jawin.jar
 set classpath=%classpath%;..\lib\MHS.jar
 set classpath=%classpath%;..\lib\hme-host-sample.jar
 set classpath=%classpath%;..\lib\upcoming.jar
+set classpath=%classpath%;..\lib\smack.jar
 set option=
 if exist "%JAVA_HOME%/bin/server" set option=-server
 java %option% -Xms64m -Xmx64m org.lnicholls.galleon.server.Server

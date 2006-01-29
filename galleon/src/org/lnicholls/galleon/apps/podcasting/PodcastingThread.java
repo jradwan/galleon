@@ -181,7 +181,9 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 													&& tracks[j].getStatus() != PodcastTrack.STATUS_DOWNLOADED
 													&& tracks[j].getStatus() != PodcastTrack.STATUS_DOWNLOAD_ERROR
 													&& tracks[j].getStatus() != PodcastTrack.STATUS_PLAYED) {
-												mTrack = tracks[j];
+												int errors = tracks[j].getErrors()==null ? 0 : tracks[j].getErrors().intValue();
+												if (errors < 3 )
+													mTrack = tracks[j];
 											} else if (tracks[j].getStatus() == PodcastTrack.STATUS_DOWNLOADED
 													|| tracks[j].getStatus() == PodcastTrack.STATUS_PLAYED) {
 												count++;
@@ -273,6 +275,8 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 													mTrack.setDownloadTime(0);
 													mTrack.setTrack(null);
 													mTrack.setStatus(PodcastTrack.STATUS_DOWNLOAD_ERROR);
+													int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
+													mTrack.setErrors(new Integer(errors+1));
 													PodcastManager.updatePodcast(mPodcast);
 												} catch (Exception ex2) {
 													Tools.logException(PodcastingThread.class, ex2);
@@ -380,6 +384,8 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 			synchronized (this) {
 				try {
 					mTrack.setStatus(PodcastTrack.STATUS_DOWNLOAD_ERROR);
+					int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
+					mTrack.setErrors(new Integer(errors+1));
 					PodcastManager.updatePodcast(mPodcast);
 					mTrack = mPodcast.getTrack(mTrack.getUrl());
 				} catch (HibernateException ex) {

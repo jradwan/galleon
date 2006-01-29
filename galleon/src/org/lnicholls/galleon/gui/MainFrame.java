@@ -85,6 +85,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.event.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
@@ -111,10 +112,11 @@ import edu.stanford.ejalbert.BrowserLauncher;
 
 public class MainFrame extends JFrame {
 	private static Logger log = Logger.getLogger(MainFrame.class.getName());
+	
 
 	public MainFrame(String version) {
 		super("Galleon " + version);
-
+		
 		setDefaultCloseOperation(0);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -381,7 +383,7 @@ public class MainFrame extends JFrame {
 
 		mOptionsPanelManager = new OptionsPanelManager(this);
 		mOptionsPanelManager.setMinimumSize(new Dimension(200, 100));
-		mOptionsPanelManager.setPreferredSize(new Dimension(400, 200));
+		mOptionsPanelManager.setPreferredSize(new Dimension(400, 250));
 
 		InternalFrame navigator = new InternalFrame("Apps");
 		mAppTree = new AppTree(this, getAppsModel());
@@ -401,7 +403,7 @@ public class MainFrame extends JFrame {
 		statusPanel.add(statusField, "West");
 		panel.add(statusPanel, "South");
 
-		panel.setPreferredSize(new Dimension(700, 420));
+		panel.setPreferredSize(new Dimension(700, 450));
 		return panel;
 	}
 
@@ -1040,7 +1042,7 @@ public class MainFrame extends JFrame {
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not configure server");
 					
-					JOptionPane.showMessageDialog(this, "Could not connect to server.", "Error",
+					JOptionPane.showMessageDialog(this, "Could not connect to server. "+Galleon.getErrorMessageSuffix(), "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 				// JOptionPane.showMessageDialog(this,
@@ -1296,7 +1298,7 @@ public class MainFrame extends JFrame {
 				} catch (Exception ex) {
 					Tools.logException(MainFrame.class, ex, "Could not configure server");
 					
-					JOptionPane.showMessageDialog(this, "Could not connect to server.", "Error",
+					JOptionPane.showMessageDialog(this, "Could not connect to server. "+Galleon.getErrorMessageSuffix(), "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1491,6 +1493,8 @@ public class MainFrame extends JFrame {
 					if (info == null) {
 						log.error("Service not found: " + type + "(" + name + ")");
 					} else {
+						mFound = info.getPropertyString(TIVO_PLATFORM)!=null && info.getPropertyString(TIVO_TSN)!=null;  
+						/*
 						for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {
 							String prop = (String) names.nextElement();
 							if (prop.equals(TIVO_PLATFORM)) {
@@ -1499,6 +1503,7 @@ public class MainFrame extends JFrame {
 								}
 							}
 						}
+						*/
 
 						if (mFound) {
 							mResultsField.setText((mResultsField.getText().equals("Searching...") ? "" : mResultsField
@@ -1511,7 +1516,8 @@ public class MainFrame extends JFrame {
 			}
 
 			public void stop() {
-				mJmDNS.removeServiceListener(this);
+				if (mJmDNS!=null)
+					mJmDNS.removeServiceListener(this);
 			}
 
 			public boolean found() {

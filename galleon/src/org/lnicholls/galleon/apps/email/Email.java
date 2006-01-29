@@ -229,11 +229,15 @@ public class Email extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory()).getAppContext().getConfiguration();
-				emailConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
-				emailConfiguration.setLimit(Integer.parseInt(mLimitButton.getValue()));
-
-				Server.getServer().updateApp(((EmailFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory()).getAppContext().getConfiguration();
+					emailConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
+					emailConfiguration.setLimit(Integer.parseInt(mLimitButton.getValue()));
+	
+					Server.getServer().updateApp(((EmailFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(Email.class, ex, "Could not configure email app");
 			}

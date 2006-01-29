@@ -53,6 +53,7 @@ import javax.swing.table.TableColumnModel;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.gui.RecordedPanel.ShowTableData.ColumnListener;
+import org.lnicholls.galleon.server.TiVo;
 import org.lnicholls.galleon.util.ProgressListener;
 import org.lnicholls.galleon.util.Tools;
 
@@ -81,7 +82,7 @@ public class RecordedPanel extends JPanel {
     private static final ColumnData mColumns[] = { new ColumnData(" ", 5, JLabel.CENTER),
         new ColumnData("Title", 160, JLabel.LEFT), new ColumnData("Episode", 140, JLabel.LEFT),
         new ColumnData("Date Recorded", 80, JLabel.RIGHT), new ColumnData("Duration", 30, JLabel.RIGHT),
-        new ColumnData("Size", 30, JLabel.RIGHT), new ColumnData("Status", 100, JLabel.RIGHT) };
+        new ColumnData("Size", 30, JLabel.RIGHT), new ColumnData("Status", 100, JLabel.RIGHT), new ColumnData("TiVo", 50, JLabel.RIGHT) };
 
     public RecordedPanel() {
         super();
@@ -154,9 +155,9 @@ public class RecordedPanel extends JPanel {
                         mTitleField.setText((String) mTable.getModel().getValueAt(selectedRow, 1));
                         mDescriptionField.setText((String) mTable.getModel().getValueAt(selectedRow, 7));
                         mDateField.setText((String) mTable.getModel().getValueAt(selectedRow, 3));
-                        mChannelStationField.setText((String) mTable.getModel().getValueAt(selectedRow, 8));
-                        mRatingField.setText((String) mTable.getModel().getValueAt(selectedRow, 9));
-                        mQualityField.setText((String) mTable.getModel().getValueAt(selectedRow, 10));
+                        mChannelStationField.setText((String) mTable.getModel().getValueAt(selectedRow, 9));
+                        mRatingField.setText((String) mTable.getModel().getValueAt(selectedRow, 10));
+                        mQualityField.setText((String) mTable.getModel().getValueAt(selectedRow, 11));
                     }
                 } else {
                     if (!mUpdating) {
@@ -213,7 +214,7 @@ public class RecordedPanel extends JPanel {
         }
 
         public int getColumnCount() {
-            return 7;
+            return 8;
         }
 
         public String getColumnName(int column) {
@@ -265,14 +266,25 @@ public class RecordedPanel extends JPanel {
             case 5:
                 return mNumberFormat.format(show.getSize() / (1024 * 1024)) + " MB";
             case 6:
-                return show.getStatusString()==null?"":show.getStatusString();
+                return show.getStatusString()==null?"":show.getStatusString();                
             case 7:
-                return show.getDescription() == null ? " " : show.getDescription();
+            	Iterator iterator = mTiVos.iterator();
+            	while (iterator.hasNext())
+            	{
+            		TiVo tivo = (TiVo) iterator.next();
+            		if (show.getSource().equals(tivo.getAddress()))
+            		{
+            			return tivo.getName();
+            		}
+            	}
+            	return "Unknown";
             case 8:
-                return show.getChannel() + " " + show.getStation();
+                return show.getDescription() == null ? " " : show.getDescription();
             case 9:
-                return (show.getRating()==null || show.getRating().length() != 0) ? show.getRating() : "N/A";
+                return show.getChannel() + " " + show.getStation();
             case 10:
+                return (show.getRating()==null || show.getRating().length() != 0) ? show.getRating() : "N/A";
+            case 11:
                 return show.getRecordingQuality()==null?"":show.getRecordingQuality();
             }
             return " ";
@@ -364,19 +376,31 @@ public class RecordedPanel extends JPanel {
             double d1, d2;
             switch (mSortCol) {
             case 0:
-                result = contact1.getTitle().compareTo(contact2.getTitle());
+            	if (contact1.getTitle()!=null && contact2.getTitle()!=null)
+            		result = contact1.getTitle().compareTo(contact2.getTitle());
+            	else 
+            		return 0;
                 break;
             case 1:
-                result = contact1.getTitle().compareTo(contact2.getTitle());
+            	if (contact1.getTitle()!=null && contact2.getTitle()!=null)
+            		result = contact1.getTitle().compareTo(contact2.getTitle());
+            	else 
+            		return 0;
                 break;
             case 2:
-                result = contact1.getEpisodeTitle().compareTo(contact2.getEpisodeTitle());
+                if (contact1.getEpisodeTitle()!=null && contact2.getEpisodeTitle()!=null)
+                	result = contact1.getEpisodeTitle().compareTo(contact2.getEpisodeTitle());
+                else
+                	return 0;
                 break;
             case 3:
-                result = contact1.getDateRecorded().compareTo(contact2.getDateRecorded());
+            	if (contact1.getDateRecorded()!=null && contact2.getDateRecorded()!=null)
+            		result = contact1.getDateRecorded().compareTo(contact2.getDateRecorded());
+            	else
+            		return 0;
                 break;
             case 4:
-                Integer duration1 = new Integer(contact1.getDuration());
+            	Integer duration1 = new Integer(contact1.getDuration());
                 Integer duration2 = new Integer(contact2.getDuration());
                 result = duration1.compareTo(duration2);
                 break;
@@ -497,6 +521,7 @@ public class RecordedPanel extends JPanel {
                 {
                     try
                     {
+                        mTiVos = Galleon.getTiVos();
                         mRecorded = Galleon.getRecordings();
                         if (mRecorded==null || RecordedPanel.this.mRecorded.size()==0)
                             sleep(1000*5);
@@ -574,4 +599,6 @@ public class RecordedPanel extends JPanel {
     private boolean mUpdating;
 
     private List mRecorded;
+    
+    private List mTiVos;
 }

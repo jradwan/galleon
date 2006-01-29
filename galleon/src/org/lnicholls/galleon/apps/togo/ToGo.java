@@ -76,10 +76,10 @@ public class ToGo extends DefaultApplication {
 	private Resource mBlueIcon;
 
 	private Resource mEmptyIcon;
-	
+
 	private Resource mIcon;
-	
-	private Resource mLockIcon;	
+
+	private Resource mLockIcon;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -97,10 +97,10 @@ public class ToGo extends DefaultApplication {
 		mLockIcon = getSkinImage("menu", "lock");
 
 		push(new ToGoMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
-	
+
 	public class OptionsScreen extends DefaultOptionsScreen {
 
 		public OptionsScreen(DefaultApplication app) {
@@ -109,7 +109,7 @@ public class ToGo extends DefaultApplication {
 			getBelow().setResource(mInfoBackground);
 
 			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
-			.getConfiguration();
+					.getConfiguration();
 
 			int start = TOP;
 			int width = 280;
@@ -124,6 +124,24 @@ public class ToGo extends DefaultApplication {
 			NameValue[] nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
 			mShowStatsButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(togoConfiguration.isShowStats()));
+
+			start = start + increment;
+
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Sorting");
+
+			String sort = togoConfiguration.getSort();
+			if (sort == null)
+				sort = ToGoConfiguration.SORT_DATE_LATEST;
+			nameValues = new NameValue[] { new NameValue("Alphabetic", ToGoConfiguration.SORT_ALPHA),
+					new NameValue("Latest First", ToGoConfiguration.SORT_DATE_LATEST),
+					new NameValue("Oldest First", ToGoConfiguration.SORT_DATE_OLDEST) };
+			mSortButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
+					nameValues, sort);
+
 			setFocusDefault(mShowStatsButton);
 		}
 
@@ -136,11 +154,15 @@ public class ToGo extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
-				.getConfiguration();
-				togoConfiguration.setShowStats(Boolean.valueOf(mShowStatsButton.getValue()).booleanValue());
+				DefaultApplication application = (DefaultApplication) getApp();
+				if (!application.isDemoMode()) {
+					ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory())
+							.getAppContext().getConfiguration();
+					togoConfiguration.setShowStats(Boolean.valueOf(mShowStatsButton.getValue()).booleanValue());
+					togoConfiguration.setSort(mSortButton.getValue());
 
-				Server.getServer().updateApp(((ToGoFactory) getFactory()).getAppContext());
+					Server.getServer().updateApp(((ToGoFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(ToGo.class, ex, "Could not configure togo app");
 			}
@@ -148,12 +170,14 @@ public class ToGo extends DefaultApplication {
 		}
 
 		private OptionsButton mShowStatsButton;
+
+		private OptionsButton mSortButton;
 	}
-	
+
 	public class ToGoMenuScreen extends DefaultMenuScreen {
 		public ToGoMenuScreen(ToGo app) {
 			super(app, "Now Playing List");
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
@@ -164,8 +188,8 @@ public class ToGo extends DefaultApplication {
 
 			int start = TOP - 25;
 
-			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
-					.getConfiguration();
+			final ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory())
+					.getAppContext().getConfiguration();
 			mCountText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
 			mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
 			mCountText.setFont("default-18.font");
@@ -173,7 +197,17 @@ public class ToGo extends DefaultApplication {
 			mCountText.setShadow(true);
 
 			// TODO Update list
+			createMenu();
+		}
+
+		private void createMenu() {
+			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
+					.getConfiguration();
+			mMenuList.clear();
 			try {
+				mSort = togoConfiguration.getSort();
+				if (mSort == null)
+					mSort = ToGoConfiguration.SORT_DATE_LATEST;
 				List recordings = VideoManager.listAll();
 				Video[] videoArray = (Video[]) recordings.toArray(new Video[0]);
 				Arrays.sort(videoArray, new Comparator() {
@@ -181,7 +215,17 @@ public class ToGo extends DefaultApplication {
 						Video video1 = (Video) o1;
 						Video video2 = (Video) o2;
 
-						return -video1.getDateRecorded().compareTo(video2.getDateRecorded());
+						if (video1.getTitle() != null && video2.getTitle() != null
+								&& mSort.equals(ToGoConfiguration.SORT_ALPHA))
+							return video1.getTitle().compareTo(video2.getTitle());
+						else if (video1.getDateRecorded() != null && video2.getDateRecorded() != null
+								&& mSort.equals(ToGoConfiguration.SORT_DATE_LATEST))
+							return -video1.getDateRecorded().compareTo(video2.getDateRecorded());
+						else if (video1.getDateRecorded() != null && video2.getDateRecorded() != null
+								&& mSort.equals(ToGoConfiguration.SORT_DATE_OLDEST))
+							return video1.getDateRecorded().compareTo(video2.getDateRecorded());
+						else
+							return 0;
 					}
 				});
 
@@ -189,16 +233,15 @@ public class ToGo extends DefaultApplication {
 				for (int i = 0; i < videoArray.length; i++) {
 					Video video = (Video) videoArray[i];
 					if (video.getStatus() != Video.STATUS_RECORDING) {
-						// Only display recordings that are still on the recorder 
-						if (video.getStatus() == Video.STATUS_DOWNLOADED || video.getStatus() == Video.STATUS_DELETED) 
-						{
-							if (video.getAvailability()==null)
+						// Only display recordings that are still on the
+						// recorder
+						if (video.getStatus() == Video.STATUS_DOWNLOADED || video.getStatus() == Video.STATUS_DELETED) {
+							if (video.getAvailability() == null)
 								continue;
-							else
-							if (video.getAvailability().intValue()==Video.RECORDING_DELETED)
+							else if (video.getAvailability().intValue() == Video.RECORDING_DELETED)
 								continue;
 						}
-						
+
 						boolean match = false;
 						if (video.getSource() != null) {
 							for (int j = 0; j < tivos.size(); j++) {
@@ -220,7 +263,7 @@ public class ToGo extends DefaultApplication {
 			} catch (HibernateException ex) {
 				log.error("Getting recordings failed", ex);
 			}
-			
+
 			List tivos = Server.getServer().getTiVos();
 			Iterator iterator = tivos.iterator();
 			while (iterator.hasNext()) {
@@ -233,9 +276,13 @@ public class ToGo extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
+			if (isReturn) {
+				createMenu();
+			}
+
 			mFocus = mMenuList.getFocus();
 			ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory()).getAppContext()
-			.getConfiguration();
+					.getConfiguration();
 			if (togoConfiguration.isShowStats()) {
 				long available = (mTotalCapacity * 1024) - (mTotalSize / (1024 * 1024));
 				if (available < 0)
@@ -257,8 +304,7 @@ public class ToGo extends DefaultApplication {
 
 				mCountText.setValue(value);
 				mCountText.setVisible(true);
-			}
-			else
+			} else
 				mCountText.setVisible(false);
 			return super.handleEnter(arg, isReturn);
 		}
@@ -279,12 +325,9 @@ public class ToGo extends DefaultApplication {
 		protected void createRow(BView parent, int index) {
 			BView icon = new BView(parent, 10, 3, 30, 30);
 			Video video = (Video) mMenuList.get(index);
-			if (video.getStatus() == Video.STATUS_DOWNLOADED)
-			{
+			if (video.getStatus() == Video.STATUS_DOWNLOADED) {
 				icon.setResource(mIcon);
-			}
-			else
-			if (video.getIcon() != null) {
+			} else if (video.getIcon() != null) {
 				if (video.getIcon().equals("in-progress-recording"))
 					icon.setResource(mRedIcon);
 				else if (video.getIcon().equals("expires-soon-recording"))
@@ -316,7 +359,7 @@ public class ToGo extends DefaultApplication {
 			date.setFlags(RSRC_HALIGN_RIGHT);
 			date.setValue(mDateFormat.format(mCalendar.getTime()));
 		}
-		
+
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_ENTER:
@@ -329,13 +372,18 @@ public class ToGo extends DefaultApplication {
 		protected SimpleDateFormat mDateFormat;
 
 		protected GregorianCalendar mCalendar;
-		
+
 		private BText mCountText;
-		
+
 		private int mTotalCount = 0;
+
 		private int mTotalTime = 0;
+
 		private long mTotalSize = 0;
+
 		private int mTotalCapacity = 0;
+
+		private String mSort;
 	}
 
 	public class ToGoScreen extends DefaultScreen {
@@ -445,7 +493,7 @@ public class ToGo extends DefaultApplication {
 			 * speedText.setShadow(Color.DARK_GRAY,1); speedText.setValue(" ");
 			 * speedText.setVisible(false);
 			 */
-			
+
 			mLock = new BView(this, SAFE_TITLE_H, SAFE_TITLE_V, 32, 32);
 			mLock.setResource(mLockIcon);
 			mLock.setVisible(false);
@@ -545,8 +593,8 @@ public class ToGo extends DefaultApplication {
 
 				sizeText.setLabel("Size:");
 				sizeText.setValue(mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");
-				
-				if (video.getParentalControls()!=null && video.getParentalControls().booleanValue())
+
+				if (video.getParentalControls() != null && video.getParentalControls().booleanValue())
 					mLock.setVisible(true);
 				else
 					mLock.setVisible(false);
@@ -569,8 +617,7 @@ public class ToGo extends DefaultApplication {
 							float barFraction = video.getDownloadSize() / (float) video.getSize();
 							if ((statusBarBg.getWidth() - 4) * barFraction < 1)
 								statusBar.setSize(1, statusBar.getHeight());
-							else
-							{
+							else {
 								int size = (int) (barFraction * (statusBarBg.getWidth() - 4));
 								if (size < 1)
 									size = 1;
@@ -782,7 +829,7 @@ public class ToGo extends DefaultApplication {
 		private BView statusBarBg;
 
 		private BView statusBar;
-		
+
 		private BView mLock;
 
 		// private BText speedText;

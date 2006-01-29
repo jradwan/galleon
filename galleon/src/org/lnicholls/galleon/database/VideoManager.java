@@ -72,7 +72,7 @@ public class VideoManager {
         try {
             tx = session.beginTransaction();
             clean(video);
-            session.save(video);
+            session.save(trim(video));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)
@@ -91,7 +91,7 @@ public class VideoManager {
         try {
             tx = session.beginTransaction();
             clean(video);
-            session.update(video);
+            session.update(trim(video));
             tx.commit();
         } catch (HibernateException he) {
             if (tx != null)

@@ -180,7 +180,9 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 													&& tracks[j].getStatus() != VideocastTrack.STATUS_DOWNLOADED
 													&& tracks[j].getStatus() != VideocastTrack.STATUS_DOWNLOAD_ERROR
 													&& tracks[j].getStatus() != VideocastTrack.STATUS_PLAYED) {
-												mTrack = tracks[j];
+												int errors = tracks[j].getErrors()==null ? 0 : tracks[j].getErrors().intValue();
+												if (errors < 3)
+													mTrack = tracks[j];
 											} else if (tracks[j].getStatus() == VideocastTrack.STATUS_DOWNLOADED
 													|| tracks[j].getStatus() == VideocastTrack.STATUS_PLAYED) {
 												count++;
@@ -285,6 +287,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 													mTrack.setDownloadTime(0);
 													mTrack.setTrack(null);
 													mTrack.setStatus(VideocastTrack.STATUS_DOWNLOAD_ERROR);
+													int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
+													mTrack.setErrors(new Integer(errors+1));
 													VideocastManager.updateVideocast(mVideocast);
 												} catch (Exception ex2) {
 													Tools.logException(VideocastingThread.class, ex2);
@@ -403,6 +407,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 			synchronized (this) {
 				try {
 					mTrack.setStatus(VideocastTrack.STATUS_DOWNLOAD_ERROR);
+					int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
+					mTrack.setErrors(new Integer(errors+1));
 					VideocastManager.updateVideocast(mVideocast);
 					mTrack = mVideocast.getTrack(mTrack.getUrl());
 				} catch (HibernateException ex) {

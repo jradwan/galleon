@@ -141,20 +141,24 @@ public class MusicOptionsScreen extends DefaultOptionsScreen {
 	public boolean handleExit() {
 
 		try {
-			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getServerConfiguration()
-					.getMusicPlayerConfiguration();
-			musicPlayerConfiguration.setPlayer(mPlayerButton.getValue());
-			musicPlayerConfiguration.setSkin(mSkinButton.getValue());
-			//musicPlayerConfiguration.setUseAmazon(Boolean.valueOf(mUseAmazonButton.getValue()).booleanValue());
-			//musicPlayerConfiguration.setUseFile(Boolean.valueOf(mUseFolderButton.getValue()).booleanValue());
-			musicPlayerConfiguration.setShowImages(Boolean.valueOf(mShowWebImagesButton.getValue()).booleanValue());
-			musicPlayerConfiguration.setRandomPlayFolders(Boolean.valueOf(mRandomPlayButton.getValue()).booleanValue());
-			musicPlayerConfiguration.setScreensaver(Boolean.valueOf(mScreensaverButton.getValue()).booleanValue());
-
-			Server.getServer().updateMusicPlayerConfiguration(musicPlayerConfiguration);
-			
-			ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
-			Server.getServer().setDisableTimeout(Boolean.valueOf(mDisableTimeoutButton.getValue()).booleanValue());
+			DefaultApplication application = (DefaultApplication)getApp();
+			if (!application.isDemoMode())
+			{
+				MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getServerConfiguration()
+						.getMusicPlayerConfiguration();
+				musicPlayerConfiguration.setPlayer(mPlayerButton.getValue());
+				musicPlayerConfiguration.setSkin(mSkinButton.getValue());
+				//musicPlayerConfiguration.setUseAmazon(Boolean.valueOf(mUseAmazonButton.getValue()).booleanValue());
+				//musicPlayerConfiguration.setUseFile(Boolean.valueOf(mUseFolderButton.getValue()).booleanValue());
+				musicPlayerConfiguration.setShowImages(Boolean.valueOf(mShowWebImagesButton.getValue()).booleanValue());
+				musicPlayerConfiguration.setRandomPlayFolders(Boolean.valueOf(mRandomPlayButton.getValue()).booleanValue());
+				musicPlayerConfiguration.setScreensaver(Boolean.valueOf(mScreensaverButton.getValue()).booleanValue());
+	
+				Server.getServer().updateMusicPlayerConfiguration(musicPlayerConfiguration);
+				
+				ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+				Server.getServer().setDisableTimeout(Boolean.valueOf(mDisableTimeoutButton.getValue()).booleanValue());
+			}
 		} catch (Exception ex) {
 			Tools.logException(MusicOptionsScreen.class, ex, "Could not configure music player");
 		}

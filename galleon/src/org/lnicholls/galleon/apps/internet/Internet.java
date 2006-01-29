@@ -18,6 +18,7 @@ package org.lnicholls.galleon.apps.internet;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
@@ -36,6 +37,7 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.internet.InternetConfiguration.SharedUrl;
 import org.lnicholls.galleon.apps.rss.RSSConfiguration;
+import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.FileFilters;
@@ -231,12 +233,16 @@ public class Internet extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory())
-						.getAppContext().getConfiguration();
-				internetConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
-				internetConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
-
-				Server.getServer().updateApp(((InternetFactory) getFactory()).getAppContext());
+				DefaultApplication application = (DefaultApplication)getApp();
+				if (!application.isDemoMode())
+				{
+					InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory())
+							.getAppContext().getConfiguration();
+					internetConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
+					internetConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
+	
+					Server.getServer().updateApp(((InternetFactory) getFactory()).getAppContext());
+				}
 			} catch (Exception ex) {
 				Tools.logException(Internet.class, ex, "Could not configure internet app");
 			}
@@ -348,7 +354,14 @@ public class Internet extends DefaultApplication {
 		protected void createRow(BView parent, int index) {
 			BView icon = new BView(parent, 10, 10, parent.getHeight()-20, parent.getHeight()-20);
 			InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) mMenuList.get(index);
-			icon.setResource(createImage(getImage(value.getValue(), false)), RSRC_IMAGE_BESTFIT);
+			Image image = getImage(value.getValue(), false);
+			if (image.getWidth(null) > 640 || image.getHeight(null) > 480)
+			{
+				BufferedImage scaled = ImageManipulator.getScaledImage((BufferedImage)image, icon.getWidth(), icon.getHeight());
+				icon.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
+			}
+			else
+				icon.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
 
 			BText name = new BText(parent, parent.getHeight() + 20, 10, parent.getWidth() - 20 - parent.getHeight(), parent.getHeight() - 20);
 			name.setShadow(true);
@@ -445,8 +458,14 @@ public class Internet extends DefaultApplication {
 			if (image != null) {
 				try {
 					setPainting(false);
-
-					mImage.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+					
+					if (image.getWidth(null) > 640 || image.getHeight(null) > 480)
+					{
+						BufferedImage scaled = ImageManipulator.getScaledImage((BufferedImage)image, getWidth(), getHeight());
+						mImage.setResource(createImage(scaled), RSRC_IMAGE_BESTFIT);
+					}
+					else
+						mImage.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
 
 				} finally {
 					setPainting(true);
@@ -569,8 +588,13 @@ public class Internet extends DefaultApplication {
 			URL url = new URL(address);
 			if (reload)
 				Tools.cacheImage(url, address);
-
-			return Tools.retrieveCachedImage(url);
+			
+			Image image = Tools.retrieveCachedImage(url);
+			if (image==null)
+			{
+				image = Tools.getImage(url, -1, -1);
+			}
+			return image;
 		} catch (Exception ex) {
 			Tools.logException(Internet.class, ex);
 		}

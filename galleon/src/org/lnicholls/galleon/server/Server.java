@@ -1077,38 +1077,50 @@ public class Server {
 	}
 
 	private void createAppClassLoader() {
-		File directory = new File(System.getProperty("apps"));
-		// TODO Handle reloading; what if list changes?
-		File[] files = directory.listFiles(new FileFilter() {
-			public final boolean accept(File file) {
-				return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
-			}
-		});
 		ArrayList urls = new ArrayList();
-		for (int i = 0; i < files.length; ++i) {
-			try {
-				URL url = files[i].toURI().toURL();
-				urls.add(url);
-				log.debug("Found app: " + url);
-			} catch (Exception ex) {
-				// should never happen
+		File directory = new File(System.getProperty("apps"));
+		if (directory.exists())
+		{
+			// TODO Handle reloading; what if list changes?
+			File[] files = directory.listFiles(new FileFilter() {
+				public final boolean accept(File file) {
+					return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
+				}
+			});
+			if (files!=null)
+			{
+				for (int i = 0; i < files.length; ++i) {
+					try {
+						URL url = files[i].toURI().toURL();
+						urls.add(url);
+						log.debug("Found app: " + url);
+					} catch (Exception ex) {
+						// should never happen
+					}
+				}
 			}
 		}
 
 		directory = new File(System.getProperty("hme"));
-		// TODO Handle reloading; what if list changes?
-		files = directory.listFiles(new FileFilter() {
-			public final boolean accept(File file) {
-				return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
-			}
-		});
-		for (int i = 0; i < files.length; ++i) {
-			try {
-				URL url = files[i].toURI().toURL();
-				urls.add(url);
-				log.debug("Found HME app: " + url);
-			} catch (Exception ex) {
-				// should never happen
+		if (directory.exists())
+		{
+			// TODO Handle reloading; what if list changes?
+			File[] files = directory.listFiles(new FileFilter() {
+				public final boolean accept(File file) {
+					return !file.isDirectory() && !file.isHidden() && file.getName().toLowerCase().endsWith(".jar");
+				}
+			});
+			if (files!=null)
+			{
+				for (int i = 0; i < files.length; ++i) {
+					try {
+						URL url = files[i].toURI().toURL();
+						urls.add(url);
+						log.debug("Found HME app: " + url);
+					} catch (Exception ex) {
+						// should never happen
+					}
+				}
 			}
 		}
 

@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.database;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,40 +14,26 @@ package org.lnicholls.galleon.database;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
-
-import org.apache.log4j.Logger;
-
-import net.sf.hibernate.*;
+import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
+import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.Transaction;
-import net.sf.hibernate.cfg.Configuration;
-import net.sf.hibernate.tool.hbm2ddl.SchemaExport;
-
+import org.apache.log4j.Logger;
 import org.lnicholls.galleon.media.MediaRefreshThread;
 import org.lnicholls.galleon.util.Tools;
-
 public class AudioManager {
-
 	private static Logger log = Logger.getLogger(AudioManager.class.getName());
-
 	public static interface Callback {
 		public void visit(Session session, Audio audio);
 	}
-
 	public static Audio retrieveAudio(Audio audio) throws HibernateException {
 		return retrieveAudio(audio.getId());
 	}
-
 	public static Audio retrieveAudio(Integer id) throws HibernateException {
-
 		Audio result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
@@ -65,9 +50,7 @@ public class AudioManager {
 		}
 		return result;
 	}
-
 	public static Audio createAudio(Audio audio) throws HibernateException {
-
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -83,9 +66,7 @@ public class AudioManager {
 		}
 		return audio;
 	}
-
 	public static void updateAudio(Audio audio) throws HibernateException {
-
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -100,9 +81,7 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static void deleteAudio(Audio audio) throws HibernateException {
-
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -117,14 +96,14 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listAll() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery("from org.lnicholls.galleon.database.Audio").list();
+			list = session.createQuery(
+					"from org.lnicholls.galleon.database.Audio").list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -135,15 +114,15 @@ public class AudioManager {
 		}
 		return list;
 	}
-
-	public static List listBetween(int start, int end) throws HibernateException {
+	public static List listBetween(int start, int end)
+			throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			Query query = session.createQuery("from org.lnicholls.galleon.database.Audio");
+			Query query = session
+					.createQuery("from org.lnicholls.galleon.database.Audio");
 			ScrollableResults items = query.scroll();
 			int counter = start;
 			if (items.first()) {
@@ -154,7 +133,6 @@ public class AudioManager {
 					counter++;
 				}
 			}
-
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -165,13 +143,13 @@ public class AudioManager {
 		}
 		return list;
 	}
-
 	public static void scroll(Callback callback) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Query q = session.createQuery("from org.lnicholls.galleon.database.Audio");
+			Query q = session
+					.createQuery("from org.lnicholls.galleon.database.Audio");
 			ScrollableResults items = q.scroll();
 			if (items.first()) {
 				items.beforeFirst();
@@ -190,18 +168,16 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery("from org.lnicholls.galleon.database.Audio as Audio where Audio.path=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Audio as Audio where Audio.path=?")
 					.setString(0, path).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -211,18 +187,16 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery("from org.lnicholls.galleon.database.Audio as Audio where Audio.origen=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Audio as Audio where Audio.origen=?")
 					.setString(0, origen).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -232,13 +206,11 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listGenres(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
 			List list = new ArrayList();
 			if (origen != null) {
 				list = session
@@ -250,9 +222,7 @@ public class AudioManager {
 						.createQuery(
 								"select distinct audio.genre from org.lnicholls.galleon.database.Audio audio where (1=1) order by audio.genre asc")
 						.setCacheable(true).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -262,24 +232,24 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static List findByOrigenGenre(String origen, String genre) throws HibernateException {
+	public static List findByOrigenGenre(String origen, String genre)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
 			List list = new ArrayList();
 			if (origen != null)
-				list = session.createQuery(
-						"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.genre=?")
+				list = session
+						.createQuery(
+								"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.genre=?")
 						.setString(0, origen).setString(1, genre).list();
 			else
-				list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.genre= ?")
+				list = session
+						.createQuery(
+								"from org.lnicholls.galleon.database.Audio as audio where audio.genre= ?")
 						.setString(0, genre).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -289,50 +259,24 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	
-	public static List findByOrigenRated(String origen) throws HibernateException {
+	public static List findByOrigenRated(String origen)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
 			List list = new ArrayList();
 			if (origen != null)
-				list = session.createQuery(
-						"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.rating>0 order by rating desc")
+				list = session
+						.createQuery(
+								"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.rating>0 order by rating desc")
 						.setString(0, origen).list();
 			else
-				list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.rating>0 order by rating desc").list();
-
+				list = session
+						.createQuery(
+								"from org.lnicholls.galleon.database.Audio as audio where audio.rating>0 order by rating desc")
+						.list();
 			tx.commit();
-
-			return list;
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
-		}
-	}	
-	
-	public static List findByOrigenGenreOrdered(String origen, String genre) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-
-			List list = new ArrayList();
-			if (origen != null)
-				list = session.createQuery(
-						"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.genre=? order by title")
-						.setString(0, origen).setString(1, genre).list();
-			else
-				list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.genre= ? order by title")
-						.setString(0, genre).list();
-
-			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -342,18 +286,43 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
+	public static List findByOrigenGenreOrdered(String origen, String genre)
+			throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = new ArrayList();
+			if (origen != null)
+				list = session
+						.createQuery(
+								"from org.lnicholls.galleon.database.Audio as audio where audio.origen=? and audio.genre=? order by title")
+						.setString(0, origen).setString(1, genre).list();
+			else
+				list = session
+						.createQuery(
+								"from org.lnicholls.galleon.database.Audio as audio where audio.genre= ? order by title")
+						.setString(0, genre).list();
+			tx.commit();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
 	public static List findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery("from org.lnicholls.galleon.database.Audio as audio where audio.title=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Audio as audio where audio.title=?")
 					.setString(0, title).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -363,20 +332,16 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static int countMP3s() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
 			List list = session
 					.createQuery(
 							"select count(audio) from org.lnicholls.galleon.database.Audio as audio where substr(audio.path,1,4)<>'http'")
 					.list();
-
 			tx.commit();
-
 			return ((Integer) list.iterator().next()).intValue();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -386,19 +351,17 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static int countMP3sByOrigen(String origen) throws HibernateException {
+	public static int countMP3sByOrigen(String origen)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"select count(audio) from org.lnicholls.galleon.database.Audio as audio where audio.origen=?")
+			List list = session
+					.createQuery(
+							"select count(audio) from org.lnicholls.galleon.database.Audio as audio where audio.origen=?")
 					.setString(0, origen).list();
-
 			tx.commit();
-
 			return ((Integer) list.iterator().next()).intValue();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -408,19 +371,17 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Audio as audio where audio.externalId=?").setString(0, id)
+			List list = session
+					.createQuery(
+					"from org.lnicholls.galleon.database.Audio as audio where audio.externalId=?")
+					.setString(0, id)
 					.list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -430,19 +391,18 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	
-	public static List findByTitleOrigenGenreExternalId(String title, String origen, String genre, String id) throws HibernateException {
+	public static List findByTitleOrigenGenreExternalId(String title,
+			String origen, String genre, String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-				"from org.lnicholls.galleon.database.Audio as audio where audio.title=? audio.origen=? and audio.genre=? and audio.externalId=?")
-				.setString(0, title).setString(1, origen).setString(2, genre).setString(3, id).list();
-
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Audio as audio where audio.title=? audio.origen=? and audio.genre=? and audio.externalId=?")
+					.setString(0, title).setString(1, origen).setString(2,
+							genre).setString(3, id).list();
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -452,31 +412,31 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static void clean() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			java.util.List list = session.createQuery("from org.lnicholls.galleon.database.Audio").list();
+			java.util.List list = session.createQuery(
+					"from org.lnicholls.galleon.database.Audio").list();
 			if (list != null && list.size() > 0) {
 				int counter = 0;
 				for (int i = 0; i < list.size(); i++) {
 					Audio audio = (Audio) list.get(i);
 					if (!audio.getPath().startsWith("http")
-							&& !(audio.getOrigen() != null && !audio.getOrigen().equals("Podcast"))) {
+							&& !(audio.getOrigen() != null && !audio
+									.getOrigen().equals("Podcast"))) {
 						File file = new File(audio.getPath());
 						if (!file.exists()) {
 							try {
 								session.delete(audio);
-
 								if (log.isDebugEnabled())
 									log.debug("Removed: " + audio.getPath());
 							} catch (Exception ex) {
 								Tools
-										.logException(MediaRefreshThread.class, ex, "Could not remove: "
-												+ audio.getPath());
+								.logException(MediaRefreshThread.class, ex,
+										"Could not remove: "
+										+ audio.getPath());
 							}
 						}
 					}
@@ -489,7 +449,6 @@ public class AudioManager {
 					}
 				}
 			}
-
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -499,21 +458,32 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	
-	private static Audio trim (Audio audio)
+	private static Audio trim(Audio audio)
 	{
-		audio.setAlbum(Tools.trim(audio.getAlbum(), 255));
-		audio.setArtist(Tools.trim(audio.getArtist(), 255));
-		audio.setComments(Tools.trim(audio.getComments(), 4096));
-		audio.setExternalId(Tools.trim(audio.getExternalId(), 255));
-		audio.setGenre(Tools.trim(audio.getGenre(), 50));
-		audio.setLyrics(Tools.trim(audio.getLyrics(), 4096));
-		audio.setMimeType(Tools.trim(audio.getMimeType(), 50));
-		audio.setOrigen(Tools.trim(audio.getOrigen(), 30));
-		audio.setPath(Tools.trim(audio.getPath(), 1024));
-		audio.setTitle(Tools.trim(audio.getTitle(), 255));
-		audio.setTone(Tools.trim(audio.getTone(), 50));
+		if (audio!=null)
+		{
+			audio.setAlbum(Tools.trim(audio.getAlbum(), 255));
+	
+			audio.setArtist(Tools.trim(audio.getArtist(), 255));
+	
+			audio.setComments(Tools.trim(audio.getComments(), 4096));
+	
+			audio.setExternalId(Tools.trim(audio.getExternalId(), 255));
+	
+			audio.setGenre(Tools.trim(audio.getGenre(), 50));
+	
+			audio.setLyrics(Tools.trim(audio.getLyrics(), 4096));
+	
+			audio.setMimeType(Tools.trim(audio.getMimeType(), 50));
+	
+			audio.setOrigen(Tools.trim(audio.getOrigen(), 30));
+	
+			audio.setPath(Tools.trim(audio.getPath(), 1024));
+	
+			audio.setTitle(Tools.trim(audio.getTitle(), 255));
+	
+			audio.setTone(Tools.trim(audio.getTone(), 50));
+		}
 		return audio;
-		
 	}
 }

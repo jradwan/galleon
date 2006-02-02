@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.apps.jabber;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,81 +14,60 @@ package org.lnicholls.galleon.apps.jabber;
  * 
  * See the file "COPYING" for more details.
  */
-
 import org.lnicholls.galleon.app.AppConfiguration;
-
 public class JabberConfiguration implements AppConfiguration {
-
 	public String getName() {
 		return mName;
 	}
-
 	public void setName(String value) {
 		if (mName != null && !mName.equals(value))
 			mModified = true;
 		mName = value;
 	}
-
 	public String getUsername() {
 		return mUsername;
 	}
-
 	public void setUsername(String value) {
 		if (mUsername != null && !mUsername.equals(value))
 			mModified = true;
 		mUsername = value;
 	}
-
 	public String getPassword() {
 		return mPassword;
 	}
-
 	public void setPassword(String value) {
 		if (mPassword != null && !mPassword.equals(value))
 			mModified = true;
 		mPassword = value;
 	}
-
 	public String getServer() {
 		return mServer;
 	}
-
 	public void setServer(String value) {
 		if (mServer != null && !mServer.equals(value))
 			mModified = true;
 		mServer = value;
 	}
-
 	public void setModified(boolean value) {
 		mModified = value;
 	}
-
 	public boolean isModified() {
 		return mModified;
 	}
-
 	public String toString() {
 		return getName();
 		// return ToStringBuilder.reflectionToString(this);
 	}
-
 	public boolean isShared() {
 		return mShared;
 	}
-
 	public void setShared(boolean value) {
 		mShared = value;
 	}
-
 	private boolean mShared;
-
 	private String mName;
-
 	private String mUsername;
-
 	private String mPassword;
-
 	private String mServer;
-
 	private boolean mModified;
 }

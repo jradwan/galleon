@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.database;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,34 +14,26 @@ package org.lnicholls.galleon.database;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.util.ArrayList;
 import java.util.List;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
-
 import org.apache.log4j.Logger;
-
-import org.lnicholls.galleon.util.Tools;
-
 public class PlaylistsTracksManager {
-
-	private static Logger log = Logger.getLogger(PlaylistsTracksManager.class.getName());
-
+	private static Logger log = Logger.getLogger(PlaylistsTracksManager.class
+			.getName());
 	public static interface Callback {
 		public void visit(Session session, PlaylistsTracks PlaylistsTracks);
 	}
-
-	public static PlaylistsTracks retrievePlaylistsTracks(PlaylistsTracks PlaylistsTracks) throws HibernateException {
+	public static PlaylistsTracks retrievePlaylistsTracks(
+			PlaylistsTracks PlaylistsTracks) throws HibernateException {
 		return retrievePlaylistsTracks(PlaylistsTracks.getId());
 	}
-
-	public static PlaylistsTracks retrievePlaylistsTracks(Integer id) throws HibernateException {
-
+	public static PlaylistsTracks retrievePlaylistsTracks(Integer id)
+			throws HibernateException {
 		PlaylistsTracks result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
@@ -59,9 +50,8 @@ public class PlaylistsTracksManager {
 		}
 		return result;
 	}
-
-	public static PlaylistsTracks createPlaylistsTracks(PlaylistsTracks PlaylistsTracks) throws HibernateException {
-
+	public static PlaylistsTracks createPlaylistsTracks(
+			PlaylistsTracks PlaylistsTracks) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -77,9 +67,8 @@ public class PlaylistsTracksManager {
 		}
 		return PlaylistsTracks;
 	}
-
-	public static void updatePlaylistsTracks(PlaylistsTracks PlaylistsTracks) throws HibernateException {
-
+	public static void updatePlaylistsTracks(PlaylistsTracks PlaylistsTracks)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -94,8 +83,8 @@ public class PlaylistsTracksManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static void deletePlaylistsTracks(PlaylistsTracks PlaylistsTracks) throws HibernateException {
+	public static void deletePlaylistsTracks(PlaylistsTracks PlaylistsTracks)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -110,14 +99,15 @@ public class PlaylistsTracksManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listAll() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery("from org.lnicholls.galleon.database.PlaylistsTracks").list();
+			list = session.createQuery(
+					"from org.lnicholls.galleon.database.PlaylistsTracks")
+					.list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -128,26 +118,26 @@ public class PlaylistsTracksManager {
 		}
 		return list;
 	}
-
-	public static List listBetween(int start, int end) throws HibernateException {
+	public static List listBetween(int start, int end)
+			throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			Query query = session.createQuery("from org.lnicholls.galleon.database.PlaylistsTracks");
+			Query query = session
+					.createQuery("from org.lnicholls.galleon.database.PlaylistsTracks");
 			ScrollableResults items = query.scroll();
 			int counter = start;
 			if (items.first()) {
 				items.scroll(start);
 				while (items.next() && (counter < end)) {
-					PlaylistsTracks PlaylistsTracks = (PlaylistsTracks) items.get(0);
+					PlaylistsTracks PlaylistsTracks = (PlaylistsTracks) items
+							.get(0);
 					list.add(PlaylistsTracks);
 					counter++;
 				}
 			}
-
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -158,18 +148,19 @@ public class PlaylistsTracksManager {
 		}
 		return list;
 	}
-
 	public static void scroll(Callback callback) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Query q = session.createQuery("from org.lnicholls.galleon.database.PlaylistsTracks");
+			Query q = session
+					.createQuery("from org.lnicholls.galleon.database.PlaylistsTracks");
 			ScrollableResults items = q.scroll();
 			if (items.first()) {
 				items.beforeFirst();
 				while (items.next()) {
-					PlaylistsTracks PlaylistsTracks = (PlaylistsTracks) items.get(0);
+					PlaylistsTracks PlaylistsTracks = (PlaylistsTracks) items
+							.get(0);
 					callback.visit(session, PlaylistsTracks);
 				}
 				;
@@ -183,20 +174,16 @@ public class PlaylistsTracksManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByPlaylists(Integer id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
 			List list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.PlaylistsTracks as PlaylistsTracks where PlaylistsTracks.playlists=?")
 					.setInteger(0, id.intValue()).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -206,7 +193,6 @@ public class PlaylistsTracksManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	private static PlaylistsTracks trim(PlaylistsTracks playlistsTracks) {
 		return playlistsTracks;
 	}

@@ -195,6 +195,7 @@ See the file "COPYING" for more details.
     <property name="availability" type="int"/>                                 
     
     <property name="parentalControls" type="boolean"/>                        
+    <property name="tivo" type="string"/>               
 	
   </class>
 

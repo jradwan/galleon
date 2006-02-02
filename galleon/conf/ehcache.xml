@@ -103,4 +103,37 @@
         timeToLiveSeconds="600"
         overflowToDisk="true"
         />                                         
+
+    <cache name="org.lnicholls.galleon.database.ShoutcastStation"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                                         
+
+    <cache name="org.lnicholls.galleon.database.Application"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />
+
+    <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />
+
+    <cache name="net.sf.hibernate.cache.StandardQueryCache"
+        maxElementsInMemory="10"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />
+                                         
 </ehcache>

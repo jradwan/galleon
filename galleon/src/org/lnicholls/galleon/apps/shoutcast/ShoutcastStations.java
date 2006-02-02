@@ -62,7 +62,7 @@ public class ShoutcastStations {
                     log.error("Could not download stations", ex);
                 }
             }
-        }), 60 * 60 * 24);
+        }), 60 * 24);
     }
 
     private void getStations(String genre) {
@@ -75,8 +75,11 @@ public class ShoutcastStations {
 	        int total = 1;
 	        for (int i=0;i<total;i++)
 	        {
-	            GetMethod get = new GetMethod("http://www.shoutcast.com/directory/?sgenre="
-	                    + URLEncoder.encode(URLDecoder.decode(genre, "UTF-8"), "UTF-8"));
+	            String page = "";
+	            if (i>0)
+	            	page = "&startat="+(i*20);
+	        	GetMethod get = new GetMethod("http://www.shoutcast.com/directory/?sgenre="
+	                    + URLEncoder.encode(URLDecoder.decode(genre, "UTF-8"), "UTF-8")+page);
 	            get.setFollowRedirects(true);
 	
 	            try {
@@ -159,14 +162,13 @@ public class ShoutcastStations {
     }
 
 	public void getPlaylists() {
-		List list = mConfiguration.getGenres();
+		List list = mConfiguration.getLimitedGenres();
 	    int limit = MAX_REQUESTS_PER_DAY / list.size();
-	    
 	    Iterator iterator = list.iterator();
 	    while (iterator.hasNext())
 	    {
-	    	String genre = (String)iterator.next();
-	    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + genre);
+	    	ShoutcastConfiguration.LimitedGenre limitedGenre = (ShoutcastConfiguration.LimitedGenre)iterator.next();
+	    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre());
 		    int start = 0;
 		    if (persistentValue != null) {
 		        try {
@@ -177,15 +179,15 @@ public class ShoutcastStations {
 		    
 		    try
             {
-            	List stations = ShoutcastStationManager.findByGenre(genre);
+            	List stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
             	if (stations==null || stations.size()==0)
             	{
-            		getStations(genre);
-            		stations = ShoutcastStationManager.findByGenre(genre);
+            		getStations(limitedGenre.getGenre());
+            		stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
             	}
             	if (stations!=null && stations.size()>0)
             	{
-            		if (start > stations.size())
+            		if (start >= stations.size())
             		{
             			start = 0;
             			// reset every station to pending to get latest info again
@@ -202,12 +204,15 @@ public class ShoutcastStations {
             	    			Tools.logException(ShoutcastStations.class, ex);    			
             	    		}
             	    	}
-            			getStations(genre);
+            			getStations(limitedGenre.getGenre());
             		}
             		
-        		    int max = start + limit;
+            		int max = start + limit;
+        		    if (limitedGenre.getLimit()!=-1 && max > limitedGenre.getLimit())
+        		    	max = limitedGenre.getLimit();
         		    if (max > stations.size())
         		    	max = stations.size();
+        		    
         	    	for (int i=start; i < max; i++)
         	    	{
         	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
@@ -232,7 +237,7 @@ public class ShoutcastStations {
 
                                         try {
                                             // Remove duplicates
-                                            List all = AudioManager.findByOrigenGenre(SHOUTCAST, genre);
+                                            List all = AudioManager.findByOrigenGenre(SHOUTCAST, limitedGenre.getGenre());
                                             for (int j = 0; j < all.size(); j++) {
                                                 Audio audio = (Audio) all.get(j);
                                                 for (int k = j; k < all.size(); k++) {
@@ -252,14 +257,14 @@ public class ShoutcastStations {
 
                                             if (current != null) {
                                             	current.setTitle(t);
-                                            	current.setGenre(genre);
+                                            	current.setGenre(limitedGenre.getGenre());
                                             	current.setOrigen(SHOUTCAST);
                                             	current.setExternalId(String.valueOf(++total));
                                             	AudioManager.updateAudio(current);
                                             } else {
                                                 Audio audio = (Audio) MediaManager.getMedia(u);
                                                 audio.setTitle(t);
-                                                audio.setGenre(genre);
+                                                audio.setGenre(limitedGenre.getGenre());
                                                 audio.setOrigen(SHOUTCAST);
                                                 audio.setExternalId(String.valueOf(++total));
                                                 AudioManager.createAudio(audio);
@@ -281,7 +286,7 @@ public class ShoutcastStations {
             	    		}
         	    		}
         	    	}
-        	    	PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + genre, String.valueOf(max));
+        	    	PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre(), String.valueOf(max));
             	}
             } catch (Exception ex) {
     	        Tools.logException(ShoutcastStations.class, ex);

@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.database;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,35 +14,29 @@ package org.lnicholls.galleon.database;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
-
 public class VideocastManager {
-
-	private static Logger log = Logger.getLogger(VideocastManager.class.getName());
-
+	private static Logger log = Logger.getLogger(VideocastManager.class
+			.getName());
 	public static interface Callback {
 		public void visit(Session session, Videocast Videocast);
 	}
-
-	public static Videocast retrieveVideocast(Videocast Videocast) throws HibernateException {
+	public static Videocast retrieveVideocast(Videocast Videocast)
+			throws HibernateException {
 		return retrieveVideocast(Videocast.getId());
 	}
-
-	public static Videocast retrieveVideocast(Integer id) throws HibernateException {
-
+	public static Videocast retrieveVideocast(Integer id)
+			throws HibernateException {
 		Videocast result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
@@ -60,9 +53,8 @@ public class VideocastManager {
 		}
 		return result;
 	}
-
-	public static Videocast createVideocast(Videocast Videocast) throws HibernateException {
-
+	public static Videocast createVideocast(Videocast Videocast)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -78,9 +70,8 @@ public class VideocastManager {
 		}
 		return Videocast;
 	}
-
-	public static void updateVideocast(Videocast Videocast) throws HibernateException {
-
+	public static void updateVideocast(Videocast Videocast)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -96,8 +87,8 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static void deleteVideocast(Videocast Videocast) throws HibernateException {
+	public static void deleteVideocast(Videocast Videocast)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -112,14 +103,14 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listAll() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery("from org.lnicholls.galleon.database.Videocast").list();
+			list = session.createQuery(
+					"from org.lnicholls.galleon.database.Videocast").list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -130,15 +121,16 @@ public class VideocastManager {
 		}
 		return list;
 	}
-
 	public static List listAllSubscribed() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery(
-					"from org.lnicholls.galleon.database.Videocast as videocast where videocast.status=?").setInteger(
+			list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Videocast as videocast where videocast.status=?")
+					.setInteger(
 					0, Videocast.STATUS_SUBSCRIBED).list();
 			tx.commit();
 		} catch (HibernateException he) {
@@ -150,15 +142,15 @@ public class VideocastManager {
 		}
 		return list;
 	}
-
-	public static List listBetween(int start, int end) throws HibernateException {
+	public static List listBetween(int start, int end)
+			throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			Query query = session.createQuery("from org.lnicholls.galleon.database.Videocast");
+			Query query = session
+					.createQuery("from org.lnicholls.galleon.database.Videocast");
 			ScrollableResults items = query.scroll();
 			int counter = start;
 			if (items.first()) {
@@ -169,7 +161,6 @@ public class VideocastManager {
 					counter++;
 				}
 			}
-
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -180,13 +171,13 @@ public class VideocastManager {
 		}
 		return list;
 	}
-
 	public static void scroll(Callback callback) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Query q = session.createQuery("from org.lnicholls.galleon.database.Videocast");
+			Query q = session
+					.createQuery("from org.lnicholls.galleon.database.Videocast");
 			ScrollableResults items = q.scroll();
 			if (items.first()) {
 				items.beforeFirst();
@@ -205,19 +196,17 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.path=?").setString(0,
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.path=?")
+					.setString(0,
 					path).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -227,19 +216,17 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.origen=?").setString(0,
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.origen=?")
+					.setString(0,
 					origen).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -249,19 +236,17 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.title=?").setString(0,
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.title=?")
+					.setString(0,
 					title).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -271,19 +256,16 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.externalId=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.externalId=?")
 					.setString(0, id).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -293,18 +275,16 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listTitles() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"select Videocast.title from org.lnicholls.galleon.database.Videocast as Videocast").list();
-
+			List list = session
+					.createQuery(
+							"select Videocast.title from org.lnicholls.galleon.database.Videocast as Videocast")
+					.list();
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -314,7 +294,6 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List getVideocasts() throws HibernateException {
 		List names = new ArrayList();
 		try {
@@ -322,7 +301,8 @@ public class VideocastManager {
 			if (videocasts != null && videocasts.size() > 0) {
 				for (Iterator i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
 					Videocast videocast = (Videocast) i.next();
-					names.add(new NameValue(videocast.getTitle(), videocast.getPath()));
+					names.add(new NameValue(videocast.getTitle(), videocast
+							.getPath()));
 				}
 			}
 		} catch (Exception ex) {
@@ -330,7 +310,6 @@ public class VideocastManager {
 		}
 		return names;
 	}
-
 	public static void setVideocasts(List list) throws HibernateException {
 		try {
 			List videocasts = listAllSubscribed();
@@ -348,18 +327,17 @@ public class VideocastManager {
 							break;
 						}
 					}
-
 					if (!found) {
-						Videocast videocast = new Videocast(nameValue.getName(), Videocast.STATUS_SUBSCRIBED, nameValue
+						Videocast videocast = new Videocast(
+								nameValue.getName(),
+								Videocast.STATUS_SUBSCRIBED, nameValue
 								.getValue(), 0, new ArrayList());
 						createVideocast(videocast);
 					}
 				}
-
 				// Remove videocasts no longer on list
 				for (Iterator i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
 					Videocast videocast = (Videocast) i.next();
-
 					boolean found = false;
 					iterator = list.iterator();
 					while (iterator.hasNext()) {
@@ -378,7 +356,8 @@ public class VideocastManager {
 				Iterator iterator = list.iterator();
 				while (iterator.hasNext()) {
 					NameValue nameValue = (NameValue) iterator.next();
-					Videocast videocast = new Videocast(nameValue.getName(), Videocast.STATUS_SUBSCRIBED, nameValue
+					Videocast videocast = new Videocast(nameValue.getName(),
+							Videocast.STATUS_SUBSCRIBED, nameValue
 							.getValue(), 0, new ArrayList());
 					createVideocast(videocast);
 				}
@@ -387,38 +366,38 @@ public class VideocastManager {
 			Tools.logException(VideocastManager.class, ex);
 		}
 	}
-
 	private static Videocast trim(Videocast videocast) {
-		videocast.setAuthor(Tools.trim(videocast.getAuthor(), 255));
-		videocast.setCategory(Tools.trim(videocast.getCategory(), 255));
-		videocast.setDescription(Tools.trim(videocast.getDescription(), 4096));
-		videocast.setExternalId(Tools.trim(videocast.getExternalId(), 255));
-		videocast.setImage(Tools.trim(videocast.getImage(), 1024));
-		videocast.setKeywords(Tools.trim(videocast.getKeywords(), 255));
-		videocast.setLink(Tools.trim(videocast.getLink(), 1024));
-		videocast.setOrigen(Tools.trim(videocast.getOrigen(), 30));
-		videocast.setPath(Tools.trim(videocast.getPath(), 1024));
-		videocast.setSubtitle(Tools.trim(videocast.getSubtitle(), 4096));
-		videocast.setSummary(Tools.trim(videocast.getSummary(), 4096));
-		videocast.setTitle(Tools.trim(videocast.getTitle(), 255));
-
-		List list = videocast.getTracks();
-		Iterator iterator = list.iterator();
-		while (iterator.hasNext()) {
-			VideocastTrack track = (VideocastTrack) iterator.next();
-			track.setAuthor(Tools.trim(track.getAuthor(), 255));
-			track.setCategory(Tools.trim(track.getCategory(), 255));
-			track.setDescription(Tools.trim(track.getDescription(), 4096));
-			track.setGuid(Tools.trim(track.getGuid(), 255));
-			track.setKeywords(Tools.trim(track.getGuid(), 255));
-			track.setLink(Tools.trim(track.getLink(), 1024));
-			track.setMimeType(Tools.trim(track.getMimeType(), 50));
-			track.setSubtitle(Tools.trim(track.getSubtitle(), 255));
-			track.setSummary(Tools.trim(track.getSummary(), 4096));
-			track.setTitle(Tools.trim(track.getTitle(), 255));
-			track.setUrl(Tools.trim(track.getUrl(), 1024));
+		if (videocast != null) {
+			videocast.setAuthor(Tools.trim(videocast.getAuthor(), 255));
+			videocast.setCategory(Tools.trim(videocast.getCategory(), 255));
+			videocast.setDescription(Tools.trim(videocast.getDescription(),
+					4096));
+			videocast.setExternalId(Tools.trim(videocast.getExternalId(), 255));
+			videocast.setImage(Tools.trim(videocast.getImage(), 1024));
+			videocast.setKeywords(Tools.trim(videocast.getKeywords(), 255));
+			videocast.setLink(Tools.trim(videocast.getLink(), 1024));
+			videocast.setOrigen(Tools.trim(videocast.getOrigen(), 30));
+			videocast.setPath(Tools.trim(videocast.getPath(), 1024));
+			videocast.setSubtitle(Tools.trim(videocast.getSubtitle(), 4096));
+			videocast.setSummary(Tools.trim(videocast.getSummary(), 4096));
+			videocast.setTitle(Tools.trim(videocast.getTitle(), 255));
+			List list = videocast.getTracks();
+			Iterator iterator = list.iterator();
+			while (iterator.hasNext()) {
+				VideocastTrack track = (VideocastTrack) iterator.next();
+				track.setAuthor(Tools.trim(track.getAuthor(), 255));
+				track.setCategory(Tools.trim(track.getCategory(), 255));
+				track.setDescription(Tools.trim(track.getDescription(), 4096));
+				track.setGuid(Tools.trim(track.getGuid(), 255));
+				track.setKeywords(Tools.trim(track.getGuid(), 255));
+				track.setLink(Tools.trim(track.getLink(), 1024));
+				track.setMimeType(Tools.trim(track.getMimeType(), 50));
+				track.setSubtitle(Tools.trim(track.getSubtitle(), 255));
+				track.setSummary(Tools.trim(track.getSummary(), 4096));
+				track.setTitle(Tools.trim(track.getTitle(), 255));
+				track.setUrl(Tools.trim(track.getUrl(), 1024));
+			}
 		}
-
 		return videocast;
 	}
 }

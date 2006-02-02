@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.app;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,12 +14,10 @@ package org.lnicholls.galleon.app;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -29,50 +26,55 @@ import org.lnicholls.galleon.media.Mp3Url;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
-
 import com.tivo.hme.interfaces.IHmeConstants;
 import com.tivo.hme.interfaces.IHttpRequest;
 import com.tivo.hme.sdk.Application;
 import com.tivo.hme.sdk.Factory;
-
 public class AppFactory extends Factory {
-
 	private static Logger log = Logger.getLogger(AppFactory.class.getName());
-
 	public AppFactory() {
 		super();
 	}
-
 	public void initialize() {
-
 	}
-
 	public void remove() {
-
 	}
-
 	public void setConfiguration(AppConfiguration appConfiguration) {
 		getAppContext().setConfiguration(appConfiguration);
 	}
-
 	protected InputStream getImage(String key) throws IOException {
-		ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(
-				this.getClass().getName().substring(0, this.getClass().getName().indexOf("$")), null, key);
-
-		// ByteArrayOutputStream byteArrayOutputStream = new
-		// ByteArrayOutputStream();
-
-		// ImageIO.write(image, "png", byteArrayOutputStream);
-		return new ByteArrayInputStream(baos.toByteArray());
+		try
+		{
+			ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(
+	
+					this.getClass().getName().substring(0,
+							this.getClass().getName().indexOf("$")), null, key);
+	
+			// ByteArrayOutputStream byteArrayOutputStream = new
+	
+			// ByteArrayOutputStream();
+	
+			// ImageIO.write(image, "png", byteArrayOutputStream);
+	
+			return new ByteArrayInputStream(baos.toByteArray());
+		}
+		catch (Throwable ex)
+		{
+			Tools.logException(AppFactory.class, ex);
+			try
+			{
+				return super.getStream(key);
+			}
+			catch (Throwable ex2){}
+		}
+		return this.getClass().getResourceAsStream("/guiicon.png");
 	}
-
 	public InputStream getStream(String uri) throws IOException {
 		try {
 			if (uri.toLowerCase().equals("icon.png")) {
 				return getImage("icon");
 			} else if (uri.toLowerCase().endsWith(".mp3")) {
 				String[] parts = uri.split("/");
-
 				DefaultApplication application = null;
 				int id = -1;
 				if (parts.length == 2) {
@@ -91,7 +93,6 @@ public class AppFactory extends Factory {
 						}
 					}
 				}
-
 				if (uri.toLowerCase().endsWith(".http.mp3")) {
 					return Mp3Url.getStream(uri, application);
 				}
@@ -100,10 +101,8 @@ public class AppFactory extends Factory {
 		} catch (Throwable ex) {
 			Tools.logException(AppFactory.class, ex);
 		}
-
 		return super.getStream(uri);
 	}
-
 	protected void addHeaders(IHttpRequest http, String uri) throws IOException {
 		if (uri.toLowerCase().endsWith(".mp3")) {
 			long duration = -1;
@@ -116,28 +115,23 @@ public class AppFactory extends Factory {
 			} catch (Exception ex) {
 				Tools.logException(AppFactory.class, ex, uri);
 			}
-
 			if (duration != -1)
-				http.addHeader(IHmeConstants.TIVO_DURATION, String.valueOf(duration));
+				http.addHeader(IHmeConstants.TIVO_DURATION, String
+						.valueOf(duration));
 		}
 		super.addHeaders(http, uri);
 	}
-
 	public void setAppContext(AppContext appContext) {
 		mAppContext = appContext;
 	}
-
 	public void updateAppContext(AppContext appContext) {
 		mAppContext = appContext;
 	}
-
 	public AppContext getAppContext() {
 		return mAppContext;
 	}
-
 	public Class getClassName() {
 		return clazz;
 	}
-
 	private AppContext mAppContext;
 }

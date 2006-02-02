@@ -246,6 +246,7 @@ public class ToGo {
 											video.setStatus(Video.STATUS_RECORDING);
 
 										video.setSource(tivo.getAddress());
+										video.setTivo(tivo.getName());
 									}
 
 									String detailsUrl = null;

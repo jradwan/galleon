@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.database;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,7 +14,6 @@ package org.lnicholls.galleon.database;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,34 +21,28 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
-
 import com.sun.image.codec.jpeg.ImageFormatException;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
-
 public class ThumbnailManager {
-
-	private static Logger log = Logger.getLogger(ThumbnailManager.class.getName());
-
+	private static Logger log = Logger.getLogger(ThumbnailManager.class
+			.getName());
 	public static interface Callback {
 		public void visit(Session session, Thumbnail thumbnail);
 	}
-
-	public static Thumbnail retrieveThumbnail(Thumbnail thumbnail) throws HibernateException {
+	public static Thumbnail retrieveThumbnail(Thumbnail thumbnail)
+			throws HibernateException {
 		return retrieveThumbnail(thumbnail.getId());
 	}
-
-	public static Thumbnail retrieveThumbnail(Integer id) throws HibernateException {
-
+	public static Thumbnail retrieveThumbnail(Integer id)
+			throws HibernateException {
 		Thumbnail result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
@@ -67,9 +59,8 @@ public class ThumbnailManager {
 		}
 		return result;
 	}
-
-	public static Thumbnail createThumbnail(Thumbnail thumbnail) throws HibernateException {
-
+	public static Thumbnail createThumbnail(Thumbnail thumbnail)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -85,9 +76,8 @@ public class ThumbnailManager {
 		}
 		return thumbnail;
 	}
-
-	public static void updateThumbnail(Thumbnail thumbnail) throws HibernateException {
-
+	public static void updateThumbnail(Thumbnail thumbnail)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -102,9 +92,8 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static void deleteThumbnail(Thumbnail thumbnail) throws HibernateException {
-
+	public static void deleteThumbnail(Thumbnail thumbnail)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -119,14 +108,14 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listAll() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery("from org.lnicholls.galleon.database.Thumbnail").list();
+			list = session.createQuery(
+					"from org.lnicholls.galleon.database.Thumbnail").list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -137,15 +126,15 @@ public class ThumbnailManager {
 		}
 		return list;
 	}
-
-	public static List listBetween(int start, int end) throws HibernateException {
+	public static List listBetween(int start, int end)
+			throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			Query query = session.createQuery("from org.lnicholls.galleon.database.Thumbnail");
+			Query query = session
+					.createQuery("from org.lnicholls.galleon.database.Thumbnail");
 			ScrollableResults items = query.scroll();
 			int counter = start;
 			if (items.first()) {
@@ -156,7 +145,6 @@ public class ThumbnailManager {
 					counter++;
 				}
 			}
-
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -167,13 +155,13 @@ public class ThumbnailManager {
 		}
 		return list;
 	}
-
 	public static void scroll(Callback callback) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Query q = session.createQuery("from org.lnicholls.galleon.database.Thumbnail");
+			Query q = session
+					.createQuery("from org.lnicholls.galleon.database.Thumbnail");
 			ScrollableResults items = q.scroll();
 			if (items.first()) {
 				items.beforeFirst();
@@ -192,19 +180,17 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List findByKey(String key) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?").setString(
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?")
+					.setString(
 					0, key).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -214,27 +200,24 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static BufferedImage findImageByKey(String key) throws HibernateException {
+	public static BufferedImage findImageByKey(String key)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?").setString(
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?")
+					.setString(
 					0, key).list();
-
 			BufferedImage image = null;
 			if (list.size() > 0) {
 				Thumbnail thumbnail = (Thumbnail) list.get(0);
 				Blob blob = thumbnail.getImage();
-
 				image = createImage(blob);
 			}
-
 			tx.commit();
-
 			return image;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -244,22 +227,17 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static BufferedImage findImageById(Integer id) throws HibernateException {
+	public static BufferedImage findImageById(Integer id)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
 			Thumbnail thumbnail = (Thumbnail) session.load(Thumbnail.class, id);
-
 			BufferedImage image = null;
 			Blob blob = thumbnail.getImage();
-
 			image = createImage(blob);
-
 			tx.commit();
-
 			return image;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -269,7 +247,6 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	private static BufferedImage createImage(Blob blob) {
 		BufferedImage image = null;
 		try {
@@ -285,11 +262,15 @@ public class ThumbnailManager {
 		}
 		return image;
 	}
-
 	private static Thumbnail trim(Thumbnail thumbnail) {
-		thumbnail.setKeywords(Tools.trim(thumbnail.getKeywords(), 1024));
-		thumbnail.setMimeType(Tools.trim(thumbnail.getMimeType(), 50));
-		thumbnail.setTitle(Tools.trim(thumbnail.getTitle(), 255));
+		if (thumbnail!=null)
+		{
+			thumbnail.setKeywords(Tools.trim(thumbnail.getKeywords(), 1024));
+	
+			thumbnail.setMimeType(Tools.trim(thumbnail.getMimeType(), 50));
+	
+			thumbnail.setTitle(Tools.trim(thumbnail.getTitle(), 255));
+		}
 		return thumbnail;
 	}
 }

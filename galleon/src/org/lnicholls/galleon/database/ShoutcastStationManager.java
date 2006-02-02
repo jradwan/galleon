@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.database;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,38 +14,32 @@ package org.lnicholls.galleon.database;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.util.ArrayList;
 import java.util.List;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
-
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.util.Tools;
-
 public class ShoutcastStationManager {
-
-	private static Logger log = Logger.getLogger(ShoutcastStationManager.class.getName());
-
+	private static Logger log = Logger.getLogger(ShoutcastStationManager.class
+			.getName());
 	public static interface Callback {
 		public void visit(Session session, ShoutcastStation ShoutcastStation);
 	}
-
-	public static ShoutcastStation retrieveShoutcastStation(ShoutcastStation ShoutcastStation) throws HibernateException {
+	public static ShoutcastStation retrieveShoutcastStation(
+			ShoutcastStation ShoutcastStation) throws HibernateException {
 		return retrieveShoutcastStation(ShoutcastStation.getId());
 	}
-
-	public static ShoutcastStation retrieveShoutcastStation(Integer id) throws HibernateException {
-
+	public static ShoutcastStation retrieveShoutcastStation(Integer id)
+			throws HibernateException {
 		ShoutcastStation result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			result = (ShoutcastStation) session.load(ShoutcastStation.class, id);
+			result = (ShoutcastStation) session
+					.load(ShoutcastStation.class, id);
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -57,9 +50,8 @@ public class ShoutcastStationManager {
 		}
 		return result;
 	}
-
-	public static ShoutcastStation createShoutcastStation(ShoutcastStation ShoutcastStation) throws HibernateException {
-
+	public static ShoutcastStation createShoutcastStation(
+			ShoutcastStation ShoutcastStation) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -75,9 +67,8 @@ public class ShoutcastStationManager {
 		}
 		return ShoutcastStation;
 	}
-
-	public static void updateShoutcastStation(ShoutcastStation ShoutcastStation) throws HibernateException {
-
+	public static void updateShoutcastStation(ShoutcastStation ShoutcastStation)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -92,9 +83,8 @@ public class ShoutcastStationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static void deleteShoutcastStation(ShoutcastStation ShoutcastStation) throws HibernateException {
-
+	public static void deleteShoutcastStation(ShoutcastStation ShoutcastStation)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -109,14 +99,15 @@ public class ShoutcastStationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listAll() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery("from org.lnicholls.galleon.database.ShoutcastStation").list();
+			list = session.createQuery(
+					"from org.lnicholls.galleon.database.ShoutcastStation")
+					.list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -127,19 +118,16 @@ public class ShoutcastStationManager {
 		}
 		return list;
 	}
-
 	public static List findByGenre(String genre) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.ShoutcastStation as ShoutcastStation where ShoutcastStation.genre=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.ShoutcastStation as ShoutcastStation where ShoutcastStation.genre=?")
 					.setString(0, genre).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -149,19 +137,16 @@ public class ShoutcastStationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	
 	public static List findByUrl(String url) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.ShoutcastStation as ShoutcastStation where ShoutcastStation.url=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.ShoutcastStation as ShoutcastStation where ShoutcastStation.url=?")
 					.setString(0, url).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -171,11 +156,14 @@ public class ShoutcastStationManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	private static ShoutcastStation trim(ShoutcastStation ShoutcastStation)
+	{
+		if (ShoutcastStation!=null)
+		{
+			ShoutcastStation.setGenre(Tools.trim(ShoutcastStation.getGenre(), 30));
 	
-    private static ShoutcastStation trim(ShoutcastStation ShoutcastStation)
-    {
-    	ShoutcastStation.setGenre(Tools.trim(ShoutcastStation.getGenre(), 30));
-    	ShoutcastStation.setUrl(Tools.trim(ShoutcastStation.getUrl(), 1024));
-    	return ShoutcastStation;
-    }
+			ShoutcastStation.setUrl(Tools.trim(ShoutcastStation.getUrl(), 1024));
+		}
+		return ShoutcastStation;
+	}
 }

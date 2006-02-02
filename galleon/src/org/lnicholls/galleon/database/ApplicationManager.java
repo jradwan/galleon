@@ -1,5 +1,4 @@
 package org.lnicholls.galleon.database;
-
 /*
  * Copyright (C) 2005 Leon Nicholls
  * 
@@ -15,32 +14,26 @@ package org.lnicholls.galleon.database;
  * 
  * See the file "COPYING" for more details.
  */
-
 import java.util.ArrayList;
 import java.util.List;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.util.Tools;
-
 public class ApplicationManager {
-
-	private static Logger log = Logger.getLogger(ApplicationManager.class.getName());
-
+	private static Logger log = Logger.getLogger(ApplicationManager.class
+			.getName());
 	public static interface Callback {
 		public void visit(Session session, Application Application);
 	}
-
-	public static Application retrieveApplication(Application Application) throws HibernateException {
+	public static Application retrieveApplication(Application Application)
+			throws HibernateException {
 		return retrieveApplication(Application.getId());
 	}
-
-	public static Application retrieveApplication(Integer id) throws HibernateException {
-
+	public static Application retrieveApplication(Integer id)
+			throws HibernateException {
 		Application result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
@@ -57,9 +50,8 @@ public class ApplicationManager {
 		}
 		return result;
 	}
-
-	public static Application createApplication(Application Application) throws HibernateException {
-
+	public static Application createApplication(Application Application)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -75,9 +67,8 @@ public class ApplicationManager {
 		}
 		return Application;
 	}
-
-	public static void updateApplication(Application Application) throws HibernateException {
-
+	public static void updateApplication(Application Application)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -92,9 +83,8 @@ public class ApplicationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
-	public static void deleteApplication(Application Application) throws HibernateException {
-
+	public static void deleteApplication(Application Application)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -109,14 +99,14 @@ public class ApplicationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-
 	public static List listAll() throws HibernateException {
 		List list = new ArrayList();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			list = session.createQuery("from org.lnicholls.galleon.database.Application").list();
+			list = session.createQuery(
+					"from org.lnicholls.galleon.database.Application").list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -127,19 +117,16 @@ public class ApplicationManager {
 		}
 		return list;
 	}
-
 	public static List findByClazz(String clazz) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-
-			List list = session.createQuery(
-					"from org.lnicholls.galleon.database.Application as Application where Application.clazz=?")
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Application as Application where Application.clazz=?")
 					.setString(0, clazz).list();
-
 			tx.commit();
-
 			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -149,26 +136,32 @@ public class ApplicationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	
-	public static void trackApplication(AppContext appContext) throws HibernateException {
+	public static void trackApplication(AppContext appContext)
+			throws HibernateException {
 		List list = findByClazz(appContext.getDescriptor().getClassName());
-		if (list==null || list.size()==0)
+		if (list == null || list.size() == 0)
 		{
-			Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getDescriptor().getTitle(), appContext.getDescriptor().getVersion(), 1);
+			Application application = new Application(appContext
+					.getDescriptor().getClassName(), appContext.getDescriptor()
+					.getTitle(), appContext.getDescriptor().getVersion(), 1);
 			application = createApplication(application);
 		}
 		else
 		{
-			Application application = (Application)list.get(0);
-			application.setTotal(application.getTotal()+1);
+			Application application = (Application) list.get(0);
+			application.setTotal(application.getTotal() + 1);
 		}
 	}
+	private static Application trim(Application application)
+	{
+		if (application!=null)
+		{
+			application.setClazz(Tools.trim(application.getClazz(), 255));
 	
-    private static Application trim(Application application)
-    {
-    	application.setClazz(Tools.trim(application.getClazz(), 255));
-    	application.setName(Tools.trim(application.getName(), 255));
-    	application.setVersion(Tools.trim(application.getVersion(), 255));
-    	return application;
-    }
+			application.setName(Tools.trim(application.getName(), 255));
+	
+			application.setVersion(Tools.trim(application.getVersion(), 255));
+		}
+		return application;
+	}
 }

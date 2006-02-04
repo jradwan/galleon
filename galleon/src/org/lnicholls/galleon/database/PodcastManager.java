@@ -70,34 +70,65 @@ public class PodcastManager {
 		return Podcast;
 	}
 	public static void updatePodcast(Podcast Podcast) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.update(trim(Podcast));
-			tx.commit();
-		} catch (HibernateException he) {
-			log.debug(Podcast.getPath());
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (Podcast.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.update(trim(Podcast));
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				log.debug(Podcast.getPath());
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static void deletePodcast(Podcast Podcast) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.delete(Podcast);
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (Podcast.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.delete(Podcast);
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static List listAll() throws HibernateException {

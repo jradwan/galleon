@@ -69,34 +69,64 @@ public class PlaylistsTracksManager {
 	}
 	public static void updatePlaylistsTracks(PlaylistsTracks PlaylistsTracks)
 			throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.update(trim(PlaylistsTracks));
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (PlaylistsTracks.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.update(trim(PlaylistsTracks));
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static void deletePlaylistsTracks(PlaylistsTracks PlaylistsTracks)
 			throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.delete(PlaylistsTracks);
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (PlaylistsTracks.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.delete(PlaylistsTracks);
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static List listAll() throws HibernateException {

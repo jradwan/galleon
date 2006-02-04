@@ -14,8 +14,13 @@ package org.lnicholls.galleon.apps.jabber;
  * 
  * See the file "COPYING" for more details.
  */
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -27,6 +32,7 @@ import org.lnicholls.galleon.util.Tools;
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import edu.stanford.ejalbert.BrowserLauncher;
 public class JabberOptionsPanel extends AppConfigurationPanel {
 	private static Logger log = Logger.getLogger(JabberOptionsPanel.class
 			.getName());
@@ -65,7 +71,19 @@ public class JabberOptionsPanel extends AppConfigurationPanel {
 		builder.add(mUsernameField, cc.xyw(3, 9, 1));
 		builder.addLabel("Password", cc.xy(1, 11));
 		builder.add(mPasswordField, cc.xyw(3, 11, 1));
-		builder.addLabel("Server", cc.xy(1, 13));
+		JLabel label = new JLabel("Server");
+		label.setForeground(Color.blue);
+		label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		label.setToolTipText("Open list of Jabber servers in web browser");
+		label.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				try {
+					BrowserLauncher.openURL("http://www.jabber.org/network");
+				} catch (Exception ex) {
+				}
+			}
+		});
+		builder.add(label, cc.xyw(1, 13, 1));
 		builder.add(mServerField, cc.xyw(3, 13, 1));
 		JPanel panel = builder.getPanel();
 		// FormDebugUtils.dumpAll(panel);

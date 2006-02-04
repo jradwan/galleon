@@ -41,14 +41,6 @@ import edu.stanford.ejalbert.BrowserLauncher;
 public class ShoutcastOptionsPanel extends AppConfigurationPanel {
 	private static Logger log = Logger.getLogger(ShoutcastOptionsPanel.class
 			.getName());
-	class SkinWrapper extends NameValue {
-		public SkinWrapper(String name, String value) {
-			super(name, value);
-		}
-		public String toString() {
-			return getName();
-		}
-	}
 	public ShoutcastOptionsPanel(AppConfiguration appConfiguration) {
 		super(appConfiguration);
 		setLayout(new GridLayout(0, 1));
@@ -131,7 +123,6 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
 		mGenreField.addItem(new ComboWrapper("World", "World"));
 		
 		mLimitField = new JComboBox();
-		mLimitField.addItem(new ComboWrapper("unlimited", "-1"));
 		mLimitField.addItem(new ComboWrapper("10", "10"));
 		mLimitField.addItem(new ComboWrapper("20", "20"));
 		mLimitField.addItem(new ComboWrapper("30", "30"));
@@ -142,6 +133,12 @@ public class ShoutcastOptionsPanel extends AppConfigurationPanel {
 		mLimitField.addItem(new ComboWrapper("80", "80"));
 		mLimitField.addItem(new ComboWrapper("90", "90"));
 		mLimitField.addItem(new ComboWrapper("100", "100"));
+		mLimitField.addItem(new ComboWrapper("150", "150"));
+		mLimitField.addItem(new ComboWrapper("200", "200"));
+		mLimitField.addItem(new ComboWrapper("300", "300"));
+		mLimitField.addItem(new ComboWrapper("400", "400"));
+		mLimitField.addItem(new ComboWrapper("500", "500"));
+		defaultCombo(mLimitField, "40");
 		FormLayout layout = new FormLayout(
 				"right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " +
 				"9dlu, " + "pref, " + // title

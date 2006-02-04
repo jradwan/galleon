@@ -65,33 +65,63 @@ public class MovieManager {
 		return movie;
 	}
 	public static void updateMovie(Movie Movie) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.update(trim(Movie));
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (Movie.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.update(trim(Movie));
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static void deleteMovie(Movie Movie) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.delete(Movie);
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (Movie.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.delete(Movie);
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static List listAll() throws HibernateException {

@@ -1179,7 +1179,7 @@ public class iTunes extends DefaultApplication {
 						log.error("Could not reload iTunes playlists", ex);
 					}
 				}
-			}), 1);
+			}), 5);
 		}
 
 		public void updateAppContext(AppContext appContext) {

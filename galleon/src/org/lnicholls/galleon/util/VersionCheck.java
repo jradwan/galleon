@@ -13,58 +13,53 @@
  * 
  * See the file "COPYING" for more details.
  */
-
 package org.lnicholls.galleon.util;
-
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.apps.rss.RSS.RSSFactory;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
-
 import de.nava.informa.core.ChannelBuilderIF;
 import de.nava.informa.core.ChannelIF;
 import de.nava.informa.core.ItemIF;
 import de.nava.informa.impl.basic.ChannelBuilder;
 import de.nava.informa.parsers.FeedParser;
-
 public class VersionCheck {
-
-	private static final Logger log = Logger.getLogger(VersionCheck.class.getName());
-
+	private static final Logger log = Logger.getLogger(VersionCheck.class
+			.getName());
 	public boolean isCurrentSourceforgeVersion() {
 		ChannelBuilderIF builder = null;
 		try {
-			PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(VersionCheck.class.getName() + Tools.getVersion());
-			if (persistentValue != null){
+			PersistentValue persistentValue = PersistentValueManager
+					.loadPersistentValue(VersionCheck.class.getName()
+							+ Tools.getVersion());
+			if (persistentValue != null) {
 				if (!PersistentValueManager.isAged(persistentValue)) {
 					return true;
 				}
 			}
-			
-			String page = Tools.getPage(new URL(
-					"http://sourceforge.net/export/rss2_projnews.php?group_id=126291&rss_fulltext=1")); // Sourceforge
+			String page = Tools
+					.getPage(new URL(
+							"http://sourceforge.net/export/rss2_projnews.php?group_id=126291&rss_fulltext=1")); // Sourceforge
 			// RSS
 			// feed
 			if (page != null && page.length() > 0) {
 				builder = new ChannelBuilder();
-				ChannelIF channel = FeedParser.parse(builder, new ByteArrayInputStream((page.getBytes("UTF-8"))));
+				ChannelIF channel = FeedParser.parse(builder,
+						new ByteArrayInputStream((page.getBytes("UTF-8"))));
 				// ChannelIF channel = FeedParser.parse(builder, new
 				// FileInputStream(new
 				// File("d:/galleon/rss2_projnews.php.xml")));
-
 				if (channel != null) {
-					if (channel.getItems() != null && channel.getItems().size() > 0) {
+					if (channel.getItems() != null
+							&& channel.getItems().size() > 0) {
 						Collection items = channel.getItems();
 						Iterator i = items.iterator();
 						ItemIF item = (ItemIF) i.next();
-
 						String REGEX = "Galleon (.*) for TiVo";
 						Pattern p = Pattern.compile(REGEX);
 						Matcher m = p.matcher(item.getTitle());
@@ -75,32 +70,47 @@ public class VersionCheck {
 							if (persistentValue != null) {
 								if (persistentValue.getValue().equals(version))
 								{
-									PersistentValueManager.savePersistentValue(VersionCheck.class.getName() + Tools.getVersion(), version, 6*60*60);
+									PersistentValueManager.savePersistentValue(
+											VersionCheck.class.getName()
+													+ Tools.getVersion(),
+											version, 6 * 60 * 60);
 									return true;
 								}
 							}
-
-							PersistentValueManager.savePersistentValue(VersionCheck.class.getName() + Tools.getVersion(), version, 6*60*60);
+							PersistentValueManager.savePersistentValue(
+									VersionCheck.class.getName()
+											+ Tools.getVersion(), version,
+									6 * 60 * 60);
 							if (!Tools.getVersion().equals(version)) {
 								return false;
 							}
 						}
 					}
 				}
-			}
+			} else
+				PersistentValueManager.savePersistentValue(VersionCheck.class
+						.getName()
+						+ Tools.getVersion(), Tools.getVersion(), 6 * 60 * 60);
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex);
+			try {
+				PersistentValueManager.savePersistentValue(VersionCheck.class
+						.getName()
+						+ Tools.getVersion(), Tools.getVersion(), 6 * 60 * 60);
+			} catch (Exception ex2) {
+			}
 		}
 		finally
 		{
-			if (builder!=null)
+			if (builder != null)
 			{
 				try
 				{
 					builder.close();
 					builder = null;
 				}
-				catch (Exception ex) {}
+				catch (Exception ex) {
+				}
 			}
 		}
 		return true;

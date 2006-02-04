@@ -65,33 +65,63 @@ public class ImageManager {
 		return image;
 	}
 	public static void updateImage(Image image) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.update(trim(image));
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (image.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.update(trim(image));
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static void deleteImage(Image image) throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.delete(image);
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (image.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.delete(image);
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static List listAll() throws HibernateException {

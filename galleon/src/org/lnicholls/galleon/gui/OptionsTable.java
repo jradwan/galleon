@@ -126,12 +126,20 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                                 JComboBox combo = (JComboBox) mFields.get(i);
                                 if (combo.getSelectedItem() instanceof AppConfigurationPanel.ComboWrapper) {
                                     AppConfigurationPanel.ComboWrapper wrapper = (AppConfigurationPanel.ComboWrapper) combo.getSelectedItem();
-                                    String value = (String) mTableModel.getValueAt(selectedRow, i, false);
-                                    for (int j = 0; j < combo.getItemCount(); j++) {
-                                        if (((NameValue) combo.getItemAt(j)).getValue().equals(value)) {
-                                            combo.setSelectedIndex(j);
-                                            break;
-                                        }
+                                    String value = (String)mTableModel.getValueAt(selectedRow, i, false);
+                                    if (value!=null)
+                                    {
+	                                    for (int j = 0; j < combo.getItemCount(); j++) {
+	
+	                                        if (((NameValue) combo.getItemAt(j)).getValue().equals(value)) {
+	
+	                                            combo.setSelectedIndex(j);
+	
+	                                            break;
+	
+	                                        }
+	
+	                                    }
                                     }
                                 }
                             }

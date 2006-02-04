@@ -87,7 +87,7 @@ public class ListenThread extends Thread {
                 }
                 address = null;
                 packet = null;
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 Tools.logException(ListenThread.class, ex);
             }
         }

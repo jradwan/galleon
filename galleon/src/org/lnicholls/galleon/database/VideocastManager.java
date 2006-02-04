@@ -72,35 +72,66 @@ public class VideocastManager {
 	}
 	public static void updateVideocast(Videocast Videocast)
 			throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.update(trim(Videocast));
-			tx.commit();
-		} catch (HibernateException he) {
-			log.debug(Videocast.getPath());
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (Videocast.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.update(trim(Videocast));
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				log.debug(Videocast.getPath());
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static void deleteVideocast(Videocast Videocast)
 			throws HibernateException {
-		Session session = HibernateUtil.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.delete(Videocast);
-			tx.commit();
-		} catch (HibernateException he) {
-			if (tx != null)
-				tx.rollback();
-			throw he;
-		} finally {
-			HibernateUtil.closeSession();
+		if (Videocast.getId()!=null)
+		{
+			Session session = HibernateUtil.openSession();
+	
+			Transaction tx = null;
+	
+			try {
+	
+				tx = session.beginTransaction();
+	
+				session.delete(Videocast);
+	
+				tx.commit();
+	
+			} catch (HibernateException he) {
+	
+				if (tx != null)
+	
+					tx.rollback();
+	
+				throw he;
+	
+			} finally {
+	
+				HibernateUtil.closeSession();
+	
+			}
 		}
 	}
 	public static List listAll() throws HibernateException {

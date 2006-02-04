@@ -52,7 +52,7 @@ public class Rule implements Serializable {
 	public static String FLAG_EXPIRED = "expired";
 	public static String FLAG_SAVED = "saved";
 	
-	public static String ANY_TIVO = "Any";
+	public static String ANY_TIVO = "";
 	public Rule() {
 		mCriteria = "";
 		mComparison = "";

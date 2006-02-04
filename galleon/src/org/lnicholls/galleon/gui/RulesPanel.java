@@ -241,6 +241,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 				if (!lsm.isSelectionEmpty()) {
 					if (!mUpdating) {
 						int selectedRow = lsm.getMinSelectionIndex();
+						Rule rule = (Rule) mRules.get(selectedRow);
 						ShowTableData model = (ShowTableData) mTable.getModel();
 						defaultCombo(mCriteriaField, (String) model.getValue(
 								selectedRow, 0));
@@ -248,8 +249,7 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 								selectedRow, 1));
 						mValueField.setText((String) model.getValue(
 								selectedRow, 2));
-						defaultCombo(mTiVoField, (String) model.getValue(
-								selectedRow, 3));
+						defaultCombo(mTiVoField, rule.getTiVo());
 						mDownloadField.setSelected(((Boolean) model.getValue(
 								selectedRow, 4)).booleanValue());
 					}
@@ -422,7 +422,10 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 			case 2:
 				return rule.getValue();
 			case 3:
-				return rule.getTiVo();
+				if (rule.getTiVo().equals(Rule.ANY_TIVO))
+					return "Any";
+				else
+					return rule.getTiVo();
 			case 4:
 				return rule.getDownload() ? "Yes" : "No";
 			}
@@ -441,7 +444,10 @@ public class RulesPanel extends JPanel implements ActionListener, KeyListener {
 			case 2:
 				return rule.getValue();
 			case 3:
-				return rule.getTiVo();
+				if (rule.getTiVo().equals(Rule.ANY_TIVO))
+					return "Any";
+				else
+					return rule.getTiVo();
 			case 4:
 				return new Boolean(rule.getDownload());
 			}

@@ -390,8 +390,6 @@ CopyFiles:
 
   SetOutPath "$INSTDIR\media\images"
 
-  File ${PRODUCT_BUILD_DIR}\media\images\cross.jpg
-
   File ${PRODUCT_BUILD_DIR}\media\images\galleon.ico
 
   SetOutPath "$INSTDIR\media\winamp"
@@ -932,7 +930,7 @@ InstallService:
 
   ; d:\galleon\bin\Wrapper.exe -s d:\galleon\conf\wrapper.conf
 
-  nsSCM::Install /NOUNLOAD "${PRODUCT_NAME}" "${PRODUCT_NAME}" 272 2 '"$INSTDIR\bin\Wrapper.exe" -s "$INSTDIR\conf\wrapper.conf"' "" ""
+  nsSCM::Install /NOUNLOAD "${PRODUCT_NAME}" "${PRODUCT_NAME}" 272 2 '"$INSTDIR\bin\Wrapper.exe" -s "$INSTDIR\conf\wrapper.conf"' "" "" "" ""
 
   Pop $3 ; return error/success
 
@@ -1082,26 +1080,25 @@ Done:
 
   DetailPrint "Initializing ${PRODUCT_NAME} server"
 
-  Sleep 10000  
+  Sleep 10000
 
   DetailPrint "Loading ${PRODUCT_NAME} server"
 
-  Sleep 10000    
+  Sleep 10000
 
-  nsSCM::QueryStatus /NOUNLOAD "${PRODUCT_NAME}"
+  ;;nsSCM::QueryStatus /NOUNLOAD "${PRODUCT_NAME}"
 
-  Pop $2 ; return error/success
+  ;Pop $2 ; return error/success
+  
+  ;Pop $3 ; return service status
+  
+  ;StrCmp $2 "success" End
 
-  Pop $3 ; return service status
+  ;StrCpy ${STATUS} "error"
 
-  StrCmp $2 "success" End
-
-  StrCpy ${STATUS} "error"
-
-  MessageBox MB_ICONINFORMATION|MB_OK "The ${PRODUCT_NAME} service could not be started. Try to manually start Galleon using Control Panel/Adminstrative Tools/Services."
+  ;MessageBox MB_ICONINFORMATION|MB_OK "The ${PRODUCT_NAME} service could not be started. Try to manually start Galleon using Control Panel/Adminstrative Tools/Services."
 
   ; Quit
-
 
 
 End:
@@ -1109,7 +1106,6 @@ End:
   StrCpy ${STATUS} "success"
 
 SectionEnd
-
 
 
 Function un.onUninstSuccess
@@ -1164,7 +1160,7 @@ Section Uninstall
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be stopped"
 
-  Abort
+  ;Abort
 
 
 
@@ -1204,7 +1200,7 @@ ServiceRemoved:
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be removed"
 
-  Abort
+  ;Abort
 
   
 
@@ -1862,9 +1858,7 @@ FunctionEnd
 
 !ifdef ALL_USERS
 
-  !define WriteEnvStr_RegKey \
-
-     'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
+  !define WriteEnvStr_RegKey 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
 
 !else
 
@@ -1932,9 +1926,7 @@ Function WriteEnvStr
 
       WriteRegExpandStr ${WriteEnvStr_RegKey} $0 $1
 
-      SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} \
-
-        0 "STR:Environment" /TIMEOUT=5000
+      SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 
 
 
@@ -2044,9 +2036,7 @@ Function un.DeleteEnvStr
 
     DeleteRegValue ${WriteEnvStr_RegKey} $0
 
-    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} \
-
-      0 "STR:Environment" /TIMEOUT=5000
+    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 
 
 

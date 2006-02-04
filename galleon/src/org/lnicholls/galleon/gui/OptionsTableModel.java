@@ -58,7 +58,10 @@ public class OptionsTableModel extends AbstractTableModel {
         else
         {
             ArrayList values = (ArrayList) mColumnValues.get(row);
-            return values.get(col);
+            
+            Object object = values.get(col);
+            
+            return object;
         }
     }
 

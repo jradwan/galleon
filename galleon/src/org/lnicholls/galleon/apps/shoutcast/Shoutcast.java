@@ -1044,6 +1044,7 @@ public class Shoutcast extends DefaultApplication {
 			if (mShoutcastStations == null)
 				mShoutcastStations = new ShoutcastStations(
 						shoutcastConfiguration);
+			mShoutcastStations.setShoutcastConfiguration(shoutcastConfiguration);
 			mShoutcastStations.getPlaylists();
 		}
 	}

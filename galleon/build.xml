@@ -2521,7 +2521,7 @@
 
         <copy todir="${build}/media/images">
 
-            <fileset dir="./media/images" includes="couldnotconnect.mp3,galleon.ico,cross.jpg" />
+            <fileset dir="./media/images" includes="couldnotconnect.mp3,galleon.ico" />
 
         </copy>
 

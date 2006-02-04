@@ -463,5 +463,5 @@ public class ScrollText extends BView {
 
     boolean mAnimate;
     
-    private Color mColor;
+    private Color mColor = Color.WHITE;
 }

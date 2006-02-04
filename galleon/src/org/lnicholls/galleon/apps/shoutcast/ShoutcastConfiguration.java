@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.util.NameValue;
 public class ShoutcastConfiguration implements AppConfiguration {
-	private static int DEFAULT_LIMIT = 20;
+	public static int DEFAULT_LIMIT = 40;
 	public String getName() {
 		return mName;
 	}

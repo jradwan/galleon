@@ -2,8 +2,6 @@ Galleon
 
 -------
 
-
-
 Version 2.2.0:
 
 ----------------------
@@ -11,15 +9,13 @@ Version 2.2.0:
 Galleon menu sorting
 Internet app support for larger images
 TiVo space available in configuration GUI
-ToGo recordings list TiVo name in configuration GUI
+ToGo recordings show TiVo name in configuration GUI
+Added TiVo criteria to ToGo rules
 Improved database error handling
 ToGo sorting
 Jabber app
 Fixed iTunes date support
 Shoutcast configurable download limits
-Added TiVo criteria to ToGo rules
-
-
 
 
 Version 2.1.0:

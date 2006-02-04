@@ -3,7 +3,7 @@ package org.lnicholls.galleon.apps.jabber;
  * Copyright (C) 2005 Leon Nicholls
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
-* License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
+ * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
@@ -349,7 +349,6 @@ public class Jabber extends DefaultApplication {
 				{
 					getBApp().play("select.snd");
 					getBApp().flush();
-					
 					int pos = current.lastIndexOf(" ");
 					if (pos == -1)
 					{
@@ -444,39 +443,31 @@ public class Jabber extends DefaultApplication {
 			connect();
 			unavailable();
 		}
-		
 		public void initialize() {
 			new Thread() {
-				public void run()
-				{
+				public void run() {
 					connect();
-					unavailable();		
+					unavailable();
 				}
 			}.start();
 		}
-		
 		public void remove() {
 			unavailable();
 			disconnect();
 		}
-		
-        public InputStream getStream(String uri) throws IOException {
-        	if (uri.toLowerCase().equals("icon.png")) {
-        		if (mMessages!=null && mMessages.size()>0) 
-        			return super.getStream("message.png");
-            }
-            return super.getStream(uri);
-        }		
-		
-		private boolean isConnected()
-		{
-			try
-			{
-				return mConnection!=null && mConnection.isConnected();
+		public InputStream getStream(String uri) throws IOException {
+			if (uri.toLowerCase().equals("icon.png")) {
+				if (mMessages != null && mMessages.size() > 0)
+					return super.getStream("message.png");
 			}
-			catch (Exception ex)
-			{
-				Tools.logException(Jabber.class, ex, "Could not connect to jabber");
+			return super.getStream(uri);
+		}
+		private boolean isConnected() {
+			try {
+				return mConnection != null && mConnection.isConnected();
+			} catch (Exception ex) {
+				Tools.logException(Jabber.class, ex,
+						"Could not connect to jabber");
 			}
 			return false;
 		}
@@ -594,42 +585,28 @@ public class Jabber extends DefaultApplication {
 			return mConversations;
 		}
 		public void available() {
-			try
-			{
+			try {
 				if (!isConnected())
 					connect();
-				
 				if (mConnection != null) {
-	
 					Presence presence = new Presence(Presence.Type.AVAILABLE);
-	
 					presence.setStatus("Messaging with Galleon");
-	
 					mConnection.sendPacket(presence);
-	
 				}
-			}
-			catch (Exception ex)
-			{
+			} catch (Exception ex) {
 				Tools.logException(Jabber.class, ex, "Could not set available");
 			}
 		}
 		public void unavailable() {
-			try
-			{
+			try {
 				if (mConnection != null) {
-	
 					Presence presence = new Presence(Presence.Type.UNAVAILABLE);
-	
 					presence.setStatus("");
-	
 					mConnection.sendPacket(presence);
-	
 				}
-			}
-			catch (Exception ex)
-			{
-				Tools.logException(Jabber.class, ex, "Could not set unavailable");
+			} catch (Exception ex) {
+				Tools.logException(Jabber.class, ex,
+						"Could not set unavailable");
 			}
 		}
 		public boolean hasMessage(String user) {
@@ -670,25 +647,39 @@ public class Jabber extends DefaultApplication {
 		}
 		public void clearMessages(String user)
 		{
+			StringTokenizer tokenizer = new StringTokenizer(user, "/");
+			String email = tokenizer.nextToken();
 			if (mConversations != null) {
-				StringTokenizer tokenizer = new StringTokenizer(user, "/");
-				String email = tokenizer.nextToken();
 				List list = (List) mConversations.get(email);
 				if (list != null)
 					list.clear();
+			}
+			if (mMessages!=null)
+			{
 				ArrayList messages = new ArrayList();
+	
 				Iterator iterator = mMessages.listIterator();
+	
 				while (iterator.hasNext()) {
+	
 					Message message = (Message) iterator.next();
+	
 					tokenizer = new StringTokenizer(message.getFrom(), "/");
+	
 					String from = tokenizer.nextToken();
+	
 					if (!from.equals(email))
+	
 						messages.add(message);
+	
 				}
+	
 				mMessages.clear();
+	
 				mMessages = messages;
 			}
 		}
+		
 		public List getMessages(String user) {
 			if (mConversations != null) {
 				StringTokenizer tokenizer = new StringTokenizer(user, "/");

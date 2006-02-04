@@ -163,134 +163,138 @@ public class ShoutcastStations {
 
 	public void getPlaylists() {
 		List list = mConfiguration.getLimitedGenres();
-	    int limit = MAX_REQUESTS_PER_DAY / list.size();
-	    Iterator iterator = list.iterator();
-	    while (iterator.hasNext())
+	    if (list!=null && list.size()>0)
 	    {
-	    	ShoutcastConfiguration.LimitedGenre limitedGenre = (ShoutcastConfiguration.LimitedGenre)iterator.next();
-	    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre());
-		    int start = 0;
-		    if (persistentValue != null) {
-		        try {
-		            start = Integer.parseInt(persistentValue.getValue());
-		        } catch (Exception ex) {
-		        }
+			int limit = MAX_REQUESTS_PER_DAY / list.size();
+		    Iterator iterator = list.iterator();
+		    while (iterator.hasNext())
+		    {
+		    	ShoutcastConfiguration.LimitedGenre limitedGenre = (ShoutcastConfiguration.LimitedGenre)iterator.next();
+		    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre());
+			    int start = 0;
+			    if (persistentValue != null) {
+			        try {
+			            start = Integer.parseInt(persistentValue.getValue());
+			        } catch (Exception ex) {
+			        }
+			    }
+			    
+			    try
+	            {
+			    	List stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
+	            	if (stations==null || stations.size()==0)
+	            	{
+	            		getStations(limitedGenre.getGenre());
+	            		stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
+	            	}
+	            	if (stations!=null && stations.size()>0)
+	            	{
+	            		if (start >= stations.size())
+	            		{
+	            			start = 0;
+	            			// reset every station to pending to get latest info again
+	            			for (int i=0; i < stations.size(); i++)
+	            	    	{
+	            	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
+	            	    		try
+	            	    		{
+	            	    			station.setStatus(ShoutcastStation.STATUS_PENDING);
+	            	    			ShoutcastStationManager.updateShoutcastStation(station);
+	            	    		}
+	            	    		catch (Exception ex)
+	            	    		{
+	            	    			Tools.logException(ShoutcastStations.class, ex);    			
+	            	    		}
+	            	    	}
+	            			getStations(limitedGenre.getGenre());
+	            			stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
+	            		}
+	            		
+	            		int max = start + limit;
+	        		    if (limitedGenre.getLimit()!=-1 && max > limitedGenre.getLimit())
+	        		    	max = limitedGenre.getLimit();
+	        		    if (max > stations.size())
+	        		    	max = stations.size();
+	        		    
+	        	    	for (int i=start; i < max; i++)
+	        	    	{
+	        	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
+	        	    		if (station.getStatus()==ShoutcastStation.STATUS_PENDING)
+	        	    		{
+	        	    			URL url = new URL(station.getUrl());
+	                            String page = Tools.getPage(url);
+	                            if (page != null && page.length()>0) {
+	                                int total = 0;
+	                            	String inputLine = "";
+	                                BufferedReader reader = new BufferedReader(new StringReader(page));
+	                                while ((inputLine = reader.readLine()) != null) {
+	                                	if (inputLine.startsWith("File")) {
+	                                        String u = inputLine.substring(inputLine.indexOf("=") + 1);
+	                                        inputLine = reader.readLine();
+	                                        String t = inputLine.substring(inputLine.indexOf("=") + 1).trim();
+	                                        if (t.startsWith("(")) {
+	                                            t = t.substring(t.indexOf(")") + 1);
+	                                        }
+	                                        if (log.isDebugEnabled())
+	                                            log.debug("PlaylistItem: " + t + "=" + u);
+	
+	                                        try {
+	                                            // Remove duplicates
+	                                            List all = AudioManager.findByOrigenGenre(SHOUTCAST, limitedGenre.getGenre());
+	                                            for (int j = 0; j < all.size(); j++) {
+	                                                Audio audio = (Audio) all.get(j);
+	                                                for (int k = j; k < all.size(); k++) {
+	                                                    Audio other = (Audio) all.get(k);
+	                                                    if (!audio.getId().equals(other.getId())) {
+	                                                        if (audio.getPath()!=null && other.getPath()!=null && audio.getPath().equals(other.getPath())) {
+	                                                            AudioManager.deleteAudio(other);
+	                                                        }
+	                                                    }
+	                                                }
+	                                            }
+	
+	                                            Audio current = null;
+	                                            List same = AudioManager.findByPath(u);
+	                                            if (same.size() > 0)
+	                                                current = (Audio) same.get(0);
+	
+	                                            if (current != null) {
+	                                            	current.setTitle(t);
+	                                            	current.setGenre(limitedGenre.getGenre());
+	                                            	current.setOrigen(SHOUTCAST);
+	                                            	current.setExternalId(String.valueOf(++total));
+	                                            	AudioManager.updateAudio(current);
+	                                            } else {
+	                                                Audio audio = (Audio) MediaManager.getMedia(u);
+	                                                audio.setTitle(t);
+	                                                audio.setGenre(limitedGenre.getGenre());
+	                                                audio.setOrigen(SHOUTCAST);
+	                                                audio.setExternalId(String.valueOf(++total));
+	                                                AudioManager.createAudio(audio);
+	                                            }
+	                                        } catch (Exception ex) {
+	                                        }
+	                                    }
+	                                }
+	                                reader.close();
+	                            }
+	                            try
+	            	    		{
+	            	    			station.setStatus(ShoutcastStation.STATUS_DOWNLOADED);
+	            	    			ShoutcastStationManager.updateShoutcastStation(station);
+	            	    		}
+	            	    		catch (Exception ex)
+	            	    		{
+	            	    			Tools.logException(ShoutcastStations.class, ex);    			
+	            	    		}
+	        	    		}
+	        	    	}
+	        	    	PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre(), String.valueOf(max));
+	            	}
+	            } catch (Exception ex) {
+	    	        Tools.logException(ShoutcastStations.class, ex);
+	    	    }
 		    }
-		    
-		    try
-            {
-            	List stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
-            	if (stations==null || stations.size()==0)
-            	{
-            		getStations(limitedGenre.getGenre());
-            		stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
-            	}
-            	if (stations!=null && stations.size()>0)
-            	{
-            		if (start >= stations.size())
-            		{
-            			start = 0;
-            			// reset every station to pending to get latest info again
-            			for (int i=0; i < stations.size(); i++)
-            	    	{
-            	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
-            	    		try
-            	    		{
-            	    			station.setStatus(ShoutcastStation.STATUS_PENDING);
-            	    			ShoutcastStationManager.updateShoutcastStation(station);
-            	    		}
-            	    		catch (Exception ex)
-            	    		{
-            	    			Tools.logException(ShoutcastStations.class, ex);    			
-            	    		}
-            	    	}
-            			getStations(limitedGenre.getGenre());
-            		}
-            		
-            		int max = start + limit;
-        		    if (limitedGenre.getLimit()!=-1 && max > limitedGenre.getLimit())
-        		    	max = limitedGenre.getLimit();
-        		    if (max > stations.size())
-        		    	max = stations.size();
-        		    
-        	    	for (int i=start; i < max; i++)
-        	    	{
-        	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
-        	    		if (station.getStatus()==ShoutcastStation.STATUS_PENDING)
-        	    		{
-        	    			URL url = new URL(station.getUrl());
-                            String page = Tools.getPage(url);
-                            if (page != null && page.length()>0) {
-                                int total = 0;
-                            	String inputLine = "";
-                                BufferedReader reader = new BufferedReader(new StringReader(page));
-                                while ((inputLine = reader.readLine()) != null) {
-                                	if (inputLine.startsWith("File")) {
-                                        String u = inputLine.substring(inputLine.indexOf("=") + 1);
-                                        inputLine = reader.readLine();
-                                        String t = inputLine.substring(inputLine.indexOf("=") + 1).trim();
-                                        if (t.startsWith("(")) {
-                                            t = t.substring(t.indexOf(")") + 1);
-                                        }
-                                        if (log.isDebugEnabled())
-                                            log.debug("PlaylistItem: " + t + "=" + u);
-
-                                        try {
-                                            // Remove duplicates
-                                            List all = AudioManager.findByOrigenGenre(SHOUTCAST, limitedGenre.getGenre());
-                                            for (int j = 0; j < all.size(); j++) {
-                                                Audio audio = (Audio) all.get(j);
-                                                for (int k = j; k < all.size(); k++) {
-                                                    Audio other = (Audio) all.get(k);
-                                                    if (!audio.getId().equals(other.getId())) {
-                                                        if (audio.getPath()!=null && other.getPath()!=null && audio.getPath().equals(other.getPath())) {
-                                                            AudioManager.deleteAudio(other);
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            Audio current = null;
-                                            List same = AudioManager.findByPath(u);
-                                            if (same.size() > 0)
-                                                current = (Audio) same.get(0);
-
-                                            if (current != null) {
-                                            	current.setTitle(t);
-                                            	current.setGenre(limitedGenre.getGenre());
-                                            	current.setOrigen(SHOUTCAST);
-                                            	current.setExternalId(String.valueOf(++total));
-                                            	AudioManager.updateAudio(current);
-                                            } else {
-                                                Audio audio = (Audio) MediaManager.getMedia(u);
-                                                audio.setTitle(t);
-                                                audio.setGenre(limitedGenre.getGenre());
-                                                audio.setOrigen(SHOUTCAST);
-                                                audio.setExternalId(String.valueOf(++total));
-                                                AudioManager.createAudio(audio);
-                                            }
-                                        } catch (Exception ex) {
-                                        }
-                                    }
-                                }
-                                reader.close();
-                            }
-                            try
-            	    		{
-            	    			station.setStatus(ShoutcastStation.STATUS_DOWNLOADED);
-            	    			ShoutcastStationManager.updateShoutcastStation(station);
-            	    		}
-            	    		catch (Exception ex)
-            	    		{
-            	    			Tools.logException(ShoutcastStations.class, ex);    			
-            	    		}
-        	    		}
-        	    	}
-        	    	PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre(), String.valueOf(max));
-            	}
-            } catch (Exception ex) {
-    	        Tools.logException(ShoutcastStations.class, ex);
-    	    }
 	    }
 	}
     
@@ -336,6 +340,11 @@ public class ShoutcastStations {
             return persistentValue.getValue();
     	}
     	return null;
+    }
+    
+    public void setShoutcastConfiguration(ShoutcastConfiguration shoutcastConfiguration)
+    {
+    	mConfiguration = shoutcastConfiguration;
     }
 
     private ShoutcastConfiguration mConfiguration;

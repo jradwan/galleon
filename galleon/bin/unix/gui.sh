@@ -13,3 +13,4 @@ done
 
 java -cp $CLASSPATH -Xms32m -Xmx32m org.lnicholls.galleon.gui.Galleon $1
 CLASSPATH=$OLDCLASSPATH
+

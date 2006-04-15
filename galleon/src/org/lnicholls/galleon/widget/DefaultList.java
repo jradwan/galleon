@@ -2,17 +2,17 @@ package org.lnicholls.galleon.widget;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -25,7 +25,7 @@ public class DefaultList extends BList {
     /**
      * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -46,7 +46,7 @@ public class DefaultList extends BList {
     /**
      * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -69,7 +69,7 @@ public class DefaultList extends BList {
     protected void createRow(BView parent, int index) {
 
     }
-    
+
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
         case KEY_ADVANCE:
@@ -88,13 +88,16 @@ public class DefaultList extends BList {
             return true;
         }
         return super.handleKeyPress(code, rawcode);
-    }    
+    }
 
     public void clearViews() {
         for (int i = 0; i < getRows().size(); i++) {
             BView view = (BView) getRows().get(i);
             if (view != null)
+            {
+            	view.flush();
                 view.remove();
+            }
             getRows().setElementAt(null, i);
         }
     }
@@ -103,7 +106,7 @@ public class DefaultList extends BList {
         refresh();
         setFocus(getFocus(),false);
     }
-    
+
     public void flash()
     {
     	if (getFocus()!=-1)

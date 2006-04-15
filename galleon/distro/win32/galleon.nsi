@@ -30,7 +30,7 @@
 
 !define PRODUCT_NAME "Galleon"
 
-!define PRODUCT_VERSION "2.2.0"
+!define PRODUCT_VERSION "2.3.0"
 
 !define PRODUCT_PUBLISHER "Galleon"
 
@@ -73,6 +73,8 @@
 !include "MUI.nsh"
 
 !include "UpgradeDLL.nsh"
+
+!include "servicelib.nsh"
 
 
 
@@ -176,49 +178,45 @@ FunctionEnd
 
 Section -StopGalleon SEC00
 
-  ;http://nsis.sourceforge.net/archive/viewpage.php?pageid=385
+  ;http://nsis.sourceforge.net/NSIS_Service_Lib
 
   ; Is service already installed?
 
-  nsSCM::QueryStatus /NOUNLOAD "${PRODUCT_NAME}"
+  Push "installed"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "running" Stop
+  StrCmp $0 "stopped" End
+  StrCmp $0 "false" End  ; not installed
 
-  Pop ${STATUS} ; return error/success
-
-  Pop $1 ; return service status
-
-  StrCmp ${STATUS} "error" End
-
-  DetailPrint "Found ${PRODUCT_NAME} service"
-
-  StrCmp $1 "4" 0 End
-
+Stop:
   DetailPrint "Stopping ${PRODUCT_NAME} service"
 
-  ; Attempt to stop service
-
-  nsSCM::Stop /NOUNLOAD "${PRODUCT_NAME}"
-
-  Pop $2 ; return error/success
-
-  StrCmp $2 "success" Wait
+  Push "stop"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "true" Wait
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be stopped"
 
   Quit
 
 
-
 Wait:
+
+  DetailPrint "Waiting for ${PRODUCT_NAME} service to end"
+
+  Sleep 10000 ; wait for JVM to stop and release resources
 
   DetailPrint "Ending ${PRODUCT_NAME} service"
 
   Sleep 10000 ; wait for JVM to stop and release resources
-
-
-
+  
 End:
-
-
 
 SectionEnd
 
@@ -296,9 +294,9 @@ ExitInstallJRE:
 
   StrLen $3 $2
 
-  IntOp $3 $3 - 4        
+  IntOp $3 $3 - 4
 
-  StrCpy $4 $2 4 $3  
+  StrCpy $4 $2 4 $3
 
   StrCmp $4 "3010" JavaHome
 
@@ -308,7 +306,7 @@ ExitInstallJRE:
 
   Quit
 
-  
+
 
 JavaHome:
 
@@ -377,6 +375,21 @@ InstallConfiguration:
 CopyFiles:
 
   File ${PRODUCT_BUILD_DIR}\conf\log4j.xml
+  
+; Replace Customer Name in log4j.xml
+  Push "../logs/log.txt"                     #text to be replaced
+  Push "$INSTDIR\logs\log.txt"               #replace with
+  Push all                                   #replace all occurrences
+  Push all                                   #replace all occurrences
+  Push $INSTDIR\conf\log4j.xml               #file to replace in
+  Call AdvReplaceInFile                      #call find and replace function
+; Replace Customer Name in log4j.xml
+  Push "../logs/gui.txt"                     #text to be replaced
+  Push "$INSTDIR\logs\gui.txt"               #replace with
+  Push all                                   #replace all occurrences
+  Push all                                   #replace all occurrences
+  Push $INSTDIR\conf\log4j.xml               #file to replace in
+  Call AdvReplaceInFile                      #call find and replace function
 
   File ${PRODUCT_BUILD_DIR}\conf\wrapper.conf
 
@@ -482,9 +495,9 @@ CopyFiles:
 
   File /oname=jawin.dll ${PRODUCT_BUILD_DIR}\lib\jawin.dll
 
-  File /oname=MHS.jar ${PRODUCT_BUILD_DIR}\lib\MHS.jar  
+  File /oname=MHS.jar ${PRODUCT_BUILD_DIR}\lib\MHS.jar
 
-  File /oname=upcoming.jar ${PRODUCT_BUILD_DIR}\lib\upcoming.jar    
+  File /oname=upcoming.jar ${PRODUCT_BUILD_DIR}\lib\upcoming.jar
 
   File /oname=smack.jar ${PRODUCT_BUILD_DIR}\lib\smack.jar
 
@@ -520,19 +533,19 @@ CopyFiles:
 
   File ${PRODUCT_BUILD_DIR}\apps\podcasting.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\movies.jar  
+  File ${PRODUCT_BUILD_DIR}\apps\movies.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\videocasting.jar  
+  File ${PRODUCT_BUILD_DIR}\apps\videocasting.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\internetSlideshows.jar    
+  File ${PRODUCT_BUILD_DIR}\apps\internetSlideshows.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\upcoming.jar      
+  File ${PRODUCT_BUILD_DIR}\apps\upcoming.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\jukebox.jar        
+  File ${PRODUCT_BUILD_DIR}\apps\jukebox.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\traffic.jar 
+  File ${PRODUCT_BUILD_DIR}\apps\traffic.jar
 
-  File ${PRODUCT_BUILD_DIR}\apps\menu.jar 
+  File ${PRODUCT_BUILD_DIR}\apps\menu.jar
 
   File ${PRODUCT_BUILD_DIR}\apps\jabber.jar
 
@@ -540,7 +553,7 @@ CopyFiles:
 
   Delete "$INSTDIR\apps\camera.jar"
 
-  
+
 
 HME:
 
@@ -552,7 +565,7 @@ HME:
 
   File ${PRODUCT_BUILD_DIR}\hme\launcher.txt
 
-  
+
 
 Skins:
 
@@ -562,7 +575,7 @@ Skins:
 
   File ${PRODUCT_BUILD_DIR}\skins\galleon.gln
 
-  File ${PRODUCT_BUILD_DIR}\skins\tivo.gln  
+  File ${PRODUCT_BUILD_DIR}\skins\tivo.gln
 
 
 
@@ -582,7 +595,7 @@ Skins:
 
   CreateDirectory "$INSTDIR\data"
 
-  
+
 
 ClassPath:
 
@@ -598,7 +611,7 @@ ClassPath:
 
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;hme.jar;hme-host-sample.jar;pja.jar;dom4j.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
 
-  
+
 
 ; TiVo Beacon SDK
 
@@ -666,19 +679,16 @@ CheckCurrentVersion:
 
   StrCmp $1 "1.1" StopTivo 0
 
-  
-
-  nsSCM::QueryStatus /NOUNLOAD "TiVoBeacon2"
-
-  Pop $4 ; return error/success
-
-  Pop $5 ; return service status
-
-  StrCmp $4 "error" StopTivo
-
-  StrCmp $5 "4" StartBeaconService
 
 
+  Push "installed"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  StrCmp $1 "running" StartBeaconService
+  StrCmp $1 "stopped" StartBeaconService
+  StrCmp $1 "false" StopTivo  ; not installed
 
 StopTivo:
 
@@ -686,51 +696,46 @@ StopTivo:
 
   ; Check if TiVo beacon is running
 
-  nsSCM::QueryStatus /NOUNLOAD "TivoBeacon2"
-
-  Pop $4 ; return error/success
-
-  Pop $5 ; return service status
-
-  StrCmp $4 "error" InstallBeaconService
-
-  StrCmp $5 "4" 0 RemoveTiVoBeacon
-
-
+  Push "installed"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  ;StrCmp $0 "running" 0 RemoveTiVoBeacon
+  StrCmp $1 "stopped" RemoveTiVoBeacon
+  StrCmp $1 "false" InstallBeaconService  ; not installed
 
   DetailPrint "Stopping TiVo Beaconservice"
 
-  nsSCM::Stop /NOUNLOAD "TivoBeacon2"
-
-  Pop $6 ; return error/success
-
-  StrCmp $6 "success" RemoveTiVoBeacon
-
-  ;MessageBox MB_ICONINFORMATION|MB_OK "The TiVo Beacon service could not be stopped."
+  Push "stop"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  StrCmp $1 "true" RemoveTiVoBeacon
 
   DetailPrint "The TiVo Beacon service could not be stopped."
 
   Goto InstallService
 
-  
+
 
 RemoveTiVoBeacon:
 
   DetailPrint "Removing old TiVo Beacon service"
 
-  nsSCM::Remove /NOUNLOAD "TivoBeacon2"
-
-  Pop $6 ; return error/success
-
-  StrCmp $6 "success" CopyBeaconFiles
-
-  ;MessageBox MB_ICONINFORMATION|MB_OK "The old TiVo Beacon service could not be removed."
+  Push "delete"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  StrCmp $1 "true" CopyBeaconFiles
 
   DetailPrint "The old TiVo Beacon service could not be removed."
 
   Goto InstallService
 
-  
+
 
 StopTivo2:
 
@@ -738,51 +743,46 @@ StopTivo2:
 
   ; Check if TiVo beacon is running
 
-  nsSCM::QueryStatus /NOUNLOAD "TivoBeacon2"
-
-  Pop $4 ; return error/success
-
-  Pop $5 ; return service status
-
-  StrCmp $4 "error" CopyBeaconFiles
-
-  StrCmp $5 "4" 0 RemoveTiVoBeacon2
-
+  Push "installed"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  ;StrCmp $0 "running" 0 RemoveTiVoBeacon2
+  StrCmp $1 "stopped" RemoveTiVoBeacon2
+  StrCmp $1 "false" CopyBeaconFiles  ; not installed
 
 
   DetailPrint "Stopping TiVo 1.1 Beaconservice"
 
-  nsSCM::Stop /NOUNLOAD "TivoBeacon2"
-
-  Pop $6 ; return error/success
-
-  StrCmp $6 "success" RemoveTiVoBeacon2
-
-  ;MessageBox MB_ICONINFORMATION|MB_OK "The TiVo Beacon service could not be stopped."
+  Push "stop"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  StrCmp $1 "true" RemoveTiVoBeacon2
 
   DetailPrint "The TiVo Beacon service could not be stopped."
 
   Goto InstallService
 
 
-
 RemoveTiVoBeacon2:
 
   DetailPrint "Removing old TiVo Beacon 1.1 service"
 
-  nsSCM::Remove /NOUNLOAD "TivoBeacon2"
-
-  Pop $6 ; return error/success
-
-  StrCmp $6 "success" CopyBeaconFiles
-
-  ;MessageBox MB_ICONINFORMATION|MB_OK "The old TiVo Beacon service could not be removed."
+  Push "delete"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $1 ;response
+  StrCmp $1 "true" CopyBeaconFiles
 
   DetailPrint "The old TiVo Beacon service could not be removed."
 
   Goto InstallService
 
-  
+
 
 CreateBeaconDir:
 
@@ -792,7 +792,7 @@ CreateBeaconDir:
 
   CreateDirectory "$0\TiVo Shared\Beacon"
 
-  
+
 
 CopyBeaconFiles:
 
@@ -856,22 +856,25 @@ InstallBeaconService:
 
   DetailPrint "Installing TiVo Beacon service"
 
-  ; <name of service: startstop name> <name to display: display in SCM> <service type> <start type> <service's binary:filepath> <load order group: name>
+;   create	- creates a new windows service
+;		Parameters:
+;		  path	- path to service executable
+;		  autostart	- automatically start with system ie. 1|0
+;		  interact	- interact with the desktop ie. 1|0
+;		  machine	- machine name where to install service
+;		  user		- user that runs the service
+;		  password	- password of the above user
 
-  nsSCM::Install /NOUNLOAD "TiVoBeacon2" "TiVo Beacon" 272 2 '"$0\TiVo Shared\Beacon\TiVoBeacon.exe" /quiet' "" ""
+  Push "create"
+  Push "TiVoBeacon2"
+  Push 'path="$0\TiVo Shared\Beacon\TiVoBeacon.exe" /quiet;autostart=1;interact=1;'
+  Call Service
+  Pop $1 ;response
+  StrCmp $1 "true" StartBeaconService
 
-  Pop $3 ; return error/success
-
-  StrCmp $3 "success" StartBeaconService
-
-  Pop $3 ; return GetLastError/tag
-
-  ;MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be installed: $3"
-
-  DetailPrint "The TiVo Beacon service could not be installed: $3"
+  DetailPrint "The TiVo Beacon service could not be installed: $0"
 
   Goto InstallService
-
 
 
 StartBeaconService:
@@ -880,69 +883,64 @@ StartBeaconService:
 
   !insertmacro UpgradeDLL "${PRODUCT_BUILD_DIR}\lib\TiVoBeaconApi.dll" "$0\TiVo Shared\Beacon\TiVoBeaconApi.dll" "$SYSDIR"
 
-
-
   ;http://nsis.sourceforge.net/archive/viewpage.php?pageid=385
 
   ; Is service already installed?
 
-  nsSCM::QueryStatus /NOUNLOAD "TiVoBeacon2"
-
-  Pop $4 ; return error/success
-
-  Pop $5 ; return service status
-
-  StrCmp $4 "error" ErrorTiVoBeacon
-
-  StrCmp $5 "4" InstallService
-
-
+  Push "installed"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "running" InstallService
+  StrCmp $0 "false" ErrorTiVoBeacon  ; not installed
 
   ; Start TiVo Beacon service
 
   DetailPrint "Starting TiVo Beacon service"
 
-  nsSCM::Start /NOUNLOAD "TiVoBeacon2"
-
-  Pop $7 ; return error/success
+  Push "start"
+  Push "TiVoBeacon2"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "true" RemoveTiVoBeacon
 
   Sleep 5000
-
-  StrCmp $7 "success" InstallService
-
 
 
 ErrorTiVoBeacon:
 
-  ;MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be started."  
+  ;MessageBox MB_ICONEXCLAMATION|MB_OK "The TiVo Beacon service could not be started."
 
-  DetailPrint "The TiVo Beacon service could not be started."  
+  DetailPrint "The TiVo Beacon service could not be started."
+
 
 
 
 InstallService:
 
+  Push "installed"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "false" 0 End ; not installed
+
   DetailPrint "Installing ${PRODUCT_NAME} service"
 
-  StrCmp ${STATUS} "success" End ; Service installed previously
-
-  ; <name of service: startstop name> <name to display: display in SCM> <service type> <start type> <service's binary:filepath> <load order group: name>
-
-  ; d:\galleon\bin\Wrapper.exe -s d:\galleon\conf\wrapper.conf
-
-  nsSCM::Install /NOUNLOAD "${PRODUCT_NAME}" "${PRODUCT_NAME}" 272 2 '"$INSTDIR\bin\Wrapper.exe" -s "$INSTDIR\conf\wrapper.conf"' "" "" "" ""
-
-  Pop $3 ; return error/success
-
-  StrCmp $3 "success" End
-
-  Pop $3 ; return GetLastError/tag
+  Push "create"
+  Push "${PRODUCT_NAME}"
+  Push 'path="$INSTDIR\bin\Wrapper.exe" -s "$INSTDIR\conf\wrapper.conf";autostart=1;interact=1;'
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "true" End
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be installed: $3"
 
   Quit
 
-End:  
+End:
 
 
 
@@ -1020,27 +1018,27 @@ Section -startGalleon SEC02
 
   Pop $7 ; return error/success
 
-  StrCmp $7 "0" 0 FirewallFailed  
+  StrCmp $7 "0" 0 FirewallFailed
 
   nsExec::Exec 'netsh firewall add portopening TCP 7288 HME ENABLE ALL'
 
   Pop $7 ; return error/success
 
-  StrCmp $7 "0" 0 FirewallFailed  
+  StrCmp $7 "0" 0 FirewallFailed
 
-  nsExec::Exec 'netsh firewall add portopening UDP 2190 HMO ENABLE ALL'  
+  nsExec::Exec 'netsh firewall add portopening UDP 2190 HMO ENABLE ALL'
 
   Pop $7 ; return error/success
 
-  StrCmp $7 "0" 0 FirewallFailed  
-  
+  StrCmp $7 "0" 0 FirewallFailed
+
   nsExec::Exec 'netsh firewall add portopening TCP 2190 HMO ENABLE ALL'
 
   Pop $7 ; return error/success
 
   StrCmp $7 "0" 0 FirewallFailed
 
-  nsExec::Exec 'netsh firewall add portopening TCP 8081 HMO ENABLE ALL'    
+  nsExec::Exec 'netsh firewall add portopening TCP 8081 HMO ENABLE ALL'
 
   Pop $7 ; return error/success
 
@@ -1058,17 +1056,14 @@ StartService:
 
   DetailPrint "Starting ${PRODUCT_NAME} service"
 
-  nsSCM::Start /NOUNLOAD "${PRODUCT_NAME}"
+  Sleep 15000
 
-  Pop $7 ; return error/success
-
-  StrCmp $7 "success" Done
-
-  MessageBox MB_ICONINFORMATION|MB_OK "The ${PRODUCT_NAME} service could not be started. Try to manually start Galleon using Control Panel/Adminstrative Tools/Services."
-
-  ; Quit
-
-
+  Push "start"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "true" Done
 
 Done:
 
@@ -1076,30 +1071,30 @@ Done:
 
   DetailPrint "Activating ${PRODUCT_NAME} service"
 
-  Sleep 10000
+  Sleep 15000
 
   DetailPrint "Initializing ${PRODUCT_NAME} server"
 
-  Sleep 10000
+  Sleep 15000
 
   DetailPrint "Loading ${PRODUCT_NAME} server"
 
   Sleep 10000
 
-  ;;nsSCM::QueryStatus /NOUNLOAD "${PRODUCT_NAME}"
+  Push "installed"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call Service
+  Pop $0 ;response
+  StrCmp $0 "running" End
+  StrCmp $0 "start_pending" End
+  ;StrCmp $0 "stopped" RemoveTiVoBeacon2
+  ;StrCmp $0 "false" CopyBeaconFiles  ; not installed
+  StrCpy ${STATUS} "error"
 
-  ;Pop $2 ; return error/success
-  
-  ;Pop $3 ; return service status
-  
-  ;StrCmp $2 "success" End
-
-  ;StrCpy ${STATUS} "error"
-
-  ;MessageBox MB_ICONINFORMATION|MB_OK "The ${PRODUCT_NAME} service could not be started. Try to manually start Galleon using Control Panel/Adminstrative Tools/Services."
+  MessageBox MB_ICONINFORMATION|MB_OK "The ${PRODUCT_NAME} service could not be started. Try to manually start Galleon using Control Panel/Adminstrative Tools/Services."
 
   ; Quit
-
 
 End:
 
@@ -1136,32 +1131,29 @@ Section Uninstall
 
   ; Is service already installed?
 
-  nsSCM::QueryStatus /NOUNLOAD "${PRODUCT_NAME}"
-
-  Pop ${STATUS} ; return error/success
-
-  Pop $1 ; return service status
-
-  StrCmp ${STATUS} "error" RemoveService
-
-  StrCmp $1 "4" 0 RemoveService
-
-
+  Push "installed"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call un.Service
+  Pop $0 ;response
+  ;StrCmp $0 "running" End
+  StrCmp $0 "stopped" RemoveService
+  StrCmp $0 "false" RemoveService  ; not installed
 
   ; Stop the Galleon service
 
   DetailPrint "Stopping ${PRODUCT_NAME} service"
 
-  nsSCM::Stop /NOUNLOAD "${PRODUCT_NAME}"
-
-  Pop $6 ; return error/success
-
-  StrCmp $6 "success" RemoveService
+  Push "stop"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call un.Service
+  Pop $0 ;response
+  StrCmp $0 "true" RemoveService
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be stopped"
 
   ;Abort
-
 
 
 RemoveService:
@@ -1170,11 +1162,14 @@ RemoveService:
 
   DetailPrint "Removing ${PRODUCT_NAME} service"
 
-  nsSCM::Remove /NOUNLOAD "${PRODUCT_NAME}"
+  Sleep 5000
 
-  Pop $0 ; return error/success
-
-  StrCmp $0 "success" ServiceRemoved
+  Push "delete"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call un.Service
+  Pop $0 ;response
+  StrCmp $0 "true" ServiceRemoved
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be removed"
 
@@ -1186,23 +1181,24 @@ ServiceRemoved:
 
   ; wait for JVM to stop and release resources
 
-  Sleep 3000
+  Sleep 5000
 
   ; Check if service is really uninstalled; might lock files to be deleted
 
-  nsSCM::QueryStatus /NOUNLOAD "${PRODUCT_NAME}"
-
-  Pop $2 ; return error/success
-
-  Pop $3 ; return service status
-
-  StrCmp $2 "error" ConfigureFirewall ConfigureFirewall
+  Push "installed"
+  Push "${PRODUCT_NAME}"
+  Push "action=status;"
+  Call un.Service
+  Pop $0 ;response
+  ;StrCmp $0 "running" End
+  ;StrCmp $0 "stopped" RemoveService
+  StrCmp $0 "false" ConfigureFirewall ConfigureFirewall ; not installed
 
   MessageBox MB_ICONEXCLAMATION|MB_OK "The ${PRODUCT_NAME} service could not be removed"
 
   ;Abort
 
-  
+
 
 ConfigureFirewall:
 
@@ -1304,7 +1300,7 @@ NoDownloadJRE:
 
   StrCpy ${DOWNLOAD_JRE_FLAG} "NoDownload"
 
-  SectionSetFlags ${jre} 0  
+  SectionSetFlags ${jre} 0
 
   Return
 
@@ -1444,7 +1440,7 @@ DetectTry2:
 
   ;StrCmp ${TEMP3} "" 0 GetJRE
 
-  
+
 
   ;ReadRegStr ${TEMP2} HKLM "SOFTWARE\JavaSoft\Java Development Kit" "CurrentVersion"
 
@@ -2182,13 +2178,13 @@ FunctionEnd
 
    StrCmp $R0 "" 0 lbl_winnt
 
-   
+
 
    ; we are not NT
 
    ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion" "VersionNumber"
 
-   
+
 
    StrCpy $R1 $R0 1
 
@@ -2234,7 +2230,7 @@ FunctionEnd
 
    StrCpy $R1 $R0 1
 
-   
+
 
    StrCmp $R1 '3' lbl_winnt_x
 
@@ -2244,7 +2240,7 @@ FunctionEnd
 
    StrCpy $R1 $R0 3
 
-   
+
 
    StrCmp $R1 '5.0' lbl_winnt_2000
 
@@ -2300,4 +2296,103 @@ FunctionEnd
 
 
 
+FunctionEnd
+
+;http://nsis.sourceforge.net/A_sample_script_that_uses_several_cool_functions_%28replace_txt%2C_mutually_exclusive_functions%2C_MUI%2C_patch_install%2C_etc.%29
+Function AdvReplaceInFile
+         Exch $0 ;file to replace in
+         Exch
+         Exch $1 ;number to replace after
+         Exch
+         Exch 2
+         Exch $2 ;replace and onwards
+         Exch 2
+         Exch 3
+         Exch $3 ;replace with
+         Exch 3
+         Exch 4
+         Exch $4 ;to replace
+         Exch 4
+         Push $5 ;minus count
+         Push $6 ;universal
+         Push $7 ;end string
+         Push $8 ;left string
+         Push $9 ;right string
+         Push $R0 ;file1
+         Push $R1 ;file2
+         Push $R2 ;read
+         Push $R3 ;universal
+         Push $R4 ;count (onwards)
+         Push $R5 ;count (after)
+         Push $R6 ;temp file name
+         GetTempFileName $R6
+         FileOpen $R1 $0 r ;file to search in
+         FileOpen $R0 $R6 w ;temp file
+                  StrLen $R3 $4
+                  StrCpy $R4 -1
+                  StrCpy $R5 -1
+        loop_read:
+         ClearErrors
+         FileRead $R1 $R2 ;read line
+         IfErrors exit
+         StrCpy $5 0
+         StrCpy $7 $R2
+
+        loop_filter:
+         IntOp $5 $5 - 1
+         StrCpy $6 $7 $R3 $5 ;search
+         StrCmp $6 "" file_write2
+         StrCmp $6 $4 0 loop_filter
+
+         StrCpy $8 $7 $5 ;left part
+         IntOp $6 $5 + $R3
+         StrCpy $9 $7 "" $6 ;right part
+         StrCpy $7 $8$3$9 ;re-join
+
+         IntOp $R4 $R4 + 1
+         StrCmp $2 all file_write1
+         StrCmp $R4 $2 0 file_write2
+         IntOp $R4 $R4 - 1
+
+         IntOp $R5 $R5 + 1
+         StrCmp $1 all file_write1
+         StrCmp $R5 $1 0 file_write1
+         IntOp $R5 $R5 - 1
+         Goto file_write2
+
+        file_write1:
+         FileWrite $R0 $7 ;write modified line
+         Goto loop_read
+
+        file_write2:
+         FileWrite $R0 $R2 ;write unmodified line
+         Goto loop_read
+
+        exit:
+         FileClose $R0
+         FileClose $R1
+
+         SetDetailsPrint none
+         Delete $0
+         Rename $R6 $0
+         Delete $R6
+         SetDetailsPrint both
+
+         Pop $R6
+         Pop $R5
+         Pop $R4
+         Pop $R3
+         Pop $R2
+         Pop $R1
+         Pop $R0
+         Pop $9
+         Pop $8
+         Pop $7
+         Pop $6
+         Pop $5
+         Pop $4
+         Pop $3
+         Pop $2
+         Pop $1
+         Pop $0
 FunctionEnd

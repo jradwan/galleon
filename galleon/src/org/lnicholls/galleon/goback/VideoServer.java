@@ -2,17 +2,17 @@ package org.lnicholls.galleon.goback;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -61,9 +61,9 @@ import com.tivo.hme.host.http.share.Headers;
 import com.tivo.hme.host.util.Config;
 
 public class VideoServer extends HttpServer {
-	
+
 	// http://<your tivoip>/TiVoConnect?Command=QueryContainer&Container=%2F
-	
+
 	// http://<your tivoip>/TiVoConnect?Command=QueryContainer&Container=GalleonRecordings&Recurse=Yes&SortOrder=!CaptureDate&ItemCount=8&Filter=x-tivo-container%2Ftivo-videos,x-tivo-container%2Ffolder,video%2Fx-tivo-mpeg,video%2F*
 
 	private static Logger log = Logger.getLogger(VideoServer.class.getName());
@@ -159,7 +159,6 @@ public class VideoServer extends HttpServer {
 						}
 					}
 				}
-
 				File file = new File(path);
 				if (file.exists()) {
 					try {
@@ -192,8 +191,8 @@ public class VideoServer extends HttpServer {
 				if (itemURL.getPath().startsWith("/TiVoConnect/GalleonRecordings/"))
 					path = serverConfiguration.getRecordingsPath() + "/"
 							+ itemURL.getPath().substring("/TiVoConnect/GalleonRecordings/".length());
-				else 
-				if (itemURL.getPath().startsWith("/TiVoConnect/GalleonExtra/"))  
+				else
+				if (itemURL.getPath().startsWith("/TiVoConnect/GalleonExtra/"))
 				{
 					String container = itemURL.getPath().substring("/TiVoConnect/GalleonExtra/".length());
 					StringTokenizer tokenizer = new StringTokenizer(container, "/");
@@ -245,7 +244,7 @@ public class VideoServer extends HttpServer {
 									int seek = Integer.parseInt(itemURL.getParameter(Constants.PARAMETER_SEEK));
 									inputstream.skip(seek);
 								} catch (Exception ex) {
-								}	
+								}
 							}
 							else
 							{
@@ -269,12 +268,12 @@ public class VideoServer extends HttpServer {
 										else
 											httprequest.reply(200, "Success");
 									} catch (Exception ex) {
-									}	
+									}
 								}
 								else
 									httprequest.reply(200, "Success");
 							}
-							
+
 							try {
 								long startTime = System.currentTimeMillis();
 								long lastTime = startTime;
@@ -285,7 +284,7 @@ public class VideoServer extends HttpServer {
 								while ((i = inputstream.read(abyte0, 0, abyte0.length)) > 0)
 								{
 									outputstream.write(abyte0, 0, i);
-									
+
 									if ((System.currentTimeMillis()-lastTime) > 1000*30)
 									{
 										PersistentValueManager.savePersistentValue("VideoServer.lastUpdate", new Date().toString());
@@ -294,7 +293,7 @@ public class VideoServer extends HttpServer {
 								}
 								outputstream.close();
 								long endTime = System.currentTimeMillis();
-		
+
 								Video video = null;
 								try {
 									List list = VideoManager.findByPath(file.getCanonicalPath());
@@ -317,7 +316,7 @@ public class VideoServer extends HttpServer {
 								} catch (Exception ex) {
 									Tools.logException(VideoServer.class, ex);
 								}
-								
+
 								log.info("GoBack upload duration: " + (endTime - startTime) / 1000 + " sec for " + file);
 							} finally {
 								inputstream.close();
@@ -351,7 +350,7 @@ public class VideoServer extends HttpServer {
 						log.info("Remote connection: "+address);
 						List apps = Server.getServer().getAppUrls(true);
 						int counter = apps.size();
-						
+
 						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
 						buffer.append("<TiVoContainer>\n");
 						buffer.append("<Details>\n");
@@ -399,7 +398,7 @@ public class VideoServer extends HttpServer {
 							counter = counter + goBackConfiguration.getPaths().size();
 						if (mPublished.size() > 0)
 							counter = counter + mPublished.size();
-						
+
 						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
 						buffer.append("<TiVoContainer>\n");
 						buffer.append("<Details>\n");
@@ -508,7 +507,9 @@ public class VideoServer extends HttpServer {
 							tokenizer.nextToken(); // galleon
 							if (tokenizer.hasMoreTokens()) {
 								String name = tokenizer.nextToken();
-
+								String rest = "";
+								while (tokenizer.hasMoreTokens())
+									rest = rest + "/" + tokenizer.nextToken();
 								List paths = goBackConfiguration.getPaths();
 								List published = new ArrayList();
 								published.addAll(mPublished);
@@ -517,12 +518,15 @@ public class VideoServer extends HttpServer {
 								while (iterator.hasNext()) {
 									NameValue nameValue = (NameValue) iterator.next();
 									if (nameValue.getName().equals(name)) {
-										String rest = "";
-										while (tokenizer.hasMoreTokens()) 
-											rest = rest + "/" + tokenizer.nextToken();
 										directory = new File(nameValue.getValue()+rest);
 										break;
 									}
+								}
+								// Could be a dir in published dir
+								File subdir = new File(serverConfiguration.getRecordingsPath()+"/"+name+rest);
+								if (subdir.exists())
+								{
+									directory = subdir;
 								}
 							}
 						}
@@ -568,7 +572,7 @@ public class VideoServer extends HttpServer {
 								} catch (Exception ex) {
 									Tools.logException(VideoServer.class, ex);
 								}
-								
+
 								if (video == null) {
 									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
 								}
@@ -577,7 +581,7 @@ public class VideoServer extends HttpServer {
 								{
 									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
 								}
-								
+
 								long date = file.lastModified();
 								if (video != null) {
 									if (video.getOriginalAirDate() != null)
@@ -627,6 +631,10 @@ public class VideoServer extends HttpServer {
 							if (anchorItemURL.getPath().startsWith("/TiVoConnect/GalleonRecordings/")) {
 								// TODO add real path
 								path = anchorItemURL.getPath().substring("/TiVoConnect/GalleonRecordings/".length());
+								StringTokenizer tokenizer = new StringTokenizer(path, "/");
+								while (tokenizer.hasMoreTokens()) {
+									path = tokenizer.nextToken();
+								}
 							} else {
 								String container = anchorItemURL.getParameter(Constants.PARAMETER_CONTAINER);
 								if (container!=null)
@@ -652,7 +660,7 @@ public class VideoServer extends HttpServer {
 										NameValue nameValue = (NameValue) iterator.next();
 										if (nameValue.getName().equals(extra)) {
 											String rest = "";
-											while (tokenizer.hasMoreTokens()) 
+											while (tokenizer.hasMoreTokens())
 												rest = rest + "/" + tokenizer.nextToken();
 											path = nameValue.getValue()+rest;
 											break;
@@ -669,9 +677,7 @@ public class VideoServer extends HttpServer {
 									Item nameFile = (Item) files.get(i);
 									File file = (File) nameFile.getValue();
 									String filePath = getFilePath(file, directory);
-									
 									boolean match = pathFile.equals(file) || filePath.equals(path);
-									
 									if (match) {
 										start = i;
 										String anchorOffset = itemURL.getParameter(Constants.PARAMETER_ANCHOR_OFFSET);
@@ -772,13 +778,33 @@ public class VideoServer extends HttpServer {
 								} catch (Exception ex) {
 									log.error("Video retrieve failed", ex);
 								}
-								
 								if (video == null) {
+									// Try to resync video file with database if moved
 									try {
-										video = (Video)MediaManager.getMedia(file.getAbsolutePath());
-										VideoManager.createVideo(video);
+										List list = VideoManager.findByFilename(file.getName());
+										if (list != null && list.size() == 1) {
+											for (int j=0;j<list.size();j++)
+											{
+												video = (Video) list.get(j);
+												if (!video.getPath().equals(file.getCanonicalPath()))
+												{
+													video.setPath(file.getCanonicalPath());
+													VideoManager.updateVideo(video);
+													break;
+												}
+											}
+										}
 									} catch (Exception ex) {
-										log.error("Video create failed", ex);
+										log.error("Video find failed", ex);
+									}
+									if (video==null)
+									{
+										try {
+											video = (Video)MediaManager.getMedia(file.getAbsolutePath());
+											VideoManager.createVideo(video);
+										} catch (Exception ex) {
+											log.error("Video create failed", ex);
+										}
 									}
 								}
 								else
@@ -786,7 +812,7 @@ public class VideoServer extends HttpServer {
 								{
 									video = (Video)MediaManager.getMedia(file.getAbsolutePath());
 								}
-								
+
 								if (video == null ) { // || !file.getName().toLowerCase().endsWith(".tivo")) {
 									buffer.append("<Item>\n");
 									buffer.append("<Details>\n");
@@ -1240,7 +1266,7 @@ public class VideoServer extends HttpServer {
 		}
 		return "";
 	}
-	
+
 	private String mHost = "Galleon";
 
 	private SimpleDateFormat mFileDateFormat;

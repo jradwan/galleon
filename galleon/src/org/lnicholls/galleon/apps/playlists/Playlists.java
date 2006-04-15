@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.playlists;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -98,7 +98,7 @@ public class Playlists extends DefaultApplication {
 
 		Tracker tracker = new Tracker(list, 0);
 		push(new PathScreen(this, tracker, true), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
@@ -106,7 +106,7 @@ public class Playlists extends DefaultApplication {
 
 		public PathScreen(Playlists app, Tracker tracker, boolean first) {
 			super(app, "Playlists");
-			
+
 			mFirst = first;
 
 			getBelow().setResource(mMenuBackground);
@@ -227,7 +227,7 @@ public class Playlists extends DefaultApplication {
 		}
 
 		private Tracker mTracker;
-		
+
 		private boolean mFirst;
 	}
 
@@ -266,6 +266,7 @@ public class Playlists extends DefaultApplication {
 		}
 
 		public boolean handleExit() {
+			mMusicInfo.flush();
 			mMusicInfo.clearResource();
 			return super.handleExit();
 		}
@@ -310,7 +311,7 @@ public class Playlists extends DefaultApplication {
 						}
 					}.start();
 				}
-				return true;				
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -364,7 +365,7 @@ public class Playlists extends DefaultApplication {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null) {
-						if (nameFile.isFile())
+						if (nameFile.isFile() && nameFile.getValue()!=null)
 							return getAudio(((File) nameFile.getValue()).getCanonicalPath());
 						else
 							return getAudio((String) nameFile.getValue());
@@ -471,6 +472,7 @@ public class Playlists extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -757,7 +759,10 @@ public class Playlists extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);
@@ -891,7 +896,7 @@ public class Playlists extends DefaultApplication {
 		}
 		return audio;
 	}
-	
+
 	public static class PlaylistsFactory extends AppFactory {
 
 		public void initialize() {

@@ -2,17 +2,17 @@ package org.lnicholls.galleon.togo;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -49,6 +49,7 @@ import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
+import org.lnicholls.galleon.server.GoBackConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
 import org.lnicholls.galleon.server.TiVo;
@@ -59,11 +60,11 @@ public class ToGo {
 
 	/*
 	 * https://<tivo ip>/nowplaying/index.html
-	 * 
+	 *
 	 * using user: tivo pass: <MAK>
-	 * 
+	 *
 	 * http://<your tivoip>/TiVoConnect?AnchorOffset=0&Command=QueryContainer&Details=All&ItemCount=1
-	 * 
+	 *
 	 */
 
 	private static String QUERY_CONTAINER = "/TiVoConnect?Command=QueryContainer&Container=%2FNowPlaying";
@@ -92,7 +93,7 @@ public class ToGo {
 		ArrayList videos = new ArrayList();
 		log.debug("getRecordings: " + tivos.size());
 		log.debug("mServerConfiguration.getMediaAccessKey()=" + serverConfiguration.getMediaAccessKey().length());
-		
+
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue("VideoServer.lastUpdate");
         if (persistentValue != null) {
             try
@@ -111,7 +112,7 @@ public class ToGo {
                 log.error("Could not retrieve video server last update", ex);
             }
         }
-		
+
 		if (serverConfiguration.getMediaAccessKey().length() > 0) {
 			GetMethod get = null;
 			Iterator tivosIterator = tivos.iterator();
@@ -307,7 +308,7 @@ public class ToGo {
 					Tools.logException(ToGo.class, ex);
 				} catch (Exception ex) {
 					Tools.logException(ToGo.class, ex);
-					
+
 					try
 					{
 						Thread.sleep(10000); // give the CPU some breathing time
@@ -627,7 +628,7 @@ public class ToGo {
 				/*
 				 * <vBookmark> <element> <time>PT4M42.137000000S </time>
 				 * </element> </vBookmark>
-				 * 
+				 *
 				 */
 				StringBuffer buffer = new StringBuffer();
 				int counter = 0;
@@ -697,6 +698,7 @@ public class ToGo {
 
 	public boolean Download(Video video, CancelDownload cancelDownload) {
 		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+		GoBackConfiguration goBackConfiguration = Server.getServer().getGoBackConfiguration();
 		ArrayList videos = new ArrayList();
 		GetMethod get = null;
 		try {
@@ -730,7 +732,24 @@ public class ToGo {
 				dir.mkdirs();
 			}
 			String name = getFilename(video);
-			File file = new File(path + File.separator + name);
+			File file = null;
+			if (goBackConfiguration.isGroupByShow())
+			{
+				if (video.getSeriesTitle()!=null && video.getSeriesTitle().trim().length()>0)
+				{
+					path =  path + File.separator + clean(video.getSeriesTitle());
+					File filePath = new File(path);
+					if (!filePath.exists())
+						filePath.mkdirs();
+					file = new File(path + File.separator + name);
+				}
+				else
+					file = new File(path + File.separator + name);
+			}
+			else
+			{
+				file = new File(path + File.separator + name);
+			}
 			// TODO Handle retransfers
 			/*
 			if (file.exists() && video.getStatus()!=Video.STATUS_DOWNLOADING)
@@ -749,7 +768,7 @@ public class ToGo {
 					}
 				} catch (HibernateException ex) {
 					log.error("Video update failed", ex);
-				}	
+				}
 			}
 			*/
 			log.info("Downloading: " + name);
@@ -807,7 +826,7 @@ public class ToGo {
 			}
 			diff = (System.currentTimeMillis() - start) / 1000.0;
 			channel.close();
-			
+
 			if (diff != 0)
 				log.info("Download rate=" + (total / 1024) / diff + " KBps");
 			try {

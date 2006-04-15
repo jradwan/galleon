@@ -2,17 +2,17 @@ package org.lnicholls.galleon.server;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -53,15 +53,19 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
             InetAddress inetAddress = InetAddress.getLocalHost();
             if (address!=null && address.length()>0)
                 inetAddress = InetAddress.getByName(address);
-            
-            JmDNS jmdns = new JmDNS(inetAddress);
-            jmdns.addServiceListener(HTTP_SERVICE, this);
-            log.debug("Interface: "+jmdns.getInterface());
+
+            mJmDNS = new JmDNS(inetAddress);
+            mJmDNS.addServiceListener(HTTP_SERVICE, this);
+            log.debug("Interface: "+mJmDNS.getInterface());
         } catch (IOException ex) {
             Tools.logException(TiVoListener.class, ex);
         }
     }
-
+    public void close() {
+    	if (mJmDNS!=null) {
+    		mJmDNS.close();
+    	}
+    }
     public void addService(JmDNS jmdns, String type, String name) {
         if (name.endsWith("." + type)) {
             name = name.substring(0, name.length() - (type.length() + 1));
@@ -117,7 +121,7 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
                         /*
                         if (tivo.getPlatform().startsWith(TIVO_PLATFORM_PREFIX))
                             found = true;
-                        */    
+                        */
                     } else if (prop.equals(TIVO_TSN)) {
                         tivo.setServiceNumber(info.getPropertyString(prop));
                     } else if (prop.equals(TIVO_SW_VERSION)) {
@@ -179,4 +183,5 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
             }
         }
     }
+    private JmDNS mJmDNS;
 }

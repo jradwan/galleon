@@ -1,18 +1,19 @@
+
 package org.lnicholls.galleon.apps.jukebox;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -95,7 +96,7 @@ public class Jukebox extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
-		
+
 		JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) ((JukeboxFactory) getFactory())
 				.getAppContext().getConfiguration();
 
@@ -122,10 +123,10 @@ public class Jukebox extends DefaultApplication {
 			mTracker = new Tracker(new ArrayList(), 0);
 
 		push(new JukeboxMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
-	
+
 	public class JukeboxMenuScreen extends DefaultMenuScreen {
 		public JukeboxMenuScreen(Jukebox app) {
 			super(app, "Jukebox");
@@ -133,7 +134,7 @@ public class Jukebox extends DefaultApplication {
 			setFooter("Press ENTER for options, 1 for delete, 9 for delete all");
 
 			getBelow().setResource(mMenuBackground);
-			
+
 			/*
 			BView warning = new BView(getAbove(), BORDER_LEFT+BODY_WIDTH/2, TOP, BODY_WIDTH/2, getHeight()/2);
 			warning.setResource(Color.RED);
@@ -149,7 +150,7 @@ public class Jukebox extends DefaultApplication {
 			button.setResource(createText("default-24.font", Color.white, "OK"));
 			//button.setFocus();
 	        setFocusDefault(button);
-			
+
 			//warning.setFocusDefault(list);
 			 */
 
@@ -256,7 +257,7 @@ public class Jukebox extends DefaultApplication {
 						mTracker.getList().remove(mMenuList.getFocus());
 						mMenuList.remove(mMenuList.getFocus());
 						mMenuList.setFocus(focus, false);
-		
+
 						String trackerString = getTrackerString(mTracker);
 						PersistentValueManager.savePersistentValue(TRACKER, trackerString);
 					}
@@ -350,6 +351,7 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		public boolean handleExit() {
+			mMusicInfo.flush();
 			mMusicInfo.clearResource();
 			return super.handleExit();
 		}
@@ -474,7 +476,7 @@ public class Jukebox extends DefaultApplication {
 			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
-			
+
 			boolean sameTrack = false;
 			DefaultApplication defaultApplication = (DefaultApplication) getApp();
 			Audio currentAudio = defaultApplication.getCurrentAudio();
@@ -557,6 +559,7 @@ public class Jukebox extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -855,7 +858,10 @@ public class Jukebox extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);
@@ -967,13 +973,13 @@ public class Jukebox extends DefaultApplication {
 
 		private BText mUrlText;
 	}
-	
+
 	public class ConfirmationScreen extends DefaultScreen {
 		private BList list;
 
 		public ConfirmationScreen(Jukebox app, Tracker tracker) {
 			super(app, "Confirmation", true);
-			
+
 			mTracker = tracker;
 
 			getBelow().setResource(mImagesBackground);
@@ -990,7 +996,7 @@ public class Jukebox extends DefaultApplication {
 			list.add("Delete all tracks");
 			list.add("Don't do anything");
 			list.setFocus(1, false);
-			
+
 			setFocusDefault(list);
 		}
 
@@ -1007,7 +1013,7 @@ public class Jukebox extends DefaultApplication {
 					if (list.getFocus() == 0) {
 						getBApp().play("select.snd");
 						getBApp().flush();
-	
+
 						mTracker.getList().clear();
 						PersistentValueManager.savePersistentValue(TRACKER, "");
 					}
@@ -1017,13 +1023,13 @@ public class Jukebox extends DefaultApplication {
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
-		
+
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			return super.handleEnter(arg, isReturn);
 		}
 
 		private BText mPosText;
-	}	
+	}
 
 	private static Audio getAudio(String path) {
 		Audio audio = null;
@@ -1053,6 +1059,6 @@ public class Jukebox extends DefaultApplication {
 			JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) getAppContext().getConfiguration();
 		}
 	}
-	
+
 	private Tracker mTracker;
 }

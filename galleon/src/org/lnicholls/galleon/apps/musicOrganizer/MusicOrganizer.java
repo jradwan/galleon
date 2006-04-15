@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.musicOrganizer;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -108,7 +108,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
-		
+
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mPlayerBackground = getSkinImage("player", "background");
@@ -117,16 +117,16 @@ public class MusicOrganizer extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
-		
+
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(MusicOrganizer app) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
@@ -274,7 +274,7 @@ public class MusicOrganizer extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((MusicOrganizer) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -300,7 +300,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 		public PathScreen(MusicOrganizer app, PathScreen pathScreen, boolean first, FormatString formatString, int level) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options, 1 for Jukebox");
 
 			getBelow().setResource(mMenuBackground);
@@ -344,7 +344,7 @@ public class MusicOrganizer extends DefaultApplication {
 		public boolean handleExit() {
 			return super.handleExit();
 		}
-		
+
 		private void getConditions(List conditions) {
 			getConditions(conditions, false);
 		}
@@ -538,8 +538,8 @@ public class MusicOrganizer extends DefaultApplication {
 
 						String queryString = "from org.lnicholls.galleon.database.Audio audio where " + restrictions
 								+ " AND substr(audio.path,1,4)<>'http'" + " AND audio.origen<>'Podcast'";
-						
-						setCurrentTrackerContext(queryString);	
+
+						setCurrentTrackerContext(queryString);
 						mMenuList.flash();
 						return super.handleKeyPress(code, rawcode);
 					}
@@ -548,12 +548,12 @@ public class MusicOrganizer extends DefaultApplication {
 						File file = (File) nameFile.getValue();
 						setCurrentTrackerContext(file.getCanonicalPath());
 						return super.handleKeyPress(code, rawcode);
-					}					
+					}
 				}
 				catch (Exception ex) {
 					Tools.logException(Music.class, ex);
 				}
-				break;			
+				break;
 			case KEY_LEFT:
 				if (!mFirst) {
 					postEvent(new BEvent.Action(this, "pop"));
@@ -585,7 +585,7 @@ public class MusicOrganizer extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((MusicOrganizer) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -619,7 +619,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 		public MusicScreen(MusicOrganizer app) {
 			super(app, "Song", true);
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
@@ -684,7 +684,7 @@ public class MusicOrganizer extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((MusicOrganizer) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((MusicOrganizer) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -692,7 +692,7 @@ public class MusicOrganizer extends DefaultApplication {
 							getBApp().push(new PlayerScreen((MusicOrganizer) getBApp(), ((MusicOrganizer) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -857,7 +857,9 @@ public class MusicOrganizer extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.clearResource();
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -1143,7 +1145,10 @@ public class MusicOrganizer extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);
@@ -1701,36 +1706,36 @@ public class MusicOrganizer extends DefaultApplication {
 				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='0' AND upper(substr(audio."
 						+ nameValue.getName() + ",1,1))<='1')";
 				nameValue.setValue(criteria);
-			} 
+			}
 			else
 			if ((value.charAt(0) >= '2') && (value.charAt(0) <= '3')) {
 				key = "2-3";
 				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='2' AND upper(substr(audio."
 						+ nameValue.getName() + ",1,1))<='3')";
 				nameValue.setValue(criteria);
-			} 
-			else				
+			}
+			else
 			if ((value.charAt(0) >= '4') && (value.charAt(0) <= '5')) {
 				key = "4-5";
 				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='4' AND upper(substr(audio."
 						+ nameValue.getName() + ",1,1))<='5')";
 				nameValue.setValue(criteria);
-			} 
-			else				
+			}
+			else
 			if ((value.charAt(0) >= '6') && (value.charAt(0) <= '7')) {
 				key = "6-7";
 				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='6' AND upper(substr(audio."
 						+ nameValue.getName() + ",1,1))<='7')";
 				nameValue.setValue(criteria);
-			} 
-			else				
+			}
+			else
 			if ((value.charAt(0) >= '8') && (value.charAt(0) <= '9')) {
 				key = "8-9";
 				String criteria = "(upper(substr(audio." + nameValue.getName() + ",1,1))>='8' AND upper(substr(audio."
 						+ nameValue.getName() + ",1,1))<='9')";
 				nameValue.setValue(criteria);
-			} 
-			else				
+			}
+			else
 			if (((value.charAt(0) >= 'A') && (value.charAt(0) <= 'C'))
 					|| ((value.charAt(0) >= 'a') && (value.charAt(0) <= 'c'))) {
 				key = "A-C";
@@ -2074,7 +2079,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 		return results;
 	}
-	
+
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {
@@ -2105,7 +2110,7 @@ public class MusicOrganizer extends DefaultApplication {
 																// 22:19:20
 			mDatabaseDateFormat = new SimpleDateFormat();
 			mDatabaseDateFormat.applyPattern("yyyy-MM-dd HH:mm:ss.SSS"); // 2005-04-23
-																			// 13:38:15.078			
+																			// 13:38:15.078
 			MusicOrganizerConfiguration musicConfiguration = (MusicOrganizerConfiguration) getAppContext()
 					.getConfiguration();
 			MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();

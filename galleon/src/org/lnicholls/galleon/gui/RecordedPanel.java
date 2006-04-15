@@ -412,6 +412,22 @@ public class RecordedPanel extends JPanel {
             case 6:
                 result = contact1.getStatusString().compareTo(contact2.getStatusString());
                 break;
+            case 7:
+            	String tivo1 = null;
+            	String tivo2 = null;
+            	Iterator iterator = mTiVos.iterator();
+            	while (iterator.hasNext())
+            	{
+            		TiVo tivo = (TiVo) iterator.next();
+            		if (tivo.getAddress().equals(contact1.getSource()))
+            			tivo1 = tivo.getName();
+            		else
+        			if (tivo.getAddress().equals(contact2.getSource()))
+            			tivo2 = tivo.getName();
+            	}
+            	if (tivo1!=null && tivo2!=null)
+            		return tivo1.compareTo(tivo2);
+            	return 0;                
             }
 
             if (!mSortAsc)

@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.music;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -121,7 +121,7 @@ public class Music extends DefaultApplication {
 			}
 		} else
 			push(new MusicMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
@@ -231,7 +231,7 @@ public class Music extends DefaultApplication {
 					// TODO Playlists?
 					if (nameFile.isFolder() || nameFile.isFile()) {
 						setCurrentTrackerContext(file.getCanonicalPath());
-						
+
 						mMenuList.flash();
 						return super.handleKeyPress(code, rawcode);
 					}
@@ -270,14 +270,14 @@ public class Music extends DefaultApplication {
 
 		public PathScreen(Music app, Tracker tracker, boolean first) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options, 1 for Jukebox");
 
 			getBelow().setResource(mMenuBackground);
 
 			mTracker = tracker;
 			mFirst = first;
-			
+
 			Iterator iterator = mTracker.getList().iterator();
 			while (iterator.hasNext()) {
 				Item nameFile = (Item) iterator.next();
@@ -446,7 +446,7 @@ public class Music extends DefaultApplication {
 					// TODO Playlists?
 					if (nameFile.isFolder() || nameFile.isFile()) {
 						setCurrentTrackerContext(file.getCanonicalPath());
-						
+
 						mMenuList.flash();
 						return super.handleKeyPress(code, rawcode);
 					}
@@ -521,6 +521,7 @@ public class Music extends DefaultApplication {
 		}
 
 		public boolean handleExit() {
+			mMusicInfo.flush();
 			mMusicInfo.clearResource();
 			return super.handleExit();
 		}
@@ -728,6 +729,7 @@ public class Music extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -1026,7 +1028,10 @@ public class Music extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);
@@ -1138,7 +1143,7 @@ public class Music extends DefaultApplication {
 
 		private BText mUrlText;
 	}
-	
+
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {

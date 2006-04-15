@@ -1,17 +1,17 @@
 package org.lnicholls.galleon.database;
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import net.sf.hibernate.Query;
 import net.sf.hibernate.ScrollableResults;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.Transaction;
+import net.sf.hibernate.expression.Expression;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class VideoManager {
@@ -70,31 +71,18 @@ public class VideoManager {
 		if (video.getId()!=null)
 		{
 			Session session = HibernateUtil.openSession();
-	
 			Transaction tx = null;
-	
 			try {
-	
 				tx = session.beginTransaction();
-	
 				clean(video);
-	
 				session.update(trim(video));
-	
 				tx.commit();
-	
 			} catch (HibernateException he) {
-	
 				if (tx != null)
-	
 					tx.rollback();
-	
 				throw he;
-	
 			} finally {
-	
 				HibernateUtil.closeSession();
-	
 			}
 		}
 	}
@@ -102,29 +90,17 @@ public class VideoManager {
 		if (Video.getId()!=null)
 		{
 			Session session = HibernateUtil.openSession();
-	
 			Transaction tx = null;
-	
 			try {
-	
 				tx = session.beginTransaction();
-	
 				session.delete(Video);
-	
 				tx.commit();
-	
 			} catch (HibernateException he) {
-	
 				if (tx != null)
-	
 					tx.rollback();
-	
 				throw he;
-	
 			} finally {
-	
 				HibernateUtil.closeSession();
-	
 			}
 		}
 	}
@@ -157,32 +133,32 @@ public class VideoManager {
 				list.add(video);
 		}
 		/*
-		 * 
+		 *
 		 * Session session = HibernateUtil.openSession();
-		 * 
+		 *
 		 * Transaction tx = null;
-		 * 
+		 *
 		 * try {
-		 * 
+		 *
 		 * tx = session.beginTransaction();
-		 * 
+		 *
 		 * list = session.createQuery("SELECT video FROM
 		 * org.lnicholls.galleon.database.Video video LEFT JOIN video.origen
 		 * origen WHERE origen IS NULL").list();
-		 * 
+		 *
 		 * tx.commit();
 		 *  } catch (HibernateException he) {
-		 * 
+		 *
 		 * if (tx != null)
-		 * 
+		 *
 		 * tx.rollback();
-		 * 
+		 *
 		 * throw he;
 		 *  } finally {
-		 * 
+		 *
 		 * HibernateUtil.closeSession();
 		 *  }
-		 * 
+		 *
 		 */
 		return list;
 	}
@@ -250,6 +226,22 @@ public class VideoManager {
 					.createQuery(
 							"from org.lnicholls.galleon.database.Video as video where video.path=?")
 					.setString(0, path).list();
+			tx.commit();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+	public static List findByFilename(String filename) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session.createCriteria(Video.class).add( Expression.like("path", "%"+filename) ).list();
 			tx.commit();
 			return list;
 		} catch (HibernateException he) {

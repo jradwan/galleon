@@ -2,17 +2,17 @@ package org.lnicholls.galleon.util;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -51,7 +51,7 @@ import org.lnicholls.galleon.database.Movie;
 public class IMDB {
 
 	private static final Logger log = Logger.getLogger(IMDB.class.getName());
-	
+
 	public static String getIMDBID(String key) {
 		String imdb = null;
 		if (key != null) {
@@ -179,13 +179,9 @@ public class IMDB {
 				NodeFilter filter = null;
 				NodeList list = list = new NodeList();
 
-				// <a name="poster" href="photogallery"><img border="0"
-				// alt="cover"
-				// src="http://ia.imdb.com/media/imdb/01/I/34/32/20m.jpg"
-				// height="140" width="75"></a>
-
+				//<a name="poster" href="photogallery" title="ATL"><img border="0" alt="ATL" title="ATL" src="http://ia.imdb.com/media/imdb/01/I/88/39/00/10m.jpg" height="140" width="95"></a>
 				list = new NodeList();
-				filter = new AndFilter(new AndFilter(new TagNameFilter("IMG"), new HasAttributeFilter("alt", "cover")),
+				filter = new AndFilter(new TagNameFilter("IMG"),
 						new HasParentFilter(new AndFilter(new TagNameFilter("A"), new HasAttributeFilter("name",
 								"poster"))));
 				list = parser.extractAllNodesThatMatch(filter);
@@ -539,7 +535,7 @@ public class IMDB {
 			}
 		}
 	}
-	
+
 	public static String getIMDBID2(String key) {
 		String imdb = null;
 		if (key != null) {
@@ -551,14 +547,14 @@ public class IMDB {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", "Galleon "+ Tools.getVersion());
                 conn.setInstanceFollowRedirects(true);
-                
+
                 InputStream input = conn.getInputStream();
                 while ((amount = input.read(buf)) > 0) {
                     buffer.append(new String(buf, 0, amount));
                 }
                 input.close();
                 conn.disconnect();
-                
+
                 SAXReader saxReader = new SAXReader();
                 StringReader stringReader = new StringReader(buffer.toString().trim());
                 Document document = saxReader.read(stringReader);
@@ -569,11 +565,11 @@ public class IMDB {
                 return Tools.getAttribute(root, "imdb");
 			} catch (Exception ex) {
 				Tools.logException(IMDB.class, ex, "Could not get IMDB ID: " + key);
-			}				
+			}
 		}
 		return imdb;
-	}	
-	
+	}
+
 	public static void getMovie2(Movie movie) {
 		String imdb = movie.getIMDB();
 		if (imdb==null || imdb.length()==0)
@@ -582,7 +578,7 @@ public class IMDB {
 		}
 		if (imdb != null) {
 			movie.setIMDB(imdb);
-			
+
 			StringBuffer buffer = new StringBuffer();
 	        byte[] buf = new byte[1024];
 	        int amount = 0;
@@ -591,14 +587,14 @@ public class IMDB {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", "Galleon "+ Tools.getVersion());
                 conn.setInstanceFollowRedirects(true);
-                
+
                 InputStream input = conn.getInputStream();
                 while ((amount = input.read(buf)) > 0) {
                     buffer.append(new String(buf, 0, amount));
                 }
                 input.close();
                 conn.disconnect();
-                
+
                 SAXReader saxReader = new SAXReader();
                 StringReader stringReader = new StringReader(buffer.toString().trim());
                 Document document = saxReader.read(stringReader);
@@ -632,7 +628,7 @@ public class IMDB {
 				Tools.logException(IMDB.class, ex, "Could not get IMDB data: " + movie.getTitle());
 			}
 		}
-	}	
+	}
 
 	private static boolean empty(String value) {
 		if (value == null)

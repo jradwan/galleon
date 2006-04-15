@@ -2,17 +2,17 @@ package org.lnicholls.galleon.gui;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -130,15 +130,10 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                                     if (value!=null)
                                     {
 	                                    for (int j = 0; j < combo.getItemCount(); j++) {
-	
 	                                        if (((NameValue) combo.getItemAt(j)).getValue().equals(value)) {
-	
 	                                            combo.setSelectedIndex(j);
-	
 	                                            break;
-	
 	                                        }
-	
 	                                    }
                                     }
                                 }
@@ -174,6 +169,7 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
         });
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(mTable);
+        //setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         builder.add(scrollPane, cc.xyw(1, 3, 1));
 
         JPanel panel = builder.getPanel();
@@ -294,7 +290,7 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
                     {
                 		JComboBox field = (JComboBox) mFields.get(i);
                     	field.setSelectedIndex(0);
-                    }                    	
+                    }
                 }
             } catch (Exception ex) {
                 Tools.logException(OptionsTable.class, ex);
@@ -318,6 +314,6 @@ public class OptionsTable extends JPanel implements ActionListener, KeyListener,
     private JButton mModifyButton;
 
     private JButton mDeleteButton;
-    
+
     private boolean mUpdating;
 }

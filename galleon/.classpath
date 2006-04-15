@@ -54,10 +54,13 @@
 	<classpathentry kind="lib" path="lib/jawin.jar"/>
 	<classpathentry kind="lib" path="lib/MHS.jar"/>
 	<classpathentry kind="lib" path="lib/hme-host-sample.jar"/>
-	<classpathentry kind="lib" path="lib/jcaptcha.jar"/>
+	<classpathentry kind="lib" path="/galleon/lib/jcaptcha.jar"/>
 	<classpathentry kind="lib" path="lib/upcoming.jar"/>
-	<classpathentry kind="lib" path="lib/muse.jar"/>
+	<classpathentry kind="lib" path="/galleon/lib/muse.jar"/>
 	<classpathentry kind="lib" path="lib/smack.jar"/>
 	<classpathentry kind="lib" path="lib/smackx.jar"/>
+	<classpathentry kind="lib" path="lib/sbbi-upnplib-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/cmgatejava120.jar"/>
+	<classpathentry kind="lib" path="lib/WinService.jar"/>
 	<classpathentry kind="output" path="binary"/>
 </classpath>

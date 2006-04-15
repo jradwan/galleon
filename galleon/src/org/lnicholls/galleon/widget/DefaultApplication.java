@@ -2,17 +2,17 @@ package org.lnicholls.galleon.widget;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -74,22 +74,22 @@ public class DefaultApplication extends BApplication {
     private static final Logger log = Logger.getLogger(DefaultApplication.class.getName());
 
     public static String TRACKER = "org.lnicholls.galleon.widget.DefaultApplication.Tracker.List";
-    
+
     public static String SEPARATOR = ",";
 
     private Resource mBusyIcon;
 
     private Resource mStarIcon;
-    
+
     private byte mMemento[];
-    
+
     private TeDict mParams;
 
     public void init(IContext context) throws Exception {
         super.init(context);
 
         mCallbacks = new ArrayList();
-        
+
         try
         {
         	AppContext appContext = ((AppFactory)getFactory()).getAppContext();
@@ -116,7 +116,7 @@ public class DefaultApplication extends BApplication {
         			AppConfiguration appConfiguration = (AppConfiguration)appContext.getConfiguration();
         			shared = appConfiguration.isShared();
         		}
-        		
+
         		Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getTitle(), appContext.getDescriptor().getVersion(), 1, new Date(), null, new Date(), Boolean.valueOf(shared));
         		ApplicationManager.createApplication(application);
         	}
@@ -127,7 +127,7 @@ public class DefaultApplication extends BApplication {
 
     public Resource getStarIcon() {
     	if (mStarIcon==null)
-    		mStarIcon = getSkinImage(null, "star");	
+    		mStarIcon = getSkinImage(null, "star");
         return mStarIcon;
     }
 
@@ -187,7 +187,7 @@ public class DefaultApplication extends BApplication {
         case KEY_NUM1:
             if (mCurrentTrackerContext != null) {
                 play("thumbsup.snd");
-                
+
                 if (!isDemoMode())
                 {
 	                PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
@@ -203,7 +203,7 @@ public class DefaultApplication extends BApplication {
 	    					FileSystemContainer fileSystemContainer = new FileSystemContainer(mCurrentTrackerContext, true);
 	        				Tracker tracker = new Tracker(fileSystemContainer.getItems(FileFilters.audioDirectoryFilter), 0);
 	        				//mTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
-	        				
+
 	        				String trackerString = getTrackerString(tracker);
 	        				if (buffer.length()==0)
 	        					buffer.append(trackerString);
@@ -247,7 +247,7 @@ public class DefaultApplication extends BApplication {
 	    								files.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
 	    							}
 	    						}
-	
+
 	    						tx.commit();
 	    					} catch (HibernateException he) {
 	    						if (tx != null)
@@ -259,7 +259,7 @@ public class DefaultApplication extends BApplication {
 	    				} catch (Exception ex) {
 	    					Tools.logException(DefaultApplication.class, ex);
 	    				}
-	
+
 	    				Tracker tracker = new Tracker(files, 0);
 	    				//mTracker.setRandom(musicPlayerConfiguration.isRandomPlayFolders());
 	    				String trackerString = getTrackerString(tracker);
@@ -303,12 +303,12 @@ public class DefaultApplication extends BApplication {
         case KEY_SLOW:
         	getPlayer().stopTrack();
             break;
-        case KEY_FORWARD: 
+        case KEY_FORWARD:
         	getPlayer().fastForwardTrack();
             break;
-        case KEY_REVERSE: 
+        case KEY_REVERSE:
         	getPlayer().rewindTrack();
-            break;            
+            break;
         case KEY_ADVANCE:
         	play("right.snd");
             flush();
@@ -320,7 +320,7 @@ public class DefaultApplication extends BApplication {
         }
         return super.handleKeyPress(code, rawcode);
     }
-    
+
     public boolean handleEvent(HmeEvent event)
     {
     	switch (event.getOpCode()) {
@@ -333,17 +333,17 @@ public class DefaultApplication extends BApplication {
     	}
     	return super.handleEvent(event);
     }
-    
+
     public boolean handleInitInfo(HmeEvent.InitInfo info)
     {
     	return true;
-    }    
-    
+    }
+
     public byte[] getMemento()
     {
     	return mMemento;
-    }    
-    
+    }
+
     public TeDict getParams()
     {
     	return mParams;
@@ -419,7 +419,7 @@ public class DefaultApplication extends BApplication {
 	            		for (int i=0;i<mList.size();i++)
 	            			mRandomAvailable.add(new Integer(i));
 	            	}
-	            	
+
 	            	int index = mRandomizer.nextInt(mRandomAvailable.size());
 	            	int pos = ((Integer)mRandomAvailable.get(index)).intValue();
 	            	mRandomAvailable.remove(index);
@@ -430,14 +430,14 @@ public class DefaultApplication extends BApplication {
         	}
         	return 0;
         }
-        
+
         public Object clone()
         {
         	ArrayList list = new ArrayList();
         	list.addAll(mList);
         	return new Tracker(list, mPos);
         }
-        
+
         private List mList = new ArrayList();
 
         private int mPos = -1;
@@ -445,10 +445,10 @@ public class DefaultApplication extends BApplication {
         private boolean mRandom;
 
         private Random mRandomizer = new Random();
-        
+
         private ArrayList mRandomAvailable = null;
     }
-    
+
     public static String getTrackerString(Tracker tracker)
     {
     	StringBuffer buffer = new StringBuffer();
@@ -482,9 +482,9 @@ public class DefaultApplication extends BApplication {
         public static final int PAUSE = 1;
 
         public static final int STOP = 2;
-        
+
         public static final int FORWARD = 3;
-        
+
         public static final int REWIND = 4;
 
         public Player(DefaultApplication defaultApplication) {
@@ -496,6 +496,7 @@ public class DefaultApplication extends BApplication {
             if (mStreamResource != null) {
                 //System.out.println("playTrack: remove");
                 mStreamResource.removeHandler(this);
+                mStreamResource.flush();
                 mStreamResource.remove();
                 //mStreamResource.close();
                 mDefaultApplication.flush();
@@ -596,13 +597,13 @@ public class DefaultApplication extends BApplication {
                 }
             }
         }
-        
+
         public void jumpTrack() {
             //System.out.println("stopTrack:");
             if (mPlayerState != STOP) {
                 if (mStreamResource != null) {
                 	mPlayerState = PLAY;
-                	
+
                 	int skip = mTotal/4;
                 	if (mCurrentPosition < 1*skip)
                 	{
@@ -613,12 +614,12 @@ public class DefaultApplication extends BApplication {
             		{
             			mStreamResource.setPosition(2*skip);
             		}
-            		else                		
+            		else
             		if (mCurrentPosition < 3*skip)
             		{
             			mStreamResource.setPosition(3*skip);
             		}
-                	else                		
+                	else
             		if (mCurrentPosition < 4*skip)
             		{
             			mStreamResource.setPosition(4*skip);
@@ -627,17 +628,17 @@ public class DefaultApplication extends BApplication {
             		{
             			mStreamResource.setPosition(0);
             		}
-                	
+
                 	mSpeedIndex = 3;
                 	mDefaultApplication.play("select.snd");
                 	mDefaultApplication.flush();
                 }
             }
         }
-        
+
         void fastForwardTrack()
         {
-            if (mStreamResource != null) 
+            if (mStreamResource != null)
             {
             	mPlayerState = FORWARD;
                 if (mSpeedIndex < 6 && mSpeedIndex >= 3)
@@ -652,7 +653,7 @@ public class DefaultApplication extends BApplication {
                     } else {
                     	mDefaultApplication.play("slowdown1.snd");
                     }
-                                            
+
                 }
                 else
                 {
@@ -666,7 +667,7 @@ public class DefaultApplication extends BApplication {
 
         void rewindTrack()
         {
-            if (mStreamResource != null) 
+            if (mStreamResource != null)
             {
             	mPlayerState = REWIND;
             	if (mSpeedIndex > 0 && mSpeedIndex <= 3)
@@ -691,7 +692,7 @@ public class DefaultApplication extends BApplication {
                 mStreamResource.setSpeed(mSpeeds[mSpeedIndex]);
             }
         }
-        
+
         public void postEvent(HmeEvent event) {
             //System.out.println("postEvent:"+event);
             // TODO Implement listeners
@@ -721,7 +722,7 @@ public class DefaultApplication extends BApplication {
                 if (mDefaultApplication.getCurrentScreen().getFocus() != null)
                     mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(mDefaultApplication
                             .getCurrentScreen().getFocus(), ResourceInfo.statusToString(info.getStatus())));
-                fireEvent(new ApplicationEvent(info, ResourceInfo.statusToString(info.getStatus()), getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));                
+                fireEvent(new ApplicationEvent(info, ResourceInfo.statusToString(info.getStatus()), getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));
                 break;
             case StreamResource.EVT_RSRC_STATUS:
                 if (info.getStatus() == RSRC_STATUS_PLAYING || info.getStatus() == RSRC_STATUS_SEEKING) {
@@ -741,8 +742,8 @@ public class DefaultApplication extends BApplication {
                         if (mDefaultApplication.getCurrentScreen().getFocus() != null)
                             mDefaultApplication.getCurrentScreen().getFocus().handleEvent(new BEvent.Action(
                                     mDefaultApplication.getCurrentScreen().getFocus(), "stopped"));
-                        
-                        fireEvent(new ApplicationEvent(info, "stopped", getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));                        
+
+                        fireEvent(new ApplicationEvent(info, "stopped", getCurrentAudio(), mCurrentPosition, mTotal, mBitrate));
                     }
                 }
                 break;
@@ -839,9 +840,9 @@ public class DefaultApplication extends BApplication {
         private String mTitle = "";
 
         private Audio mCurrentAudio;
-        
+
         private int mSpeedIndex = 3;
-        
+
         private float[] mSpeeds = {-60.0f, -15.0f, -3.0f, 1.0f, 3.0f, 15.0f, 60.0f};
     }
 
@@ -926,8 +927,8 @@ public class DefaultApplication extends BApplication {
      * try { while (true) { int count = in.read(buf, 0, buf.length); if (count < 0) { break; } context.out.write(buf, 0,
      * count); } } finally { try { in.close(); } catch (IOException e) { } } }
      */
-    
-    
+
+
     public static class ApplicationEvent
     {
         public ApplicationEvent(HmeEvent.ResourceInfo event, String status, Audio audio, int currentPosition, int total, int bitrate)
@@ -939,22 +940,22 @@ public class DefaultApplication extends BApplication {
             mTotal = total;
             mBitrate = bitrate;
         }
-        
+
         public HmeEvent.ResourceInfo getEvent()
         {
             return mEvent;
         }
-        
+
         public String getStatus()
         {
             return mStatus;
-        }        
-        
+        }
+
         public Audio getAudio()
         {
             return mAudio;
         }
-        
+
         public int getCurrentPosition() {
             return mCurrentPosition;
         }
@@ -966,25 +967,25 @@ public class DefaultApplication extends BApplication {
         public int getBitrate() {
             return mBitrate;
         }
-        
+
         private HmeEvent.ResourceInfo mEvent;
-        
+
         private String mStatus;
-        
+
         private Audio mAudio;
-        
+
         private int mCurrentPosition;
 
         private int mTotal;
 
         private int mBitrate;
     }
-    
+
     public static interface ApplicationEventListener
     {
         public void handleApplicationEvent(ApplicationEvent appEvent);
     }
-    
+
     public static void addApplicationEventListener(ApplicationEventListener listener)
     {
         mApplicationEventListeners.add(listener);
@@ -1003,53 +1004,53 @@ public class DefaultApplication extends BApplication {
          {
              ((ApplicationEventListener)listeners.get(i)).handleApplicationEvent(appEvent);
          }
-         
+
     }
-    
+
     public boolean handleActive(boolean active)
     {
     	return super.handleActive(active);
     }
-    
+
     public boolean handleIdle( boolean isIdle )
     {
     	if (isIdle)
     	{
     		if (Server.getServer().getServerConfiguration().isDisableTimeout())
     		{
-    			acknowledgeIdle(true);	
+    			acknowledgeIdle(true);
         		return true;
     		}
     		else
    			if (mHandleTimeout)
    			{
-    			acknowledgeIdle(true);	
+    			acknowledgeIdle(true);
         		return true;
     		}
     	}
    		return super.handleIdle(isIdle);
     }
-    
+
     public void setHandleTimeout(boolean value)
     {
     	mHandleTimeout = value;
     }
-    
+
     public boolean getHandleTimeout()
     {
     	return mHandleTimeout;
     }
-    
+
 	public class VersionScreen extends DefaultScreen {
 
 		public VersionScreen(DefaultApplication app) {
 			super(app, "", false);
 
 			getBelow().setResource(Color.WHITE);
-			
+
 			BView image = new BView(getNormal(), (getWidth()/2)-125, SAFE_TITLE_V, 250, 188, true);
 			image.setResource("galleon.png");
-			
+
 			BText text = new BText(getNormal(), BORDER_LEFT, (getHeight() - SAFE_TITLE_V) - 140, BODY_WIDTH, 100);
 			text.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
 			text.setFont("default-30-bold.font");
@@ -1068,28 +1069,28 @@ public class DefaultApplication extends BApplication {
 			return true;
 		}
 	}
-	
+
 	public class PinScreen extends DefaultScreen {
 
 		public PinScreen(DefaultApplication app) {
 			super(app, "", false);
-			
+
 			ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
 			mPin = Tools.decrypt(serverConfiguration.getPin());
 			mValue = "";
 
 			getBelow().setResource(Color.WHITE);
-			
+
 			BView image = new BView(getNormal(), (getWidth()/2)-125, SAFE_TITLE_V, 250, 188, true);
 			image.setResource("galleon.png");
-			
+
 			BText text = new BText(getNormal(), BORDER_LEFT, (getHeight() - SAFE_TITLE_V) - 180, BODY_WIDTH, 100);
 			text.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
 			text.setFont("default-30-bold.font");
 			text.setColor(Color.BLACK);
 			text.setShadow(true);
 			text.setValue("Enter PIN:");
-			
+
 			mText = new BText(getNormal(), BORDER_LEFT, (getHeight() - SAFE_TITLE_V) - 140, BODY_WIDTH, 100);
 			mText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
 			mText.setFont("default-30-bold.font");
@@ -1168,7 +1169,7 @@ public class DefaultApplication extends BApplication {
 					getBApp().play("bonk.snd");
 					getBApp().flush();
 				}
-				break;				
+				break;
 			case KEY_SELECT:
 				if (mValue.equals(mPin))
 				{
@@ -1181,16 +1182,16 @@ public class DefaultApplication extends BApplication {
 					log.info("Invalid PIN");
 					getBApp().play("bonk.snd");
 					getBApp().flush();
-		            setActive(false); 
+		            setActive(false);
 				}
 				return true;
 			}
-			
+
 			if (value != null)
 			{
 				mValue = mValue + value;
 			}
-			
+
 			String hidden = "";
 			for (int i=0;i < mValue.length(); i++)
 			{
@@ -1198,16 +1199,16 @@ public class DefaultApplication extends BApplication {
 			}
 			mText.setValue(hidden);
 			getBApp().flush();
-			
+
 			return true;
 		}
-		
+
 		private BText mText;
-		
+
 		private String mValue;
-		
+
 		private String mPin;
-	}	
+	}
 
 	public void initialize() {
 		boolean interrupted = false;
@@ -1238,7 +1239,7 @@ public class DefaultApplication extends BApplication {
 			{
 				if (!Server.getServer().isCurrentVersion())
 				{
-					push(new VersionScreen(this), TRANSITION_NONE);			
+					push(new VersionScreen(this), TRANSITION_NONE);
 				}
 			}
 			catch (Exception ex)
@@ -1247,12 +1248,12 @@ public class DefaultApplication extends BApplication {
 			}
 		}
 	}
-	
+
 	public boolean isDemoMode()
 	{
 		return Server.getServer().isDemoMode();
 	}
-	
+
     private Player mPlayer;
 
     private ArrayList mCallbacks;
@@ -1262,8 +1263,8 @@ public class DefaultApplication extends BApplication {
     private ByteArrayOutputStream mLastObject;
 
     private Resource mLastResource;
-    
+
     private static Vector mApplicationEventListeners = new Vector();
-    
+
     private boolean mHandleTimeout;
 }

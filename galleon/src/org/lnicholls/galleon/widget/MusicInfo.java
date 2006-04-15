@@ -2,17 +2,17 @@ package org.lnicholls.galleon.widget;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -46,7 +46,7 @@ public class MusicInfo extends BView {
     public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible) {
         this(parent, x, y, width, height, visible, false);
     }
-    
+
     public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible, boolean webImages) {
         super(parent, x, y, width, height, visible);
 
@@ -54,7 +54,7 @@ public class MusicInfo extends BView {
 
         mTimeFormatShort = new SimpleDateFormat();
         mTimeFormatShort.applyPattern("mm:ss");
-        
+
         mTimeFormatLong = new SimpleDateFormat();
         mTimeFormatLong.applyPattern("h:mm:ss");
 
@@ -170,7 +170,7 @@ public class MusicInfo extends BView {
                     	mTrackText.setVisible(true);
                     }
                     mDurationText.setLabel("Duration:");
-                    if (audio.getDuration()>1000*60*60) 
+                    if (audio.getDuration()>1000*60*60)
                     	mDurationText.setValue(mTimeFormatLong.format(new Date(audio.getDuration())));
                     else
                     	mDurationText.setValue(mTimeFormatShort.format(new Date(audio.getDuration())));
@@ -193,7 +193,7 @@ public class MusicInfo extends BView {
                 }
 
                 setRating(audio);
-                
+
                 if (mAudio==null || !mAudio.getId().equals(audio.getId()))
                 {
                 	mAudio = audio;
@@ -204,7 +204,7 @@ public class MusicInfo extends BView {
                         	public void run() {
                                 int x = mCover.getX();
                                 int y = mCover.getY();
-                                
+
                                 Audio audio = null;
                                 while (getApp().getContext()!=null)
                                 {
@@ -225,8 +225,9 @@ public class MusicInfo extends BView {
     	            		                        }
     	            		                    } else {
     	            		                        synchronized (this) {
-    	            		                            mCover.clearResource();
-    	            		                            mCover.setVisible(false);
+    	            		                        	mCover.setVisible(false);
+    	            		                        	mCover.flush();
+    	            		                        	mCover.clearResource();
     	            		                            getBApp().flush();
     	            		                        }
     	            		                    }
@@ -234,7 +235,7 @@ public class MusicInfo extends BView {
     	            		                } catch (Exception ex) {
     	            		                    Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
     	            		                }
-    	            		                
+
     	            		                while (mWebImages & getApp().getContext() != null) {
     	            		                    try {
     	            		                        if (mCover.getResource() != null)
@@ -242,27 +243,30 @@ public class MusicInfo extends BView {
     	            		                        	{
     	            		                        		wait(10000);
     	            		                        	}
-    	            		                        
+
     	            		                        if (!audio.getArtist().equals(mAudio.getArtist()))
     	            		                        {
     	            		                        	if (mResults != null) {
     	            		                                mResults.clear();
     	            		                                mResults = null;
     	            		                            }
-    	
+
     	            		                        	mCover.setVisible(false);
     	            		                            if (mCover.getResource() != null)
+    	            		                            {
+    	            		                            	mCover.getResource().flush();
     	            		                                mCover.getResource().remove();
-    	            		                        	
+    	            		                            }
+
     	            		                            break;
     	            		                        }
-    	            		
+
     	            		                        if (mResults == null) {
     	            		                            if (mResults != null) {
     	            		                                mResults.clear();
     	            		                                mResults = null;
     	            		                            }
-    	            		
+
     	            		                            mResults = Yahoo.getImages("\"" + audio.getArtist() + "\" music");
     	            		                            if (mResults.size() == 0) {
     	            		                                mResults = null;
@@ -270,23 +274,29 @@ public class MusicInfo extends BView {
     	            		                            }
     	            		                            mPos = 0;
     	            		                        }
-    	            		
+
     	            		                        NameValue nameValue = (NameValue) mResults.get(mPos);
     	            		                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
-    	            		                        
+
     	            		                        if (image != null) {
     	            		                                setPainting(false);
     	            		                                try {
-    	            		                                    if (mCover.getResource() != null)
-    	            		                                        mCover.getResource().remove();
-    	            		                                    //mUrlText.setValue(nameValue.getName());
-    	            		                                    mCover.setLocation(x + mCover.getWidth(), y);
-    	            		                                    mCover.setVisible(true);
-    	            		                                    mCover.setTransparency(1f);
-    	            		                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-    	            		                                    Resource resource = getResource("*1000");
-    	            		                                    mCover.setTransparency(0f, resource);
-    	            		                                    mCover.setLocation(x, y, resource);
+    	            		                                	if (getApp().getContext()!=null)
+    	            		                                    {
+	    	            		                                    if (mCover.getResource() != null)
+	    	            		                                    {
+	    	            		                                    	mCover.getResource().flush();
+	    	            		                                        mCover.getResource().remove();
+	    	            		                                    }
+	    	            		                                    //mUrlText.setValue(nameValue.getName());
+	    	            		                                    mCover.setLocation(x + mCover.getWidth(), y);
+	    	            		                                    mCover.setVisible(true);
+	    	            		                                    mCover.setTransparency(1f);
+	    	            		                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+	    	            		                                    Resource resource = getResource("*1000");
+	    	            		                                    mCover.setTransparency(0f, resource);
+	    	            		                                    mCover.setLocation(x, y, resource);
+    	            		                                    }
     	            		                                    image.flush();
     	            		                                    image = null;
     	            		                                } finally {
@@ -295,9 +305,9 @@ public class MusicInfo extends BView {
     	            		                        } else {
     	            		                            mResults.remove(mPos);
     	            		                        }
-    	            		
+
     	            		                        mPos = (mPos + 1) % mResults.size();
-    	            		
+
     	            		                    } catch (InterruptedException ex) {
     	            		                        return;
     	            		                    } catch (Exception ex) {
@@ -332,9 +342,12 @@ public class MusicInfo extends BView {
                                         	{
                 		                		mCover.setVisible(false);
             		                            if (mCover.getResource() != null)
+            		                            {
+            		                            	mCover.getResource().flush();
             		                                mCover.getResource().remove();
+            		                            }
             		                            getBApp().flush();
-                		                		
+
                                         		wait(10000);
                                         	}
                 	                	} catch (InterruptedException ex) {
@@ -346,7 +359,7 @@ public class MusicInfo extends BView {
                         };
                         mCoverThread.start();
                     }
-                	
+
                     synchronized(mCoverThread)
 	                {
 	                	mCoverThread.notifyAll();
@@ -387,7 +400,7 @@ public class MusicInfo extends BView {
                     mCoverThread.interrupt();
                     mCoverThread.stop();
                     mCoverThread = null;
-                    
+
                     /*
                      * if (mResults != null) { mResults.clear(); mResults = null; }
                      */
@@ -395,7 +408,7 @@ public class MusicInfo extends BView {
                     mCover.setVisible(false);
                     if (mCover.getResource() != null)
                         mCover.getResource().remove();
-*/                        
+*/
             }
         } finally {
             setPainting(true);
@@ -462,13 +475,13 @@ public class MusicInfo extends BView {
     private Audio mAudio;
 
     private SimpleDateFormat mTimeFormatShort;
-    
+
     private SimpleDateFormat mTimeFormatLong;
 
     private Resource mAnim = getResource("*2000");
 
     private BView mCover;
-    
+
     private BText mTitleText;
 
     private LabelText mSongText;

@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.shoutcast;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -58,7 +58,7 @@ public class ShoutcastStations {
                 try {
                 	log.debug("Shoutcast");
                     getPlaylists();
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     log.error("Could not download stations", ex);
                 }
             }
@@ -70,7 +70,7 @@ public class ShoutcastStations {
 	        HttpClient httpclient = new HttpClient();
 	        httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
 	        httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
-	        
+
 	        ArrayList stations = new ArrayList();
 	        int total = 1;
 	        for (int i=0;i<total;i++)
@@ -81,12 +81,12 @@ public class ShoutcastStations {
 	        	GetMethod get = new GetMethod("http://www.shoutcast.com/directory/?sgenre="
 	                    + URLEncoder.encode(URLDecoder.decode(genre, "UTF-8"), "UTF-8")+page);
 	            get.setFollowRedirects(true);
-	
+
 	            try {
 	                int iGetResultCode = httpclient.executeMethod(get);
 	                final String strGetResponseBody = get.getResponseBodyAsString();
 	                //log.debug(strGetResponseBody);
-	
+
 	                if (strGetResponseBody != null) {
 	                	if (i==0)
 	            	   	{
@@ -97,7 +97,7 @@ public class ShoutcastStations {
 		                   if (m.find()) {
 		                       total = Integer.parseInt(m.group(2));
 		                   }
-		                   
+
 		                   // Servers - <font color="#FF0000">12,147</font>
 		                   REGEX = "Servers - <font color=\"#FF0000\">([^<]*)</font>";
 		                   p = Pattern.compile(REGEX);
@@ -106,7 +106,7 @@ public class ShoutcastStations {
 		                      PersistentValueManager.savePersistentValue(ShoutcastStations.this.getClass().getName() + "." + "servers", m.group(1));
 		                   }
 	            	   	}
-	                	
+
 	                    //"/sbin/shoutcast-playlist.pls?rn=5224&file=filename.pls"
 	                    String REGEX = "=\"/sbin/shoutcast-playlist.pls([^<]*)\">";
 	                    Pattern p = Pattern.compile(REGEX);
@@ -116,7 +116,7 @@ public class ShoutcastStations {
 	                        if (log.isDebugEnabled())
 	                            log.debug("Parameters: " + m.group(1));
 	                        String link = "http://www.shoutcast.com/sbin/shoutcast-playlist.pls" + m.group(1);
-	                        
+
 	                        stations.add(link);
 	                    }
 	                }
@@ -178,7 +178,7 @@ public class ShoutcastStations {
 			        } catch (Exception ex) {
 			        }
 			    }
-			    
+
 			    try
 	            {
 			    	List stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
@@ -203,19 +203,19 @@ public class ShoutcastStations {
 	            	    		}
 	            	    		catch (Exception ex)
 	            	    		{
-	            	    			Tools.logException(ShoutcastStations.class, ex);    			
+	            	    			Tools.logException(ShoutcastStations.class, ex);
 	            	    		}
 	            	    	}
 	            			getStations(limitedGenre.getGenre());
 	            			stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
 	            		}
-	            		
+
 	            		int max = start + limit;
 	        		    if (limitedGenre.getLimit()!=-1 && max > limitedGenre.getLimit())
 	        		    	max = limitedGenre.getLimit();
 	        		    if (max > stations.size())
 	        		    	max = stations.size();
-	        		    
+
 	        	    	for (int i=start; i < max; i++)
 	        	    	{
 	        	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
@@ -237,7 +237,7 @@ public class ShoutcastStations {
 	                                        }
 	                                        if (log.isDebugEnabled())
 	                                            log.debug("PlaylistItem: " + t + "=" + u);
-	
+
 	                                        try {
 	                                            // Remove duplicates
 	                                            List all = AudioManager.findByOrigenGenre(SHOUTCAST, limitedGenre.getGenre());
@@ -252,12 +252,12 @@ public class ShoutcastStations {
 	                                                    }
 	                                                }
 	                                            }
-	
+
 	                                            Audio current = null;
 	                                            List same = AudioManager.findByPath(u);
 	                                            if (same.size() > 0)
 	                                                current = (Audio) same.get(0);
-	
+
 	                                            if (current != null) {
 	                                            	current.setTitle(t);
 	                                            	current.setGenre(limitedGenre.getGenre());
@@ -285,7 +285,7 @@ public class ShoutcastStations {
 	            	    		}
 	            	    		catch (Exception ex)
 	            	    		{
-	            	    			Tools.logException(ShoutcastStations.class, ex);    			
+	            	    			Tools.logException(ShoutcastStations.class, ex);
 	            	    		}
 	        	    		}
 	        	    	}
@@ -297,7 +297,7 @@ public class ShoutcastStations {
 		    }
 	    }
 	}
-    
+
     public void remove()
     {
     	try {
@@ -306,12 +306,12 @@ public class ShoutcastStations {
 				String genre = (String) i.next();
 	    		remove(genre);
 			}
-    		
+
     	} catch (Exception ex) {
     		Tools.logException(ShoutcastStations.class, ex);
         }
     }
-    
+
     public void remove(String genre)
     {
     	try {
@@ -331,7 +331,7 @@ public class ShoutcastStations {
     		Tools.logException(ShoutcastStations.class, ex);
         }
     }
-    
+
     public String getServers()
     {
     	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + "servers");
@@ -341,7 +341,7 @@ public class ShoutcastStations {
     	}
     	return null;
     }
-    
+
     public void setShoutcastConfiguration(ShoutcastConfiguration shoutcastConfiguration)
     {
     	mConfiguration = shoutcastConfiguration;

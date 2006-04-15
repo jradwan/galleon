@@ -50,6 +50,7 @@ public class ScrollTextControl extends View {
         
         Image banner = Util.createBanner(mCharacters, mFonts, mFontWidth, mFontHeight, 0, mText.toUpperCase());
 
+        mScrollingText.flush();
         mScrollingText.clearResource();
         mScrollingText.setBounds(start, 0, banner.getWidth(null), banner.getHeight(null));
         mScrollingText.setResource(createImage(banner));

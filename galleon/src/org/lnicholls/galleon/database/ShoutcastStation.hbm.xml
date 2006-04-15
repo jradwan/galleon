@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC 
+<!DOCTYPE hibernate-mapping PUBLIC
 	"-//Hibernate/Hibernate Mapping DTD 2.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
@@ -23,7 +23,7 @@ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 See the file "COPYING" for more details.
     </meta>
-    
+
   <meta attribute="class-code">
     public boolean equals(Object object)
     {
@@ -31,9 +31,9 @@ See the file "COPYING" for more details.
         if (url!=null &amp;&amp; shoutcastStation.url!=null)
 	        return url.equals(shoutcastStation.url);
 		else
-			return false;	        
+			return false;
     }
-    
+
     public String getStatusString() {
         switch (status) {
         case 1:
@@ -47,7 +47,7 @@ See the file "COPYING" for more details.
         }
         return "Pending";
     }
-    
+
     public static int STATUS_PENDING = 1;
 
     public static int STATUS_DOWNLOADED = 2;
@@ -56,10 +56,10 @@ See the file "COPYING" for more details.
 
     public static int STATUS_ERROR = 8;
 
-  </meta>          
-    
-    <cache usage="read-write"/>
-    
+  </meta>
+
+    <!--cache usage="read-write"/-->
+
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>
       <generator class="native"/>
@@ -68,15 +68,15 @@ See the file "COPYING" for more details.
     <property name="genre" type="string" not-null="true">
       <column name="genre" index="SHOUTCAST_GENRE"  length="30"/>
     </property>
-    
-    <property name="url" type="string" not-null="true" length="1024">        
+
+    <property name="url" type="string" not-null="true" length="1024">
       <column name="url" index="SHOUTCAST_URL"/>
-    </property>    
-    
-    <property name="popularity" type="int" not-null="true"/>        
-    
-    <property name="status" type="int" not-null="true"/>    
-    
+    </property>
+
+    <property name="popularity" type="int" not-null="true"/>
+
+    <property name="status" type="int" not-null="true"/>
+
   </class>
-  
+
 </hibernate-mapping>

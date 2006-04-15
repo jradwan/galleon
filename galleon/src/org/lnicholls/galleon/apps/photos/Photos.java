@@ -1,17 +1,17 @@
 package org.lnicholls.galleon.apps.photos;
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 import java.awt.Color;
@@ -129,6 +129,7 @@ public class Photos extends DefaultApplication {
 			super(app, "Photos");
 			setFooter("Press ENTER for options");
 			getBelow().setResource(mMenuBackground);
+			getBelow().flush();
 			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 			.getAppContext().getConfiguration();
 			for (Iterator i = imagesConfiguration.getPaths().iterator(); i
@@ -202,8 +203,10 @@ public class Photos extends DefaultApplication {
 			Item nameFile = (Item) mMenuList.get(index);
 			if (nameFile.isFolder()) {
 				icon.setResource(mFolderIcon);
+				icon.flush();
 			} else {
 				icon.setResource(mCameraIcon);
+				icon.flush();
 			}
 			BText name = new BText(parent, 50, 4, parent.getWidth() - 40,
 					parent.getHeight() - 4);
@@ -238,6 +241,7 @@ public class Photos extends DefaultApplication {
 					BView folderImage = new BView(parent, 0, 0, parent
 							.getWidth(), parent.getHeight());
 					folderImage.setResource(mLargeFolderIcon);
+					folderImage.flush();
 					BText nameText = new BText(parent, 0,
 							parent.getHeight() - 25, parent.getWidth(), 25);
 					nameText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_BOTTOM);
@@ -282,6 +286,7 @@ public class Photos extends DefaultApplication {
 												RSRC_IMAGE_BESTFIT);
 										parent.setTransparency(0.0f);
 										parent.flush();
+										Tools.clearResource(parent);
 									}
 								}
 							} catch (Throwable ex) {
@@ -340,6 +345,7 @@ public class Photos extends DefaultApplication {
 		public OptionsScreen(DefaultApplication app) {
 			super(app);
 			getBelow().setResource(mInfoBackground);
+			getBelow().flush();
 			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 			.getAppContext().getConfiguration();
 			int start = TOP;
@@ -425,6 +431,7 @@ public class Photos extends DefaultApplication {
 		}
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			getBelow().setResource(mInfoBackground);
+			getBelow().flush();
 			return super.handleEnter(arg, isReturn);
 		}
 		public boolean handleExit() {
@@ -463,6 +470,7 @@ public class Photos extends DefaultApplication {
 		public PathScreen(Photos app, Tracker tracker, boolean first) {
 			super(app);
 			getBelow().setResource(mMenuBackground);
+			getBelow().flush();
 			setFooter("Press ENTER for options");
 			setTitle("Photos");
 			mTracker = tracker;
@@ -749,11 +757,10 @@ public class Photos extends DefaultApplication {
 														createImage(thumbnail),
 														RSRC_IMAGE_BESTFIT);
 												mThumbnail.setVisible(true);
-												mThumbnail
-														.setTransparency(1.0f);
-												mThumbnail.setTransparency(
-														0.0f, mAnim);
+												mThumbnail.setTransparency(1.0f);
+												mThumbnail.setTransparency(0.0f, mAnim);
 												mThumbnail.flush();
+												Tools.clearResource(mThumbnail);
 											}
 										}
 									}
@@ -780,7 +787,10 @@ public class Photos extends DefaultApplication {
 			if (image != null) {
 				mThumbnail.setVisible(false);
 				if (mThumbnail.getResource() != null)
+				{
+					mThumbnail.getResource().flush();
 					mThumbnail.getResource().remove();
+				}
 			}
 		}
 		public boolean handleExit() {
@@ -789,6 +799,7 @@ public class Photos extends DefaultApplication {
 				if (mThumbnailThread != null && mThumbnailThread.isAlive())
 					mThumbnailThread.interrupt();
 				clearThumbnail();
+				System.gc();
 			} finally {
 				setPainting(true);
 			}
@@ -1004,10 +1015,15 @@ public class Photos extends DefaultApplication {
 					new Thread() {
 						public void run() {
 							try {
-								BufferedImage photo = Tools.ImageIORead(file);
+								BufferedImage photo = null;
+								try {
+									photo = Tools.ImageIORead(file);
+								} catch (OutOfMemoryError ex) {
+									Tools.logMemory();
+									photo = Tools.ImageIORead(file);
+								}
 								if (photo != null) {
-									photo = (BufferedImage) Tools
-											.getImage(photo);
+									photo = (BufferedImage) Tools.getImage(photo);
 									BufferedImage scaled = ImageManipulator
 											.getScaledImage(photo, mPhoto
 													.getWidth(),
@@ -1028,9 +1044,11 @@ public class Photos extends DefaultApplication {
 										getBApp().flush();
 										scaled.flush();
 										scaled = null;
+										Tools.clearResource(mPhoto);
 									}
 								}
 							} catch (Throwable ex) {
+								Tools.logMemory();
 								Tools.logException(Photos.class, ex,
 										"Could not retrieve image: "
 										+ file.getAbsolutePath());
@@ -1055,7 +1073,10 @@ public class Photos extends DefaultApplication {
 			if (image != null) {
 				mPhoto.setVisible(false);
 				if (mPhoto.getResource() != null)
+				{
+					mPhoto.getResource().flush();
 					mPhoto.getResource().remove();
+				}
 				getBApp().flush();
 			}
 		}
@@ -1067,6 +1088,7 @@ public class Photos extends DefaultApplication {
 					mSlideshow.interrupt();
 					mSlideshow = null;
 				}
+				System.gc();
 			} finally {
 				setPainting(true);
 			}

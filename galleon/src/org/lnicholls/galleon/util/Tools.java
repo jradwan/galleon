@@ -29,9 +29,6 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
@@ -83,6 +80,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.tivo.hme.sdk.View;
 
 /**
  * @author sthompso
@@ -119,10 +117,11 @@ public class Tools {
 
 	static {
 		try {
-			byte[] seed = { (byte) 0xa1, (byte) 0x22, (byte) 0x78, (byte) 0x8f, (byte) 0x5c, (byte) 0x66, (byte) 0xdd,
-					(byte) 0xa4 };
+			byte[] seed = { (byte) 0xa1, (byte) 0x22, (byte) 0x78, (byte) 0x8f,
+					(byte) 0x5c, (byte) 0x66, (byte) 0xdd, (byte) 0xa4 };
 			PBEParameterSpec paramSpec = new PBEParameterSpec(seed, 5);
-			SecretKey secretKey = SecretKeyFactory.getInstance("PBEWithMD5AndDES").generateSecret(
+			SecretKey secretKey = SecretKeyFactory.getInstance(
+					"PBEWithMD5AndDES").generateSecret(
 					new PBEKeySpec("31oqcadaj4y5qs2vdo70dsp".toCharArray()));
 			EncryptionCipher = Cipher.getInstance("PBEWithMD5AndDES");
 			EncryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
@@ -138,23 +137,23 @@ public class Tools {
 		logException(inClass, inException, null);
 	}
 
-	public static void logException(Class inClass, Throwable inException, String message) {
-		try
-		{
+	public static void logException(Class inClass, Throwable inException,
+			String message) {
+		try {
 			Logger log = Logger.getLogger(inClass.getName());
-	
+
 			if (message != null)
 				log.error(inException.toString() + ": " + message);
 			else
 				log.error(inException.toString());
-	
+
 			if (log.isDebugEnabled()) {
 				StringWriter writer = new StringWriter();
 				inException.printStackTrace(new PrintWriter(writer));
 				log.debug(writer.toString());
 			}
+		} catch (Throwable ex) {
 		}
-		catch (Throwable ex) {}
 	}
 
 	public static void addAll(Collection target, Object[] source) {
@@ -170,14 +169,16 @@ public class Tools {
 			logDir = file.getAbsolutePath() + "/../logs";
 		} else {
 			File logFile = new File(System.getProperty("logfile"));
-			File dir = new File(logFile.getPath().substring(0, logFile.getPath().lastIndexOf(File.separator)));
+			File dir = new File(logFile.getPath().substring(0,
+					logFile.getPath().lastIndexOf(File.separator)));
 			logDir = dir.getAbsolutePath();
 		}
 
 		// Create a new output stream for the standard output.
 		PrintStream stdout = null;
 		try {
-			stdout = new PrintStream(new FileOutputStream(logDir + "/Redirect.out"));
+			stdout = new PrintStream(new FileOutputStream(logDir
+					+ "/Redirect.out"));
 			System.setOut(stdout);
 		} catch (Exception e) {
 			log.error(e.toString());
@@ -186,7 +187,8 @@ public class Tools {
 		// Create new output stream for the standard error output.
 		PrintStream stderr = null;
 		try {
-			stderr = new PrintStream(new FileOutputStream(logDir + "/Redirect.err"));
+			stderr = new PrintStream(new FileOutputStream(logDir
+					+ "/Redirect.err"));
 			System.setErr(stderr);
 		} catch (Exception e) {
 			log.error(e.toString());
@@ -304,7 +306,8 @@ public class Tools {
 		int lastPeriod = fileName.lastIndexOf('.');
 		if (lastPeriod != -1) {
 			int suffixLength = fileName.length() - lastPeriod;
-			if ((suffixLength == ".xxx".length()) || (suffixLength == ".xxxx".length())) {
+			if ((suffixLength == ".xxx".length())
+					|| (suffixLength == ".xxxx".length())) {
 				fileName = fileName.substring(0, lastPeriod);
 			}
 		}
@@ -362,7 +365,8 @@ public class Tools {
 	public static String decrypt(String value) {
 		if (DecryptionCipher != null) {
 			try {
-				return new String(DecryptionCipher.doFinal(stringToBytes(value)));
+				return new String(DecryptionCipher
+						.doFinal(stringToBytes(value)));
 			} catch (BadPaddingException e) {
 				logException(Tools.class, e);
 			} catch (IllegalBlockSizeException e) {
@@ -385,14 +389,16 @@ public class Tools {
 			int length = value.length() / 2;
 			byte[] bytes = new byte[length];
 			for (int i = 0; i < length; i++) {
-				bytes[i] = Integer.valueOf(value.substring(2 * i, 2 * i + 2), 16).byteValue();
+				bytes[i] = Integer.valueOf(value.substring(2 * i, 2 * i + 2),
+						16).byteValue();
 			}
 			return bytes;
 		}
 		return new String().getBytes();
 	}
 
-	static char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+	static char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'A', 'B', 'C', 'D', 'E', 'F' };
 
 	static public String byteToHex(byte b) {
 		char[] bytes = { hex[(b >> 4) & 0x0f], hex[b & 0x0f] };
@@ -406,17 +412,22 @@ public class Tools {
 			if (headless == null || !headless.equals("true"))
 				try {
 					if (SystemUtils.IS_OS_WINDOWS)
-						return (Toolkit) Class.forName("sun.awt.windows.WToolkit").newInstance();
+						return (Toolkit) Class.forName(
+								"sun.awt.windows.WToolkit").newInstance();
 					else if (SystemUtils.IS_OS_LINUX)
-						return (Toolkit) Class.forName("sun.awt.motif.MToolkit").newInstance();
+						return (Toolkit) Class
+								.forName("sun.awt.motif.MToolkit")
+								.newInstance();
 					else if (SystemUtils.IS_OS_MAC_OSX)
-						return (Toolkit) Class.forName("apple.awt.CToolkit").newInstance();
+						return (Toolkit) Class.forName("apple.awt.CToolkit")
+								.newInstance();
 				} catch (Throwable ex) {
 				}
 			return Toolkit.getDefaultToolkit();
 		} catch (Throwable ex) {
 			try {
-				return (Toolkit) Class.forName("com.eteks.awt.PJAToolkit").newInstance();
+				return (Toolkit) Class.forName("com.eteks.awt.PJAToolkit")
+						.newInstance();
 			} catch (Exception ex2) {
 
 			}
@@ -442,18 +453,22 @@ public class Tools {
 				is.close();
 			}
 		} catch (Exception ex) {
-			Tools.logException(Tools.class, ex, "Could not load resource: " + resource);
+			Tools.logException(Tools.class, ex, "Could not load resource: "
+					+ resource);
 		}
 		return null;
 	}
 
 	public static String getLocalIpAddress() {
 		try {
-			for (Enumeration interfaceEnum = NetworkInterface.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
-				NetworkInterface ni = (NetworkInterface) interfaceEnum.nextElement();
+			for (Enumeration interfaceEnum = NetworkInterface
+					.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
+				NetworkInterface ni = (NetworkInterface) interfaceEnum
+						.nextElement();
 				Enumeration inetAddresses = ni.getInetAddresses();
 				while (inetAddresses.hasMoreElements()) {
-					InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
+					InetAddress inetAddress = (InetAddress) inetAddresses
+							.nextElement();
 					if (inetAddress.getHostAddress().startsWith("192"))
 						return inetAddress.getHostAddress();
 				}
@@ -464,16 +479,19 @@ public class Tools {
 		}
 		return "127.0.0.1";
 	}
-	
+
 	public static boolean isLocalAddress(String address) {
-		if (address!=null)
-		{
+		if (address != null) {
 			try {
-				for (Enumeration interfaceEnum = NetworkInterface.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
-					NetworkInterface ni = (NetworkInterface) interfaceEnum.nextElement();
+				for (Enumeration interfaceEnum = NetworkInterface
+						.getNetworkInterfaces(); interfaceEnum
+						.hasMoreElements();) {
+					NetworkInterface ni = (NetworkInterface) interfaceEnum
+							.nextElement();
 					Enumeration inetAddresses = ni.getInetAddresses();
 					while (inetAddresses.hasMoreElements()) {
-						InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
+						InetAddress inetAddress = (InetAddress) inetAddresses
+								.nextElement();
 						if (inetAddress.getHostAddress().equals(address))
 							return true;
 					}
@@ -484,10 +502,9 @@ public class Tools {
 		}
 		return false;
 	}
-	
+
 	public static boolean isLocal(String address) {
-		if (address!=null)
-		{
+		if (address != null) {
 			try {
 				if (address.equals("127.0.0.1"))
 					return true;
@@ -495,13 +512,16 @@ public class Tools {
 				StringTokenizer tokenizer = new StringTokenizer(address, ".");
 				if (tokenizer.hasMoreTokens())
 					prefix = tokenizer.nextToken();
-				if (prefix!=null)
-				{
-					for (Enumeration interfaceEnum = NetworkInterface.getNetworkInterfaces(); interfaceEnum.hasMoreElements();) {
-						NetworkInterface ni = (NetworkInterface) interfaceEnum.nextElement();
+				if (prefix != null) {
+					for (Enumeration interfaceEnum = NetworkInterface
+							.getNetworkInterfaces(); interfaceEnum
+							.hasMoreElements();) {
+						NetworkInterface ni = (NetworkInterface) interfaceEnum
+								.nextElement();
 						Enumeration inetAddresses = ni.getInetAddresses();
 						while (inetAddresses.hasMoreElements()) {
-							InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
+							InetAddress inetAddress = (InetAddress) inetAddresses
+									.nextElement();
 							if (inetAddress.getHostAddress().startsWith(prefix))
 								return true;
 						}
@@ -516,10 +536,12 @@ public class Tools {
 
 	public static String getVersion() {
 		// TODO Handle development version
-		String version = Constants.CURRENT_VERSION.getMajor() + "." + Constants.CURRENT_VERSION.getRelease() + "."
+		String version = Constants.CURRENT_VERSION.getMajor() + "."
+				+ Constants.CURRENT_VERSION.getRelease() + "."
 				+ Constants.CURRENT_VERSION.getMaintenance();
 		if (Constants.CURRENT_VERSION.getDevelopment() != 0)
-			return version + " RC " + Constants.CURRENT_VERSION.getDevelopment();
+			return version + " RC "
+					+ Constants.CURRENT_VERSION.getDevelopment();
 		else
 			return version;
 	}
@@ -545,7 +567,8 @@ public class Tools {
 		int lastPeriod = filename.lastIndexOf('.');
 		if (lastPeriod != -1) {
 			int suffixLength = filename.length() - lastPeriod;
-			if ((suffixLength == ".xxx".length()) || (suffixLength == ".xxxx".length())) {
+			if ((suffixLength == ".xxx".length())
+					|| (suffixLength == ".xxxx".length())) {
 				filename = filename.substring(0, lastPeriod);
 			}
 		}
@@ -588,14 +611,16 @@ public class Tools {
 			BreakIterator boundary = BreakIterator.getWordInstance();
 			boundary.setText(text);
 			int start = boundary.first();
-			for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
+			for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary
+					.next()) {
 				String word = text.substring(start, end);
 				String trimmed = word.replaceAll(" ", "");
 				int metricsWidth = (line + word).length() * 20;
 				if (metrics != null)
 					metricsWidth = metrics.stringWidth(line + word);
 
-				if (trimmed.equals("\n") || trimmed.equals("\r") || trimmed.equals("\r\n")) {
+				if (trimmed.equals("\n") || trimmed.equals("\r")
+						|| trimmed.equals("\r\n")) {
 					lines.add(line.trim());
 					line = "";
 				} else if (metricsWidth > width) {
@@ -641,7 +666,8 @@ public class Tools {
 
 		public synchronized Image load() {
 			try {
-				if (!Tools.getDefaultToolkit().prepareImage(mImage, -1, -1, this)) {
+				if (!Tools.getDefaultToolkit().prepareImage(mImage, -1, -1,
+						this)) {
 					while (true) {
 						wait(0);
 						if (mLoaded) {
@@ -666,7 +692,8 @@ public class Tools {
 			}
 		}
 
-		public synchronized boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
+		public synchronized boolean imageUpdate(Image img, int infoflags,
+				int x, int y, int w, int h) {
 			if ((infoflags & ERROR) != 0) {
 				mError = true;
 				notifyAll();
@@ -717,16 +744,17 @@ public class Tools {
 				// TODO What if not bufferedimage??
 				if (image instanceof BufferedImage) {
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-					JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+					JPEGImageEncoder encoder = JPEGCodec
+							.createJPEGEncoder(byteArrayOutputStream);
 					encoder.encode((BufferedImage) image);
 					byteArrayOutputStream.close();
 
-					ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream
-							.toByteArray());
-					if (byteArrayOutputStream.size()<102400)
-					{
-						BlobImpl blob = new BlobImpl(byteArrayInputStream, byteArrayOutputStream.size());
-	
+					ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+							byteArrayOutputStream.toByteArray());
+					if (byteArrayOutputStream.size() < 102400) {
+						BlobImpl blob = new BlobImpl(byteArrayInputStream,
+								byteArrayOutputStream.size());
+
 						Thumbnail thumbnail = null;
 						try {
 							List list = ThumbnailManager.findByKey(key);
@@ -735,7 +763,7 @@ public class Tools {
 						} catch (HibernateException ex) {
 							log.error("Thumbnail create failed", ex);
 						}
-	
+
 						try {
 							if (thumbnail == null) {
 								thumbnail = new Thumbnail("Cached", "jpg", key);
@@ -795,7 +823,8 @@ public class Tools {
 			try {
 				Image internetImage = null;
 				if (log.isDebugEnabled())
-					log.debug("Downloading internet image=" + url.toExternalForm());
+					log.debug("Downloading internet image="
+							+ url.toExternalForm());
 
 				class TimedThread implements Callable {
 					private URL mUrl;
@@ -804,12 +833,14 @@ public class Tools {
 						mUrl = url;
 					}
 
-					public synchronized java.lang.Object call() throws java.lang.Exception {
+					public synchronized java.lang.Object call()
+							throws java.lang.Exception {
 						return new ImageTracker(mUrl).load();
 					}
 				}
 
-				TimedCallable timedCallable = new TimedCallable(new TimedThread(url), 2000 * 60);
+				TimedCallable timedCallable = new TimedCallable(
+						new TimedThread(url), 2000 * 60);
 				internetImage = (Image) timedCallable.call();
 
 				// System.out.println("internetImage="+internetImage);
@@ -828,21 +859,28 @@ public class Tools {
 
 					Image image = null;
 					if (internetImage instanceof BufferedImage) {
-						image = ImageManipulator.getScaledImage((BufferedImage) internetImage, width, height);
+						image = ImageManipulator.getScaledImage(
+								(BufferedImage) internetImage, width, height);
 						// System.out.println("image1="+image);
 					} else {
 						try {
-							image = createBufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-							Graphics2D graphics2D = ((BufferedImage) image).createGraphics();
-							graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-									RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-							graphics2D.drawImage(internetImage, 0, 0, width, height, null);
+							image = createBufferedImage(width, height,
+									BufferedImage.TYPE_INT_RGB);
+							Graphics2D graphics2D = ((BufferedImage) image)
+									.createGraphics();
+							graphics2D
+									.setRenderingHint(
+											RenderingHints.KEY_INTERPOLATION,
+											RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+							graphics2D.drawImage(internetImage, 0, 0, width,
+									height, null);
 							graphics2D.dispose();
 							graphics2D = null;
 							// System.out.println("image2="+image);
 						} catch (Throwable ex) {
 							// ex.printStackTrace();
-							image = internetImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+							image = internetImage.getScaledInstance(width,
+									height, Image.SCALE_SMOOTH);
 							// System.out.println("image3="+image);
 						}
 					}
@@ -874,15 +912,18 @@ public class Tools {
 		return value;
 	}
 
-	public static BufferedImage createBufferedImage(int width, int height, int imageType) {
+	public static BufferedImage createBufferedImage(int width, int height,
+			int imageType) {
 		// return new BufferedImage(width, height, imageType);
 		if (java.awt.GraphicsEnvironment.isHeadless())
-			return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
+			return new com.eteks.java2d.PJABufferedImage(width, height,
+					imageType);
 		else
 			try {
 				return new BufferedImage(width, height, imageType);
 			} catch (Throwable ex) {
-				return new com.eteks.java2d.PJABufferedImage(width, height, imageType);
+				return new com.eteks.java2d.PJABufferedImage(width, height,
+						imageType);
 			}
 	}
 
@@ -890,7 +931,8 @@ public class Tools {
 		return createBufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
 	}
 
-	public static Image createImage(java.awt.image.ImageProducer producer) throws Exception {
+	public static Image createImage(java.awt.image.ImageProducer producer)
+			throws Exception {
 		try {
 			return Toolkit.getDefaultToolkit().createImage(producer);
 		} catch (Throwable th) {
@@ -950,7 +992,8 @@ public class Tools {
 			} else
 				result = data;
 		}
-		return StringEscapeUtils.unescapeXml(StringEscapeUtils.unescapeHtml(result).trim());
+		return StringEscapeUtils.unescapeXml(StringEscapeUtils.unescapeHtml(
+				result).trim());
 	}
 
 	public static void copy(File src, File dst) {
@@ -969,8 +1012,10 @@ public class Tools {
 
 	public static InputStream getInputStream(File file) {
 		try {
-			FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
-			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int) roChannel.size());
+			FileChannel roChannel = new RandomAccessFile(file, "r")
+					.getChannel();
+			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY,
+					0, (int) roChannel.size());
 			return new InputStream() {
 				public synchronized int read() throws IOException {
 					if (!buf.hasRemaining()) {
@@ -979,7 +1024,8 @@ public class Tools {
 					return buf.get();
 				}
 
-				public synchronized int read(byte[] bytes, int off, int len) throws IOException {
+				public synchronized int read(byte[] bytes, int off, int len)
+						throws IOException {
 					if (!buf.hasRemaining()) {
 						return -1;
 					}
@@ -995,9 +1041,12 @@ public class Tools {
 	}
 
 	public static BufferedImage ImageIORead(File file) {
+		System.gc();
 		try {
-			FileChannel roChannel = new RandomAccessFile(file, "r").getChannel();
-			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, (int) roChannel.size());
+			FileChannel roChannel = new RandomAccessFile(file, "r")
+					.getChannel();
+			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY,
+					0, (int) roChannel.size());
 			return ImageIO.read(new InputStream() {
 				public synchronized int read() throws IOException {
 					if (!buf.hasRemaining()) {
@@ -1006,7 +1055,8 @@ public class Tools {
 					return buf.get();
 				}
 
-				public synchronized int read(byte[] bytes, int off, int len) throws IOException {
+				public synchronized int read(byte[] bytes, int off, int len)
+						throws IOException {
 					if (!buf.hasRemaining()) {
 						return -1;
 					}
@@ -1041,31 +1091,37 @@ public class Tools {
 	}
 
 	public static Color darken(Color color) {
-		return new Color((int) (color.getRed() * 0.59), (int) (color.getGreen() * 0.59), (int) (color.getBlue() * 0.59));
+		return new Color((int) (color.getRed() * 0.59),
+				(int) (color.getGreen() * 0.59), (int) (color.getBlue() * 0.59));
 	}
-	
-	public static String getFile(File file)
-	{
-		try
-		{
+
+	public static String getFile(File file) {
+		try {
 			FileInputStream input = new FileInputStream(file);
-			if (input!=null)
-			{
+			if (input != null) {
 				StringBuffer buffer = new StringBuffer();
 				byte abyte0[] = new byte[1024];
 				int i = 0;
-				while ((i = input.read(abyte0, 0, abyte0.length)) > 0)
-				{
+				while ((i = input.read(abyte0, 0, abyte0.length)) > 0) {
 					buffer.append(new String(abyte0, 0, i));
 				}
-				
+
 				return buffer.toString();
 			}
-		}
-		catch (Exception ex)
-		{
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return null;
+	}
+
+	public static void clearResource(View view) {
+		if (view != null && view.getResource() != null) {
+			if (view.getApp().getContext()!=null)
+			{
+				view.getResource().flush();
+				view.getResource().remove();
+				System.gc();
+			}
+		}
 	}
 }

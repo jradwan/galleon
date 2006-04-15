@@ -2,17 +2,17 @@ package org.lnicholls.galleon.widget;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -58,7 +58,7 @@ public class ScrollText extends BView {
     /**
      * Creates a new ScrollText instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -81,7 +81,7 @@ public class ScrollText extends BView {
     /**
      * Creates a new ScrollText instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -106,7 +106,7 @@ public class ScrollText extends BView {
     /**
      * Creates a new ScrollText instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -131,7 +131,7 @@ public class ScrollText extends BView {
     /**
      * Creates a new ScrollText instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -194,7 +194,8 @@ public class ScrollText extends BView {
                 if (index < popMin || index >= popMax) {
                     BView v = (BView) mTextLineViews.get(index);
                     if (v != null) {
-                        v.remove();
+                    	v.flush();
+                    	v.remove();
                         mTextLineViews.set(index, null);
                     }
                 } else {
@@ -217,7 +218,7 @@ public class ScrollText extends BView {
             screen.setPainting(true);
         }
     }
-    
+
     public void setVisible(boolean visible)
     {
     	super.setVisible(visible);
@@ -244,8 +245,8 @@ public class ScrollText extends BView {
                 h.refresh();
                 flush();
             }
-    	}			
-			
+    	}
+
     }
 
     public boolean handleKeyPress(int code, long rawcode) {
@@ -310,7 +311,8 @@ public class ScrollText extends BView {
         for (Iterator iterator = mTextLineViews.iterator(); iterator.hasNext();) {
             BView view = (BView) iterator.next();
             if (view != null) {
-                view.remove();
+            	view.flush();
+            	view.remove();
             }
         }
         mTextLines.clear();
@@ -365,7 +367,7 @@ public class ScrollText extends BView {
 
         calculateText();
     }
-    
+
     public Color getColor() {
         return mColor;
     }
@@ -374,7 +376,7 @@ public class ScrollText extends BView {
         mColor = value;
 
         calculateText();
-    }    
+    }
 
     public int getRowHeight() {
         return mRowHeight;
@@ -462,6 +464,6 @@ public class ScrollText extends BView {
     private int mDirty;
 
     boolean mAnimate;
-    
+
     private Color mColor = Color.WHITE;
 }

@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.videocasting;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -116,7 +116,7 @@ public class Videocasting extends DefaultApplication {
 				.getAppContext().getConfiguration();
 
 		push(new VideocastingMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
@@ -713,7 +713,7 @@ public class Videocasting extends DefaultApplication {
 					VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
 							.getAppContext().getConfiguration();
 					videocastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
-	
+
 					Server.getServer().updateApp(((VideocastingFactory) getFactory()).getAppContext());
 				}
 			} catch (Exception ex) {
@@ -1185,7 +1185,7 @@ public class Videocasting extends DefaultApplication {
 											 * videocastItemScreen = new
 											 * VideocastItemScreen((Videocasting)
 											 * getBApp(), mTracker);
-											 * 
+											 *
 											 * getBApp().push(videocastItemScreen,
 											 * TRANSITION_LEFT);
 											 * getBApp().flush();
@@ -1526,8 +1526,9 @@ public class Videocasting extends DefaultApplication {
 									}
 								} else {
 									synchronized (this) {
-										mImage.clearResource();
 										mImage.setVisible(false);
+										mImage.flush();
+										mImage.clearResource();
 										getBApp().flush();
 									}
 								}
@@ -1540,7 +1541,10 @@ public class Videocasting extends DefaultApplication {
 				} else {
 					mImage.setVisible(false);
 					if (mImage.getResource() != null)
+					{
+						mImage.getResource().flush();
 						mImage.getResource().remove();
+					}
 					getBApp().flush();
 				}
 
@@ -1570,7 +1574,10 @@ public class Videocasting extends DefaultApplication {
 				}
 				mImage.setVisible(false);
 				if (mImage.getResource() != null)
+				{
+					mImage.getResource().flush();
 					mImage.getResource().remove();
+				}
 				getBApp().flush();
 			} finally {
 				setPainting(true);
@@ -1610,7 +1617,7 @@ public class Videocasting extends DefaultApplication {
 									}
 									list.set(1, "Cancel subscription");
 								}
-	
+
 								list.flush();
 							} catch (Exception ex) {
 								Tools.logException(Videocasting.class, ex);
@@ -1635,14 +1642,14 @@ public class Videocasting extends DefaultApplication {
 									videocast.setStatus(Videocast.STATUS_SUBSCRIBED);
 									list.set(0, "Cancel subscription");
 								}
-	
+
 								try {
 									VideocastManager.updateVideocast(videocast);
 									((VideocastingFactory) getApp().getFactory()).update();
 								} catch (Exception ex) {
 									Tools.logException(Videocasting.class, ex);
 								}
-	
+
 								list.flush();
 							} catch (Exception ex) {
 								Tools.logException(Videocasting.class, ex);
@@ -2060,8 +2067,10 @@ public class Videocasting extends DefaultApplication {
 											}
 										} else {
 											synchronized (this) {
-												mImage.clearResource();
 												mImage.setVisible(false);
+												mImage.flush();
+												mImage.clearResource();
+
 												getBApp().flush();
 											}
 										}
@@ -2078,7 +2087,10 @@ public class Videocasting extends DefaultApplication {
 							setPainting(false);
 							mImage.setVisible(false);
 							if (mImage.getResource() != null)
+							{
+								mImage.getResource().flush();
 								mImage.getResource().remove();
+							}
 							getBApp().flush();
 						} finally {
 							setPainting(true);
@@ -2175,7 +2187,10 @@ public class Videocasting extends DefaultApplication {
 				}
 				mImage.setVisible(false);
 				if (mImage.getResource() != null)
+				{
+					mImage.getResource().flush();
 					mImage.getResource().remove();
+				}
 				getBApp().flush();
 			} finally {
 				setPainting(true);
@@ -2214,7 +2229,7 @@ public class Videocasting extends DefaultApplication {
 						VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
 						try {
 							Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-	
+
 							VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
 							track.setStatus(VideocastTrack.STATUS_DELETED);
 							track.setDownloadSize(0);
@@ -2253,7 +2268,7 @@ public class Videocasting extends DefaultApplication {
 						VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
 						try {
 							Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-	
+
 							VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
 							track.setStatus(VideocastTrack.STATUS_QUEUED);
 							VideocastManager.updateVideocast(videocast);
@@ -2276,7 +2291,7 @@ public class Videocasting extends DefaultApplication {
 						VideocastTrack videocastTrack = (VideocastTrack) mTracker.getList().get(mTracker.getPos());
 						try {
 							Videocast videocast = VideocastManager.retrieveVideocast(videocastTrack.getVideocast());
-	
+
 							VideocastTrack track = videocast.getTrack(videocastTrack.getUrl());
 							track.setStatus(VideocastTrack.STATUS_DOWNLOAD_CANCELLED);
 							VideocastManager.updateVideocast(videocast);
@@ -2546,6 +2561,7 @@ public class Videocasting extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -2593,7 +2609,7 @@ public class Videocasting extends DefaultApplication {
 					new NameValue(videocastingConfiguration.getName(), System.getProperty("data") + File.separator
 							+ "videocasts"));
 		}
-		
+
 		public void remove()
 		{
 			try {
@@ -2607,8 +2623,8 @@ public class Videocasting extends DefaultApplication {
 			} catch (Exception ex) {
 				Tools.logException(Videocasting.class, ex);
 			}
-		}		
-		
+		}
+
 		public static void remove(Videocast videocast)
 		{
 			try {

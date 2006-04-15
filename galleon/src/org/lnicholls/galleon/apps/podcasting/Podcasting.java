@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.podcasting;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -116,7 +116,7 @@ public class Podcasting extends DefaultApplication {
 				.getAppContext().getConfiguration();
 
 		push(new PodcastingMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
@@ -297,7 +297,7 @@ public class Podcasting extends DefaultApplication {
 						if ((value = Tools.getAttribute(channel, "description")) != null) {
 							channelDescription = value;
 						}
-						
+
 						if ((value = Tools.getAttribute(channel, "subtitle")) != null) {
 							channelSubtitle = value;
 						}
@@ -309,14 +309,14 @@ public class Podcasting extends DefaultApplication {
 								if ((value = Tools.getAttribute(item, "url")) != null) {
 									channelImage1 = value; // rss
 								}
-							} 
+							}
 							else
 							if (item.element("image") != null) {
 								item = item.element("image");
 								if ((value = Tools.getAttribute(item, "href")) != null) {
 									channelImage1 = value; // itunes
 								}
-							} 
+							}
 							else if (item.attribute("href") != null) {
 								channelImage2 = item.attributeValue("href"); // itunes
 							}
@@ -701,7 +701,7 @@ public class Podcasting extends DefaultApplication {
 					PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
 							.getAppContext().getConfiguration();
 					podcastingConfiguration.setDownload(Integer.parseInt(mDownloadButton.getValue()));
-	
+
 					Server.getServer().updateApp(((PodcastingFactory) getFactory()).getAppContext());
 				}
 			} catch (Exception ex) {
@@ -781,7 +781,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -789,7 +789,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -931,7 +931,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -939,7 +939,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -1023,7 +1023,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -1031,7 +1031,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -1132,7 +1132,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -1140,7 +1140,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -1213,7 +1213,7 @@ public class Podcasting extends DefaultApplication {
 											 * podcastItemScreen = new
 											 * PodcastItemScreen((Podcasting)
 											 * getBApp(), mTracker);
-											 * 
+											 *
 											 * getBApp().push(podcastItemScreen,
 											 * TRANSITION_LEFT);
 											 * getBApp().flush();
@@ -1390,7 +1390,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -1398,7 +1398,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -1556,8 +1556,9 @@ public class Podcasting extends DefaultApplication {
 									}
 								} else {
 									synchronized (this) {
-										mImage.clearResource();
 										mImage.setVisible(false);
+										mImage.flush();
+										mImage.clearResource();
 										getBApp().flush();
 									}
 								}
@@ -1569,8 +1570,10 @@ public class Podcasting extends DefaultApplication {
 					mImageThread.start();
 				} else {
 					mImage.setVisible(false);
-					if (mImage.getResource() != null)
+					if (mImage.getResource() != null){
+						mImage.getResource().flush();
 						mImage.getResource().remove();
+					}
 					getBApp().flush();
 				}
 
@@ -1600,7 +1603,10 @@ public class Podcasting extends DefaultApplication {
 				}
 				mImage.setVisible(false);
 				if (mImage.getResource() != null)
+				{
+					mImage.getResource().flush();
 					mImage.getResource().remove();
+				}
 				getBApp().flush();
 			} finally {
 				setPainting(true);
@@ -1640,7 +1646,7 @@ public class Podcasting extends DefaultApplication {
 									}
 									list.set(1, "Cancel subscription");
 								}
-	
+
 								list.flush();
 							} catch (Exception ex) {
 								Tools.logException(Podcasting.class, ex);
@@ -1665,14 +1671,14 @@ public class Podcasting extends DefaultApplication {
 									podcast.setStatus(Podcast.STATUS_SUBSCRIBED);
 									list.set(0, "Cancel subscription");
 								}
-	
+
 								try {
 									PodcastManager.updatePodcast(podcast);
 									((PodcastingFactory) getApp().getFactory()).update();
 								} catch (Exception ex) {
 									Tools.logException(Podcasting.class, ex);
 								}
-	
+
 								list.flush();
 							} catch (Exception ex) {
 								Tools.logException(Podcasting.class, ex);
@@ -1702,7 +1708,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -1710,7 +1716,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -1891,7 +1897,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -1899,7 +1905,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -2112,8 +2118,10 @@ public class Podcasting extends DefaultApplication {
 										}
 									} else {
 										synchronized (this) {
-											mImage.clearResource();
 											mImage.setVisible(false);
+											mImage.flush();
+											mImage.clearResource();
+
 											getBApp().flush();
 										}
 									}
@@ -2130,7 +2138,10 @@ public class Podcasting extends DefaultApplication {
 						setPainting(false);
 						mImage.setVisible(false);
 						if (mImage.getResource() != null)
+						{
+							mImage.getResource().flush();
 							mImage.getResource().remove();
+						}
 						getBApp().flush();
 					} finally {
 						setPainting(true);
@@ -2240,7 +2251,10 @@ public class Podcasting extends DefaultApplication {
 				}
 				mImage.setVisible(false);
 				if (mImage.getResource() != null)
+				{
+					mImage.getResource().flush();
 					mImage.getResource().remove();
+				}
 				getBApp().flush();
 			} finally {
 				setPainting(true);
@@ -2279,7 +2293,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
 						try {
 							Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-	
+
 							PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
 							track.setStatus(PodcastTrack.STATUS_DELETED);
 							track.setDownloadSize(0);
@@ -2318,7 +2332,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
 						try {
 							Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-	
+
 							PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
 							track.setStatus(PodcastTrack.STATUS_QUEUED);
 							PodcastManager.updatePodcast(podcast);
@@ -2341,7 +2355,7 @@ public class Podcasting extends DefaultApplication {
 						PodcastTrack podcastTrack = (PodcastTrack) mTracker.getList().get(mTracker.getPos());
 						try {
 							Podcast podcast = PodcastManager.retrievePodcast(podcastTrack.getPodcast());
-	
+
 							PodcastTrack track = podcast.getTrack(podcastTrack.getUrl());
 							track.setStatus(PodcastTrack.STATUS_DOWNLOAD_CANCELLED);
 							PodcastManager.updatePodcast(podcast);
@@ -2379,7 +2393,7 @@ public class Podcasting extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new OptionsScreen((Podcasting) getBApp()), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((Podcasting) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -2387,7 +2401,7 @@ public class Podcasting extends DefaultApplication {
 							getBApp().push(new PlayerScreen((Podcasting) getBApp(), ((Podcasting) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -2639,6 +2653,7 @@ public class Podcasting extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -2660,7 +2675,7 @@ public class Podcasting extends DefaultApplication {
 
 		private ScreenSaver mScreenSaver;
 	}
-	
+
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {
@@ -2685,12 +2700,12 @@ public class Podcasting extends DefaultApplication {
 		}
 		return audio;
 	}
-	
+
 	public static class PodcastingFactory extends AppFactory {
 
 		public void updateAppContext(AppContext appContext) {
 			super.updateAppContext(appContext);
-			
+
 			update();
 		}
 
@@ -2707,7 +2722,7 @@ public class Podcasting extends DefaultApplication {
 			mPodcastingThread = new PodcastingThread(podcastingConfiguration);
 			mPodcastingThread.start();
 		}
-		
+
 		public void remove()
 		{
 			try {
@@ -2722,7 +2737,7 @@ public class Podcasting extends DefaultApplication {
 				Tools.logException(Podcasting.class, ex);
 			}
 		}
-		
+
 		public static void remove(Podcast podcast)
 		{
 			try {
@@ -2748,7 +2763,7 @@ public class Podcasting extends DefaultApplication {
 				Tools.logException(Podcasting.class, ex);
 			}
 		}
-		
+
 		PodcastingThread mPodcastingThread;
 	}
 }

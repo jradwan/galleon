@@ -1,17 +1,17 @@
 package org.lnicholls.galleon.apps.shoutcast;
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 import java.awt.Color;
@@ -414,14 +414,14 @@ public class Shoutcast extends DefaultApplication {
 				}
 				return true;
 			/*
-			 * 
+			 *
 			 * case KEY_ENTER:
-			 * 
+			 *
 			 * getBApp().push(new OptionsScreen((Shoutcast) getBApp()),
 			 * TRANSITION_LEFT);
-			 * 
+			 *
 			 * return true;
-			 * 
+			 *
 			 */
 			}
 			return super.handleKeyPress(code, rawcode);
@@ -456,6 +456,7 @@ public class Shoutcast extends DefaultApplication {
 			}
 		}
 		public boolean handleExit() {
+			mMusicInfo.flush();
 			mMusicInfo.clearResource();
 			return super.handleExit();
 		}
@@ -633,6 +634,7 @@ public class Shoutcast extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -874,7 +876,10 @@ public class Shoutcast extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);

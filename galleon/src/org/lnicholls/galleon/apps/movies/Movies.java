@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.movies;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -101,7 +101,7 @@ public class Movies extends DefaultApplication {
 	private Resource mCDIcon;
 
 	private Resource mPlaylistIcon;
-	
+
 	private Resource mFavoriteIcon;
 
 	public void init(IContext context) throws Exception {
@@ -121,7 +121,7 @@ public class Movies extends DefaultApplication {
 				.getAppContext().getConfiguration();
 
 		push(new TheaterMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
@@ -167,7 +167,7 @@ public class Movies extends DefaultApplication {
 								for (int i = 0; i < mMenuList.size(); i++) {
 									list.add(mMenuList.get(i));
 								}
-								
+
 								Tracker tracker = new Tracker(list, mMenuList.getFocus());
 
 								getBApp().push(new MovieMenuScreen((Movies) getBApp(), tracker), TRANSITION_LEFT);
@@ -196,21 +196,21 @@ public class Movies extends DefaultApplication {
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(theater.getName(), 45));
 		}
-		
+
 	    public boolean handleKeyPress(int code, long rawcode) {
 	        switch (code) {
 	        case KEY_THUMBSDOWN:
                 getBApp().play("thumbsdown.snd");
                 getBApp().flush();
-                
+
                 BView row = mMenuList.getRow(mMenuList.getFocus());
                 BView icon = (BView) row.getChild(0);
                 icon.setResource(mFolderIcon);
                 icon.flush();
-                
+
                 DefaultApplication application = (DefaultApplication)getApp();
 				if (!application.isDemoMode())
-				{                
+				{
 	                try
 	                {
 		                Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
@@ -220,17 +220,17 @@ public class Movies extends DefaultApplication {
 						log.error("Could not update theater", ex);
 					}
 				}
-                
+
 	            return true;
 	        case KEY_THUMBSUP:
                 getBApp().play("thumbsup.snd");
                 getBApp().flush();
-                
+
                 row = mMenuList.getRow(mMenuList.getFocus());
                 icon = (BView) row.getChild(0);
                 icon.setResource(mFavoriteIcon);
                 icon.flush();
-                
+
                 application = (DefaultApplication)getApp();
 				if (!application.isDemoMode())
 				{
@@ -243,7 +243,7 @@ public class Movies extends DefaultApplication {
 						log.error("Could not update theater", ex);
 					}
 				}
-                
+
 	            return true;
 	        }
 	        return super.handleKeyPress(code, rawcode);
@@ -491,8 +491,9 @@ public class Movies extends DefaultApplication {
 								}
 							} else {
 								synchronized (this) {
-									mImage.clearResource();
 									mImage.setVisible(false);
+									mImage.flush();
+									mImage.clearResource();
 									getBApp().flush();
 								}
 							}
@@ -507,7 +508,10 @@ public class Movies extends DefaultApplication {
 					setPainting(false);
 					mImage.setVisible(false);
 					if (mImage.getResource() != null)
+					{
+						mImage.getResource().flush();
 						mImage.getResource().remove();
+					}
 				} finally {
 					setPainting(true);
 				}
@@ -523,7 +527,10 @@ public class Movies extends DefaultApplication {
 				}
 				mImage.setVisible(false);
 				if (mImage.getResource() != null)
+				{
+					mImage.getResource().flush();
 					mImage.getResource().remove();
+				}
 				getBApp().flush();
 			} finally {
 				setPainting(true);
@@ -844,7 +851,10 @@ public class Movies extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);
@@ -975,10 +985,10 @@ public class Movies extends DefaultApplication {
 
 							NodeFilter filter = null;
 					           NodeList list = new NodeList ();
-					           
-					           Theater theater = null;           
-					           
-					           filter = new NodeClassFilter (TableTag.class);           
+
+					           Theater theater = null;
+
+					           filter = new NodeClassFilter (TableTag.class);
 					           list = parser.extractAllNodesThatMatch (filter);
 					           if (list!=null && list.size()>0)
 					           {
@@ -1002,7 +1012,7 @@ public class Movies extends DefaultApplication {
 						    	           String genre = null;
 						    	           String rating = null;
 						    	           String times = null;
-						    	           
+
 						    	           if (td.getAttribute("colspan")!=null && td.getAttribute("colspan").equals("6"))
 							        	   {
 							    	           //System.out.println("links="+linkList.size());
@@ -1013,7 +1023,7 @@ public class Movies extends DefaultApplication {
 									               {
 									            	   theater = new Theater();
 													   theater.setName(clean(linkTag.getLinkText()));
-									            	   
+
 									            	   int position = td.findPositionOf(linkTag);
 									        		   for (int l=position+1;l<td.getChildCount();l++)
 									        		   {
@@ -1029,7 +1039,7 @@ public class Movies extends DefaultApplication {
 																	theater.setTelephone("(" + m.group(2).trim() + ") "
 																			+ m.group(3).trim());
 											                       break;
-											                   }	   
+											                   }
 									        			   }
 									        		   }
 									        		   theater = createTheater(theater);
@@ -1051,7 +1061,7 @@ public class Movies extends DefaultApplication {
 									        			   if (k==0)
 										        		   {
 										        			   title = Tools.unEscapeXMLChars(linkTag.getLinkText());  // title
-										        			   
+
 										        			   int position = td.findPositionOf(linkTag);
 											        		   for (int l=position+1;l<td.getChildCount();l++)
 											        		   {
@@ -1067,8 +1077,8 @@ public class Movies extends DefaultApplication {
 													                	   rating = m.group(2).trim();  // rating
 													                	   genre = m.group(3).trim();  // genre
 													                	   break;
-													                   }	   
-											        				   
+													                   }
+
 											        				   break;
 											        			   }
 											        		   }
@@ -1081,8 +1091,8 @@ public class Movies extends DefaultApplication {
 											                   Matcher m = p.matcher(linkTag.getLink());
 											                   if (m.find()) {
 											                	   imdb = m.group(1).trim();  // imdb
-											                   }	   
-								        					   
+											                   }
+
 											                   int position = td.findPositionOf(linkTag);
 											        		   for (int l=position+1;l<td.getChildCount();l++)
 											        		   {
@@ -1091,17 +1101,17 @@ public class Movies extends DefaultApplication {
 											        			   {
 											        				   if (times == null)
 											        					   times = value.toPlainTextString().replaceAll("&nbsp;",",").trim();   // times
-											        				   else 
+											        				   else
 											        					   times = times + value.toPlainTextString().replaceAll("&nbsp;",",").trim();   // times
 											        			   }
 											        		   }
-											        		   
+
 											        		   //System.out.println("title="+title);
 											        		   //System.out.println("duration="+duration);
 											        		   //System.out.println("imdb="+imdb);
 											        		   //System.out.println("genre="+genre);
 											        		   //System.out.println("rating="+rating);
-											        		   
+
 											        		   try {
 																	Movie movie = null;
 																	List movies = MovieManager.findByTitle(title);
@@ -1115,7 +1125,7 @@ public class Movies extends DefaultApplication {
 																		movie.setRated(rating);
 																		movie.setIMDB(imdb);
 																		IMDB.getMovie(movie);
-																		String poster = Amazon.getMoviePoster(movie.getTitle());
+																		String poster = null; //Amazon.getMoviePoster(movie.getTitle());
 																		if (poster != null) {
 																			movie.setThumbUrl(poster);
 																			Tools.cacheImage(new URL(poster), movie.getTitle());
@@ -1143,7 +1153,7 @@ public class Movies extends DefaultApplication {
 																} catch (Exception ex) {
 																	log.error("Could not create theater: " + theater.getName(), ex);
 																}
-											        		   
+
 											        		   break;
 										        		   }
 											           }
@@ -1151,7 +1161,7 @@ public class Movies extends DefaultApplication {
 								           }
 							           }
 					               }
-					                
+
 					           }
 							parser = null;
 						} catch (Exception ex) {
@@ -1279,8 +1289,7 @@ public class Movies extends DefaultApplication {
 																	movie.setExternalId(id);
 																	movie.setRated(rated);
 																	IMDB.getMovie(movie);
-																	String poster = Amazon.getMoviePoster(movie
-																			.getTitle());
+																	String poster = null; //Amazon.getMoviePoster(movie.getTitle());
 																	if (poster != null) {
 																		movie.setThumbUrl(poster);
 																		Tools.cacheImage(new URL(poster), movie
@@ -1372,7 +1381,7 @@ public class Movies extends DefaultApplication {
 								Tools.logException(Movies.class, ex);
 							}
 						}
-						
+
 						// remove theaters with no movies
 						try {
 							List theaters = TheaterManager.listAll();
@@ -1380,8 +1389,8 @@ public class Movies extends DefaultApplication {
 							if (theaters != null && theaters.size() > 0) {
 								for (Iterator i = theaters.iterator(); i.hasNext(); /* Nothing */) {
 									Theater theater = (Theater) i.next();
-									
-									List showTimes = theater.getShowtimes(); 
+
+									List showTimes = theater.getShowtimes();
 									if (showTimes == null || showTimes.size()==0)
 									{
 										TheaterManager.deleteTheater(theater);

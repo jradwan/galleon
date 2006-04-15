@@ -2,17 +2,17 @@ package org.lnicholls.galleon.widget;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -29,7 +29,7 @@ public class BlockList extends DefaultList {
     /**
      * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -50,7 +50,7 @@ public class BlockList extends DefaultList {
     /**
      * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
-     * 
+     *
      * @param parent
      *            parent
      * @param x
@@ -68,20 +68,20 @@ public class BlockList extends DefaultList {
      */
     public BlockList(BView parent, int x, int y, int width, int height, int rowHeight, boolean visible) {
         super(parent, x, y, width, height, rowHeight, visible);
-        
+
         getRowHighlights().set(new CustomHighlight("Custom", "push", 0, 0, width, rowHeight));
     }
 
     protected void createRow(BView parent, int index) {
     }
-    
+
     public BHighlights getRowHighlights()
     {
         if (mHighlights==null)
-            this.mHighlights = new BHighlights(new Layout());        
+            this.mHighlights = new BHighlights(new Layout());
         return mHighlights;
     }
-    
+
     public boolean handleKeyPress(int code, long rawcode) {
         switch (code) {
         case KEY_ADVANCE:
@@ -100,13 +100,16 @@ public class BlockList extends DefaultList {
             return true;
         }
         return super.handleKeyPress(code, rawcode);
-    }    
+    }
 
     public void clearViews() {
         for (int i = 0; i < getRows().size(); i++) {
             BView view = (BView) getRows().get(i);
             if (view != null)
+            {
+            	view.flush();
                 view.remove();
+            }
             getRows().setElementAt(null, i);
         }
     }
@@ -115,7 +118,7 @@ public class BlockList extends DefaultList {
         refresh();
         setFocus(getFocus(),false);
     }
-    
+
     //
     // Highlights layout for the rows
     //
@@ -126,7 +129,7 @@ public class BlockList extends DefaultList {
         {
             return BlockList.this.getScreen();
         }
-        
+
         public BRect getHighlightBounds()
         {
             BView row = getRow();
@@ -135,7 +138,7 @@ public class BlockList extends DefaultList {
             }
             return toScreenBounds(new BRect(0, 0, getWidth(), getRowHeight()));
         }
-    
+
         public boolean getHighlightIsVisible(int visible)
         {
             BView row = getRow();
@@ -147,11 +150,11 @@ public class BlockList extends DefaultList {
             return (getFocus() != -1) ? (BView)getRows().elementAt(getFocus()) : null;
         }
     }
-    
+
     class CustomHighlight extends BHighlight
     {
     	private final static String ANIM = "*500";
-    	
+
     	public CustomHighlight(String name, Object action, int dx, int dy, int width, int height)
     	{
     		super(name, action, dx, dy);
@@ -159,7 +162,7 @@ public class BlockList extends DefaultList {
     		mHeight = height;
     		mAnim = getResource(ANIM);
     	}
-    	
+
     	public void refresh(BHighlights h, BScreen s, BRect r, Resource animation)
         {
             int x = r.x + getDx();
@@ -185,22 +188,22 @@ public class BlockList extends DefaultList {
                 	getView().setVisible(true);
                 	//getView().setTransparency(0.0f, mAnim);
                 	getView().setTransparency(0.0f);
-                	getView().setLocation(x, y, animation);  
+                	getView().setLocation(x, y, animation);
                     if (getWidth() != -1 && getWidth() != getView().getWidth()) {
                     	getView().setSize(getWidth(), getView().getHeight(), animation);
                     }
                 }
             } else if (getView() != null) {
             	getView().setVisible(false, animation);
-            	getView().setLocation(x, y, animation);            
+            	getView().setLocation(x, y, animation);
             }
         }
-    	
+
     	private int mWidth;
     	private int mHeight;
     }
-    
+
     private BHighlights mHighlights;
-    
+
     private Resource mAnim;
 }

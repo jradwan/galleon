@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.iTunes;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -128,12 +128,12 @@ public class iTunes extends DefaultApplication {
 		if (titles.size() == 1) {
 			try {
 				String title = (String) titles.get(0);
-				
+
 				List list = PlaylistsManager.findByTitle(title);
 				if (list!=null && list.size()>0)
 				{
 					Playlists playlist = (Playlists) list.get(0);
-					
+
 					ArrayList tracks = new ArrayList();
 					List playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
 					if (playlists!=null && playlists.size()>0)
@@ -144,7 +144,7 @@ public class iTunes extends DefaultApplication {
 							if (track.getTrack()!=null)
 							{
 								Audio audio = AudioManager.retrieveAudio(track.getTrack());
-								tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));		
+								tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
 							}
 						}
 						playlists.clear();
@@ -159,14 +159,14 @@ public class iTunes extends DefaultApplication {
 			}
 		} else
 			push(new MusicMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(iTunes app) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
@@ -239,7 +239,7 @@ public class iTunes extends DefaultApplication {
 								if (list!=null && list.size()>0)
 								{
 									Playlists playlist = (Playlists) list.get(0);
-									
+
 									ArrayList tracks = new ArrayList();
 									List playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
 									if (playlists!=null && playlists.size()>0)
@@ -250,7 +250,7 @@ public class iTunes extends DefaultApplication {
 											if (track.getTrack()!=null)
 											{
 												Audio audio = AudioManager.retrieveAudio(track.getTrack());
-												tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));		
+												tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
 											}
 										}
 										playlists.clear();
@@ -276,7 +276,7 @@ public class iTunes extends DefaultApplication {
 							List playlists = PlaylistsManager.findByTitle((String) nameFile.getValue());
 							if (playlists != null && playlists.size() > 0) {
 								Playlists playlist = (Playlists) playlists.get(0);
-								
+
 								List pList = PlaylistsTracksManager.findByPlaylists(playlist.getId());
 								ArrayList tracks = new ArrayList();
 								Iterator iterator = pList.iterator();
@@ -285,7 +285,7 @@ public class iTunes extends DefaultApplication {
 									if (track.getTrack()!=null)
 									{
 										Audio audio = AudioManager.retrieveAudio(track.getTrack());
-										tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));		
+										tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
 									}
 								}
 								Tracker tracker = new Tracker(tracks, 0);
@@ -329,7 +329,7 @@ public class iTunes extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((iTunes) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -337,7 +337,7 @@ public class iTunes extends DefaultApplication {
 							getBApp().push(new PlayerScreen((iTunes) getBApp(), ((iTunes) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -355,7 +355,7 @@ public class iTunes extends DefaultApplication {
 
 		public PathScreen(iTunes app, Tracker tracker, boolean first) {
 			super(app, "Music");
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
@@ -488,7 +488,7 @@ public class iTunes extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((iTunes) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -496,7 +496,7 @@ public class iTunes extends DefaultApplication {
 							getBApp().push(new PlayerScreen((iTunes) getBApp(), ((iTunes) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -514,7 +514,7 @@ public class iTunes extends DefaultApplication {
 
 		public MusicScreen(iTunes app) {
 			super(app, "Song", true);
-			
+
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mInfoBackground);
@@ -545,6 +545,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		public boolean handleExit() {
+			mMusicInfo.flush();
 			mMusicInfo.clearResource();
 			return super.handleExit();
 		}
@@ -582,7 +583,7 @@ public class iTunes extends DefaultApplication {
 			case KEY_ENTER:
 				getBApp().push(new MusicOptionsScreen((iTunes) getBApp(), mInfoBackground), TRANSITION_LEFT);
 				return true;
-			case KEY_REPLAY:	
+			case KEY_REPLAY:
 				if (((iTunes) getBApp()).getTracker()!=null)
 				{
 					new Thread() {
@@ -590,7 +591,7 @@ public class iTunes extends DefaultApplication {
 							getBApp().push(new PlayerScreen((iTunes) getBApp(), ((iTunes) getBApp()).getTracker()), TRANSITION_LEFT);
 							getBApp().flush();
 						}
-					}.start();				
+					}.start();
 				}
 				return true;
 			}
@@ -752,6 +753,7 @@ public class iTunes extends DefaultApplication {
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
+					player.flush();
 					player.remove();
 					player = null;
 				}
@@ -1050,7 +1052,10 @@ public class iTunes extends DefaultApplication {
 								try {
 									setPainting(false);
 									if (mImageView.getResource() != null)
+									{
+										mImageView.getResource().flush();
 										mImageView.getResource().remove();
+									}
 									mUrlText.setValue(nameValue.getName());
 									mImageView.setVisible(true);
 									mImageView.setTransparency(1f);
@@ -1226,10 +1231,10 @@ public class iTunes extends DefaultApplication {
 						} else
 							reload = true;
 						//PlaylistParser PlaylistParser = new PlaylistParser("D:/galleon/iTunes Music Library.xml");
-						
+
 						if (reload) {
 							log.info("Reloading iTunes Library");
-							String location = iTunesConfiguration.getPlaylistPath(); 
+							String location = iTunesConfiguration.getPlaylistPath();
 							File file = new File(iTunesConfiguration.getPlaylistPath());
 							if (file.exists()) {
 								String path = System.getProperty("data") + File.separator + "itunes";
@@ -1242,9 +1247,9 @@ public class iTunes extends DefaultApplication {
 								if (copy.exists())
 									location = copy.getCanonicalPath();
 							}
-							
+
 							PlaylistParser PlaylistParser = new PlaylistParser(location);
-							
+
 							synchronized (this) {
 					            try {
 					                AudioManager.clean();
@@ -1252,7 +1257,7 @@ public class iTunes extends DefaultApplication {
 					                Tools.logException(iTunes.class, ex);
 					            }
 					        }
-							
+
 							PersistentValueManager.savePersistentValue(iTunes.class.getName() + ".refresh3", String.valueOf(fileDate.getTime()));
 							log.info("Reloaded iTunes Library");
 						}
@@ -1273,7 +1278,7 @@ public class iTunes extends DefaultApplication {
 			return value;
 		}
 	}
-	
+
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {

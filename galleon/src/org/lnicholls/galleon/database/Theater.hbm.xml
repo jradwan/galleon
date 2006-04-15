@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC 
+<!DOCTYPE hibernate-mapping PUBLIC
 	"-//Hibernate/Hibernate Mapping DTD 2.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
@@ -23,9 +23,9 @@ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 See the file "COPYING" for more details.
     </meta>
-    
-    <cache usage="read-write"/>
-    
+
+    <!--cache usage="read-write"/-->
+
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>
       <generator class="native"/>
@@ -34,15 +34,15 @@ See the file "COPYING" for more details.
     <property name="name" type="string" not-null="true">
       <column name="title" index="THEATER_NAME"/>
     </property>
-    
+
     <property name="dateModified" type="timestamp">
       <meta attribute="field-description">When the theater was updated</meta>
-    </property>    
-    
-    <property name="address" type="string"/>        
-    
-    <property name="telephone" type="string"/>            
-    
+    </property>
+
+    <property name="address" type="string"/>
+
+    <property name="telephone" type="string"/>
+
     <list name="showtimes" table="THEATER_SHOWTIMES" cascade="all" batch-size="20">
       <key column="THEATER_ID"/>
       <index column="MOVIE"/>
@@ -51,12 +51,12 @@ See the file "COPYING" for more details.
           <column name="MOVIE_ID"/>
         </many-to-one>
 	    <property name="day" type="timestamp"/>
-    	<property name="times" type="string"/>        	    
+    	<property name="times" type="string"/>
       </composite-element>
-    </list>    
-    
-    <property name="favorite" type="int"/>            
+    </list>
+
+    <property name="favorite" type="int"/>
 
   </class>
-  
+
 </hibernate-mapping>

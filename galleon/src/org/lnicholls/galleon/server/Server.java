@@ -2,17 +2,17 @@ package org.lnicholls.galleon.server;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -40,6 +40,7 @@ import java.util.TimerTask;
 import java.util.StringTokenizer;
 import java.rmi.RMISecurityManager;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -47,6 +48,7 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
+import org.lnicholls.galleon.app.AppHost;
 import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
@@ -77,9 +79,9 @@ public class Server {
 	public Server() throws Exception {
 		if (mServer!=null)
 			throw new IllegalAccessException();
-		
+
 		mServer = this;
-		
+
 		//System.setSecurityManager(new CustomSecurityManager());
 
 		mShortTermTasks = new ArrayList();
@@ -92,7 +94,7 @@ public class Server {
 			ArrayList errors = new ArrayList();
 			setup(errors);
 
-			log = setupLog(Server.class.getName(), "TraceFile");
+			log = setupLog(Server.class.getName());
 
 			for (int i = 0; i < errors.size(); i++)
 				log.error(errors.get(i));
@@ -126,75 +128,78 @@ public class Server {
 
 		try {
 			File file = new File(".");
+			String root = file.getAbsolutePath() + "/..";
 
 			if (System.getProperty("root") == null)
-				System.setProperty("root", file.getAbsolutePath() + "/..");
+				System.setProperty("root", root);
+			else
+				root = System.getProperty("root");
 
 			File check = new File(System.getProperty("root"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: root=" + System.getProperty("root"));
 
 			System.setProperty("user.home", System.getProperty("root"));
-			
+
 			if (System.getProperty("bin") == null)
-				System.setProperty("bin", file.getAbsolutePath() + "/../bin");
+				System.setProperty("bin", root + "/bin");
 
 			check = new File(System.getProperty("bin"));
 			if (!check.exists() || !check.isDirectory())
-				errors.add("Invalid system propery: bin=" + System.getProperty("bin"));			
+				errors.add("Invalid system propery: bin=" + System.getProperty("bin"));
 
 			if (System.getProperty("conf") == null)
-				System.setProperty("conf", file.getAbsolutePath() + "/../conf");
+				System.setProperty("conf", root + "/conf");
 
 			check = new File(System.getProperty("conf"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: conf=" + System.getProperty("conf"));
 
 			if (System.getProperty("cache") == null)
-				System.setProperty("cache", file.getAbsolutePath() + "/../data");
+				System.setProperty("cache", root + "/data");
 
 			check = new File(System.getProperty("cache"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: cache=" + System.getProperty("cache"));
 
 			if (System.getProperty("data") == null)
-				System.setProperty("data", file.getAbsolutePath() + "/../data");
+				System.setProperty("data", root + "/data");
 
 			check = new File(System.getProperty("data"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: data=" + System.getProperty("data"));
 
 			if (System.getProperty("apps") == null)
-				System.setProperty("apps", file.getAbsolutePath() + "/../apps");
+				System.setProperty("apps", root + "/apps");
 
 			check = new File(System.getProperty("apps"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: apps=" + System.getProperty("apps"));
 
 			if (System.getProperty("hme") == null)
-				System.setProperty("hme", file.getAbsolutePath() + "/../hme");
+				System.setProperty("hme", root + "/hme");
 
 			check = new File(System.getProperty("hme"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: hme=" + System.getProperty("hme"));
 
 			if (System.getProperty("skins") == null)
-				System.setProperty("skins", file.getAbsolutePath() + "/../skins");
+				System.setProperty("skins", root + "/skins");
 
 			check = new File(System.getProperty("skins"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: skins=" + System.getProperty("skins"));
 
 			if (System.getProperty("logs") == null)
-				System.setProperty("logs", file.getAbsolutePath() + "/../logs");
+				System.setProperty("logs", root + "/logs");
 
 			check = new File(System.getProperty("logs"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: logs=" + System.getProperty("logs"));
-			
+
 			if (System.getProperty("demo") != null)
 				mDemoMode = Boolean.valueOf(System.getProperty("demo")).booleanValue();
-			
+
 			if (System.getProperty("remoteHost") != null)
 			{
 				System.setSecurityManager (new RMISecurityManager() {
@@ -215,7 +220,7 @@ public class Server {
 		}
 	}
 
-	public static Logger setupLog(String name, String appenderName) {
+	public static Logger setupLog(String name) {
 		/* Make a logs directory if one doesn't exist */
 		File dir = new File(System.getProperty("logs"));
 		if (!dir.exists()) {
@@ -225,20 +230,55 @@ public class Server {
 			DOMConfigurator.configureAndWatch(System.getProperty("conf") + "/log4j.xml", 60000);
 		} catch (Exception ex) {
 		}
-		Logger log = Logger.getLogger(name);
 
 		// Start with a new log file with each restart
 		Logger root = Logger.getRootLogger();
-		AsyncAppender asyncAppender = (AsyncAppender) root.getAppender("AsyncTrace");
+		rollOverLog(root, "AsyncTrace", "TraceFile", Constants.LOG_FILE);
+		rollOverLog(root, "GuiTrace", "GuiFile", Constants.GUI_LOG_FILE);
+
+		Logger log = Logger.getLogger(name);
+
+		return log;
+	}
+
+	public static Logger setupLog(String name, String appenderName, String appenderRefName, String filename) {
+		/* Make a logs directory if one doesn't exist */
+		File dir = new File(System.getProperty("logs"));
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		try {
+			DOMConfigurator.configureAndWatch(System.getProperty("conf") + "/log4j.xml", 60000);
+		} catch (Exception ex) {
+		}
+
+		// Start with a new log file with each restart
+		Logger root = Logger.getRootLogger();
+		rollOverLog(root, appenderName, appenderRefName, filename);
+
+		Logger log = Logger.getLogger(name);
+
+		return log;
+	}
+
+	private static void rollOverLog(Logger root, String appenderName, String appenderRefName, String filename)
+	{
+		AsyncAppender asyncAppender = (AsyncAppender) root.getAppender(appenderName);
 		if (asyncAppender != null) {
-			RollingFileAppender rollingFileAppender = (RollingFileAppender) asyncAppender.getAppender(appenderName);
+			RollingFileAppender rollingFileAppender = (RollingFileAppender) asyncAppender.getAppender(appenderRefName);
 			if (rollingFileAppender != null) {
-				rollingFileAppender.setFile(System.getProperty("logs") + "/" + Constants.LOG_FILE);
+				if (!SystemUtils.IS_OS_WINDOWS) {
+					if (rollingFileAppender.getFile()!=null) {
+						File file = new File(rollingFileAppender.getFile());
+						if (!file.exists())
+							rollingFileAppender.setFile(System.getProperty("logs") + "/" + filename);
+					}
+					else
+						rollingFileAppender.setFile(System.getProperty("logs") + "/" + filename);
+				}
 				rollingFileAppender.rollOver();
 			}
 		}
-
-		return log;
 	}
 
 	private void setDebugLogging(boolean debug) {
@@ -273,7 +313,7 @@ public class Server {
 			mLongTermTimer = new Timer();
 			mShortTermTimer = new Timer();
 			mDataTimer = new Timer();
-			
+
 			mDownloadManager = new DownloadManager();
 
 			// Load apps
@@ -325,7 +365,7 @@ public class Server {
 			}
 
 			mRegistry.bind("serverControl", new ServerControlImpl());
-			
+
 			mTCMs = new LinkedList();
 			int port = mServerConfiguration.getHttpPort();
 			mHMOPort = Tools.findAvailablePort(port);
@@ -334,12 +374,12 @@ public class Server {
 			}
 			else
 				log.info("Using PC publishing port " + mHMOPort);
-			
+
 			Config config = new Config();
 	        config.put("http.ports", String.valueOf(mHMOPort));
 	        config.put("http.interfaces", mServerConfiguration.getIPAddress());
 	        mVideoServer = new VideoServer(config);
-			
+
 	        if (System.getProperty("disableBeacon") != null && System.getProperty("disableBeacon").equals("true"))
 	        {
 	        	log.debug("Beacon disabled");
@@ -348,7 +388,7 @@ public class Server {
 			{
 		        // TiVo Beacon API
 	            publishTiVoBeacon();
-	
+
 	            if (!mPublished) {
 	                mBeaconPort = Constants.TIVO_PORT;
 	                // TODO
@@ -362,36 +402,36 @@ public class Server {
 	                        break;
 	                    } catch (Throwable ex) {
 	                        Tools.logException(Server.class, ex);
-	
+
 	                        if (mBroadcastThread != null)
 	                            mBroadcastThread.interrupt();
-	
+
 	                        mBroadcastThread = null;
 	                        mBeaconPort = mBeaconPort + 1;
 	                    }
 	                }
-	
+
 	                if (mBroadcastThread!=null)
 	                {
 		                log.info("Broadcast port=" + mBeaconPort);
-		
+
 		                mListenThread = new ListenThread(this);
 		                mListenThread.start();
 	                }
 	                else
 	                	log.error("Cannot broadcast");
-	
+
 	                mConnectionThread = new ConnectionThread(this);
 	                mConnectionThread.start();
-	            }			
+	            }
 			}
-			
+
             //mDataUpdateThread = new DataUpdateThread();
             //mDataUpdateThread.start();
 
 			System.out.println("Galleon is ready.");
 			mReady = true;
-			
+
 			Iterator iterator = mShortTermTasks.iterator();
 			while (iterator.hasNext()) {
 				TaskInfo taskInfo = (TaskInfo) iterator.next();
@@ -410,7 +450,7 @@ public class Server {
 				scheduleData(taskInfo.task, 0, taskInfo.time);
 			}
 			mDataTasks.clear();
-			
+
 			iterator = mPublishedVideos.iterator();
 			while (iterator.hasNext()) {
 				publishVideo((NameValue)iterator.next());
@@ -424,7 +464,7 @@ public class Server {
 	}
 
 	// Service wrapper required method
-	public void stop() {
+	public void stop()  throws Exception {
 		if (log.isDebugEnabled())
 			log.debug("stop()");
 		try {
@@ -433,57 +473,208 @@ public class Server {
 			 * mPluginManager = null; }
 			 */
 
-			mRegistry.unbind("serverControl");
-			
+			if (mDownloadManager != null) {
+                try
+                {
+                	for (Iterator iterator = mDownloadManager.getDownloads().iterator();iterator.hasNext();)
+                	{
+                		Download download = (Download)iterator.next();
+                		mDownloadManager.stopDownload(download);
+                	}
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+                mDownloadManager = null;
+            }
+
+			if (mAppManager != null) {
+                try
+                {
+                	for (Iterator iterator = mAppManager.getApps().iterator();iterator.hasNext();)
+                	{
+                		AppContext appContext = (AppContext)iterator.next();
+                		mAppManager.removeApp(appContext);
+                	}
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+
+                mAppManager = null;
+            }
+
+			if (mTiVoListener != null) {
+                try
+                {
+                	mTiVoListener.close();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+
+                mTiVoListener = null;
+            }
+
+			if (mLongTermTimer != null) {
+                try
+                {
+                	mLongTermTimer.cancel();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+                mLongTermTimer = null;
+            }
+
+			if (mShortTermTimer != null) {
+                try
+                {
+                	mShortTermTimer.cancel();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+                mShortTermTimer = null;
+            }
+
+			if (mDataTimer != null) {
+                try
+                {
+                	mDataTimer.cancel();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+                mDataTimer = null;
+            }
+
+			if (mRegistry != null) {
+                try
+                {
+                	mRegistry.unbind("serverControl");
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+                mRegistry = null;
+            }
+
 			if (mTiVoBeacon != null) {
-                mTiVoBeacon.RevokeMediaServer(getPort());
-                mTiVoBeacon.Release();
+                try
+                {
+                	mTiVoBeacon.RevokeMediaServer(getPort());
+                	mTiVoBeacon.Release();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
                 mTiVoBeacon = null;
             }
 
             if (mConnectionThread != null) {
-                mConnectionThread.interrupt();
+            	try
+                {
+            		mConnectionThread.interrupt();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
                 mConnectionThread = null;
             }
 
             if (mListenThread != null) {
-                mListenThread.interrupt();
+            	try
+                {
+            		mListenThread.interrupt();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
                 mListenThread = null;
             }
 
             if (mBroadcastThread != null) {
-                mBroadcastThread.interrupt();
-                mBroadcastThread.sendPackets(true);
+            	try
+                {
+            		mBroadcastThread.interrupt();
+            		mBroadcastThread.sendPackets(true);
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
 
                 mBroadcastThread = null;
-            }			
+            }
+
+            if (mVideoServer != null) {
+            	try
+                {
+            		mVideoServer.drain();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
+
+                mVideoServer = null;
+            }
 
 			if (mToGoThread != null) {
-				mToGoThread.interrupt();
+				try
+                {
+					mToGoThread.interrupt();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
 				mToGoThread = null;
 			}
 
 			if (mDownloadThread != null) {
-				mDownloadThread.interrupt();
+				try
+                {
+					mDownloadThread.interrupt();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
 				mDownloadThread = null;
 			}
-			
+
 			if (mVideoServer != null) {
-				mVideoServer.drain();
+				try
+                {
+					mVideoServer.drain();
+                }
+                catch (Throwable ex) {
+                	Tools.logException(Server.class, ex);
+                }
 				mVideoServer = null;
 			}
-			
-			NetworkServerManager.shutdown();
+
+            try
+            {
+            	NetworkServerManager.shutdown();
+            }
+            catch (Throwable ex) {
+            	Tools.logException(Server.class, ex);
+            }
+
+            mServer = null;
+            mStartMain = false;
+
 		} catch (Exception ex) {
+			//System.runFinalization();
+			//Tools.logException(Server.class, ex);
+            throw ex;
+		}
+		finally {
 			mToGoThread = null;
 			mDownloadThread = null;
 			mBroadcastThread = null;
             mListenThread = null;
             mConnectionThread = null;
             mTiVoBeacon = null;
-
-			System.runFinalization();
-			Tools.logException(Server.class, ex);
 		}
 	}
 
@@ -618,12 +809,12 @@ public class Server {
 		}
 		return mPort;
 	}
-	
+
 	public int getHMOPort()
 	{
 		return mHMOPort;
 	}
-	
+
 	public int getBeaconPort()
 	{
 		return mBeaconPort;
@@ -756,7 +947,7 @@ public class Server {
 			}
 		}
 	}
-	
+
 	public synchronized void scheduleData(TimerTask task, long time) {
 		if (mReady)
 			scheduleData(task, 0, time);
@@ -781,7 +972,7 @@ public class Server {
 				Tools.logException(Server.class, ex2);
 			}
 		}
-	}	
+	}
 
 	private void preLoadFonts() {
 		if (log.isDebugEnabled())
@@ -818,7 +1009,7 @@ public class Server {
 
 	public void updateServerConfiguration(ServerConfiguration serverConfiguration) throws Exception {
 		boolean needRestart = true;
-		
+
 		try
 		{
 			/*
@@ -835,7 +1026,7 @@ public class Server {
 			 * serverConfiguration); } catch (Exception ex) { log.error("Server
 			 * configuration update failed", ex); }
 			 */
-			
+
 			save();
 			// mToGoThread.interrupt();
 			if (!mStartMain && needRestart) {
@@ -853,7 +1044,7 @@ public class Server {
 			throw ex;
 		}
 	}
-	
+
 	public void setDisableTimeout(boolean value)
 	{
 		try
@@ -864,9 +1055,9 @@ public class Server {
 		catch (Exception ex)
 		{
 			Tools.logException(Server.class, ex);
-		}		
+		}
 	}
-	
+
 	public MusicPlayerConfiguration getMusicPlayerConfiguration() {
 		return mServerConfiguration.getMusicPlayerConfiguration();
 	}
@@ -885,8 +1076,8 @@ public class Server {
 			Tools.logException(Server.class, ex);
 			throw ex;
 		}
-	}	
-	
+	}
+
 	public DataConfiguration getDataConfiguration() {
 		return mServerConfiguration.getDataConfiguration();
 	}
@@ -896,7 +1087,7 @@ public class Server {
 		{
 			Users.login(dataConfiguration);
 			Users.logout(dataConfiguration);
-			
+
 			mServerConfiguration.setDataConfiguration(dataConfiguration);
 			save();
 		}
@@ -905,8 +1096,8 @@ public class Server {
 			Tools.logException(Server.class, ex);
 			throw ex;
 		}
-	}	
-	
+	}
+
 	public GoBackConfiguration getGoBackConfiguration() {
 		return mServerConfiguration.getGoBackConfiguration();
 	}
@@ -927,8 +1118,8 @@ public class Server {
 			Tools.logException(Server.class, ex);
 			throw ex;
 		}
-	}	
-	
+	}
+
 	public DownloadConfiguration getDownloadConfiguration() {
 		return mServerConfiguration.getDownloadConfiguration();
 	}
@@ -947,8 +1138,8 @@ public class Server {
 			Tools.logException(Server.class, ex);
 			throw ex;
 		}
-	}	
-	
+	}
+
 	public List getAppDescriptors() {
 		return mAppManager.getAppDescriptors();
 	}
@@ -985,6 +1176,15 @@ public class Server {
 			log.error("Video update failed", ex);
 		}
 		mDownloadThread.updateVideo(video);
+	}
+
+	public Video retrieveVideo(Video video) {
+		try {
+			return VideoManager.retrieveVideo(video);
+		} catch (Exception ex) {
+			log.error("Video retrieve failed", ex);
+		}
+		return null;
 	}
 
 	public void removeVideo(Video video) {
@@ -1053,7 +1253,7 @@ public class Server {
 			Tools.logException(Server.class, ex);
 		}
 	}
-	
+
 	public List getVideocasts() throws RemoteException {
 		try {
 			return VideocastManager.getVideocasts();
@@ -1178,7 +1378,7 @@ public class Server {
     public Iterator getTCMIterator() {
         return mTCMs.iterator();
     }
-    
+
     private void publishTiVoBeacon() {
         // TiVo Beacon API
         mPublished = false;
@@ -1198,7 +1398,7 @@ public class Server {
             }
         }
     }
-    
+
     public void publishVideo(NameValue nameValue)
     {
     	if (mVideoServer!=null)
@@ -1210,12 +1410,12 @@ public class Server {
     		mPublishedVideos.add(nameValue);
     	}
     }
-    
+
     public void addDownload(Download download, StatusListener statusListener)
     {
     	mDownloadManager.addDownload(download, statusListener);
     }
-    
+
     public List getDownloads() throws RemoteException {
 		try {
 			return mDownloadManager.getDownloads();
@@ -1224,7 +1424,7 @@ public class Server {
 		}
 		return null;
 	}
-    
+
     public void pauseDownload(Download download) throws RemoteException
     {
     	mDownloadManager.pauseDownload(download);
@@ -1234,35 +1434,61 @@ public class Server {
 	{
 		mDownloadManager.resumeDownload(download);
 	}
-	
+
 	public void stopDownload(Download download) throws RemoteException
 	{
 		mDownloadManager.stopDownload(download);
 	}
-	
+
 	public boolean isFileExists(String path)
 	{
 		File file = new File(path);
 		return file.exists();
 	}
-	
+
 	public void deleteFile(String path)
 	{
 		File file = new File(path);
-		if (file.exists())
+		boolean found = false;
+		// Try to resync video file with database if moved
+		try {
+
+			List list = VideoManager.findByFilename(file.getName());
+
+			if (list != null && list.size() == 1) {
+
+				for (int j=0;j<list.size();j++)
+				{
+					Video video = (Video) list.get(j);
+					if (!video.getPath().equals(file.getCanonicalPath()))
+					{
+						video.setPath(file.getCanonicalPath());
+						VideoManager.updateVideo(video);
+						found = true;
+						break;
+					}
+				}
+			}
+
+		} catch (Exception ex) {
+
+			log.error("Video find failed", ex);
+		}
+
+		if (!found && file.exists())
 			file.delete();
 	}
-	
+
 	public List getAppUrls(boolean shared)
 	{
 		return mAppManager.getAppUrls(shared);
 	}
-	
+
 	public boolean isDemoMode()
 	{
 		return mDemoMode;
 	}
-	
+
 	public static void main(String args[]) {
 		mStartMain = true;
 		try
@@ -1282,7 +1508,7 @@ public class Server {
 	private Timer mLongTermTimer;
 
 	private Timer mShortTermTimer;
-	
+
 	private Timer mDataTimer;
 
 	private Configurator mConfigurator;
@@ -1310,17 +1536,17 @@ public class Server {
 	private static boolean mReady;
 
 	private int mPort = -1;
-	
+
 	private int mHMOPort = -1;
-	
+
 	private int mBeaconPort = -1;
 
 	private ArrayList mShortTermTasks;
 
 	private ArrayList mLongTermTasks;
-	
+
 	private ArrayList mDataTasks;
-	
+
 	private BroadcastThread mBroadcastThread;
 
     private TiVoBeacon mTiVoBeacon;
@@ -1328,18 +1554,18 @@ public class Server {
     private ListenThread mListenThread;
 
     private ConnectionThread mConnectionThread;
-    
+
     private LinkedList mTCMs;
-    
+
     private boolean mPublished;
-    
+
     private VideoServer mVideoServer;
-    
+
     private List mPublishedVideos = new ArrayList();
-    
+
     private DownloadManager mDownloadManager;
-    
+
     //private DataUpdateThread mDataUpdateThread;
-    
+
     private static boolean mDemoMode;
 }

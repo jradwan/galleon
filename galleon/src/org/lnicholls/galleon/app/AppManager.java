@@ -2,17 +2,17 @@ package org.lnicholls.galleon.app;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -202,7 +202,7 @@ public final class AppManager {
 	 * (AppContext) iterator.next(); // TODO Handle multiple instances if
 	 * (app.getClass().getName().equals(className + "Factory")) return
 	 * app.getConfiguration(); } return null; }
-	 * 
+	 *
 	 * public void setAppConfiguration(String className, AppConfiguration
 	 * appConfiguration) { Iterator iterator = mApps.iterator(); while
 	 * (iterator.hasNext()) { AppFactory app = (AppFactory) iterator.next(); //
@@ -319,7 +319,7 @@ public final class AppManager {
 					 * if
 					 * (app.getClassName().equals(appContext.getDescriptor().getClassName())) {
 					 * mAppFactory.getListener().remove(app); mApps.remove(app);
-					 * 
+					 *
 					 * Iterator contextsIterator = mAppContexts.iterator();
 					 * while (contextsIterator.hasNext()) { AppContext
 					 * currentContext = (AppContext)contextsIterator.next(); if
@@ -355,7 +355,7 @@ public final class AppManager {
 				 * else log.error("App does not allow update of configuration"); }
 				 * catch (Exception ex) { log.error("Could not configure app",
 				 * ex); }
-				 * 
+				 *
 				 * Iterator contextsIterator = mAppContexts.iterator(); while
 				 * (contextsIterator.hasNext()) { AppContext currentContext =
 				 * (AppContext)contextsIterator.next(); if

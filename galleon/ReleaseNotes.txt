@@ -1,9 +1,19 @@
 Galleon
-
 -------
 
-Version 2.2.0:
 
+Version 2.3.0:
+----------------------
+Native version for Windows
+Resync ToGo video files if moved
+Fixed ToGo stats doubling
+Fix GoBack subfolders
+Fixed ToGo sorting by TiVo name in GUI
+Fix movie posters
+Fixed upcoming dates
+
+
+Version 2.2.0:
 ----------------------
 
 Galleon menu sorting

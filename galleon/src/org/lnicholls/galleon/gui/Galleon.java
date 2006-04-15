@@ -2,17 +2,17 @@ package org.lnicholls.galleon.gui;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -73,15 +73,15 @@ import com.jgoodies.plaf.Options;
 import edu.stanford.ejalbert.BrowserLauncher;
 
 public final class Galleon implements Constants {
-	
+
 	private static String mErrorMessageSuffix = "";
-	
+
 	static
 	{
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			mErrorMessageSuffix = "Check that the Galleon service is running. Make sure that the ports required by Galleon listed in the FAQ is configured in your PC firewall software.";
-		}		
+		}
 	}
 
 	static class SplashWindow extends JWindow {
@@ -119,7 +119,7 @@ public final class Galleon implements Constants {
 
 			ArrayList errors = new ArrayList();
 			Server.setup(errors);
-			log = Server.setupLog("org.lnicholls.galleon.gui.Galleon", "GuiFile");
+			log = Server.setupLog("org.lnicholls.galleon.gui.Galleon", "GuiTrace", "GuiFile", Constants.GUI_LOG_FILE);
 			// log = Logger.getLogger(Galleon.class.getName());
 			printSystemProperties();
 
@@ -181,7 +181,7 @@ public final class Galleon implements Constants {
 					// should never happen
 				}
 			}
-			
+
 			directory = new File(System.getProperty("hme"));
 			if (directory.exists()) {
 				files = directory.listFiles(new FileFilter() {
@@ -400,23 +400,27 @@ public final class Galleon implements Constants {
 		}
 		return null;
 	}
-	
+
 	public static void updateServerConfiguration(ServerConfiguration serverConfiguration) throws Exception {
 		ServerControl serverControl = getServerControl();
 		serverControl.updateServerConfiguration(serverConfiguration);
+
+		if (System.getProperty("java.vm.name").equals("Excelsior JET"))
+			JOptionPane.showMessageDialog(mMainFrame, "Please restart the Galleon service using Control Panel/Adminstrative Tools/Services", "Info",
+					JOptionPane.INFORMATION_MESSAGE);
 	}
-	
+
 	public void setDisableTimeout(boolean value) throws Exception
 	{
 		ServerControl serverControl = getServerControl();
 		serverControl.setDisableTimeout(value);
 	}
-	
+
 	public static void updateMusicPlayerConfiguration(MusicPlayerConfiguration musicPlayerConfiguration) throws Exception {
 		ServerControl serverControl = getServerControl();
 		serverControl.updateMusicPlayerConfiguration(musicPlayerConfiguration);
 	}
-	
+
 	public static MusicPlayerConfiguration getMusicPlayerConfiguration() {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -429,13 +433,13 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
+	}
 
 	public static void updateDataConfiguration(DataConfiguration dataConfiguration) throws Exception {
 		ServerControl serverControl = getServerControl();
 		serverControl.updateDataConfiguration(dataConfiguration);
 	}
-	
+
 	public static DataConfiguration getDataConfiguration() {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -449,12 +453,12 @@ public final class Galleon implements Constants {
 		}
 		return null;
 	}
-	
+
 	public static void updateGoBackConfiguration(GoBackConfiguration goBackConfiguration) throws Exception {
 		ServerControl serverControl = getServerControl();
 		serverControl.updateGoBackConfiguration(goBackConfiguration);
 	}
-	
+
 	public static GoBackConfiguration getGoBackConfiguration() {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -467,14 +471,14 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
-	
-	
+	}
+
+
 	public static void updateDownloadConfiguration(DownloadConfiguration downloadConfiguration) throws Exception {
 		ServerControl serverControl = getServerControl();
 		serverControl.updateDownloadConfiguration(downloadConfiguration);
 	}
-	
+
 	public static DownloadConfiguration getDownloadConfiguration() {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -487,7 +491,7 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
+	}
 
 	public static void updateVideo(Video video) {
 		try {
@@ -499,6 +503,19 @@ public final class Galleon implements Constants {
 			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	public static Video retrieveVideo(Video video) {
+		try {
+			ServerControl serverControl = getServerControl();
+			return serverControl.retrieveVideo(video);
+		} catch (Exception ex) {
+			Tools.logException(Galleon.class, ex, "Could not update video at server: " + mServerAddress);
+
+			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
 	}
 
 	public static AppContext createAppContext(AppDescriptor appDescriptor) {
@@ -577,7 +594,7 @@ public final class Galleon implements Constants {
 		}
 		return -1;
 	}
-	
+
 	public static int getHTTPPort() {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -590,7 +607,7 @@ public final class Galleon implements Constants {
 		}
 		return -1;
 	}
-	
+
 	public static int getHttpPort() {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -628,7 +645,7 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static List getVideocasts() throws RemoteException {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -666,7 +683,7 @@ public final class Galleon implements Constants {
 		}
 		return true;
 	}
-	
+
 	public static List getDownloads() throws RemoteException {
 		try {
 			ServerControl serverControl = getServerControl();
@@ -678,8 +695,8 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
-	
+	}
+
 	public static void pauseDownload(Download download) throws RemoteException
     {
     	try {
@@ -705,7 +722,7 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static void stopDownload(Download download) throws RemoteException
 	{
 		try {
@@ -718,7 +735,7 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static boolean isFileExists(String path) throws RemoteException
 	{
 		try {
@@ -732,7 +749,7 @@ public final class Galleon implements Constants {
 		}
 		return false;
 	}
-	
+
 	public static void deleteFile(String path) throws RemoteException
 	{
 		try {
@@ -745,7 +762,7 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static List getUpcomingCountries() throws RemoteException
 	{
 		try {
@@ -758,8 +775,8 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
-	
+	}
+
 	public static List getUpcomingStates(String countryId) throws RemoteException
 	{
 		try {
@@ -772,8 +789,8 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
-	
+	}
+
 	public static List getUpcomingMetros(String stateId) throws RemoteException
 	{
 		try {
@@ -786,7 +803,7 @@ public final class Galleon implements Constants {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
-	}	
+	}
 
 	public static class ConnectionDialog extends JDialog {
 
@@ -882,7 +899,7 @@ public final class Galleon implements Constants {
 			return null;
 		}
 	}
-	
+
 	public static String getErrorMessageSuffix()
 	{
 		return mErrorMessageSuffix;

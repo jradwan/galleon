@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.internetSlideshows;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -127,7 +127,7 @@ public class InternetSlideshows extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mLargeFolderIcon = getSkinImage("menu", "gridFolder");
 		mCameraIcon = getSkinImage("menu", "item");
-		
+
 		InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
 
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(DefaultApplication.TRACKER);
@@ -150,15 +150,15 @@ public class InternetSlideshows extends DefaultApplication {
 		}
 
 		push(new PhotosMenuScreen(this), TRANSITION_NONE);
-		
+
 		initialize();
 	}
-	
+
 	public class OptionsScreen extends DefaultOptionsScreen {
 
 		public OptionsScreen(DefaultApplication app) {
 			super(app);
-			
+
 			getBelow().setResource(mInfoBackground);
 
 			InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
@@ -172,7 +172,7 @@ public class InternetSlideshows extends DefaultApplication {
 			text.setFont("default-24-bold.font");
 			text.setShadow(true);
 			text.setValue("Use safe viewing area");
-			
+
 			NameValue[] nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
 			mUseSafeButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
 					nameValues, String.valueOf(imagesConfiguration.isUseSafe()));
@@ -185,7 +185,7 @@ public class InternetSlideshows extends DefaultApplication {
 			text.setFont("default-24-bold.font");
 			text.setShadow(true);
 			text.setValue("Slideshow Effects");
-			
+
 			String names[] = new String[0];
 			names = (String[]) Effects.getEffectNames().toArray(names);
 			Arrays.sort(names);
@@ -207,28 +207,28 @@ public class InternetSlideshows extends DefaultApplication {
 			text.setFont("default-24-bold.font");
 			text.setShadow(true);
 			text.setValue("Display Time");
-			
-			nameValues = new NameValue[] { 
-			new NameValue("2 seconds", "2"), 
-			new NameValue("3 seconds", "3"), 
-			new NameValue("4 seconds", "4"), 
-			new NameValue("5 seconds", "5"), 
-			new NameValue("6 seconds", "6"), 
-			new NameValue("7 seconds", "7"), 
-			new NameValue("8 seconds", "8"), 
-			new NameValue("9 seconds", "9"), 
-			new NameValue("10 seconds", "10"), 
-			new NameValue("11 seconds", "11"), 
-			new NameValue("12 seconds", "12"), 
-			new NameValue("13 seconds", "13"), 
-			new NameValue("14 seconds", "14"), 
-			new NameValue("15 seconds", "15"), 
-			new NameValue("16 seconds", "16"), 
-			new NameValue("17 seconds", "17"), 
-			new NameValue("18 seconds", "18"), 
-			new NameValue("19 seconds", "19"), 
+
+			nameValues = new NameValue[] {
+			new NameValue("2 seconds", "2"),
+			new NameValue("3 seconds", "3"),
+			new NameValue("4 seconds", "4"),
+			new NameValue("5 seconds", "5"),
+			new NameValue("6 seconds", "6"),
+			new NameValue("7 seconds", "7"),
+			new NameValue("8 seconds", "8"),
+			new NameValue("9 seconds", "9"),
+			new NameValue("10 seconds", "10"),
+			new NameValue("11 seconds", "11"),
+			new NameValue("12 seconds", "12"),
+			new NameValue("13 seconds", "13"),
+			new NameValue("14 seconds", "14"),
+			new NameValue("15 seconds", "15"),
+			new NameValue("16 seconds", "16"),
+			new NameValue("17 seconds", "17"),
+			new NameValue("18 seconds", "18"),
+			new NameValue("19 seconds", "19"),
 			new NameValue("20 seconds", "20")};
-			
+
 			mDisplayTimeButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(imagesConfiguration.getDisplayTime()));
 
@@ -239,7 +239,7 @@ public class InternetSlideshows extends DefaultApplication {
 			text.setFont("default-24-bold.font");
 			text.setShadow(true);
 			text.setValue("Transition Time");
-			
+
 			mTransitionTimeButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(imagesConfiguration.getTransitionTime()));
 		}
@@ -261,7 +261,7 @@ public class InternetSlideshows extends DefaultApplication {
 					imagesConfiguration.setEffect(mEffectButton.getValue());
 					imagesConfiguration.setDisplayTime(Integer.parseInt(mDisplayTimeButton.getValue()));
 					imagesConfiguration.setTransitionTime(Integer.parseInt(mTransitionTimeButton.getValue()));
-	
+
 					Server.getServer().updateApp(((InternetSlideshowsFactory) getFactory()).getAppContext());
 				}
 			} catch (Exception ex) {
@@ -277,19 +277,19 @@ public class InternetSlideshows extends DefaultApplication {
 		private OptionsButton mDisplayTimeButton;
 
 		private OptionsButton mTransitionTimeButton;
-	}	
+	}
 
 	public class PhotosMenuScreen extends DefaultMenuScreen {
 		public PhotosMenuScreen(InternetSlideshows app) {
 			super(app, "Internet Slideshows");
-			
+
 			getBelow().setResource(mMenuBackground);
-			
+
 			setFooter("Press ENTER for options");
-			
+
 			InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory) getFactory())
 					.getAppContext().getConfiguration();
-			
+
 			List list = imagesConfiguration.getPaths();
 			Iterator iterator = list.iterator();
 			while (iterator.hasNext())
@@ -306,7 +306,7 @@ public class InternetSlideshows extends DefaultApplication {
 					public void run() {
 						try {
 							NameValue nameValue = (NameValue) (mMenuList.get(mMenuList.getFocus()));
-							
+
 							List stories = getPhotoDescriptions(nameValue.getValue());
 							Tracker tracker = new Tracker(stories, 0);
 
@@ -350,7 +350,7 @@ public class InternetSlideshows extends DefaultApplication {
 
 		public SlideshowScreen(InternetSlideshows app, Tracker tracker) {
 			this(app, tracker, true);
-			
+
 			if (!mShowDescription)
 				setFooter("Press INFO for details", mAnim);
 		}
@@ -360,7 +360,7 @@ public class InternetSlideshows extends DefaultApplication {
 
 			mTracker = tracker;
 			mShowSlideshow = showSlideshow;
-			
+
 			setTitle(" ");
 
 			InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory) getFactory())
@@ -424,7 +424,10 @@ public class InternetSlideshows extends DefaultApplication {
 			if (image != null) {
 				mPhoto.setVisible(false);
 				if (mPhoto.getResource() != null)
+				{
+					mPhoto.getResource().flush();
 					mPhoto.getResource().remove();
+				}
 				getBApp().flush();
 			}
 		}
@@ -476,7 +479,7 @@ public class InternetSlideshows extends DefaultApplication {
 			case KEY_NUM0:
 				mShowDescription = !mShowDescription;
 				showDescription();
-				return true;				
+				return true;
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
@@ -506,7 +509,7 @@ public class InternetSlideshows extends DefaultApplication {
 			}
 			return null;
 		}
-		
+
 		private String currentDescription() {
 			if (mTracker != null && mTracker.getList().size()>0) {
 				try {
@@ -520,7 +523,7 @@ public class InternetSlideshows extends DefaultApplication {
 			}
 			return null;
 		}
-		
+
 		public void showDescription() {
 			if (mShowDescription)
 			{
@@ -532,13 +535,13 @@ public class InternetSlideshows extends DefaultApplication {
 			            	mDescriptionBackground = new View(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 60, (getWidth() - (SAFE_TITLE_H * 2)), 75);
 			                mDescriptionBackground.setResource(Color.BLUE);
 			                mDescriptionBackground.setTransparency(0.4f);
-			            	
+
 			            	mDescription = new BText(getNormal(), SAFE_TITLE_H, getHeight() - SAFE_TITLE_V - 60, (getWidth() - (SAFE_TITLE_H * 2)), 75);
 			                mDescription.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_TOP | RSRC_TEXT_WRAP);
 			                mDescription.setFont("default-18.font");
 			                mDescription.setShadow(true);
 			            }
-		
+
 			            if (value.length()==0)
 			            {
 			            	mDescription.setVisible(false);
@@ -566,9 +569,9 @@ public class InternetSlideshows extends DefaultApplication {
 	    }
 
 		private Resource mAnim = getResource("*5000");
-		
+
 		private BText mDescription;
-		
+
 		private View mDescriptionBackground;
 
 		Image mImage;
@@ -588,7 +591,7 @@ public class InternetSlideshows extends DefaultApplication {
 	private class Slideshow extends Thread {
 		public Slideshow(SlideshowScreen slideshowScreen) {
 			mSlideshowScreen = slideshowScreen;
-			
+
 			((DefaultApplication)getApp()).setHandleTimeout(true);
 		}
 
@@ -625,7 +628,7 @@ public class InternetSlideshows extends DefaultApplication {
 			else if (photosConfiguration.getEffect().equals(Effects.RANDOM)) {
 				currentEffect = random.nextInt(effects.length);
 			}
-			
+
 			while (getApp().getContext()!=null) {
 				try {
 					sleep(1000 * photosConfiguration.getDisplayTime());
@@ -638,9 +641,9 @@ public class InternetSlideshows extends DefaultApplication {
 								long startTime = System.currentTimeMillis();
 								photo = (BufferedImage) Tools.getImage(photo);
 								long estimatedTime = System.currentTimeMillis() - startTime;
-								
+
 								mSlideshowScreen.showDescription();
-								
+
 								BufferedImage scaled = ImageManipulator.getScaledImage(photo,
 										mSlideshowScreen.mPhoto.getWidth(), mSlideshowScreen.mPhoto.getHeight());
 								photo.flush();
@@ -674,13 +677,13 @@ public class InternetSlideshows extends DefaultApplication {
 			synchronized (this) {
 				super.interrupt();
 			}
-			
+
 			((DefaultApplication)getApp()).setHandleTimeout(false);
 		}
 
 		private SlideshowScreen mSlideshowScreen;
 	}
-	
+
 	static class PhotoDescription
 	{
 		public PhotoDescription(String url, String description)
@@ -688,25 +691,25 @@ public class InternetSlideshows extends DefaultApplication {
 			mUrl = url;
 			mDescription = description;
 		}
-		
+
 		public String getUrl()
 		{
 			return mUrl;
 		}
-		
+
 		public String getDescription()
 		{
 			return mDescription;
 		}
-		
+
 		private String mUrl;
-		
+
 		private String mDescription;
 	}
-	
+
 	public static List getPhotoDescriptions(String url) {
 		List photoDescriptions = new ArrayList();
-		
+
 		PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(InternetSlideshows.class.getName() + "."
 				+ url);
 		String content = persistentValue == null ? null : persistentValue.getValue();
@@ -740,11 +743,11 @@ public class InternetSlideshows extends DefaultApplication {
 							String value = null;
 							String title = null;
 							String link = null;
-		
+
 							if ((value = Tools.getAttribute(item, "title")) != null) {
 								title = value;
 							}
-							
+
 							if ((value = Tools.getAttribute(item, "description")) != null) {
 								title = Tools.cleanHTML(value);
 							}
@@ -762,7 +765,7 @@ public class InternetSlideshows extends DefaultApplication {
 										photoDescriptions.add(new PhotoDescription(link, title));
 								}
 							}
-							
+
 							Element enclosureElement = item.element("enclosure");
 							if (enclosureElement != null) {
 								if ((value = enclosureElement.attributeValue("url")) != null) {
@@ -792,7 +795,7 @@ public class InternetSlideshows extends DefaultApplication {
 			}
 		}
 		return photoDescriptions;
-	}	
+	}
 
 	public static class InternetSlideshowsFactory extends AppFactory {
 
@@ -800,6 +803,6 @@ public class InternetSlideshows extends DefaultApplication {
 			InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) getAppContext().getConfiguration();
 		}
 	}
-	
+
 	private boolean mShowDescription;
 }

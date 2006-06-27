@@ -1617,6 +1617,20 @@
 
         <copy file="./media/images/music/background.jpg" tofile="${build}/skins/music/background.jpg" />
 
+        <copy file="./media/images/music/bar.png" tofile="${build}/skins/music/bar.png" />                
+
+        <copy file="./media/images/music/left.png" tofile="${build}/skins/music/left.png" />                
+
+        <copy file="./media/images/music/right.png" tofile="${build}/skins/music/right.png" />                
+
+        <copy file="./media/images/music/pagedown.png" tofile="${build}/skins/music/pagedown.png" />                
+
+        <copy file="./media/images/music/pageup.png" tofile="${build}/skins/music/pageup.png" />                
+
+        <copy file="./media/images/music/up.png" tofile="${build}/skins/music/up.png" />                
+
+        <copy file="./media/images/music/down.png" tofile="${build}/skins/music/down.png" />                
+
 
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
@@ -1626,6 +1640,8 @@
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
 
         <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
+
+        <copy file="./media/images/widget/marker.png" tofile="${build}/skins/photos/marker.png" />        
 
         
 

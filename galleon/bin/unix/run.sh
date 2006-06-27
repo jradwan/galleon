@@ -15,5 +15,5 @@ OPTION=""
 if [ -f "$JAVA_HOME/bin/server" ]; then
 OPTION=-server
 fi
-java $OPTION -cp $CLASSPATH -Xms64m -Xmx64m -Djava.awt.fonts="$JAVA_HOME/lib/fonts" -Dawt.toolkit=com.eteks.awt.PJAToolkit org.lnicholls.galleon.server.Server
+java $OPTION -cp $CLASSPATH -Xms64m -Xmx64m -Djava.awt.fonts="$JAVA_HOME/lib/fonts" -Dawt.toolkit=com.eteks.awt.PJAToolkit -Djava.net.preferIPv4Stack=true org.lnicholls.galleon.server.Server
 CLASSPATH=$OLDCLASSPATH

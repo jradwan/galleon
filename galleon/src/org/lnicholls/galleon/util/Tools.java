@@ -1047,7 +1047,7 @@ public class Tools {
 					.getChannel();
 			final ByteBuffer buf = roChannel.map(FileChannel.MapMode.READ_ONLY,
 					0, (int) roChannel.size());
-			return ImageIO.read(new InputStream() {
+			InputStream inputStream = new InputStream() {
 				public synchronized int read() throws IOException {
 					if (!buf.hasRemaining()) {
 						return -1;
@@ -1064,13 +1064,20 @@ public class Tools {
 					buf.get(bytes, off, len);
 					return len;
 				}
-			});
+			};
+
+			BufferedImage bufferedImage = ImageIO.read(inputStream);
+			inputStream.close();
+			return bufferedImage;
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex, file.getAbsolutePath());
 		}
 
 		try {
-			return ImageIO.read(new FileInputStream(file));
+			FileInputStream fileInputStream = new FileInputStream(file);
+			BufferedImage bufferedImage = ImageIO.read(fileInputStream);
+			fileInputStream.close();
+			return bufferedImage;
 		} catch (Exception ex) {
 			Tools.logException(Tools.class, ex, file.getAbsolutePath());
 		}

@@ -1,17 +1,17 @@
 package org.lnicholls.galleon.apps.rss;
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 import java.awt.Color;
@@ -31,6 +31,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.data.Users;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
@@ -49,6 +50,7 @@ import org.lnicholls.galleon.widget.ScrollText;
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.interfaces.IContext;
@@ -66,6 +68,7 @@ public class RSS extends DefaultApplication {
 	private Resource mViewerBackground;
 	private Resource mFolderIcon;
 	private Resource mItemIcon;
+	private Color mTitleColor;
 	public void init(IContext context) throws Exception {
 		super.init(context);
 		mMenuBackground = getSkinImage("menu", "background");
@@ -73,6 +76,30 @@ public class RSS extends DefaultApplication {
 		mViewerBackground = getSkinImage("viewer", "background");
 		mFolderIcon = getSkinImage("menu", "folder");
 		mItemIcon = getSkinImage("menu", "item");
+		mTitleColor = getSkinColor("menu", "title");
+		setSkin(new BSkin(this) {
+			public BSkin.Element get(String name)
+			{
+				BSkin.Element e = super.get(name);
+		        if (e == null) {
+		            if (name.startsWith("background")) {
+		                e = new Element(this, name, 640, 480, null);
+		            } else {
+		                throw new RuntimeException("unknown element : " + name);
+		            }
+		        }
+		        /**
+		         * If there is an image for this element use it, otherwise take default.
+		         */
+		        Resource img = getSkinImage("menu", name, false);
+		        if (img != null) {
+		            e.setResource(img);
+		        } else {
+		            e.setResource(RSS.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
+		        }
+		        return e;
+			}
+		});
 		RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory())
 				.getAppContext().getConfiguration();
 		Tracker tracker = new Tracker(rssConfiguration.getSharedFeeds(), 0);
@@ -84,7 +111,7 @@ public class RSS extends DefaultApplication {
 	}
 	public class RssMenuScreen extends DefaultMenuScreen {
 		public RssMenuScreen(RSS app) {
-			super(app, "RSS");
+			super(app, "RSS", mTitleColor);
 			// setFooter("Press ENTER for options");
 			getBelow().setResource(mMenuBackground);
 			mMenuList.add("My Favorites");
@@ -206,7 +233,7 @@ public class RSS extends DefaultApplication {
 			this(app, tracker, false);
 		}
 		public FavoritesMenuScreen(RSS app, Tracker tracker, boolean first) {
-			super(app, "RSS");
+			super(app, "RSS", mTitleColor);
 			mTracker = tracker;
 			mFirst = first;
 			setFooter("Press ENTER for options");
@@ -214,50 +241,50 @@ public class RSS extends DefaultApplication {
 			RSSConfiguration rssConfiguration = (RSSConfiguration) ((RSSFactory) getFactory())
 					.getAppContext().getConfiguration();
 			/*
-			 * 
+			 *
 			 * RSSConfiguration rssConfiguration = (RSSConfiguration)
 			 * ((RSSFactory) getFactory())
-			 * 
+			 *
 			 * .getAppContext().getConfiguration();
-			 * 
+			 *
 			 * List feeds = rssConfiguration.getSharedFeeds();
-			 * 
+			 *
 			 * RSSConfiguration.SharedFeed[] feedArray =
 			 * (RSSConfiguration.SharedFeed[]) feeds.toArray(new
 			 * RSSConfiguration.SharedFeed[0]);
-			 * 
+			 *
 			 * Arrays.sort(feedArray, new Comparator() {
-			 * 
+			 *
 			 * public int compare(Object o1, Object o2) {
-			 * 
+			 *
 			 * RSSConfiguration.SharedFeed nameValue1 =
 			 * (RSSConfiguration.SharedFeed) o1;
-			 * 
+			 *
 			 * RSSConfiguration.SharedFeed nameValue2 =
 			 * (RSSConfiguration.SharedFeed) o2;
-			 * 
-			 * 
-			 * 
+			 *
+			 *
+			 *
 			 * return -nameValue1.getName().compareTo(nameValue2.getName());
 			 *  }
-			 * 
+			 *
 			 * });
-			 * 
-			 * 
-			 * 
+			 *
+			 *
+			 *
 			 * for (int i = 0; i < feedArray.length; i++) {
-			 * 
+			 *
 			 * RSSConfiguration.SharedFeed nameValue =
 			 * (RSSConfiguration.SharedFeed) feedArray[i];
-			 * 
+			 *
 			 * List stories = (List) ((RSSFactory)
 			 * getFactory()).mChannels.get(nameValue.getValue());
-			 * 
+			 *
 			 * if (stories != null)
-			 * 
+			 *
 			 * mMenuList.add(nameValue);
 			 *  }
-			 * 
+			 *
 			 */
 			createMenu();
 		}
@@ -386,7 +413,7 @@ public class RSS extends DefaultApplication {
 	public class RSSFeedMenuScreen extends DefaultMenuScreen {
 		public RSSFeedMenuScreen(RSS app,
 				RSSConfiguration.SharedFeed nameValue, List list) {
-			super(app, null);
+			super(app, null, mTitleColor);
 			mList = list;
 			getBelow().setResource(mMenuBackground);
 			Image image = image = Tools.retrieveCachedImage(nameValue
@@ -441,7 +468,7 @@ public class RSS extends DefaultApplication {
 	}
 	public class RSSScreen extends DefaultScreen {
 		public RSSScreen(RSS app, Tracker tracker) {
-			super(app, true);
+			super(app, true, mTitleColor);
 			mTracker = tracker;
 			getBelow().setResource(mInfoBackground);
 			int start = TOP;
@@ -449,13 +476,13 @@ public class RSS extends DefaultApplication {
 					BODY_WIDTH - 25, getHeight() - 2
 					* SAFE_TITLE_V - 175, "");
 			/*
-			 * 
+			 *
 			 * mList = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H,
 			 * (getHeight() - SAFE_TITLE_V) - 40, (width -
-			 * 
+			 *
 			 * (SAFE_TITLE_H * 2)) / 2, 90, 35); mList.add("Back to menu");
 			 * setFocusDefault(mList);
-			 * 
+			 *
 			 */
 			BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10,
 					(getHeight() - SAFE_TITLE_V) - 40, (int) Math
@@ -500,12 +527,12 @@ public class RSS extends DefaultApplication {
 			return super.handleKeyPress(code, rawcode);
 		}
 		public void getNextPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
@@ -515,7 +542,7 @@ public class RSS extends DefaultApplication {
 	}
 	public class TagsMenuScreen extends DefaultMenuScreen {
 		public TagsMenuScreen(RSS app) {
-			super(app, "RSS Tags");
+			super(app, "RSS Tags", mTitleColor);
 			getBelow().setResource(mMenuBackground);
 			DataConfiguration dataConfiguration = Server.getServer()
 					.getDataConfiguration();
@@ -640,7 +667,7 @@ public class RSS extends DefaultApplication {
 	}
 	public class TagMenuScreen extends DefaultMenuScreen {
 		public TagMenuScreen(RSS app, String tag) {
-			super(app, "RSS Tag");
+			super(app, "RSS Tag", mTitleColor);
 			setFooter("Press ENTER for options");
 			getBelow().setResource(mMenuBackground);
 			DataConfiguration dataConfiguration = Server.getServer()
@@ -682,26 +709,26 @@ public class RSS extends DefaultApplication {
 						public void run() {
 							try {
 								/*
-								 * 
+								 *
 								 * if (mMenuList.getFocus()==0)
 								 *  {
-								 * 
+								 *
 								 * Tracker tracker = new
 								 * Tracker(internetConfiguration.getSharedUrls(),
 								 * 0);
-								 * 
+								 *
 								 * getBApp().push(new
 								 * FavoritesMenuScreen((Internet)getBApp(),
 								 * tracker), TRANSITION_NONE);
 								 *  }
-								 * 
+								 *
 								 * else
-								 * 
+								 *
 								 * getBApp().push(new FavoritesMenuScreen(this,
 								 * tracker), TRANSITION_NONE);
-								 * 
+								 *
 								 * getBApp().flush();
-								 * 
+								 *
 								 */
 							} catch (Exception ex) {
 								Tools.logException(RSS.class, ex);

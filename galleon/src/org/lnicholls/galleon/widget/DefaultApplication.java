@@ -136,8 +136,10 @@ public class DefaultApplication extends BApplication {
     		mBusyIcon = getSkinImage(null, "busy");
     	return mBusyIcon;
     }
-
     protected Resource getSkinImage(String screen, String key) {
+    	return this.getSkinImage(screen, key, true);
+    }
+    protected Resource getSkinImage(String screen, String key, boolean defaultImage) {
         ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, key);
         if (mLastObject != null && mLastResource != null) {
             if (mLastObject == baos) {
@@ -158,8 +160,15 @@ public class DefaultApplication extends BApplication {
                 Tools.logException(DefaultApplication.class, ex);
             }
         }
-        mLastResource = createImage(Tools.getDefaultImage());
-        return mLastResource;
+        if (defaultImage) {
+        	mLastResource = createImage(Tools.getDefaultImage());
+        	return mLastResource;
+        }
+        else
+        	return null;
+    }
+    protected Color getSkinColor(String screen, String key) {
+        return Server.getServer().getSkin().getColor(this.getClass().getName(), screen, key);
     }
 
     protected void dispatchEvent(HmeEvent event) {
@@ -364,7 +373,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public int getNextPos() {
-            if (mList.size()>0)
+            if (mList!=null && mList.size()>0)
             {
 	        	if (mRandom) {
 	                mPos = getRandomPos();
@@ -375,7 +384,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public int getPrevPos() {
-        	if (mList.size()>0)
+        	if (mList!=null && mList.size()>0)
         	{
 	        	if (mRandom) {
 	                mPos = getRandomPos();
@@ -522,7 +531,7 @@ public class DefaultApplication extends BApplication {
 
         public void startTrack() {
             //System.out.println("startTrack:");
-            if (mTracker != null && mTracker.getList().size()>0) {
+        	if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
                 try {
                     if (mTracker.getPos() == -1)
                         getNextPos();
@@ -758,7 +767,7 @@ public class DefaultApplication extends BApplication {
         }
 
         public void getNextPos() {
-            if (mTracker != null) {
+        	if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
                 int pos = mTracker.getNextPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
                 while (nameFile==null || nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -770,7 +779,7 @@ public class DefaultApplication extends BApplication {
 
         public void getPrevPos() {
             //System.out.println("getPrevPos:");
-            if (mTracker != null) {
+        	if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
                 int pos = mTracker.getPrevPos();
                 Item nameFile = (Item) mTracker.getList().get(pos);
                 while (nameFile==null || nameFile.isFolder() || nameFile.isPlaylist()) {

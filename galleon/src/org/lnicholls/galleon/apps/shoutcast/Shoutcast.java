@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -52,8 +53,10 @@ import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
@@ -68,6 +71,7 @@ public class Shoutcast extends DefaultApplication {
 	private Resource mFolderIcon;
 	private Resource mCDIcon;
 	private Resource mPlaylistIcon;
+	private Color mTitleColor;
 	public void init(IContext context) throws Exception {
 		super.init(context);
 		mMenuBackground = getSkinImage("menu", "background");
@@ -78,6 +82,30 @@ public class Shoutcast extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
+		mTitleColor = getSkinColor("menu", "title");
+		setSkin(new BSkin(this) {
+			public BSkin.Element get(String name)
+			{
+				BSkin.Element e = super.get(name);
+		        if (e == null) {
+		            if (name.startsWith("background")) {
+		                e = new Element(this, name, 640, 480, null);
+		            } else {
+		                throw new RuntimeException("unknown element : " + name);
+		            }
+		        }
+		        /**
+		         * If there is an image for this element use it, otherwise take default.
+		         */
+		        Resource img = getSkinImage("menu", name, false);
+		        if (img != null) {
+		            e.setResource(img);
+		        } else {
+		            e.setResource(Shoutcast.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
+		        }
+		        return e;
+			}
+		});
 		ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory())
 				.getAppContext().getConfiguration();
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
@@ -85,7 +113,7 @@ public class Shoutcast extends DefaultApplication {
 	}
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(Shoutcast app) {
-			super(app, "Music");
+			super(app, "Music", mTitleColor);
 			getBelow().setResource(mMenuBackground);
 			// setFooter("Press ENTER for options");
 			int start = TOP - 25;
@@ -246,7 +274,7 @@ public class Shoutcast extends DefaultApplication {
 			this(app, tracker, false);
 		}
 		public PathScreen(Shoutcast app, Tracker tracker, boolean first) {
-			super(app, "Music");
+			super(app, "Music", mTitleColor);
 			getBelow().setResource(mMenuBackground);
 			// setFooter("Press ENTER for options");
 			mTracker = tracker;
@@ -432,7 +460,7 @@ public class Shoutcast extends DefaultApplication {
 	public class MusicScreen extends DefaultScreen {
 		private BList list;
 		public MusicScreen(Shoutcast app) {
-			super(app, "Song", true);
+			super(app, "Song", true, mTitleColor);
 			getBelow().setResource(mInfoBackground);
 			mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP,
 					BODY_WIDTH, BODY_HEIGHT, true);
@@ -508,7 +536,7 @@ public class Shoutcast extends DefaultApplication {
 			return super.handleKeyPress(code, rawcode);
 		}
 		public void getNextPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -518,7 +546,7 @@ public class Shoutcast extends DefaultApplication {
 			}
 		}
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -547,7 +575,7 @@ public class Shoutcast extends DefaultApplication {
 			mTracker = value;
 		}
 		private Audio currentAudio() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(
 							mTracker.getPos());
@@ -569,7 +597,7 @@ public class Shoutcast extends DefaultApplication {
 	}
 	public class PlayerScreen extends DefaultScreen {
 		public PlayerScreen(Shoutcast app, Tracker tracker) {
-			super(app, true);
+			super(app, true, mTitleColor);
 			getBelow().setResource(mPlayerBackground);
 			mTracker = tracker;
 			setTitle(" ");
@@ -656,7 +684,7 @@ public class Shoutcast extends DefaultApplication {
 	public class LyricsScreen extends DefaultScreen {
 		private BList list;
 		public LyricsScreen(Shoutcast app, Tracker tracker) {
-			super(app, "Lyrics", false);
+			super(app, "Lyrics", false, mTitleColor);
 			getBelow().setResource(mLyricsBackground);
 			mTracker = tracker;
 			scrollText = new ScrollText(getNormal(), BORDER_LEFT, TOP,
@@ -797,7 +825,7 @@ public class Shoutcast extends DefaultApplication {
 	public class ImagesScreen extends DefaultScreen {
 		private BList list;
 		public ImagesScreen(Shoutcast app, Tracker tracker) {
-			super(app, "Images", true);
+			super(app, "Images", true, mTitleColor);
 			getBelow().setResource(mImagesBackground);
 			mTracker = tracker;
 			mImageView = new BView(this.getNormal(), BORDER_LEFT, TOP,

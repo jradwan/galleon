@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.email;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
@@ -44,6 +44,7 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.app.AppConfigurationPanel.ComboWrapper;
 import org.lnicholls.galleon.apps.email.EmailConfiguration.Account;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
@@ -59,10 +60,12 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BButton;
+import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.interfaces.IHttpRequest;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
@@ -86,6 +89,7 @@ public class Email extends DefaultApplication {
     private Resource mFolderIcon;
 
     private Resource mItemIcon;
+    private Color mTitleColor;
 
     public void init(IContext context) throws Exception {
         super.init(context);
@@ -95,6 +99,30 @@ public class Email extends DefaultApplication {
         mViewerBackground = getSkinImage("viewer", "background");
         mFolderIcon = getSkinImage("menu", "folder");
         mItemIcon = getSkinImage("menu", "item");
+        mTitleColor = getSkinColor("menu", "title");
+		setSkin(new BSkin(this) {
+			public BSkin.Element get(String name)
+			{
+				BSkin.Element e = super.get(name);
+		        if (e == null) {
+		            if (name.startsWith("background")) {
+		                e = new Element(this, name, 640, 480, null);
+		            } else {
+		                throw new RuntimeException("unknown element : " + name);
+		            }
+		        }
+		        /**
+		         * If there is an image for this element use it, otherwise take default.
+		         */
+		        Resource img = getSkinImage("menu", name, false);
+		        if (img != null) {
+		            e.setResource(img);
+		        } else {
+		            e.setResource(Email.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
+		        }
+		        return e;
+			}
+		});
 
         EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory())
                 .getAppContext().getConfiguration();
@@ -105,14 +133,14 @@ public class Email extends DefaultApplication {
             push(new EmailAccountMenuScreen(this, account, mail, true), TRANSITION_NONE);
         } else
             push(new EmailMenuScreen(this), TRANSITION_NONE);
-        
+
         initialize();
     }
 
     public class EmailMenuScreen extends DefaultMenuScreen {
         public EmailMenuScreen(Email app) {
-            super(app, "Email");
-            
+            super(app, "Email", mTitleColor);
+
             setFooter("Press ENTER for options");
 
             getBelow().setResource(mMenuBackground);
@@ -163,7 +191,7 @@ public class Email extends DefaultApplication {
             name.setFlags(RSRC_HALIGN_LEFT);
             name.setValue(Tools.trim(account.getName(), 40));
         }
-        
+
 		public boolean handleKeyPress(int code, long rawcode) {
 			switch (code) {
 			case KEY_ENTER:
@@ -171,9 +199,9 @@ public class Email extends DefaultApplication {
 			}
 
 			return super.handleKeyPress(code, rawcode);
-		}        
+		}
     }
-    
+
 	public class OptionsScreen extends DefaultOptionsScreen {
 
 		public OptionsScreen(DefaultApplication app) {
@@ -200,9 +228,9 @@ public class Email extends DefaultApplication {
 					new NameValue("10 minutes", "10"), new NameValue("24 hours", "1440") };
 			mReloadButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(emailConfiguration.getReload()));
-			
+
 			start = start + increment;
-			
+
 			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
 			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
 			text.setFont("default-24-bold.font");
@@ -215,8 +243,8 @@ public class Email extends DefaultApplication {
 					new NameValue("10", "10"), new NameValue("20", "20"),
 					new NameValue("40", "40"), new NameValue("60", "60") };
 			mLimitButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
-					true, nameValues, String.valueOf(emailConfiguration.getLimit()));			
-			
+					true, nameValues, String.valueOf(emailConfiguration.getLimit()));
+
 			setFocusDefault(mReloadButton);
 		}
 
@@ -235,7 +263,7 @@ public class Email extends DefaultApplication {
 					EmailConfiguration emailConfiguration = (EmailConfiguration) ((EmailFactory) getFactory()).getAppContext().getConfiguration();
 					emailConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
 					emailConfiguration.setLimit(Integer.parseInt(mLimitButton.getValue()));
-	
+
 					Server.getServer().updateApp(((EmailFactory) getFactory()).getAppContext());
 				}
 			} catch (Exception ex) {
@@ -245,9 +273,9 @@ public class Email extends DefaultApplication {
 		}
 
 		private OptionsButton mReloadButton;
-		
+
 		private OptionsButton mLimitButton;
-	}    
+	}
 
     public class EmailAccountMenuScreen extends DefaultMenuScreen {
 
@@ -256,8 +284,8 @@ public class Email extends DefaultApplication {
         }
 
         public EmailAccountMenuScreen(Email app, Account account, List list, boolean first) {
-            super(app, null);
-            
+            super(app, null, mTitleColor);
+
             setFooter("Press ENTER for options");
 
             mList = list;
@@ -269,7 +297,7 @@ public class Email extends DefaultApplication {
                     .getAppContext().getConfiguration();
 
             setTitle(account.getName());
-            
+
             if (!account.valid())
             {
 	            BText countText = new BText(getNormal(), BORDER_LEFT, TOP - 25, BODY_WIDTH, 20);
@@ -306,7 +334,7 @@ public class Email extends DefaultApplication {
                     EmailItem item = (EmailItem) mMenuList.get(mMenuList.getFocus());
 
                     Tracker tracker = new Tracker(mList, mMenuList.getFocus());
-                    
+
                     EmailScreen rssScreen = new EmailScreen((Email) getBApp(), tracker);
                     getBApp().push(rssScreen, TRANSITION_LEFT);
                     getBApp().flush();
@@ -345,17 +373,17 @@ public class Email extends DefaultApplication {
         private BView mImage;
 
         private boolean mFirst;
-        
+
         private List mList;
     }
 
     public class EmailScreen extends DefaultScreen {
 
         public EmailScreen(Email app, Tracker tracker) {
-            super(app, true);
-            
+            super(app, true, mTitleColor);
+
             mTracker = tracker;
-            
+
             getBelow().setResource(mInfoBackground);
 
             int start = BORDER_TOP;
@@ -393,22 +421,22 @@ public class Email extends DefaultApplication {
             button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
             setFocus(button);
         }
-        
+
         public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			getBelow().setResource(mInfoBackground);
 			updateView();
 
 			return super.handleEnter(arg, isReturn);
 		}
-        
+
         private void updateView() {
         	EmailItem item = (EmailItem) mTracker.getList().get(mTracker.getPos());
-        	
+
         	setSmallTitle(item.getSubject());
         	mFromText.setValue("From: " + item.getFrom());
         	mDateText.setValue("Date: " + mDateFormat.format(item.getDate()));
         	mScrollText.setText(cleanHTML(item.getBody()));
-        }        
+        }
 
         public boolean handleKeyPress(int code, long rawcode) {
             switch (code) {
@@ -426,36 +454,36 @@ public class Email extends DefaultApplication {
 				getBApp().flush();
 				getNextPos();
 				updateView();
-				return true;            
+				return true;
             case KEY_UP:
             case KEY_DOWN:
                 return mScrollText.handleKeyPress(code, rawcode);
             }
             return super.handleKeyPress(code, rawcode);
         }
-        
+
         public void getNextPos() {
-			if (mTracker != null) {
+        	if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 			}
-		}   
-		
+		}
+
 		private BText mFromText;
-		
+
 		private BText mDateText;
-		
+
 		private SimpleDateFormat mDateFormat;
 
         private BList mList;
 
         private ScrollText mScrollText;
-        
+
         private Tracker mTracker;
     }
 
@@ -554,7 +582,7 @@ public class Email extends DefaultApplication {
                                 String[] statusHeader = message.getHeader("Status");
 
                                 count = count + 1;
-                                
+
                                 if (emailConfiguration.getLimit() > 0 && count > emailConfiguration.getLimit())
                                 	break;
 
@@ -588,12 +616,12 @@ public class Email extends DefaultApplication {
                                     }
                                     if (message.isMimeType("text/plain")) {
                                         description = (String) message.getContent();
-                                    } 
-                                    else 
+                                    }
+                                    else
                                 	if (message.isMimeType("text/html")) {
                                         description = Tools.cleanHTML((String) message.getContent());
-                                    } 
-                                    else                                    	
+                                    }
+                                    else
                                 	if (message.isMimeType("multipart/*")) {
 	                                    Multipart mp = (Multipart) message.getContent();
 	                                    for (int p = 0; p < mp.getCount(); p++) {
@@ -606,7 +634,7 @@ public class Email extends DefaultApplication {
                                         	if (part.isMimeType("text/html")) {
 	                                            description = Tools.cleanHTML((String) part.getContent());
 	                                            break;
-	                                        }	                                        	
+	                                        }
 	                                    }
                                     }
                                     EmailItem emailItem = new EmailItem(message.getSubject(), from, description,
@@ -616,7 +644,7 @@ public class Email extends DefaultApplication {
                             }
                             folder.close(false);
                             store.close();
-                            
+
                             account.setValid(true);
                         } catch (Exception ex) {
                         	account.setValid(false);
@@ -657,7 +685,7 @@ public class Email extends DefaultApplication {
                     }
                 }
 
-                if (hasMail)  
+                if (hasMail)
         			return super.getStream("alerticon.png");
             }
 

@@ -44,6 +44,7 @@ import org.htmlparser.tags.TableTag;
 import org.htmlparser.util.NodeList;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.Movie;
@@ -71,10 +72,12 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BButton;
+import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
@@ -103,6 +106,7 @@ public class Movies extends DefaultApplication {
 	private Resource mPlaylistIcon;
 
 	private Resource mFavoriteIcon;
+	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -116,6 +120,30 @@ public class Movies extends DefaultApplication {
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
 		mFavoriteIcon = getSkinImage("menu", "favorite");
+		mTitleColor = getSkinColor("menu", "title");
+		setSkin(new BSkin(this) {
+			public BSkin.Element get(String name)
+			{
+				BSkin.Element e = super.get(name);
+		        if (e == null) {
+		            if (name.startsWith("background")) {
+		                e = new Element(this, name, 640, 480, null);
+		            } else {
+		                throw new RuntimeException("unknown element : " + name);
+		            }
+		        }
+		        /**
+		         * If there is an image for this element use it, otherwise take default.
+		         */
+		        Resource img = getSkinImage("menu", name, false);
+		        if (img != null) {
+		            e.setResource(img);
+		        } else {
+		            e.setResource(Movies.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
+		        }
+		        return e;
+			}
+		});
 
 		MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
 				.getAppContext().getConfiguration();
@@ -127,7 +155,7 @@ public class Movies extends DefaultApplication {
 
 	public class TheaterMenuScreen extends DefaultMenuScreen {
 		public TheaterMenuScreen(Movies app) {
-			super(app, "Theaters");
+			super(app, "Theaters", mTitleColor);
 
 			getBelow().setResource(mMenuBackground);
 
@@ -252,7 +280,7 @@ public class Movies extends DefaultApplication {
 
 	public class MovieMenuScreen extends DefaultMenuScreen {
 		public MovieMenuScreen(Movies app, Tracker tracker) {
-			super(app, "Movies");
+			super(app, "Movies", mTitleColor);
 
 			getBelow().setResource(mMenuBackground);
 
@@ -354,7 +382,7 @@ public class Movies extends DefaultApplication {
 		private BList list;
 
 		public MovieScreen(Movies app, Tracker tracker) {
-			super(app, "", true);
+			super(app, "", true, mTitleColor);
 
 			mTracker = tracker;
 
@@ -566,13 +594,13 @@ public class Movies extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
@@ -604,7 +632,7 @@ public class Movies extends DefaultApplication {
 		private BList list;
 
 		public LyricsScreen(Movies app, Tracker tracker) {
-			super(app, "Lyrics", false);
+			super(app, "Lyrics", false, mTitleColor);
 
 			getBelow().setResource(mLyricsBackground);
 
@@ -760,7 +788,7 @@ public class Movies extends DefaultApplication {
 		private BList list;
 
 		public ImagesScreen(Movies app, Tracker tracker) {
-			super(app, "Images", true);
+			super(app, "Images", true, mTitleColor);
 
 			getBelow().setResource(mImagesBackground);
 

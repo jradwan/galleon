@@ -64,6 +64,7 @@ import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
@@ -90,6 +91,7 @@ public class Music extends DefaultApplication {
 	private Resource mCDIcon;
 
 	private Resource mPlaylistIcon;
+	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -102,7 +104,30 @@ public class Music extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
-
+		mTitleColor = getSkinColor("menu", "title");
+		setSkin(new BSkin(this) {
+			public BSkin.Element get(String name)
+			{
+				BSkin.Element e = super.get(name);
+		        if (e == null) {
+		            if (name.startsWith("background")) {
+		                e = new Element(this, name, 640, 480, null);
+		            } else {
+		                throw new RuntimeException("unknown element : " + name);
+		            }
+		        }
+		        /**
+		         * If there is an image for this element use it, otherwise take default.
+		         */
+		        Resource img = getSkinImage("menu", name, false);
+		        if (img != null) {
+		            e.setResource(img);
+		        } else {
+		            e.setResource(Music.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
+		        }
+		        return e;
+			}
+		});
 		MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory()).getAppContext()
 				.getConfiguration();
 
@@ -127,7 +152,7 @@ public class Music extends DefaultApplication {
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(Music app) {
-			super(app, "Music");
+			super(app, "Music", mTitleColor);
 
 			setFooter("Press ENTER for options");
 
@@ -269,7 +294,7 @@ public class Music extends DefaultApplication {
 		}
 
 		public PathScreen(Music app, Tracker tracker, boolean first) {
-			super(app, "Music");
+			super(app, "Music", mTitleColor);
 
 			setFooter("Press ENTER for options, 1 for Jukebox");
 
@@ -489,7 +514,7 @@ public class Music extends DefaultApplication {
 		private BList list;
 
 		public MusicScreen(Music app) {
-			super(app, "Song", true);
+			super(app, "Song", true, mTitleColor);
 
 			setFooter("Press ENTER for options");
 
@@ -575,7 +600,7 @@ public class Music extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -586,7 +611,7 @@ public class Music extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -619,7 +644,7 @@ public class Music extends DefaultApplication {
 		}
 
 		private Audio currentAudio() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null && nameFile.getValue() != null) {

@@ -34,6 +34,7 @@ import net.sf.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
@@ -73,10 +74,12 @@ import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
+import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
@@ -103,6 +106,7 @@ public class iTunes extends DefaultApplication {
 	private Resource mCDIcon;
 
 	private Resource mPlaylistIcon;
+	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -115,6 +119,30 @@ public class iTunes extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
+		mTitleColor = getSkinColor("menu", "title");
+		setSkin(new BSkin(this) {
+			public BSkin.Element get(String name)
+			{
+				BSkin.Element e = super.get(name);
+		        if (e == null) {
+		            if (name.startsWith("background")) {
+		                e = new Element(this, name, 640, 480, null);
+		            } else {
+		                throw new RuntimeException("unknown element : " + name);
+		            }
+		        }
+		        /**
+		         * If there is an image for this element use it, otherwise take default.
+		         */
+		        Resource img = getSkinImage("menu", name, false);
+		        if (img != null) {
+		            e.setResource(img);
+		        } else {
+		            e.setResource(iTunes.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
+		        }
+		        return e;
+			}
+		});
 
 		iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getFactory())
 				.getAppContext().getConfiguration();
@@ -165,7 +193,7 @@ public class iTunes extends DefaultApplication {
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(iTunes app) {
-			super(app, "Music");
+			super(app, "Music", mTitleColor);
 
 			setFooter("Press ENTER for options");
 
@@ -354,7 +382,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		public PathScreen(iTunes app, Tracker tracker, boolean first) {
-			super(app, "Music");
+			super(app, "Music", mTitleColor);
 
 			setFooter("Press ENTER for options");
 
@@ -513,7 +541,7 @@ public class iTunes extends DefaultApplication {
 		private BList list;
 
 		public MusicScreen(iTunes app) {
-			super(app, "Song", true);
+			super(app, "Song", true, mTitleColor);
 
 			setFooter("Press ENTER for options");
 
@@ -599,7 +627,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -610,7 +638,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -643,7 +671,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		private Audio currentAudio() {
-			if (mTracker != null) {
+			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null) {
@@ -667,7 +695,7 @@ public class iTunes extends DefaultApplication {
 	public class PlayerScreen extends DefaultScreen {
 
 		public PlayerScreen(iTunes app, Tracker tracker) {
-			super(app, true);
+			super(app, true, mTitleColor);
 
 			getBelow().setResource(mPlayerBackground);
 
@@ -805,7 +833,7 @@ public class iTunes extends DefaultApplication {
 		private BList list;
 
 		public LyricsScreen(iTunes app, Tracker tracker) {
-			super(app, "Lyrics", false);
+			super(app, "Lyrics", false, mTitleColor);
 
 			getBelow().setResource(mLyricsBackground);
 
@@ -961,7 +989,7 @@ public class iTunes extends DefaultApplication {
 		private BList list;
 
 		public ImagesScreen(iTunes app, Tracker tracker) {
-			super(app, "Images", true);
+			super(app, "Images", true, mTitleColor);
 
 			getBelow().setResource(mImagesBackground);
 

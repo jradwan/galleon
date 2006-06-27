@@ -16,7 +16,10 @@ package org.lnicholls.galleon.togo;
  * See the file "COPYING" for more details.
  */
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -49,6 +52,7 @@ import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
+import org.lnicholls.galleon.goback.VideoServer;
 import org.lnicholls.galleon.server.GoBackConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
@@ -835,6 +839,19 @@ public class ToGo {
 			} catch (HibernateException ex) {
 				log.error("Video update failed", ex);
 			}
+			String xml = VideoServer.getVideoDetails(file);
+			if (xml!=null)
+			{
+				try {
+					String filename = getFilename(video, ".xml");
+					File xmlFile = new File(file.getParent()+File.separator+filename);
+					BufferedWriter out = new BufferedWriter(new FileWriter(xmlFile));
+			        out.write(xml);
+			        out.close();
+			    } catch (IOException e) {
+			    	Tools.logException(ToGo.class, e, video.getUrl());
+			    }
+			}
 		} catch (MalformedURLException ex) {
 			Tools.logException(ToGo.class, ex, video.getUrl());
 			return false;
@@ -847,8 +864,10 @@ public class ToGo {
 		}
 		return true;
 	}
-
 	private String getFilename(Video video) {
+		return getFilename(video, ".TiVo");
+	}
+	private String getFilename(Video video, String extension) {
 		String name = video.getTitle();
 		if (video.getEpisodeTitle() != null && video.getEpisodeTitle().length() > 0)
 			name = name + " - " + video.getEpisodeTitle();
@@ -862,7 +881,7 @@ public class ToGo {
 		name = name + " (Recorded " + mFileDateFormat.format(mCalendar.getTime());
 		name = name + ", " + video.getStation() + ")";
 
-		return clean(name) + ".TiVo";
+		return clean(name) + extension;
 	}
 
 	private String clean(String value) {

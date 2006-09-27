@@ -279,7 +279,6 @@ public class Photos extends DefaultApplication {
 					parent.flush();
 				} else {
 					// TODO Handle: Photos[#1,uri=null]
-					// handleApplicationError(4,view 1402 not found)
 					Thread thread = new Thread() {
 						public void run() {
 							try {

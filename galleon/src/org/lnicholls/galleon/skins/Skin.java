@@ -2,20 +2,21 @@ package org.lnicholls.galleon.skins;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
+ *
  * See the file "COPYING" for more details.
  */
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Iterator;
@@ -61,6 +62,13 @@ public class Skin {
                 image.setId(Tools.getAttribute(element, "id"));
                 skinDescriptor.addImage(image);
             }
+            for (Iterator colorIterator = root.elementIterator("color"); colorIterator.hasNext();) {
+                Element element = (Element) colorIterator.next();
+                Descriptor.Color color = new Descriptor.Color();
+                color.setValue(Tools.getAttribute(element, "value"));
+                color.setId(Tools.getAttribute(element, "id"));
+                skinDescriptor.addColor(color);
+            }
 
             for (Iterator i = root.elementIterator("app"); i.hasNext();) {
                 Element appElement = (Element) i.next();
@@ -74,6 +82,13 @@ public class Skin {
                     image.setId(Tools.getAttribute(element, "id"));
                     app.addImage(image);
                 }
+                for (Iterator colorIterator = appElement.elementIterator("color"); colorIterator.hasNext();) {
+                    Element element = (Element) colorIterator.next();
+                    Descriptor.Color color = new Descriptor.Color();
+                    color.setValue(Tools.getAttribute(element, "value"));
+                    color.setId(Tools.getAttribute(element, "id"));
+                    app.addColor(color);
+                }
 
                 for (Iterator screenIterator = appElement.elementIterator("screen"); screenIterator.hasNext();) {
                     Element screenElement = (Element) screenIterator.next();
@@ -86,6 +101,13 @@ public class Skin {
                         image.setSource(Tools.getAttribute(element, "source"));
                         image.setId(Tools.getAttribute(element, "id"));
                         screen.addImage(image);
+                    }
+                    for (Iterator colorIterator = screenElement.elementIterator("color"); colorIterator.hasNext();) {
+                        Element element = (Element) colorIterator.next();
+                        Descriptor.Color color = new Descriptor.Color();
+                        color.setValue(Tools.getAttribute(element, "value"));
+                        color.setId(Tools.getAttribute(element, "id"));
+                        screen.addColor(color);
                     }
 
                     app.addScreen(screen);
@@ -105,6 +127,14 @@ public class Skin {
         if (image != null) {
             //return (BufferedImage)mSkinLoader.getResource(image);
             return mSkinLoader.findResource(image);
+        }
+        return null;
+    }
+    public java.awt.Color getColor(String appId, String screenId, String id) {
+        String color = mSkinDescriptor.getColor(appId, screenId, id);
+        if (color != null) {
+            //return (BufferedImage)mSkinLoader.getResource(image);
+            return java.awt.Color.decode("0x"+color);
         }
         return null;
     }

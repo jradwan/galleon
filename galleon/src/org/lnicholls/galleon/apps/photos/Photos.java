@@ -502,7 +502,7 @@ public class Photos extends DefaultApplication {
 			getBelow().setResource(mMenuBackground);
 			getBelow().flush();
 			setFooter("Press ENTER for options");
-			setTitle("Photos");
+			setTitle("Photos", mTitleColor);
 			mTracker = tracker;
 			mFirst = first;
 			int w = getWidth() - 2 * BORDER_LEFT;
@@ -685,7 +685,7 @@ public class Photos extends DefaultApplication {
 			setFooter("Press ENTER for options");
 			getBelow().setResource(mInfoBackground);
 			getBelow().flush();
-			setTitle("Photo");
+			setTitle("Photo", mTitleColor);
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d hh:mm a");
 			int start = BORDER_TOP;
@@ -1248,6 +1248,7 @@ public class Photos extends DefaultApplication {
 			FileInputStream is = null;
 			Image image = null;
 			Random random = new Random();
+			boolean first = true;
 			int currentEffect = 0;
 			if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
 				currentEffect = 0;
@@ -1256,8 +1257,6 @@ public class Photos extends DefaultApplication {
 			}
 			while (getApp().getContext() != null) {
 				try {
-					sleep(1000 * photosConfiguration.getDisplayTime());
-					mSlideshowScreen.getNextPos();
 					image = mSlideshowScreen.currentImage();
 					if (image != null) {
 						File file = new File(image.getPath());
@@ -1294,10 +1293,18 @@ public class Photos extends DefaultApplication {
 									currentEffect = random
 											.nextInt(effects.length);
 								}
-								Effect effect = (Effect) effects[currentEffect];
-								effect.setDelay(photosConfiguration
+								if (!first) {
+									Effect effect = (Effect) effects[currentEffect];
+									effect.setDelay(photosConfiguration
 										.getTransitionTime() * 1000);
-								effect.apply(mSlideshowScreen.mPhoto, scaled);
+									effect.apply(mSlideshowScreen.mPhoto, scaled);
+								}
+								else
+								{
+									mSlideshowScreen.mPhoto.setResource(mSlideshowScreen.mPhoto.createImage(scaled));
+									scaled.flush();
+									scaled = null;
+								}
 							}
 						} catch (Exception ex) {
 							Tools.logException(Photos.class, ex,
@@ -1306,7 +1313,10 @@ public class Photos extends DefaultApplication {
 								return;
 						}
 					}
+					sleep(1000 * photosConfiguration.getDisplayTime());
+					mSlideshowScreen.getNextPos();
 					image = null;
+					first = false;
 				} catch (InterruptedException ex) {
 					return;
 				} catch (OutOfMemoryError ex) {

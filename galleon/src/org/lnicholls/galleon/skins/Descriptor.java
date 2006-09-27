@@ -14,11 +14,9 @@ package org.lnicholls.galleon.skins;
  *
  * See the file "COPYING" for more details.
  */
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 public class Descriptor {
 
     public Descriptor()

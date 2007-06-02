@@ -232,4 +232,20 @@ public class BHighlight implements IBananas
     {
         return "highlight " + name + "," + action;
     }
+    /**
+     * Get the highlight X coordinate offset
+     * 
+     * @return x axis offset where the highlight should draw, relative to the view being highlighted.
+     */
+    protected int getDx() {
+    	return dx;
+    }
+    /**
+     * Get the highlight Y coordinate offset
+     * 
+     * @return y axis offset where the highlight should draw, relative to the view being highlighted.
+     */
+    protected int getDy() {
+    	return dy;
+    }
 }

@@ -1,0 +1,79 @@
+<project name="bananas-1.3-custom" default="usage" basedir=".">
+
+    <path id="class.path">
+      <pathelement location="${basedir}/build" />
+        <fileset dir="${basedir}/../HME-1.4/hme_sdk_1.4" >
+          <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+  <!-- Initializations -->
+  <target name="init">    
+    <echo message="-------------------------------------------------------------"/>  
+    <echo message="------------         BUILDING bananas PACKAGE       ----------"/>
+    <echo message=""/>
+    <property name="year" value="2005"/>
+    <property name="jars" value="${basedir}"/>
+    <property name="sources" value="${basedir}/src"/>
+    <property name="classes" value="${basedir}/classes"/>
+    <property name="api" value="${basedir}/javadoc"/>    
+  </target>
+
+  <!-- Clean -->
+  <target name="clean">
+	<delete dir="${classes}" />
+	<delete dir="${api}" />
+
+	<mkdir dir="${classes}" />
+	<mkdir dir="${api}" />
+    </target>
+
+  <!-- Build -->
+  <target name="build" depends="init,clean">
+    <echo message="------ Compiling application"/>
+    <javac srcdir="${sources}" destdir="${classes}" includes="**">
+	  <classpath>
+		<path refid="class.path" />
+	  </classpath>
+	</javac>
+    <copy todir="${classes}">
+       <fileset dir="${sources}" >
+           <include name="**/*.png"/>
+       </fileset>
+     </copy>
+  </target>
+
+  <!-- Archive -->
+  <target name="dist" depends="build">
+    <echo message="------ Building Jar file"/>
+    <jar jarfile="${jars}/bananas-1.3-custom.jar" basedir="${classes}" />
+  </target>
+
+  <!-- JavaDoc -->
+  <target name="all" depends="dist">
+     <echo message="------ Running JavaDoc"/>
+     <javadoc packagenames="com.tivo.*"
+              sourcepath="${sources}"
+              destdir="${api}"
+              bottom="TiVo ${year}"
+              author="false">
+      <classpath>
+		<path refid="class.path" />
+        <pathelement location="${classes}"/>
+      </classpath>
+     </javadoc>
+  </target>
+
+  <!-- Usage -->
+  <target name="usage">
+     <echo message="*** JavaLayer ANT build script ***"/>
+     <echo message="Usage : "/>
+     <echo message="   ant [target]"/>
+     <echo message=""/>     
+     <echo message="   target : "/>     
+     <echo message="            build : Build Application"/>     
+     <echo message="            dist  : Build Application + Archive (JAR)"/>     
+     <echo message="            all   : Build Application + Archive + JavaDoc"/>       
+  </target>
+       
+</project>

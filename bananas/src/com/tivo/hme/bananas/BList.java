@@ -194,6 +194,16 @@ public abstract class BList extends BView
     {
         return focused;
     }
+    
+    /**
+     * Get the vector of rows
+     * 
+     * @return the list's rows
+     */
+    protected Vector getRows()
+    {
+    	return rows;
+    }
 
     /**
      * Set the focus to a particular row.

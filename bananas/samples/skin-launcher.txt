@@ -1,0 +1,11 @@
+#
+# This file determines what skin is used by the skin sample.
+#
+# Try try a different skin, remove the # comment marker from the start
+# of the line.
+#
+#
+
+com.tivo.hme.samples.bananas.SkinSample -dir skin-charcoal
+#com.tivo.hme.samples.bananas.SkinSample -zip skin-rainbow.zip
+#com.tivo.hme.samples.bananas.SkinSample -res com/tivo/hme/samples/bananas/skin-steel/

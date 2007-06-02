@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
-	"-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping>
+<hibernate-mapping default-lazy="false">
 
   <class name="org.lnicholls.galleon.database.Podcast" table="PODCAST" schema="GALLEON">
     <meta attribute="class-description">
@@ -25,6 +25,15 @@ See the file "COPYING" for more details.
     </meta>
 
   <meta attribute="class-code">
+	/** by-hand minimal constructor */
+    public Podcast(String title, int status, String path, int rating, List tracks) {
+        this.title = title;
+        this.status = status;
+        this.path = path;
+        this.rating = rating;
+        this.tracks = tracks;
+    }
+
     public String getStatusString() {
         switch (status) {
         case 1:

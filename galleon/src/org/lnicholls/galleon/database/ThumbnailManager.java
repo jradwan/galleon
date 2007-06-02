@@ -21,11 +21,11 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 import com.sun.image.codec.jpeg.ImageFormatException;
@@ -39,7 +39,11 @@ public class ThumbnailManager {
 	}
 	public static Thumbnail retrieveThumbnail(Thumbnail thumbnail)
 			throws HibernateException {
-		return retrieveThumbnail(thumbnail.getId());
+		return retrieveThumbnail(new Integer(thumbnail.getId()));
+	}
+	public static Thumbnail retrieveThumbnail(int id)
+	throws HibernateException {
+		return retrieveThumbnail(new Integer(id));
 	}
 	public static Thumbnail retrieveThumbnail(Integer id)
 			throws HibernateException {
@@ -78,7 +82,7 @@ public class ThumbnailManager {
 	}
 	public static void updateThumbnail(Thumbnail thumbnail)
 			throws HibernateException {
-		if (thumbnail.getId()!=null)
+		if (thumbnail.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -109,7 +113,7 @@ public class ThumbnailManager {
 	}
 	public static void deleteThumbnail(Thumbnail thumbnail)
 			throws HibernateException {
-		if (thumbnail.getId()!=null)
+		if (thumbnail.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -257,13 +261,13 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static BufferedImage findImageById(Integer id)
+	public static BufferedImage findImageById(int id)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Thumbnail thumbnail = (Thumbnail) session.load(Thumbnail.class, id);
+			Thumbnail thumbnail = (Thumbnail) session.load(Thumbnail.class, new Integer(id));
 			BufferedImage image = null;
 			Blob blob = thumbnail.getImage();
 			image = createImage(blob);

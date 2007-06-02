@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -191,7 +191,7 @@ public class ToGo {
 									Video video = new Video();
 									video.setMimeType("mpeg");
 									video.setDateModified(new Date());
-									video.setParentalControls(Boolean.FALSE);
+									video.setParentalControls(false);
 
 									counter = counter + 1;
 									if (progressIndicator != null) {
@@ -215,7 +215,7 @@ public class ToGo {
 										if (value != null)
 										{
 											if (value.equalsIgnoreCase("yes"))
-												video.setParentalControls(Boolean.TRUE);
+												video.setParentalControls(true);
 										}
 										value = Tools.getAttribute(details, "SourceSize");
 										if (value != null)
@@ -340,14 +340,14 @@ public class ToGo {
 					Element node = element.element("partCount");
 					if (node != null)
 						try {
-							video.setPartCount(new Integer(node.getText()));
+							video.setPartCount(Integer.parseInt(node.getText()));
 						} catch (Exception ex) {
 							log.error("Could not set part count", ex);
 						}
 					node = element.element("partIndex");
 					if (node != null)
 						try {
-							video.setPartIndex(new Integer(node.getText()));
+							video.setPartIndex(Integer.parseInt(node.getText()));
 						} catch (Exception ex) {
 							log.error("Could not set part index", ex);
 						}
@@ -431,7 +431,7 @@ public class ToGo {
 						if (node != null) {
 							video.setShowType(node.getTextTrim());
 							try {
-								video.setShowTypeValue(new Integer(node.attribute("value").getText()));
+								video.setShowTypeValue(Integer.parseInt(node.attribute("value").getText()));
 							} catch (Exception ex) {
 								log.error("Could not set showtype value", ex);
 							}
@@ -467,7 +467,7 @@ public class ToGo {
 					if (rating != null) {
 						video.setRating(rating.getTextTrim());
 						try {
-							video.setRatingValue(new Integer(rating.attribute("value").getText()));
+							video.setRatingValue(Integer.parseInt(rating.attribute("value").getText()));
 						} catch (Exception ex) {
 							log.error("Could not set rating value", ex);
 						}
@@ -507,16 +507,16 @@ public class ToGo {
 							video.setCallsign(node.getTextTrim());
 					}
 					node = element.element("partCount");
-					if (node != null && video.getPartCount()==null)
+					if (node != null && video.getPartCount()==0)
 						try {
-							video.setPartCount(new Integer(node.getText()));
+							video.setPartCount(Integer.parseInt(node.getText()));
 						} catch (Exception ex) {
 							log.error("Could not set part count", ex);
 						}
 					node = element.element("partIndex");
-					if (node != null && video.getPartIndex()==null)
+					if (node != null && video.getPartIndex()==0)
 						try {
-							video.setPartIndex(new Integer(node.getText()));
+							video.setPartIndex(Integer.parseInt(node.getText()));
 						} catch (Exception ex) {
 							log.error("Could not set part index", ex);
 						}
@@ -600,7 +600,7 @@ public class ToGo {
 						if (node != null && video.getShowType()==null) {
 							video.setShowType(node.getTextTrim());
 							try {
-								video.setShowTypeValue(new Integer(node.attribute("value").getText()));
+								video.setShowTypeValue(Integer.parseInt(node.attribute("value").getText()));
 							} catch (Exception ex) {
 								log.error("Could not set showtype value", ex);
 							}
@@ -616,7 +616,7 @@ public class ToGo {
 					if (rating != null && video.getRating()==null) {
 						video.setRating(rating.getTextTrim());
 						try {
-							video.setRatingValue(new Integer(rating.attribute("value").getText()));
+							video.setRatingValue(Integer.parseInt(rating.attribute("value").getText()));
 						} catch (Exception ex) {
 							log.error("Could not set rating value", ex);
 						}
@@ -644,7 +644,7 @@ public class ToGo {
 			if (quality != null) {
 				video.setRecordingQuality(quality.getTextTrim());
 				try {
-					video.setRecordingQualityValue(new Integer(quality.attribute("value").getText()));
+					video.setRecordingQualityValue(Integer.parseInt(quality.attribute("value").getText()));
 				} catch (Exception ex) {
 					log.error("Could not set rating value", ex);
 				}
@@ -708,7 +708,7 @@ public class ToGo {
 			// TODO How to get TiVo address??
 			client.getHostConfiguration().setHost(url.getHost(), 443, protocol);
 			String password = Tools.decrypt(serverConfiguration.getMediaAccessKey());
-			if (video.getParentalControls()!=null && video.getParentalControls().booleanValue())
+			if (video.isParentalControls())
 			{
 				if (serverConfiguration.getPassword()==null)
 					throw new NullPointerException("Parental Controls Password is null");

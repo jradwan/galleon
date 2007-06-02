@@ -949,9 +949,9 @@ public class VideoServer extends HttpServer {
 					else
 						buffer.append("<duration>PT00M</duration>\n"); // PT1H,
 					// PT30M
-					if (video.getPartCount() != null)
+					if (video.getPartCount() != 0)
 						buffer.append("<partCount>"+video.getPartCount()+"</partCount>\n");
-					if (video.getPartIndex() != null)
+					if (video.getPartIndex() != 0)
 						buffer.append("<partIndex>"+video.getPartIndex()+"</partIndex>\n");
 					buffer.append("<program>\n");
 					buffer.append("<vActor>\n");
@@ -1034,8 +1034,8 @@ public class VideoServer extends HttpServer {
 					buffer.append("<seriesTitle>" + Tools.escapeXMLChars(video.getSeriesTitle()) + "</seriesTitle>\n");
 					buffer.append("</series>\n");
 					String showTypeValue = String.valueOf(video.getShowTypeValue());
-					if (video.getShowTypeValue() == null)
-						showTypeValue = "5";
+					if (video.getShowTypeValue() == 0)
+						showTypeValue = "5"; // XXX?
 					String showType = video.getShowType();
 					if (video.getShowType() == null)
 						showType = "SERIES";
@@ -1056,8 +1056,8 @@ public class VideoServer extends HttpServer {
 					buffer.append("<callsign>" + Tools.escapeXMLChars(video.getCallsign()) + "</callsign>\n");
 					buffer.append("</channel>\n");
 					String ratingValue = String.valueOf(video.getRatingValue());
-					if (video.getRatingValue() == null)
-						ratingValue = "4";
+					if (video.getRatingValue() == 0)
+						ratingValue = "4"; // XXX
 					if (video.getRating() != null)
 						buffer.append("<tvRating value=\"" + ratingValue + "\">" + video.getRating() + "</tvRating>\n");
 					else
@@ -1066,8 +1066,8 @@ public class VideoServer extends HttpServer {
 					buffer.append("</vActualShowing>\n");
 					buffer.append("<vBookmark/>\n");
 					String recordingQualityValue = String.valueOf(video.getRecordingQualityValue());
-					if (video.getRecordingQualityValue() == null)
-						recordingQualityValue = "75";
+					if (video.getRecordingQualityValue() == 0)
+						recordingQualityValue = "75"; // XXX
 					String recordingQuality = video.getRecordingQuality();
 					if (video.getRecordingQuality() == null)
 						recordingQuality = "HIGH";
@@ -1085,9 +1085,9 @@ public class VideoServer extends HttpServer {
 					else
 						buffer.append("<duration>PT00M</duration>\n"); // PT1H,
 					// PT30M
-					if (video.getPartCount() != null)
+					if (video.getPartCount() != 0)
 						buffer.append("<partCount>"+video.getPartCount()+"</partCount>\n");
-					if (video.getPartIndex() != null)
+					if (video.getPartIndex() != 0)
 						buffer.append("<partIndex>"+video.getPartIndex()+"</partIndex>\n");
 					buffer.append("<program>\n");
 					buffer.append("<vActor>\n");

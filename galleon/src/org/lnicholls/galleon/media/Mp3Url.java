@@ -29,7 +29,7 @@ import javazoom.spi.mpeg.sampled.file.tag.MP3Tag;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseEvent;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseListener;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
@@ -65,7 +65,7 @@ public final class Mp3Url {
             try
             {
 	            String id = Tools.extractName(Tools.extractName(uri));
-	            Audio audio = AudioManager.retrieveAudio(Integer.valueOf(id));
+	            Audio audio = AudioManager.retrieveAudio(Integer.parseInt(id));
 	            do
 	            {
 	            	log.debug("getStream: audio=" + audio.getPath());

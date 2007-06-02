@@ -17,12 +17,12 @@ package org.lnicholls.galleon.database;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
-import net.sf.hibernate.expression.Expression;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Expression;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class VideoManager {
@@ -31,7 +31,10 @@ public class VideoManager {
 		public void visit(Session session, Video video);
 	}
 	public static Video retrieveVideo(Video Video) throws HibernateException {
-		return retrieveVideo(Video.getId());
+		return retrieveVideo(new Integer(Video.getId()));
+	}
+	public static Video retrieveVideo(int id) throws HibernateException {
+		return retrieveVideo(new Integer(id));
 	}
 	public static Video retrieveVideo(Integer id) throws HibernateException {
 		Video result = null;
@@ -68,7 +71,7 @@ public class VideoManager {
 		return video;
 	}
 	public static void updateVideo(Video video) throws HibernateException {
-		if (video.getId()!=null)
+		if (video.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 			Transaction tx = null;
@@ -87,7 +90,7 @@ public class VideoManager {
 		}
 	}
 	public static void deleteVideo(Video Video) throws HibernateException {
-		if (Video.getId()!=null)
+		if (Video.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 			Transaction tx = null;

@@ -120,7 +120,7 @@
         overflowToDisk="true"
         />
 
-    <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
+    <cache name="org.hibernate.cache.UpdateTimestampsCache"
         maxElementsInMemory="10"
         eternal="false"
         timeToIdleSeconds="300"
@@ -128,7 +128,7 @@
         overflowToDisk="true"
         />
 
-    <cache name="net.sf.hibernate.cache.StandardQueryCache"
+    <cache name="org.hibernate.cache.StandardQueryCache"
         maxElementsInMemory="10"
         eternal="false"
         timeToIdleSeconds="300"

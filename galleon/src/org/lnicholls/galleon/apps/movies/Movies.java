@@ -144,12 +144,12 @@ public class Movies extends DefaultApplication {
 			if (list != null && list.size() > 0) {
 				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
 					Theater theater = (Theater) i.next();
-					if (theater.getFavorite()!=null && theater.getFavorite().intValue()>0)
+					if (theater.getFavorite()>0)
 						mMenuList.add(theater);
 				}
 				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
 					Theater theater = (Theater) i.next();
-					if (theater.getFavorite()==null || theater.getFavorite().intValue()==0)
+					if (theater.getFavorite()==0)
 						mMenuList.add(theater);
 				}
 			}
@@ -186,7 +186,7 @@ public class Movies extends DefaultApplication {
 		protected void createRow(BView parent, int index) {
 			BView icon = new BView(parent, 9, 2, 32, 32);
 			Theater theater = (Theater) mMenuList.get(index);
-			if (theater.getFavorite()!=null && theater.getFavorite().intValue()>0)
+			if (theater.getFavorite()>0)
 				icon.setResource(mFavoriteIcon);
 			else
 				icon.setResource(mFolderIcon);
@@ -214,7 +214,7 @@ public class Movies extends DefaultApplication {
 	                try
 	                {
 		                Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
-		               	theater.setFavorite(new Integer(0));
+		               	theater.setFavorite(0);
 		               	TheaterManager.updateTheater(theater);
 					} catch (Exception ex) {
 						log.error("Could not update theater", ex);
@@ -237,7 +237,7 @@ public class Movies extends DefaultApplication {
 	                try
 	                {
 	                	Theater theater = (Theater) mMenuList.get(mMenuList.getFocus());
-	                	theater.setFavorite(new Integer(1));
+	                	theater.setFavorite(1);
 	                	TheaterManager.updateTheater(theater);
 	                } catch (Exception ex) {
 						log.error("Could not update theater", ex);

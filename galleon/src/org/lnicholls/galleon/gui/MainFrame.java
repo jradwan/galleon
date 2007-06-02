@@ -105,8 +105,8 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.*;
 import com.jgoodies.forms.debug.*;
-import com.jgoodies.plaf.BorderStyle;
-import com.jgoodies.plaf.HeaderStyle;
+import com.jgoodies.looks.BorderStyle;
+import com.jgoodies.looks.HeaderStyle;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 

@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
 
-import net.sf.hibernate.Session;
+import org.hibernate.classic.Session;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;

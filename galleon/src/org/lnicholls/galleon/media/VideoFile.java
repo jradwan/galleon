@@ -86,6 +86,8 @@ public final class VideoFile {
 	private static final int DEFAULT_AUDIO_BIT_RATE = 0;
 
 	private static final int DEFAULT_AUDIO_CHANNELS = 0;
+	
+	private static final float NTSC_VIDEO_RATE = 29.97f;
 
 	public static final Video getVideo(String filename) {
 		Video video = new Video();
@@ -320,19 +322,19 @@ public final class VideoFile {
 		video.setDateRecorded(new Date());
 		video.setOriginalAirDate(new Date());
 		video.setPath(DEFAULT_PATH);
-		video.setPlayCount(new Integer(DEFAULT_PLAY_COUNT));
+		video.setPlayCount(DEFAULT_PLAY_COUNT);
 		// video.setRating(DEFAULT_RATING);
 		video.setTone(DEFAULT_TONE);
 		video.setOrigen(PC);
 		// TODO
 		video.setVideoResolution(DEFAULT_VIDEO_RESOLUTION);
 		video.setVideoCodec(DEFAULT_VIDEO_CODEC);
-		video.setVideoRate(new Float(DEFAULT_VIDEO_RATE));
-		video.setVideoBitRate(new Integer(DEFAULT_VIDEO_BIT_RATE));
+		video.setVideoRate(DEFAULT_VIDEO_RATE);
+		video.setVideoBitRate(DEFAULT_VIDEO_BIT_RATE);
 		video.setAudioCodec(DEFAULT_AUDIO_CODEC);
-		video.setAudioRate(new Float(DEFAULT_AUDIO_RATE));
-		video.setAudioBitRate(new Integer(DEFAULT_AUDIO_BIT_RATE));
-		video.setAudioChannels(new Integer(DEFAULT_AUDIO_CHANNELS));
+		video.setAudioRate(DEFAULT_AUDIO_RATE);
+		video.setAudioBitRate(DEFAULT_AUDIO_BIT_RATE);
+		video.setAudioChannels(DEFAULT_AUDIO_CHANNELS);
 	}
 
 	private static final void pass(File file, Video video) throws Exception {
@@ -342,12 +344,12 @@ public final class VideoFile {
 		video.setVideoResolution(filePropertiesMovie.getVideoResolution());
 		video.setVideoCodec(filePropertiesMovie.getVideoCodec());
 		try {
-			video.setVideoRate(new Float(filePropertiesMovie.getVideoRate()));
+			video.setVideoRate(Float.parseFloat(filePropertiesMovie.getVideoRate()));
 		} catch (Exception ex) {
 		}
 
 		try {
-			video.setVideoBitRate(new Integer(filePropertiesMovie.getVideoBitRate()));
+			video.setVideoBitRate(Integer.parseInt(filePropertiesMovie.getVideoBitRate()));
 		} catch (Exception ex) {
 		}
 
@@ -356,7 +358,7 @@ public final class VideoFile {
 		video.setAudioCodec(filePropertiesMovie.getAudioCodec());
 
 		try {
-			video.setAudioBitRate(new Integer(filePropertiesMovie.getAudioBitRate()));
+			video.setAudioBitRate(Integer.parseInt(filePropertiesMovie.getAudioBitRate()));
 		} catch (Exception ex) {
 		}
 
@@ -364,14 +366,14 @@ public final class VideoFile {
 			Pattern pattern = Pattern.compile("(.*)KHz");
 			Matcher matcher = pattern.matcher(filePropertiesMovie.getAudioRate());
 			if (matcher != null && matcher.matches()) {
-				video.setAudioRate(new Float(matcher.group(1)));
+				video.setAudioRate(Float.parseFloat(matcher.group(1)));
 			} else
-				video.setAudioRate(new Float(filePropertiesMovie.getAudioRate()));
+				video.setAudioRate(Float.parseFloat(filePropertiesMovie.getAudioRate()));
 		} catch (Exception ex) {
 		}
 
 		try {
-			video.setAudioChannels(new Integer(filePropertiesMovie.getAudioChannels()));
+                    video.setAudioChannels(Integer.parseInt(filePropertiesMovie.getAudioChannels()));
 		} catch (Exception ex) {
 		}
 
@@ -504,7 +506,7 @@ public final class VideoFile {
 		{
 			return ( video.getVideoResolution().equals("720x480") || video.getVideoResolution().equals("704x480") || video.getVideoResolution().equals("544x480") || video.getVideoResolution().equals("480x480") || video.getVideoResolution().equals("352x480")) &&
 				(video.getVideoCodec().equals("MPEG") || (video.getVideoCodec().equals("MPEG2"))) &&
-				video.getVideoRate().equals("29.97") &&
+				NTSC_VIDEO_RATE == video.getVideoRate() &&
 				video.getAudioCodec().equals("MPEG");
 		}
 		catch (Exception ex)

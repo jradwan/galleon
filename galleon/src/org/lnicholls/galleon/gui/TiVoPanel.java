@@ -540,7 +540,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 	                        	{
 	                        		if (video.getStatus()==Video.STATUS_DELETED)
 	                        		{
-	                        			if (video.getAvailability()!=null && video.getAvailability().intValue()==Video.RECORDING_AVAILABLE)
+	                        			if (video.getAvailability()==Video.RECORDING_AVAILABLE)
 	                        				shows.add(video);
 	                        		}
 	                        		else

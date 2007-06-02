@@ -16,11 +16,11 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class MovieManager {
@@ -29,7 +29,10 @@ public class MovieManager {
 		public void visit(Session session, Movie movide);
 	}
 	public static Movie retrieveMovie(Movie movie) throws HibernateException {
-		return retrieveMovie(movie.getId());
+		return retrieveMovie(new Integer(movie.getId()));
+	}
+	public static Movie retrieveMovie(int id) throws HibernateException {
+		return retrieveMovie(new Integer(id));
 	}
 	public static Movie retrieveMovie(Integer id) throws HibernateException {
 		Movie result = null;
@@ -65,7 +68,7 @@ public class MovieManager {
 		return movie;
 	}
 	public static void updateMovie(Movie Movie) throws HibernateException {
-		if (Movie.getId()!=null)
+		if (Movie.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -95,7 +98,7 @@ public class MovieManager {
 		}
 	}
 	public static void deleteMovie(Movie Movie) throws HibernateException {
-		if (Movie.getId()!=null)
+		if (Movie.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

@@ -16,11 +16,11 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class TheaterManager {
@@ -31,7 +31,10 @@ public class TheaterManager {
 	}
 	public static Theater retrieveTheater(Theater Theater)
 			throws HibernateException {
-		return retrieveTheater(Theater.getId());
+		return retrieveTheater(new Integer(Theater.getId()));
+	}
+	public static Theater retrieveTheater(int id) throws HibernateException {
+		return retrieveTheater(new Integer(id));
 	}
 	public static Theater retrieveTheater(Integer id) throws HibernateException {
 		Theater result = null;
@@ -68,7 +71,7 @@ public class TheaterManager {
 		return Theater;
 	}
 	public static void updateTheater(Theater Theater) throws HibernateException {
-		if (Theater.getId()!=null)
+		if (Theater.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -98,7 +101,7 @@ public class TheaterManager {
 		}
 	}
 	public static void deleteTheater(Theater Theater) throws HibernateException {
-		if (Theater.getId()!=null)
+		if (Theater.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

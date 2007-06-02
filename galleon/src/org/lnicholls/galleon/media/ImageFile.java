@@ -25,7 +25,7 @@ import java.util.Date;
 
 import javax.imageio.ImageIO;
 
-import net.sf.hibernate.lob.BlobImpl;
+import org.hibernate.lob.BlobImpl;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Image;
@@ -94,7 +94,7 @@ public class ImageFile {
 	public static final BufferedImage getThumbnail(Image image) {
 		try {
 			BufferedImage thumbnailImage = null;
-			if (image.getThumbnail() != null) {
+			if (image.getThumbnail() != 0) {
 				thumbnailImage = ThumbnailManager.findImageById(image
 						.getThumbnail());
 			}

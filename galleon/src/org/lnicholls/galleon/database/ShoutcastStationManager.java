@@ -16,9 +16,9 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class ShoutcastStationManager {
@@ -29,7 +29,11 @@ public class ShoutcastStationManager {
 	}
 	public static ShoutcastStation retrieveShoutcastStation(
 			ShoutcastStation ShoutcastStation) throws HibernateException {
-		return retrieveShoutcastStation(ShoutcastStation.getId());
+		return retrieveShoutcastStation(new Integer(ShoutcastStation.getId()));
+	}
+	public static ShoutcastStation retrieveShoutcastStation(int id)
+		throws HibernateException {
+		return retrieveShoutcastStation(new Integer(id));
 	}
 	public static ShoutcastStation retrieveShoutcastStation(Integer id)
 			throws HibernateException {
@@ -69,7 +73,7 @@ public class ShoutcastStationManager {
 	}
 	public static void updateShoutcastStation(ShoutcastStation ShoutcastStation)
 			throws HibernateException {
-		if (ShoutcastStation.getId()!=null)
+		if (ShoutcastStation.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -100,7 +104,7 @@ public class ShoutcastStationManager {
 	}
 	public static void deleteShoutcastStation(ShoutcastStation ShoutcastStation)
 			throws HibernateException {
-		if (ShoutcastStation.getId()!=null)
+		if (ShoutcastStation.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

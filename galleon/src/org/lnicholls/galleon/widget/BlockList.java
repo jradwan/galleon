@@ -168,7 +168,7 @@ public class BlockList extends DefaultList {
             int x = r.x + getDx();
             int y = r.y + getDy();
 
-            if (h.getLayout().getHighlightIsVisible(getVisible())) {
+            if (h.getLayout().getHighlightIsVisible(getVisible() ? H_VIS_TRUE : H_VIS_FALSE)) {
                 if (getView() == null) {
                     //BView parent = isAbove() ? s.getAbove() : s.getBelow();
                 	BView parent = s.getAbove();

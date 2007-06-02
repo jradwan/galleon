@@ -16,9 +16,9 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.util.Tools;
@@ -30,7 +30,7 @@ public class ApplicationManager {
 	}
 	public static Application retrieveApplication(Application Application)
 			throws HibernateException {
-		return retrieveApplication(Application.getId());
+		return retrieveApplication(new Integer(Application.getId()));
 	}
 	public static Application retrieveApplication(Integer id)
 			throws HibernateException {
@@ -69,7 +69,7 @@ public class ApplicationManager {
 	}
 	public static void updateApplication(Application Application)
 			throws HibernateException {
-		if (Application.getId()!=null)
+		if (Application.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -100,7 +100,7 @@ public class ApplicationManager {
 	}
 	public static void deleteApplication(Application Application)
 			throws HibernateException {
-		if (Application.getId()!=null)
+		if (Application.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
@@ -181,7 +181,7 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 													&& tracks[j].getStatus() != PodcastTrack.STATUS_DOWNLOADED
 													&& tracks[j].getStatus() != PodcastTrack.STATUS_DOWNLOAD_ERROR
 													&& tracks[j].getStatus() != PodcastTrack.STATUS_PLAYED) {
-												int errors = tracks[j].getErrors()==null ? 0 : tracks[j].getErrors().intValue();
+												int errors = tracks[j].getErrors();
 												if (errors < 3 )
 													mTrack = tracks[j];
 											} else if (tracks[j].getStatus() == PodcastTrack.STATUS_DOWNLOADED
@@ -275,8 +275,8 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 													mTrack.setDownloadTime(0);
 													mTrack.setTrack(null);
 													mTrack.setStatus(PodcastTrack.STATUS_DOWNLOAD_ERROR);
-													int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
-													mTrack.setErrors(new Integer(errors+1));
+													int errors = mTrack.getErrors();
+													mTrack.setErrors(errors+1);
 													PodcastManager.updatePodcast(mPodcast);
 												} catch (Exception ex2) {
 													Tools.logException(PodcastingThread.class, ex2);
@@ -384,8 +384,8 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 			synchronized (this) {
 				try {
 					mTrack.setStatus(PodcastTrack.STATUS_DOWNLOAD_ERROR);
-					int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
-					mTrack.setErrors(new Integer(errors+1));
+					int errors = mTrack.getErrors();
+					mTrack.setErrors(errors+1);
 					PodcastManager.updatePodcast(mPodcast);
 					mTrack = mPodcast.getTrack(mTrack.getUrl());
 				} catch (HibernateException ex) {

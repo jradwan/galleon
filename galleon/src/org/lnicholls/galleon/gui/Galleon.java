@@ -66,9 +66,9 @@ import org.lnicholls.galleon.util.UpcomingServices;
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.plaf.FontSizeHints;
-import com.jgoodies.plaf.LookUtils;
-import com.jgoodies.plaf.Options;
+import com.jgoodies.looks.FontSizeHints;
+import com.jgoodies.looks.LookUtils;
+import com.jgoodies.looks.Options;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
@@ -123,7 +123,7 @@ public final class Galleon implements Constants {
 			// log = Logger.getLogger(Galleon.class.getName());
 			printSystemProperties();
 
-			UIManager.put("ClassLoader", (com.jgoodies.plaf.LookUtils.class).getClassLoader());
+			UIManager.put("ClassLoader", (com.jgoodies.looks.LookUtils.class).getClassLoader());
 			UIManager.put("Application.useSystemFontSettings", Boolean.TRUE);
 			Options.setGlobalFontSizeHints(FontSizeHints.MIXED2);
 			Options.setDefaultIconSize(new Dimension(18, 18));

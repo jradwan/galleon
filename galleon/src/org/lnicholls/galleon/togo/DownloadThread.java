@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Date;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 
@@ -118,7 +118,7 @@ public class DownloadThread extends Thread implements Constants {
                 }
             }
         } else if (video.getStatus() == Video.STATUS_USER_CANCELLED) {
-            if (mDownloading && mSelectedVideo.getId().equals(video.getId())) {
+            if (mDownloading && mSelectedVideo.getId() == video.getId()) {
                 if (mCancelThread != null && mCancelThread.isAlive()) {
                     mCancelThread.setCancel(true);
                     mCancelThread.interrupt();

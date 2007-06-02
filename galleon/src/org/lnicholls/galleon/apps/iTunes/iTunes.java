@@ -27,9 +27,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
@@ -141,7 +141,7 @@ public class iTunes extends DefaultApplication {
 						Iterator iterator = playlists.iterator();
 						while (iterator.hasNext()) {
 							PlaylistsTracks track = (PlaylistsTracks) iterator.next();
-							if (track.getTrack()!=null)
+							if (track.getTrack()!=0)
 							{
 								Audio audio = AudioManager.retrieveAudio(track.getTrack());
 								tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
@@ -195,7 +195,7 @@ public class iTunes extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			int count = 0;
+			long count = 0;
 			try {
 				count = AudioManager.countMP3sByOrigen("iTunes");
 			} catch (Exception ex) {
@@ -247,7 +247,7 @@ public class iTunes extends DefaultApplication {
 										Iterator iterator = playlists.iterator();
 										while (iterator.hasNext()) {
 											PlaylistsTracks track = (PlaylistsTracks) iterator.next();
-											if (track.getTrack()!=null)
+											if (track.getTrack()!=0)
 											{
 												Audio audio = AudioManager.retrieveAudio(track.getTrack());
 												tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));
@@ -282,7 +282,7 @@ public class iTunes extends DefaultApplication {
 								Iterator iterator = pList.iterator();
 								while (iterator.hasNext()) {
 									PlaylistsTracks track = (PlaylistsTracks) iterator.next();
-									if (track.getTrack()!=null)
+									if (track.getTrack()!=0)
 									{
 										Audio audio = AudioManager.retrieveAudio(track.getTrack());
 										tracks.add(new FileItem(audio.getTitle(), new File(audio.getPath())));

@@ -37,11 +37,11 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;

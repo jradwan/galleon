@@ -175,7 +175,7 @@ public class PlsPlaylist extends Playlist {
                     audio.setDuration(plsEntry.length);
 
                 try {
-                    if (audio.getId() != null)
+                    if (audio.getId() != 0)
                         AudioManager.updateAudio(audio);
                     else
                         AudioManager.createAudio(audio);

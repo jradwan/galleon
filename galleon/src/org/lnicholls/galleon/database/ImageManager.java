@@ -16,11 +16,11 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class ImageManager {
@@ -29,7 +29,10 @@ public class ImageManager {
 		public void visit(Session session, Image image);
 	}
 	public static Image retrieveImage(Image image) throws HibernateException {
-		return retrieveImage(image.getId());
+		return retrieveImage(new Integer(image.getId()));
+	}
+	public static Image retrieveImage(int id) throws HibernateException {
+		return retrieveImage(new Integer(id));
 	}
 	public static Image retrieveImage(Integer id) throws HibernateException {
 		Image result = null;
@@ -65,7 +68,7 @@ public class ImageManager {
 		return image;
 	}
 	public static void updateImage(Image image) throws HibernateException {
-		if (image.getId()!=null)
+		if (image.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -95,7 +98,7 @@ public class ImageManager {
 		}
 	}
 	public static void deleteImage(Image image) throws HibernateException {
-		if (image.getId()!=null)
+		if (image.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

@@ -17,11 +17,11 @@ package org.lnicholls.galleon.database;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class PersistentValueManager {
@@ -32,7 +32,10 @@ public class PersistentValueManager {
 	}
 	public static PersistentValue retrievePersistentValue(
 			PersistentValue persistentValue) throws HibernateException {
-		return retrievePersistentValue(persistentValue.getId());
+		return retrievePersistentValue(new Integer(persistentValue.getId()));
+	}
+	public static PersistentValue retrievePersistentValue(int id) throws HibernateException {
+		return retrievePersistentValue(new Integer(id));
 	}
 	public static PersistentValue retrievePersistentValue(Integer id)
 			throws HibernateException {
@@ -71,7 +74,7 @@ public class PersistentValueManager {
 	}
 	public static void updatePersistentValue(PersistentValue persistentValue)
 			throws HibernateException {
-		if (persistentValue.getId()!=null)
+		if (persistentValue.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -102,7 +105,7 @@ public class PersistentValueManager {
 	}
 	public static void deletePersistentValue(PersistentValue persistentValue)
 			throws HibernateException {
-		if (persistentValue.getId()!=null)
+		if (persistentValue.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -295,7 +298,7 @@ public class PersistentValueManager {
 			}
 			if (value.length() <= 32672) {
 				PersistentValue persistentValue = new PersistentValue(name,
-						value, date, new Integer(ttl));
+						value, date, ttl);
 				PersistentValueManager.createPersistentValue(persistentValue);
 			} else {
 				int counter = 0;
@@ -307,7 +310,7 @@ public class PersistentValueManager {
 					if (++counter > 1)
 						postfix = "." + counter;
 					existingPersistentValue = new PersistentValue(name
-							+ postfix, sub, date, new Integer(ttl));
+							+ postfix, sub, date, ttl);
 					PersistentValueManager
 							.createPersistentValue(existingPersistentValue);
 					start = end;
@@ -317,8 +320,7 @@ public class PersistentValueManager {
 					sub = value.substring(start, end);
 				}
 				PersistentValue persistentValue = new PersistentValue(name
-						+ ".count", String.valueOf(counter), date,
-				new Integer(ttl));
+						+ ".count", String.valueOf(counter), date, ttl);
 				PersistentValueManager.createPersistentValue(persistentValue);
 			}
 		} catch (HibernateException ex) {
@@ -335,7 +337,7 @@ public class PersistentValueManager {
 					PersistentValue persistentValue = PersistentValueManager
 							.findByName(name);
 					Date when = new Date();
-					Integer ttl = new Integer(0);
+					int ttl = 0;
 					if (persistentValue != null) {
 						buffer.append(persistentValue.getValue());
 						int counter = Integer.parseInt(persistentValueCount
@@ -366,9 +368,9 @@ public class PersistentValueManager {
 	public static boolean isAged(PersistentValue persistentValue) {
 		if (persistentValue != null
 				&& persistentValue.getDateModified() != null
-				&& persistentValue.getTimeToLive() != null) {
+				&& persistentValue.getTimeToLive() != 0) {
 			Date ttl = new Date(persistentValue.getDateModified().getTime()
-			+ persistentValue.getTimeToLive().intValue() * 1000);
+			+ persistentValue.getTimeToLive() * 1000);
 			return new Date().after(ttl);
 		}
 		return true;

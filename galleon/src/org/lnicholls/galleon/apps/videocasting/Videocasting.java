@@ -388,26 +388,26 @@ public class Videocasting extends DefaultApplication {
 								videocast.setImage(channelImage2); // itunes
 						}
 						if (channelBlock != null)
-							videocast.setBlock(new Boolean(!channelBlock.toLowerCase().equals("no")));
+							videocast.setBlock(!channelBlock.toLowerCase().equals("no"));
 						else
-							videocast.setBlock(Boolean.FALSE);
+							videocast.setBlock(false);
 						if (channelCategory != null && channelCategory.length() > 0)
 							videocast.setCategory(Tools.cleanHTML(channelCategory));
 						if (channelExplicit != null)
-							videocast.setExplicit(new Boolean(!channelExplicit.toLowerCase().equals("no")));
+							videocast.setExplicit(!channelExplicit.toLowerCase().equals("no"));
 						else
-							videocast.setExplicit(Boolean.FALSE);
+							videocast.setExplicit(false);
 						if (channelKeywords != null && channelKeywords.length() > 0)
 							videocast.setKeywords(Tools.cleanHTML(channelKeywords));
 						if (channelSummary != null && channelSummary.length() > 0)
 							videocast.setSummary(Tools.trim(channelSummary, 4096));
 						if (channelTtl != null && channelTtl.length() > 0) {
 							try {
-								videocast.setTtl(new Integer(channelTtl));
+								videocast.setTtl(Integer.parseInt(channelTtl));
 							} catch (Exception ex) {
 							}
 						} else
-							videocast.setTtl(new Integer(0));
+							videocast.setTtl(0);
 
 						List tracks = videocast.getTracks();
 						if (tracks == null)
@@ -547,9 +547,9 @@ public class Videocasting extends DefaultApplication {
 								if (category != null && category.length() > 0)
 									videocastTrack.setCategory(Tools.cleanHTML(category));
 								if (explicit != null && explicit.length() > 0)
-									videocastTrack.setExplicit(new Boolean(!explicit.toLowerCase().equals("no")));
+									videocastTrack.setExplicit(!explicit.toLowerCase().equals("no"));
 								else
-									videocastTrack.setExplicit(Boolean.FALSE);
+									videocastTrack.setExplicit(false);
 								if (author != null && author.length() > 0)
 									videocastTrack.setAuthor(Tools.cleanHTML(author));
 								if (summary != null && summary.length() > 0)
@@ -565,9 +565,9 @@ public class Videocasting extends DefaultApplication {
 								if (enclosureType != null && enclosureType.length() > 0)
 									videocastTrack.setMimeType(enclosureType);
 								if (block != null && block.length() > 0)
-									videocastTrack.setBlock(new Boolean(!block.toLowerCase().equals("no")));
+									videocastTrack.setBlock(!block.toLowerCase().equals("no"));
 								else
-									videocastTrack.setBlock(Boolean.FALSE);
+									videocastTrack.setBlock(false);
 								if (duration != null && duration.length() > 0) {
 									try {
 										SimpleDateFormat timeDateFormat = new SimpleDateFormat();
@@ -578,7 +578,7 @@ public class Videocasting extends DefaultApplication {
 											timeDateFormat.applyPattern("mm:ss");
 											date = timeDateFormat.parse(duration, pos);
 										}
-										videocastTrack.setDuration(new Long(date.getTime()));
+										videocastTrack.setDuration(date.getTime());
 									} catch (Exception ex) {
 									}
 								}
@@ -604,7 +604,7 @@ public class Videocasting extends DefaultApplication {
 					if (channel != null) {
 						videocast.setDescription(Tools.cleanHTML(channel.getDescription()));
 						videocast.setDateUpdated(channel.getLastBuildDate());
-						videocast.setTtl(new Integer(channel.getTtl()));
+						videocast.setTtl(channel.getTtl());
 
 						List items = getListing(channel);
 						if (items != null && items.size() > 0) {
@@ -613,12 +613,12 @@ public class Videocasting extends DefaultApplication {
 								ItemIF item = (ItemIF) i.next();
 								String description = Tools.trim(item.getDescription(), 4096);
 
-								tracks.add(new VideocastTrack(Tools.cleanHTML(item.getTitle()), null, null, Tools.trim(
+								tracks.add(new VideocastTrack(null, Tools.cleanHTML(item.getTitle()), null, null, Tools.trim(
 										Tools.cleanHTML(item.getDescription()), 4096), null, null, null, null,
-										Boolean.FALSE, Boolean.FALSE, null, item.getDate(), item.getEnclosure()
+										false, false, null, item.getDate(), item.getEnclosure()
 												.getLocation().toExternalForm(), "audio/mpeg", item.getEnclosure()
-												.getLength(), 0, new Long(0), new Integer(0), 0, 0, videocast.getId(),
-												new Integer(0), null));
+												.getLength(), 0, 0, 0, 0, 0, videocast.getId(),
+												0));
 							}
 							videocast.setTracks(tracks);
 						}
@@ -630,7 +630,7 @@ public class Videocasting extends DefaultApplication {
 				document = null;
 
 				if (PersistentValueManager.isAged(persistentValue)) {
-					int ttl = videocast.getTtl().intValue();
+					int ttl = videocast.getTtl();
 					if (ttl < 10)
 						ttl = 60;
 					else
@@ -1493,7 +1493,7 @@ public class Videocasting extends DefaultApplication {
 					mDateText.setValue(mDateFormat.format(new Date()));
 				mCategoryText.setValue(videocast.getCategory());
 				mAuthorText.setValue(videocast.getAuthor());
-				if (videocast.getExplicit() != null && videocast.getExplicit().booleanValue()) {
+				if (videocast.isExplicit()) {
 					mExplicitText.setValue("Explicit");
 					mBack.setVisible(true);
 				} else {
@@ -2032,7 +2032,7 @@ public class Videocasting extends DefaultApplication {
 					mCategoryText.setValue(videocastTrack.getCategory());
 					mAuthorText.setValue(videocastTrack.getAuthor());
 
-					if (videocastTrack.getExplicit() != null && videocastTrack.getExplicit().booleanValue()) {
+					if (videocastTrack.isExplicit()) {
 						mBack.setVisible(true);
 						mExplicitText.setValue("Explicit");
 					} else {
@@ -2236,7 +2236,7 @@ public class Videocasting extends DefaultApplication {
 							track.setDownloadTime(0);
 							Video video = track.getTrack();
 							if (((DefaultApplication) getApp()).getCurrentAudio() != null
-									&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(video.getId())) {
+									&& ((DefaultApplication) getApp()).getCurrentAudio().getId() == video.getId()) {
 								((DefaultApplication) getApp()).getPlayer().stopTrack();
 							}
 							track.setTrack(null);
@@ -2485,7 +2485,7 @@ public class Videocasting extends DefaultApplication {
 									for (Iterator j = tracks.iterator(); j.hasNext(); /* Nothing */) {
 										VideocastTrack videocastTrack = (VideocastTrack) j.next();
 										if (videocastTrack.getTrack() != null
-												&& videocastTrack.getTrack().getId().equals(audio.getId())) {
+												&& videocastTrack.getTrack().getId() == audio.getId()) {
 											track = videocastTrack;
 											found = true;
 											break;
@@ -2512,10 +2512,8 @@ public class Videocasting extends DefaultApplication {
 								try {
 									track.setStatus(VideocastTrack.STATUS_PLAYED);
 									videocast.setDatePlayed(new Date());
-									int count = 0;
-									if (videocast.getPlayCount()!=null)
-										count = videocast.getPlayCount().intValue();
-									videocast.setPlayCount(new Integer(count+1));
+									int count = videocast.getPlayCount();
+									videocast.setPlayCount(count+1);
 									VideocastManager.updateVideocast(videocast);
 								} catch (Exception ex) {
 									Tools.logException(Videocasting.class, ex);

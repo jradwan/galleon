@@ -30,11 +30,11 @@ import java.util.Vector;
 import java.util.Random;
 import java.util.StringTokenizer;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.*;
@@ -104,7 +104,7 @@ public class DefaultApplication extends BApplication {
         		if (appContext.getConfiguration() instanceof AppConfiguration)
         		{
         			AppConfiguration appConfiguration = (AppConfiguration)appContext.getConfiguration();
-        			application.setShared(Boolean.valueOf(appConfiguration.isShared()));
+        			application.setShared(appConfiguration.isShared());
         		}
         		ApplicationManager.updateApplication(application);
         	}
@@ -117,7 +117,7 @@ public class DefaultApplication extends BApplication {
         			shared = appConfiguration.isShared();
         		}
 
-        		Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getTitle(), appContext.getDescriptor().getVersion(), 1, new Date(), null, new Date(), Boolean.valueOf(shared));
+        		Application application = new Application(appContext.getDescriptor().getClassName(), appContext.getTitle(), appContext.getDescriptor().getVersion(), 1, new Date(), null, new Date(), shared);
         		ApplicationManager.createApplication(application);
         	}
         } catch (Exception ex) {

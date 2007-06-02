@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
-	"-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping>
+<hibernate-mapping default-lazy="false">
 
   <class name="org.lnicholls.galleon.database.Thumbnail" table="THUMBNAIL" schema="GALLEON">
     <meta attribute="class-description">
@@ -23,6 +23,14 @@ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 See the file "COPYING" for more details.
     </meta>
+	<meta attribute="class-code">
+    /** minimal constructor */
+    public Thumbnail(String title, String mimeType, String keywords) {
+        this.title = title;
+        this.mimeType = mimeType;
+        this.keywords = keywords;
+    }
+	</meta>
     
     <id name="id" type="int" column="ID">
       <meta attribute="scope-set">protected</meta>

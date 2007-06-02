@@ -375,26 +375,26 @@ public class Podcasting extends DefaultApplication {
 								podcast.setImage(channelImage2); // itunes
 						}
 						if (channelBlock != null)
-							podcast.setBlock(new Boolean(!channelBlock.toLowerCase().equals("no")));
+							podcast.setBlock(!channelBlock.toLowerCase().equals("no"));
 						else
-							podcast.setBlock(Boolean.FALSE);
+							podcast.setBlock(false);
 						if (channelCategory != null && channelCategory.length() > 0)
 							podcast.setCategory(Tools.cleanHTML(channelCategory));
 						if (channelExplicit != null)
-							podcast.setExplicit(new Boolean(!channelExplicit.toLowerCase().equals("no")));
+							podcast.setExplicit(!channelExplicit.toLowerCase().equals("no"));
 						else
-							podcast.setExplicit(Boolean.FALSE);
+							podcast.setExplicit(false);
 						if (channelKeywords != null && channelKeywords.length() > 0)
 							podcast.setKeywords(Tools.cleanHTML(channelKeywords));
 						if (channelSummary != null && channelSummary.length() > 0)
 							podcast.setSummary(Tools.trim(Tools.cleanHTML(channelSummary), 4096));
 						if (channelTtl != null && channelTtl.length() > 0) {
 							try {
-								podcast.setTtl(new Integer(channelTtl));
+								podcast.setTtl(Integer.parseInt(channelTtl));
 							} catch (Exception ex) {
 							}
 						} else
-							podcast.setTtl(new Integer(0));
+							podcast.setTtl(0);
 
 						List tracks = podcast.getTracks();
 						if (tracks == null)
@@ -534,9 +534,9 @@ public class Podcasting extends DefaultApplication {
 								if (category != null && category.length() > 0)
 									podcastTrack.setCategory(Tools.cleanHTML(category));
 								if (explicit != null && explicit.length() > 0)
-									podcastTrack.setExplicit(new Boolean(!explicit.toLowerCase().equals("no")));
+									podcastTrack.setExplicit(!explicit.toLowerCase().equals("no"));
 								else
-									podcastTrack.setExplicit(Boolean.FALSE);
+									podcastTrack.setExplicit(false);
 								if (author != null && author.length() > 0)
 									podcastTrack.setAuthor(Tools.cleanHTML(author));
 								if (summary != null && summary.length() > 0)
@@ -552,9 +552,9 @@ public class Podcasting extends DefaultApplication {
 								if (enclosureType != null && enclosureType.length() > 0)
 									podcastTrack.setMimeType(enclosureType);
 								if (block != null && block.length() > 0)
-									podcastTrack.setBlock(new Boolean(!block.toLowerCase().equals("no")));
+									podcastTrack.setBlock(!block.toLowerCase().equals("no"));
 								else
-									podcastTrack.setBlock(Boolean.FALSE);
+									podcastTrack.setBlock(false);
 								if (duration != null && duration.length() > 0) {
 									try {
 										SimpleDateFormat timeDateFormat = new SimpleDateFormat();
@@ -565,7 +565,7 @@ public class Podcasting extends DefaultApplication {
 											timeDateFormat.applyPattern("mm:ss");
 											date = timeDateFormat.parse(duration, pos);
 										}
-										podcastTrack.setDuration(new Long(date.getTime()));
+										podcastTrack.setDuration(date.getTime());
 									} catch (Exception ex) {
 									}
 								}
@@ -591,7 +591,7 @@ public class Podcasting extends DefaultApplication {
 					if (channel != null) {
 						podcast.setDescription(Tools.cleanHTML(channel.getDescription()));
 						podcast.setDateUpdated(channel.getLastBuildDate());
-						podcast.setTtl(new Integer(channel.getTtl()));
+						podcast.setTtl(channel.getTtl());
 
 						List items = getListing(channel);
 						if (items != null && items.size() > 0) {
@@ -600,12 +600,12 @@ public class Podcasting extends DefaultApplication {
 								ItemIF item = (ItemIF) i.next();
 								String description = Tools.trim(item.getDescription(), 4096);
 
-								tracks.add(new PodcastTrack(Tools.cleanHTML(item.getTitle()), null, null, Tools.trim(
+								tracks.add(new PodcastTrack(null, Tools.cleanHTML(item.getTitle()), null, null, Tools.trim(
 										Tools.cleanHTML(item.getDescription()), 4096), null, null, null, null,
-										Boolean.FALSE, Boolean.FALSE, null, item.getDate(), item.getEnclosure()
+										false, false, null, item.getDate(), item.getEnclosure()
 												.getLocation().toExternalForm(), "audio/mpeg", item.getEnclosure()
-												.getLength(), 0, new Long(0), new Integer(0), 0, 0, podcast.getId(),
-												new Integer(0), null));
+												.getLength(), 0, 0, 0, 0, 0, podcast.getId(),
+												0));
 							}
 							podcast.setTracks(tracks);
 						}
@@ -617,7 +617,7 @@ public class Podcasting extends DefaultApplication {
 				document = null;
 
 				if (PersistentValueManager.isAged(persistentValue)) {
-					int ttl = podcast.getTtl().intValue();
+					int ttl = podcast.getTtl();
 					if (ttl < 10)
 						ttl = 60;
 					else
@@ -1523,7 +1523,7 @@ public class Podcasting extends DefaultApplication {
 					mDateText.setValue(mDateFormat.format(new Date()));
 				mCategoryText.setValue(podcast.getCategory());
 				mAuthorText.setValue(podcast.getAuthor());
-				if (podcast.getExplicit() != null && podcast.getExplicit().booleanValue()) {
+				if (podcast.isExplicit()) {
 					mExplicitText.setValue("Explicit");
 					mBack.setVisible(true);
 				} else {
@@ -2083,7 +2083,7 @@ public class Podcasting extends DefaultApplication {
 				mCategoryText.setValue(podcastTrack.getCategory());
 				mAuthorText.setValue(podcastTrack.getAuthor());
 
-				if (podcastTrack.getExplicit() != null && podcastTrack.getExplicit().booleanValue()) {
+				if (podcastTrack.isExplicit()) {
 					mBack.setVisible(true);
 					mExplicitText.setValue("Explicit");
 				} else {
@@ -2300,7 +2300,7 @@ public class Podcasting extends DefaultApplication {
 							track.setDownloadTime(0);
 							Audio audio = track.getTrack();
 							if (((DefaultApplication) getApp()).getCurrentAudio() != null
-									&& ((DefaultApplication) getApp()).getCurrentAudio().getId().equals(audio.getId())) {
+									&& ((DefaultApplication) getApp()).getCurrentAudio().getId() == audio.getId()) {
 								((DefaultApplication) getApp()).getPlayer().stopTrack();
 							}
 							track.setTrack(null);
@@ -2577,7 +2577,7 @@ public class Podcasting extends DefaultApplication {
 									for (Iterator j = tracks.iterator(); j.hasNext(); /* Nothing */) {
 										PodcastTrack podcastTrack = (PodcastTrack) j.next();
 										if (podcastTrack.getTrack() != null
-												&& podcastTrack.getTrack().getId().equals(audio.getId())) {
+												&& podcastTrack.getTrack().getId() == audio.getId()) {
 											track = podcastTrack;
 											found = true;
 											break;
@@ -2604,10 +2604,8 @@ public class Podcasting extends DefaultApplication {
 								try {
 									track.setStatus(PodcastTrack.STATUS_PLAYED);
 									podcast.setDatePlayed(new Date());
-									int count = 0;
-									if (podcast.getPlayCount()!=null)
-										count = podcast.getPlayCount().intValue();
-									podcast.setPlayCount(new Integer(count+1));
+									int count = podcast.getPlayCount();
+									podcast.setPlayCount(count+1);
 									PodcastManager.updatePodcast(podcast);
 								} catch (Exception ex) {
 									Tools.logException(Podcasting.class, ex);

@@ -43,8 +43,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.lob.BlobImpl;
+import org.hibernate.HibernateException;
+import org.hibernate.lob.BlobImpl;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
@@ -914,7 +914,7 @@ public final class Mp3File {
 		// 2. File system image file.
 		// 3. Amazon image lookup.
 
-		if (audio.getCover() != null && !audio.getAlbum().equals(DEFAULT_ALBUM)
+		if (audio.getCover() != 0 && !audio.getAlbum().equals(DEFAULT_ALBUM)
 				&& !audio.getArtist().equals(DEFAULT_ARTIST)) {
 			try {
 				java.awt.Image image = ThumbnailManager.findImageById(audio.getCover());

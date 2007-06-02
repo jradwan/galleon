@@ -246,7 +246,7 @@ public class DownloadedPanel extends JPanel implements ActionListener {
                         video.setPath(null);
                         video.setDownloadSize(0);
                         video.setDownloadTime(0);
-                        if (video.getAvailability()!=null && video.getAvailability().intValue()==Video.RECORDING_AVAILABLE)
+                        if (video.getAvailability()==Video.RECORDING_AVAILABLE)
                         	video.setStatus(Video.STATUS_USER_SELECTED);
                         else
                         	video.setStatus(Video.STATUS_DELETED);

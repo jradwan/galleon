@@ -1,71 +1,23 @@
-A) The following software is included in this product:
-Log4j, Commons Logging, Xerces2, Commons Lang, Commons Betwixt, 
-Commons Beanutils, Commons Collections, Commons Digester, Commons Pool,
-Code Creation Library, Ehcache, Commons DBCP; 
-Use of any of this software is governed
-by the terms of the license below:
-
-/*
- * The Apache Software License, Version 1.1
- *
- *
- * Copyright (c) 1999-2003 The Apache Software Foundation.  All rights 
- * reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:  
- *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
- *
- * 4. The names "Xerces" and "Apache Software Foundation" must
- *    not be used to endorse or promote products derived from this
- *    software without prior written permission. For written 
- *    permission, please contact apache@apache.org.
- *
- * 5. Products derived from this software may not be called "Apache",
- *    nor may "Apache" appear in their name, without prior written
- *    permission of the Apache Software Foundation.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation and was
- * originally based on software copyright (c) 1999, International
- * Business Machines, Inc., http://www.ibm.com.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
- */
-
 -----------------------------------------------------------------------
-B) The following software is included in this product:
-id3, PJA Toolkit, Java Imaging Utilities, Free UCS scalable fonts;
-videoMan.
+A) The following software is included in this product:
+(pja-2.5.jar) from http://www.eteks.com/pja/en
+http://www.eteks.com/pja/pja_2.5.zip
+
+(jampal-1.14.jar) (jampal.sourcforge.net)
+http://downloads.sourceforge.net/jampal/jampal-source-1.14.zip?modtime=1175627571&big_mirror=0
+http://downloads.sourceforge.net/jampal/jampal-1.14.jar?modtime=1175627471&big_mirror=0
+
+
+(jdai-0.4.jar) (http://sourceforge.net/projects/jdai/)
+http://downloads.sourceforge.net/jdai/jdai-0.4-src.zip?modtime=1045958400&big_mirror=0
+http://downloads.sourceforge.net/jdai/jdai-0.4.zip?modtime=1045958400&big_mirror=0
+
+(MHS-1.6.1-1697.jar) http://www.mhsoftware.com/bin/MHS.zip
+
+(mediamanager-videoman-0.8.jar) (videoman.sourceforge.net lib/mediamanager.jar)
+(upcoming.jar) license per jay@skabber.com (upcoming.org, socialistsoftware.com/upcoming)
+(js-1.6R5.jar) (ftp://ftp.mozilla.org/pub/mozilla.org/js/rhino1_6R5.zip)
+
 Use of any of this software is governed by the terms of the license below:
 
 		    GNU GENERAL PUBLIC LICENSE
@@ -409,7 +361,8 @@ library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 
 -----------------------------------------------------------------------
-C) The following software is included in this product:
+B) The following software is included in this product:
+(not sure where it's used -- XXX can't find where it is  ???)
 HttpUnit; Use of any of this software is governed
 by the terms of the license below:
 
@@ -434,7 +387,12 @@ The MIT License
  *******************************************************************************************************************/
 
 -----------------------------------------------------------------------
-D) The following software is included in this product:
+C) The following software is included in this product:
+(wrapper-3.2.3.jar)
+http://wrapper.tanukisoftware.org/doc/english/introduction.html
+http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591
+http://downloads.sourceforge.net/wrapper/wrapper-macosx-universal-32-3.2.3.tar.gz?modtime=1161131348&big_mirror=1
+
 Java Service Wrapper; Use of any of this software is governed
 by the terms of the license below:
 
@@ -480,7 +438,9 @@ The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
 
 -----------------------------------------------------------------------
-E) The following software is included in this product:
+D) The following software is included in this product:
+(XXX Can't find where it's used XXX)
+
 JTidy; Use of any of this software is governed
 by the terms of the license below:
 
@@ -531,45 +491,10 @@ W3C Licence
   acknowledgment is not required but would be appreciated.
   
 
------------------------------------------------------------------------
-F) The following software is included in this product:
-Rhino Javascript Engine; Use of any of this software is governed
-by the terms of the license below:
-
-The contents of this file are subject to the Netscape Public
-License Version 1.1 (the "License"); you may not use this file
-except in compliance with the License. You may obtain a copy of
-the License at http://www.mozilla.org/NPL/
-
-Software distributed under the License is distributed on an "AS
-IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
-implied. See the License for the specific language governing
-rights and limitations under the License.
-
-The Original Code is Rhino code, released
-May 6, 1999.
-
-The Initial Developer of the Original Code is Netscape
-Communications Corporation.  Portions created by Netscape are
-Copyright (C) 1997-1999 Netscape Communications Corporation. All
-Rights Reserved.
-
-Contributor(s):
-Norris Boyd
-
-Alternatively, the contents of this file may be used under the
-terms of the GNU Public License (the "GPL"), in which case the
-provisions of the GPL are applicable instead of those above.
-If you wish to allow use of your version of this file only
-under the terms of the GPL and not to allow others to use your
-version of this file under the NPL, indicate your decision by
-deleting the provisions above and replace them with the notice
-and other provisions required by the GPL.  If you do not delete
-the provisions above, a recipient may use your version of this
-file under either the NPL or the GPL.
 
 -----------------------------------------------------------------------
-G) The following software is included in this product:
+E) The following software is included in this product:
+(where is this used?? XXX model for Weather application? XXX)
 MythWeather; Use of any of this software is governed
 by the terms of the license below:
 
@@ -579,9 +504,41 @@ If you don't have a copy of the GPL, get one at:
      
 
 -----------------------------------------------------------------------
-H) The following software is included in this product:
-MH Software Java Utility Files, JShortcut, jicyshout, JCache, JLayer, Tritonus, MP3SPI, 
-JmDNS, Hibernate, jd3lib; 
+F) The following software is included in this product:
+
+(jshortcut-0.4.jar) http://alumnus.caltech.edu/~jimmc/jshortcut/download/index.html
+http://alumnus.caltech.edu/~jimmc/jshortcut/download/jshortcut-0_4.jar
+
+(jl1.0.jar) http://www.javazoom.net/javalayer/javalayer.html
+http://www.javazoom.net/javalayer/javalayer.html, http://sourceforge.net/projects/javalayer/
+http://downloads.sourceforge.net/javalayer/jlayer1.0.zip?modtime=1101662441&big_mirror=0
+
+(mp3spi.jar) http://www.javazoom.net/mp3spi/sources.html
+http://www.javazoom.net/mp3spi/sources/mp3spi1.9.4.zip
+
+(tritonus_share.jar) http://www.tritonus.org/download.html
+ cvs -d:pserver:anonymous@tritonus.cvs.sourceforge.net:/cvsroot/tritonus login
+ HEAD as of 2007-05-18
+ http://www.tritonus.org/tritonus_share.jar
+
+(jd3lib-a4.jar) jd3Lib.sourceforge.net, packaged up into a jar file
+http://downloads.sourceforge.net/jd3lib/jd3lib-a4.zip?modtime=1035417600&big_mirror=0
+	plus custom build.xml
+
+(hibernate.jar, a combined jar containing:
+				hibernate-3.2.4sp1.jar
+				hibernate-tools-3.2.0beta9.jar
+				freemarker.jar
+				ehcache-1.2.3.jar
+				antlr-2.7.6.jar
+)
+(hibernate-3.2.4sp1.jar)				
+http://downloads.sourceforge.net/hibernate/hibernate-3.2.4.sp1.zip?modtime=1179477574&big_mirror=1
+(hibernate-tools-3.2.0beta9.jar, freemarker.jar, ehcache-1.2.3.jar, antlr-2.7.6.jar)
+http://downloads.sourceforge.net/jboss/HibernateTools-3.2.0.beta9a.zip?modtime=1169040399&big_mirror=1
+
+JShortcut, jicyshout, JCache, JLayer, Tritonus, MP3SPI, 
+JmDNS, Hibernate3, jd3lib; 
 Use of any of this software is governed by the terms of the license below:
 
 		  GNU LESSER GENERAL PUBLIC LICENSE
@@ -1088,7 +1045,10 @@ necessary.  Here is a sample; alter the names:
 That's all there is to it!
 
 -----------------------------------------------------------------------     
-I) The following software is included in this product:
+G) The following software is included in this product:
+(informa-0.7.0.jar)
+http://downloads.sourceforge.net/informa/informa-0.7.0-alpha2.zip?modtime=1168128357&big_mirror=0
+
 RSS Library for Java; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -1097,6 +1057,7 @@ Copyright (c) 2002 by Niko Schmuck
 Niko Schmuck
 http://sourceforge.net/projects/informa
 mailto:niko_schmuck@users.sourceforge.net
+
 
 This library is free software.
 
@@ -1115,7 +1076,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 
 -----------------------------------------------------------------------
-J) The following software is included in this product:
+H) The following software is included in this product:
+(jdom-1.0.jar)
+http://www.jdom.org/dist/binary/jdom-1.0.zip
 JDOM; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -1170,12 +1133,13 @@ by the terms of the license below:
  on the JDOM Project, please see <http://www.jdom.org/>. 
 
 -----------------------------------------------------------------------
-K) The following software is included in this product:
+I) The following software is included in this product:
+http://dist.codehaus.org/jetty/jetty-6.1.3.zip
+(Where is this used in Galleon? XXX can't find use of it XXX)
 Jetty; Use of any of this software is governed
 by the terms of the license below:     
 
 Jetty License
-$Revision$
 Preamble:
 The intent of this document is to state the conditions under which the Jetty Package may be copied, such that the Copyright Holder maintains some semblance of control over the development of the package, while giving the users of the package the right to use, distribute and make reasonable modifications to the Package in accordance with the goals and ideals of the Open Source concept as described at http://www.opensource.org. 
 
@@ -1246,32 +1210,14 @@ c) Make other arrangements with the Copyright Holder.
 The End
 This license was derived from the Artistic license published on http://www.opensource.com
 
------------------------------------------------------------------------
-L) The following software is included in this product:
-NSIS; Use of any of this software is governed
-by the terms of the license below:     
-
-Copyright (C) 1999-2003 Nullsoft, Inc.
-
-This software is provided 'as-is', without any express or implied
-warranty.  In no event will the authors be held liable for any damages
-arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
-
-1. The origin of this software must not be misrepresented; you must not
-    claim that you wrote the original software. If you use this software
-    in a product, an acknowledgment in the product documentation would be
-    appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be
-    misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
-
 
 -----------------------------------------------------------------------
-M) The following software is included in this product:
+J) The following software is included in this product:
+(jawin-1.0.19.jar)
+http://jawinproject.sourceforge.net/
+http://downloads.sourceforge.net/jawinproject/jawin-1.0.19-src.zip?modtime=1085529600&big_mirror=0
+http://downloads.sourceforge.net/jawinproject/jawin-1.0.19.zip?modtime=1085529600&big_mirror=0
+
 Jawin; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -1321,7 +1267,7 @@ by the terms of the license below:
  */ 
 
 -----------------------------------------------------------------------
-N) The following software is included in this product:
+K) The following software is included in this product:
 TiVo Beacon SDK; Use of any of this software is governed
 by the terms of the licenses below:     
 
@@ -1386,7 +1332,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------
-O) The following software is included in this product:
+L) The following software is included in this product:
+(XXX where is it used XXX)
 calpa.html Java package; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -1503,414 +1450,331 @@ Any action related to this License will be governed by the laws
 of the United Kingdom of Great Britain & Northern Ireland.
 
 -----------------------------------------------------------------------
-P) The following software is included in this product:
-JavaBeans Activation Framework; Use of any of this software is governed
-by the terms of the license below:     
-
-                           Sun Microsystems, Inc.
-                        Binary Code License Agreement
-
-READ THE TERMS OF THIS AGREEMENT AND ANY PROVIDED SUPPLEMENTAL LICENSE TERMS
-(COLLECTIVELY "AGREEMENT") CAREFULLY BEFORE OPENING THE SOFTWARE MEDIA
-PACKAGE.  BY OPENING THE SOFTWARE MEDIA PACKAGE, YOU AGREE TO THE TERMS OF
-THIS AGREEMENT.  IF YOU ARE ACCESSING THE SOFTWARE ELECTRONICALLY, INDICATE
-YOUR ACCEPTANCE OF THESE TERMS BY SELECTING THE "ACCEPT" BUTTON AT THE END
-OF THIS AGREEMENT.  IF YOU DO NOT AGREE TO ALL THESE TERMS, PROMPTLY RETURN
-THE UNUSED SOFTWARE TO YOUR PLACE OF PURCHASE FOR A REFUND OR, IF THE
-SOFTWARE IS ACCESSED ELECTRONICALLY, SELECT THE "DECLINE" BUTTON AT THE END
-OF THIS AGREEMENT.
-
-1.  LICENSE TO USE.  Sun grants you a non-exclusive and non-transferable
-license for the internal use only of the accompanying software and
-documentation and any error corrections provided by Sun (collectively
-"Software"), by the number of users and the class of computer hardware for
-which the corresponding fee has been paid.
-
-2.  RESTRICTIONS.  Software is confidential and copyrighted. Title to
-Software and all associated intellectual property rights is retained by Sun
-and/or its licensors.  Except as specifically authorized in any Supplemental
-License Terms, you may not make copies of Software, other than a single copy
-of Software for archival purposes.  Unless enforcement is prohibited by
-applicable law, you may not modify, decompile, or reverse engineer
-Software.  You acknowledge that Software is not designed, licensed or
-intended for use in the design, construction, operation or maintenance of
-any nuclear facility.  Sun disclaims any express or implied warranty of
-fitness for such uses.  No right, title or interest in or to any trademark,
-service mark, logo or trade name of Sun or its licensors is granted under
-this Agreement.
-
-3. LIMITED WARRANTY.  Sun warrants to you that for a period of ninety (90)
-days from the date of purchase, as evidenced by a copy of the receipt, the
-media on which Software is furnished (if any) will be free of defects in
-materials and workmanship under normal use.  Except for the foregoing,
-Software is provided "AS IS".  Your exclusive remedy and Sun's entire
-liability under this limited warranty will be at Sun's option to replace
-Software media or refund the fee paid for Software.
-
-4.  DISCLAIMER OF WARRANTY.  UNLESS SPECIFIED IN THIS AGREEMENT, ALL EXPRESS
-OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED
-WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-NON-INFRINGEMENT ARE DISCLAIMED, EXCEPT TO THE EXTENT THAT THESE DISCLAIMERS
-ARE HELD TO BE LEGALLY INVALID.
-
-5.  LIMITATION OF LIABILITY.  TO THE EXTENT NOT PROHIBITED BY LAW, IN NO
-EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR
-DATA, OR FOR SPECIAL, INDIRECT, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE
-DAMAGES, HOWEVER CAUSED REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT
-OF OR RELATED TO THE USE OF OR INABILITY TO USE SOFTWARE, EVEN IF SUN HAS
-BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  In no event will Sun's
-liability to you, whether in contract, tort (including negligence), or
-otherwise, exceed the amount paid by you for Software under this Agreement.
-The foregoing limitations will apply even if the above stated warranty fails
-of its essential purpose.
-
-6.  Termination.  This Agreement is effective until terminated.  You may
-terminate this Agreement at any time by destroying all copies of Software.
-This Agreement will terminate immediately without notice from Sun if you
-fail to comply with any provision of this Agreement.  Upon Termination, you
-must destroy all copies of Software.
-
-7. Export Regulations. All Software and technical data delivered under this
-Agreement are subject to US export control laws and may be subject to export
-or import regulations in other countries.  You agree to comply strictly with
-all such laws and regulations and acknowledge that you have the
-responsibility to obtain such licenses to export, re-export, or import as
-may be required after delivery to you.
-
-8.   U.S. Government Restricted Rights.  If Software is being acquired by or
-on behalf of the U.S. Government or by a U.S. Government prime contractor or
-subcontractor (at any tier), then the Government's rights in Software and
-accompanying documentation will be only as set forth in this Agreement; this
-is in accordance with 48 CFR 227.7201 through 227.7202-4 (for Department of
-Defense (DOD) acquisitions) and with 48 CFR 2.101 and 12.212 (for non-DOD
-acquisitions).
-
-9.  Governing Law.  Any action related to this Agreement will be governed by
-California law and controlling U.S. federal law.  No choice of law rules of
-any jurisdiction will apply.
-
-10.  Severability. If any provision of this Agreement is held to be
-unenforceable, this Agreement will remain in effect with the provision
-omitted, unless omission would frustrate the intent of the parties, in which
-case this Agreement will immediately terminate.
-
-11.  Integration.  This Agreement is the entire agreement between you and
-Sun relating to its subject matter.  It supersedes all prior or
-contemporaneous oral or written communications, proposals, representations
-and warranties and prevails over any conflicting or additional terms of any
-quote, order, acknowledgment, or other communication between the parties
-relating to its subject matter during the term of this Agreement.  No
-modification of this Agreement will be binding, unless in writing and signed
-by an authorized representative of each party.
-
-                           JAVA OPTIONAL PACKAGE
-
-              JAVABEANS(TM) ACTIVATION FRAMEWORK, VERSION 1.0.2
-                         SUPPLEMENTAL LICENSE TERMS
-
-These supplemental license terms ("Supplemental Terms") add to or modify the
-terms of the Binary Code License Agreement (collectively, the "Agreement").
-Capitalized terms not defined in these Supplemental Terms shall have the
-same meanings ascribed to them in the Agreement. These Supplemental Terms
-shall supersede any inconsistent or conflicting terms in the Agreement, or
-in any license contained within the Software.
-
-1. Software Internal Use and Development License Grant.  Subject to the
-terms and conditions of this Agreement, including, but not limited to
-Section 3 (Java(TM) Technology Restrictions) of these Supplemental Terms,
-Sun grants you a non-exclusive, non-transferable, limited license to
-reproduce internally and use internally the binary form of the Software,
-complete and unmodified, for the sole purpose of designing, developing and
-testing your Java applets and applications ("Programs").
-
-2. License to Distribute Software.  In addition to the license granted in
-Section 1 (Software Internal Use and Development License Grant) of these
-Supplemental Terms, subject to the terms and conditions of this Agreement,
-including but not limited to, Section 3 (Java Technology Restrictions) of
-these Supplemental Terms, Sun grants you a non-exclusive, non-transferable,
-limited license to reproduce and distribute the Software in binary code form
-only, provided that you (i) distribute the Software complete and unmodified
-and only bundled as part of your Programs, (ii) do not distribute additional
-software intended to replace any component(s) of the Software, (iii) do not
-remove or alter any proprietary legends or notices contained in the
-Software, (iv) only distribute the Software subject to a license agreement
-that protects Sun's interests consistent with the terms contained in this
-Agreement, and (v) agree to defend and indemnify Sun and its licensors from
-and against any damages, costs, liabilities, settlement amounts and/or
-expenses (including attorneys' fees) incurred in connection with any claim,
-lawsuit or action by any third party that arises or results from the use or
-distribution of any and all Programs and/or Software.
-
-3. Java Technology Restrictions. You may not modify the Java Platform
-Interface ("JPI", identified as classes contained within the "java" package
-or any subpackages of the "java" package), by creating additional classes
-within the JPI or otherwise causing the addition to or modification of the
-classes in the JPI.  In the event that you create an additional class and
-associated API(s) which (i) extends the functionality of the Java platform,
-and (ii) is exposed to third party software developers for the purpose of
-developing additional software which invokes such additional API, you must
-promptly publish broadly an accurate specification for such API for free use
-by all developers.  You may not create, or authorize your licensees to
-create additional classes, interfaces, or subpackages that are in any way
-identified as "java", "javax", "sun" or similar convention as specified by
-Sun in any naming convention designation.
-
-4. No Support. Sun is under no obligation to support the Software or to
-provide you with updates or error corrections. You acknowledge that the
-Software may have defects or deficiencies which cannot or will not be
-corrected by Sun.
-
-5. Trademarks and Logos. You acknowledge and agree as between you and Sun
-that Sun owns the SUN, SOLARIS, JAVA, JINI, FORTE, and iPLANET trademarks
-and all SUN, SOLARIS, JAVA, JINI, FORTE, and iPLANET-related trademarks,
-service marks, logos and other brand designations ("Sun Marks"), and you
-agree to comply with the Sun Trademark and Logo Usage Requirements currently
-located at http://www.sun.com/policies/trademarks. Any use you make of the
-Sun Marks inures to Sun's benefit.
-
-6. Source Code. Software may contain source code that is provided solely for
-reference purposes pursuant to the terms of this Agreement.  Source code may
-not be redistributed unless expressly provided for in this Agreement.
-
-7. Termination for Infringement.  Either party may terminate this Agreement
-immediately should any Software become, or in either party's opinion be
-likely to become, the subject of a claim of infringement of any intellectual
-property right.
-
-For inquiries please contact: Sun Microsystems, Inc.  901 San Antonio Road,
-Palo Alto, California 94303
-(LFI#115020/Form ID#011801)
-
------------------------------------------------------------------------
-Q) The following software is included in this product:
+M) The following software is included in this product:
+(mail-1.4.jar)
+https://maven-repository.dev.java.net/nonav/repository/javax.mail/jars/mail-1.4.jar
+http://java.sun.com/products/javamail/
 JavaMail; Use of any of this software is governed
 by the terms of the license below:     
 
-Pre-Release 
-Software Evaluation Agreement
+Sun Microsystems, Inc. ("Sun") ENTITLEMENT for SOFTWARE
 
-SUN MICROSYSTEMS, INC. ("SUN") IS WILLING TO LICENSE THE JAVAMAIL API,
-VERSION 1.3.2, PRE-RELEASE SOFTWARE TO LICENSEE ONLY UPON THE CONDITION
-THAT LICENSEE ACCEPTS ALL OF THE TERMS CONTAINED IN THIS LICENSE
-AGREEMENT ("AGREEMENT"). PLEASE READ THE TERMS AND CONDITIONS OF THIS
-AGREEMENT CAREFULLY. BY DOWNLOADING OR INSTALLING THIS SOFTWARE,
-LICENSEE ACCEPTS THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT.
-INDICATE ACCEPTANCE BY SELECTING THE "ACCEPT" BUTTON AT THE BOTTOM OF
-THIS AGREEMENT. IF LICENSEE IS NOT WILLING TO BE BOUND BY ALL THE
-TERMS, SELECT THE "DECLINE" BUTTON AT THE BOTTOM OF THE AGREEMENT AND
-THE DOWNLOAD OR INSTALL PROCESS WILL NOT CONTINUE.
+Licensee/Company: Entity receiving Software.
 
-1.0 DEFINITIONS 
+Effective Date: Date of delivery of the Software to You.
 
-"Licensed Software" means the JavaMail API, Version 1.3.2, pre-release
-software in binary and/or source code forms, any other machine readable
-materials (including, but not limited to, libraries, source files,
-header files, and data files) and any user manuals, programming guides
-and other documentation provided to Licensee by Sun under this
-Agreement.
+Software: JavaMail 1.4.
 
-2.0 LIMITED LICENSE 
+License Term:  Perpetual (subject to termination under the SLA).
 
-2.1 Source Code. Sun grants to Licensee, a non-exclusive,
-non-transferable, royalty-free and limited license to view the source
-code portions of the Licensed Software internally for the purposes of
-evaluation only.
+Licensed Unit: Software Copy.
 
-2.2 Binary Code. Sun grants to Licensee, a non-exclusive,
-non-transferable, royalty-free and limited license to use the binary
-code portions of the Licensed Software internally for the purposes of
-evaluation only.
+Licensed unit Count: Unlimited.
 
-2.3 No licenses are granted to Licensee for any other purposes,
-Licensee may not sell, rent, loan or otherwise encumber or transfer
-Licensed Software in whole or in part, to any third party.
+Permitted Uses:
 
-3.0 LICENSE RESTRICTIONS 
+1. You may reproduce and use the Software for Individual, Commercial,
+or Research and Instructional Use for the purposes of designing,
+developing, testing, and running Your applets and
+application("Programs").
 
-3.1 Licensee may not duplicate Licensed Software other than for a
-single copy of Licensed Software for archival purposes only. Licensee
-agrees to reproduce any copyright and other proprietary right notices
-on any such copy.
+2. Subject to the terms and conditions of this Agreement and
+restrictions and exceptions set forth in the Software's documentation,
+You may reproduce and distribute portions of Software identified as a
+redistributable in the documentation ("Redistributable"), provided
+that:
 
-3.2 Except as otherwise provided by law, Licensee may not modify or
-create derivative works of the Licensed Software, or reverse engineer,
-disassemble or decompile binary portions of the Licensed Software, or
-otherwise attempt to derive the source code from such portions.
+(a) you distribute Redistributable complete and unmodified and only
+bundled as part of Your Programs,
 
-3.3 No right, title, or interest in or to Licensed Software, any
-trademarks, service marks, or trade names of Sun or Sun's licensors is
-granted under this Agreement.
+(b) your Programs add significant and primary functionality to the
+Redistributable,
 
-3.4 Licensee shall have no right to use the Licensed Software for
-productive or commercial use.
+(c) you distribute Redistributable for the sole purpose of running your
+Programs,
 
-4.0 NO SUPPORT 
+(d) you do not distribute additional software intended to replace any
+component(s) of the Redistributable,
 
-Sun is under no obligation to support Licensed Software or to provide
-Licensee with updates or error corrections (collectively "Software
-Updates"). If Sun, at its sole option, supplies Software Updates to
-Licensee, the Software Updates will be considered part of Licensed
-Software, and subject to the terms of this Agreement.
+(e) you do not remove or alter any proprietary legends or notices
+contained in or on the Redistributable.
 
-5.0 LICENSEE DUTIES 
+(f) you only distribute the Redistributable subject to a license
+agreement that protects Sun's interests consistent with the terms
+contained in this Agreement, and
 
-Licensee agrees to evaluate and test the Licensed Software for use with
-Licensee's products and to provide Feedback to Sun's email address:
-javamail@sun.com. Any test results, error data, reports or other
-information, or materials provided to Sun relating to the Licensed
-Software ("Feedback") is the exclusive property and Confidential
-Information of Sun. Licensee hereby assigns all Feedback to Sun at no
-cost to Sun. Sun may use Feedback in any manner and for any purpose,
-without limitation, liability or obligation to Licensee.
+(g) you agree to defend and indemnify Sun and its licensors from and
+against any damages, costs, liabilities, settlement amounts and/or
+expenses  (including attorneys' fees) incurred in connection with any
+claim, lawsuit or action by any third party that arises or results from
+the use or distribution of any and all Programs and/or
+Redistributable.
 
-6.0 TERM AND TERMINATION OF AGREEMENT 
+3. Java Technology Restrictions.  You may not create, modify, or change
+the behavior of, or authorize your licensees to create, modify, or
+change the behavior of, classes, interfaces, or subpackages that are in
+any way identified as "java", "javax", "sun" or similar convention as
+specified by Sun in any naming convention designation.
 
-6.1 This Agreement will commence on the date on which Licensee receives
-Licensed Software (the "Effective Date") and will expire ninety (90)
-days from the Effective Date, unless terminated earlier as provided
-herein.
+B. Sun Microsystems, Inc. ("Sun")
+SOFTWARE LICENSE AGREEMENT
 
-6.2 Either party may terminate this Agreement upon ten (10) days'
-written notice to the other party. However, Sun may terminate this
-Agreement immediately should any Licensed Software become, or in Sun's
-opinion be likely to become, the subject of a claim of infringement of
-a patent, trade secret or copyright.
+READ THE TERMS OF THIS AGREEMENT ("AGREEMENT") CAREFULLY BEFORE OPENING
+SOFTWARE MEDIA PACKAGE. BY OPENING SOFTWARE MEDIA PACKAGE, YOU AGREE TO
+THE TERMS OF THIS AGREEMENT. IF YOU ARE ACCESSING SOFTWARE
+ELECTRONICALLY, INDICATE YOUR ACCEPTANCE OF THESE TERMS BY SELECTING
+THE "ACCEPT" BUTTON AT THE END OF THIS AGREEMENT. IF YOU DO NOT AGREE
+TO ALL OF THE TERMS, PROMPTLY RETURN THE UNUSED SOFTWARE TO YOUR PLACE
+OF PURCHASE FOR A REFUND OR, IF SOFTWARE IS ACCESSED ELECTRONICALLY,
+SELECT THE "DECLINE" (OR "EXIT") BUTTON AT THE END OF THIS AGREEMENT.
+IF YOU HAVE SEPARATELY AGREED TO LICENSE TERMS ("MASTER TERMS") FOR
+YOUR LICENSE TO THIS SOFTWARE, THEN SECTIONS 1-5 OF THIS AGREEMENT
+("SUPPLEMENTAL LICENSE TERMS") SHALL SUPPLEMENT AND SUPERSEDE THE
+MASTER TERMS IN RELATION TO THIS SOFTWARE.
 
-6.3 Sun may terminate this Agreement immediately should Licensee
-materially breach any of its provisions or take any action in
-derogation of Sun's rights to the Confidential Information licensed to
-Licensee.
+1.      Definitions.
 
-6.4 Upon termination or expiration of this Agreement, Licensee will
-immediately cease use of and destroy Licensed Software, any copies
-thereof and provide to Sun a written statement certifying that Licensee
-has complied with the foregoing obligations.
+(a)     "Entitlement" means the collective set of applicable documents
+authorized by Sun evidencing your obligation to pay associated fees (if
+any) for the license, associated Services, and the authorized scope of
+use of Software under this Agreement.
 
-6.5 Rights and obligations under this Agreement which by their nature
-should survive, will remain in effect after termination or expiration
-hereof.
+(b)     "Licensed Unit" means the unit of measure by which your use of
+Software and/or Service is licensed, as described in your Entitlement.
 
-7.0 CONFIDENTIAL INFORMATION 
+(c)     "Permitted Use" means the licensed Software use(s) authorized
+in this Agreement as specified in your Entitlement. The Permitted Use
+for any bundled Sun software not specified in your Entitlement will be
+evaluation use as provided in Section 3.
 
-7.1 For purposes of this Agreement, "Confidential Information" means:
-(i) business and technical information and any source code or binary
-code, which Sun discloses to Licensee related to Licensed Software;
-(ii) Licensee's feedback based on Licensed Software; and (iii) the
-terms, conditions, and existence of this Agreement. Licensee may not
-disclose or use Confidential Information, except for the purposes
-specified in this Agreement. Licensee will protect the Confidential
-Information with the same degree of care, but not less than a
-reasonable degree of care, as Licensee uses to protect its own
-Confidential Information. Licensee's obligations regarding Confidential
-Information will expire no less than five (5) years from the date of
-receipt of the Confidential Information, except for Sun source code
-which will be protected in perpetuity. Licensee agrees that Licensed
-Software contains Sun trade secrets.
+(d)     "Service" means the service(s) that Sun or its delegate will
+provide, if any, as selected in your Entitlement and as further
+described in the applicable service listings at
+www.sun.com/service/servicelist.
 
-7.2 Notwithstanding any provisions contained in this Agreement
-concerning nondisclosure and non-use of the Confidential Information,
-the nondisclosure obligations of Section 7.1 will not apply to any
-portion of Confidential Information that Licensee can demonstrate in
-writing is: (i) now, or hereafter through no act or failure to act on
-the part of Licensee becomes, generally known to the general public;
-(ii) known to Licensee at the time of receiving the Confidential
-Information without an obligation of confidentiality; (iii) hereafter
-rightfully furnished to Licensee by a third party without restriction
-on disclosure; or (iv) independently developed by Licensee without any
-use of the Confidential Information.
+(e)     "Software" means the Sun software described in your
+Entitlement. Also, certain software may be included for evaluation use
+under Section 3.
 
-7.3 Licensee must restrict access to Confidential Information to its
-employees or contractors with a need for this access to perform their
-employment or contractual obligations and who have agreed in writing to
-be bound by a confidentiality obligation, which incorporates the
-protections and restrictions substantially as set forth in this
-Agreement.
 
-8.0 DISCLAIMER OF WARRANTY 
+(f)     "You" and "Your" means the individual or legal entity specified
+in the Entitlement, or for evaluation purposes, the entity performing
+the evaluation.
 
-8.1 Licensee acknowledges that Licensed Software may contain errors and
-is not designed, licensed, or intended for use in the design,
-construction, operation or maintenance of any nuclear facility ("High
-Risk Activities"). Sun disclaims any express or implied warranty of
-fitness for such uses. Licensee represents and warrants to Sun that it
-will not use, distribute or license the Licensed Software for High Risk
-Activities.
+2.      License Grant and Entitlement.
 
-8.2 LICENSED SOFTWARE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED
-CONDITIONS, REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED
-WARRANTY OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-PARTICULAR PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE
-EXTENT THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+Subject to the terms of your Entitlement, Sun grants you a
+nonexclusive, nontransferable limited license to use Software for its
+Permitted Use for the license term. Your Entitlement will specify (a)
+Software licensed, (b) the Permitted Use, (c) the license term, and (d)
+the Licensed Units.
 
-9.0 LIMITATION OF LIABILITY 
+Additionally, if your Entitlement includes Services, then it will also
+specify the (e) Service and (f) service term.
 
-9.1 Licensee acknowledges that the Licensed Software may be
-experimental and that the Licensed Software may have defects or
-deficiencies, which cannot or will not be corrected by Sun. Licensee
-will hold Sun harmless from any claims based on Licensee's use of the
-Licensed Software for any purposes other than those of internal
-evaluation, and from any claims that later versions or releases of any
-Licensed Software furnished to Licensee are incompatible with the
-Licensed Software provided to Licensee under this Agreement.
+If your rights to Software or Services are limited in duration and the
+date such rights begin is other than the purchase date, your
+Entitlement will provide that beginning date(s).
 
-9.2 To the extent not prohibited by law, in no event will Sun be liable
-for any indirect, punitive, special, incidental or consequential damage
-in connection with or arising out of this Agreement (including loss of
-business, revenue, profits, use, data or other economic advantage),
-however it arises, whether for breach or in tort, even if Sun has been
-previously advised of the possibility of such damage.
+The Entitlement may be delivered to you in various ways depending on
+the manner in which you obtain Software and Services, for example, the
+Entitlement may be provided in your receipt, invoice or your contract
+with Sun or authorized Sun reseller. It may also be in electronic
+format if you download Software.
 
-10.0 U.S. GOVERNMENT RESTRICTED RIGHTS
+3.      Permitted Use.
 
-If this Software is being acquired by or on behalf of the U.S.
-Government or by a U.S. Government prime contractor or subcontractor
-(at any tier), then the Government's rights in the Software and
-accompanying documentation shall be only as set forth in this license;
-this is in accordance with 48 C.F.R. 227.7202-4 (for Department of
-Defense (DOD) acquisitions) and with 48 C.F.R. 2.101 and 12.212 (for
-non-DOD acquisitions).
+As selected in your Entitlement, one or more of the following Permitted
+Uses will apply to your use of Software. Unless you have an Entitlement
+that expressly permits it, you may not use Software for any of the
+other Permitted Uses. If you don't have an Entitlement, or if your
+Entitlement doesn't cover additional software delivered to you, then
+such software is for your Evaluation Use.
 
-11.0 GENERAL TERMS
+(a) Evaluation Use. You may evaluate Software internally for a period
+of 90 days from your first use.
 
-11.1 Any action relating to or arising out of this Agreement will be
-governed by California law and controlling U.S. federal law. The U.N.
-Convention for the International Sale of Goods and the choice of law
-rules of any jurisdiction will not apply.
+(b) Research and Instructional Use. You may use Software internally to
+design, develop and test, and also to provide instruction on such
+uses.
 
-11.2 Licensed Software and technical data delivered under this
-Agreement are subject to U.S. export control laws and may be subject to
-export or import regulations in other countries. Licensee agrees to
-comply strictly with all such laws and regulations and acknowledges
-that it has the responsibility to obtain such licenses to export,
-re-export or import as may be required after delivery to Licensee.
+(c) Individual Use. You may use Software internally for personal,
+individual use.
 
-11.3 It is understood and agreed that, notwithstanding any other
-provision of this Agreement, Licensee's breach of the provisions of
-Section 7 of this Agreement will cause Sun irreparable damage for which
-recovery of money damages would be inadequate, and that Sun will
-therefore be entitled to seek timely injunctive relief to protect Sun's
-rights under this Agreement in addition to any and all remedies
-available at law.
+(d) Commercial Use. You may use Software internally for your own
+commercial purposes.
 
-11.4 Neither party may assign or otherwise transfer any of its rights
-or obligations under this Agreement, without the prior written consent
-of the other party, except that Sun may assign this Agreement to an
-affiliated company.
+(e) Service Provider Use. You may make Software functionality
+accessible (but not by providing Software itself or through outsourcing
+services) to your end users in an extranet deployment, but not to your
+affiliated companies or to government agencies.
 
-11.5 This Agreement is the parties' entire agreement relating to its
-subject matter. It supersedes all prior or contemporaneous oral or
-written communications, proposals, conditions, representations and
-warranties and prevails over any conflicting or additional terms of any
-quote, order, acknowledgment, or other communication between the
-parties relating to its subject matter, including any Binary Code
-Licenses, Supplemental Terms, or other licenses contained within
-Licensed Software. No modification to this Agreement will be binding,
-unless in writing and signed by an authorized representative of each
-party.
+4.      Licensed Units.
 
-(LFI#142315/Form ID#011801) 
+Your Permitted Use is limited to the number of Licensed Units stated in
+your Entitlement. If you require additional Licensed Units, you will
+need additional Entitlement(s).
+
+5.	Restrictions.
+
+(a) The copies of Software provided to you under this Agreement are
+licensed, not sold, to you by Sun. Sun reserves all rights not
+expressly granted. (b) You may make a single archival copy of Software,
+but otherwise may not copy, modify, or distribute Software. However if
+the Sun documentation accompanying Software lists specific portions of
+Software, such as header files, class libraries, reference source code,
+and/or redistributable files, that may be handled differently, you may
+do so only as provided in the Sun documentation. (c) You may not rent,
+lease, lend or encumber Software. (d) Unless enforcement is prohibited
+by applicable law, you may not decompile, or reverse engineer Software.
+(e) The terms and conditions of this Agreement will apply to any
+Software updates, provided to you at Sun's discretion, that replace
+and/or supplement the original Software, unless such update contains a
+separate license. (f) You may not publish or provide the results of any
+benchmark or comparison tests run on Software to any third party
+without the prior written consent of Sun. (g) Software is confidential
+and copyrighted. (h) Unless otherwise specified, if Software is
+delivered with embedded or bundled software that enables functionality
+of Software, you may not use such software on a stand-alone basis or
+use any portion of such software to interoperate with any program(s)
+other than Software. (i) Software may contain programs that perform
+automated collection of system data and/or automated software updating
+services. System data collected through such programs may be used by
+Sun, its subcontractors, and its service delivery partners for the
+purpose of providing you with remote system services and/or improving
+Sun's software and systems. (j) Software is not designed, licensed or
+intended for use in the design, construction, operation or maintenance
+of any nuclear facility and Sun and its licensors disclaim any express
+or implied warranty of fitness for such uses. (k) No right, title or
+interest in or to any trademark, service mark, logo or trade name of
+Sun or its licensors is granted under this Agreement.
+
+6.      Term and Termination.
+
+The license and service term are set forth in your Entitlement(s). Your
+rights under this Agreement will terminate immediately without notice
+from Sun if you materially breach it or take any action in derogation
+of Sun's and/or its licensors' rights to Software. Sun may terminate
+this Agreement should any Software become, or in Sun's reasonable
+opinion likely to become, the subject of a claim of intellectual
+property infringement or trade secret misappropriation. Upon
+termination, you will cease use of, and destroy, Software and confirm
+compliance in writing to Sun. Sections 1, 5, 6, 7, and 9-15 will
+survive termination of the Agreement.
+
+7.      Java Compatibility and Open Source.
+
+Software may contain Java technology. You may not create additional
+classes to, or modifications of, the Java technology, except under
+compatibility requirements available under a separate agreement
+available at www.java.net.
+
+Sun supports and benefits from the global community of open source
+developers, and thanks the community for its important contributions
+and open standards-based technology, which Sun has adopted into many of
+its products.
+
+Please note that portions of Software may be provided with notices and
+open source licenses from such communities and third parties that
+govern the use of those portions, and any licenses granted hereunder do
+not alter any rights and obligations you may have under such open
+source licenses, however, the disclaimer of warranty and limitation of
+liability provisions in this Agreement will apply to all Software in
+this distribution.
+
+8.      Limited Warranty.
+
+Sun warrants to you that for a period of 90 days from the date of
+purchase, as evidenced by a copy of the receipt, the media on which
+Software is furnished (if any) will be free of defects in materials and
+workmanship under normal use. Except for the foregoing, Software is
+provided "AS IS". Your exclusive remedy and Sun's entire liability
+under this limited warranty will be at Sun's option to replace Software
+media or refund the fee paid for Software. Some states do not allow
+limitations on certain implied warranties, so the above may not apply
+to you. This limited warranty gives you specific legal rights. You may
+have others, which vary from state to state.
+
+9.      Disclaimer of Warranty.
+
+UNLESS SPECIFIED IN THIS AGREEMENT, ALL EXPRESS OR IMPLIED CONDITIONS,
+REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT
+ARE DISCLAIMED, EXCEPT TO THE EXTENT THAT THESE DISCLAIMERS ARE HELD TO
+BE LEGALLY INVALID.
+
+10.     Limitation of Liability.
+
+TO THE EXTENT NOT PROHIBITED BY LAW, IN NO EVENT WILL SUN OR ITS
+LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR
+SPECIAL, INDIRECT, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES,
+HOWEVER CAUSED REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF OR
+RELATED TO THE USE OF OR INABILITY TO USE SOFTWARE, EVEN IF SUN HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. In no event will Sun's
+liability to you, whether in contract, tort (including negligence), or
+otherwise, exceed the amount paid by you for Software under this
+Agreement. The foregoing limitations will apply even if the above
+stated warranty fails of its essential purpose. Some states do not
+allow the exclusion of incidental or consequential damages, so some of
+the terms above may not be applicable to you.
+
+11.     Export Regulations.
+
+All Software, documents, technical data, and any other materials
+delivered under this Agreement are subject to U.S. export control laws
+and may be subject to export or import regulations in other countries.
+You agree to comply strictly with these laws and regulations and
+acknowledge that you have the responsibility to obtain any licenses to
+export, re-export, or import as may be required after delivery to you.
+
+12.     U.S. Government Restricted Rights.
+
+If Software is being acquired by or on behalf of the U.S. Government or
+by a U.S. Government prime contractor or subcontractor (at any tier),
+then the Government's rights in Software and accompanying documentation
+will be only as set forth in this Agreement; this is in accordance with
+48 CFR 227.7201 through 227.7202-4 (for Department of Defense (DOD)
+acquisitions) and with 48 CFR 2.101 and 12.212 (for non-DOD
+acquisitions).
+
+13.     Governing Law.
+
+Any action related to this Agreement will be governed by California law
+and controlling U.S. federal law. No choice of law rules of any
+jurisdiction will apply.
+
+14.     Severability.
+
+If any provision of this Agreement is held to be unenforceable, this
+Agreement will remain in effect with the provision omitted, unless
+omission would frustrate the intent of the parties, in which case this
+Agreement will immediately terminate.
+
+15.     Integration.
+
+This Agreement, including any terms contained in your Entitlement, is
+the entire agreement between you and Sun relating to its subject
+matter. It supersedes all prior or contemporaneous oral or written
+communications, proposals, representations and warranties and prevails
+over any conflicting or additional terms of any quote, order,
+acknowledgment, or other communication between the parties relating to
+its subject matter during the term of this Agreement. No modification
+of this Agreement will be binding, unless in writing and signed by an
+authorized representative of each party.
+
+Please contact Sun Microsystems, Inc. 4150 Network Circle, Santa Clara,
+California 95054 if you have questions.
+
+
 -----------------------------------------------------------------------
-Q) The following software is included in this product:
+N) The following software is included in this product:
+http://www.jgoodies.com/downloads/libraries.html
+(forms-1.1.0.jar)
+http://www.jgoodies.com/download/libraries/forms/forms-1_1_0.zip
+(looks-1.3.2.jar)
+http://www.jgoodies.com/download/libraries/looks/looks-1_3_2.zip
+
+jgoodies.com
 JGoodies Forms, JGoodies Looks; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -1945,7 +1809,8 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------
-R) The following software is included in this product:
+O) The following software is included in this product:
+(XXX XXX  not used?? XXX XXX)
 MovieTimes font; Use of this font is governed
 by the following conditions:     
 
@@ -1968,8 +1833,18 @@ Dieter Schumacher
 email: elfenwelt@aol.com
 january 1999
 
+See also:
+
+http://www.fontsforfree.org/download/Dfonts/Dekadens.html
+http://dev.w3.org/cvsweb/~checkout~/Amaya/fonts/FreeSans.ttf?rev=1.1&content-type=text/plain
+http://www.dafont.com/font.php?file=casual
+
 -----------------------------------------------------------------------
-S) The following software is included in this product:
+P) The following software is included in this product:
+NSIS 2.1:
+
+http://nsis.sourceforge.net/
+
 NSIS Modern User Interface; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -1992,8 +1867,52 @@ the following restrictions:
 3. This notice may not be removed or altered from any distribution.
 
 -----------------------------------------------------------------------
-T) The following software is included in this product:
-XMLBeans, Apache Derby; Use of any of this software is governed
+Q) The following software is included in this product:
+(log4j.jar)
+http://logging.apache.org/log4j/docs/index.html
+(commons-betwixt-0.6.jar)
+http://jakarta.apache.org/commons/betwixt/
+(commons-collections-3.2.jar)
+http://jakarta.apache.org/commons/collections/
+(commons-digester-1.8.jar)
+http://jakarta.apache.org/commons/digester/
+(commons-lang-2.3.jar)
+http://jakarta.apache.org/commons/lang/
+(commons-dbcp-1.2.2.jar)
+http://jakarta.apache.org/commons/dbcp/
+(commons-logging-1.1.jar)
+http://jakarta.apache.org/commons/logging/
+(commons-pool-1.3.jar)
+http://jakarta.apache.org/commons/pool/
+(commons-httpclient-3.0.1.jar)
+http://jakarta.apache.org/commons/httpclient/
+(commons-net-1.4.1.jar)
+http://jakarta.apache.org/commons/net/
+(commons-codec-1.3.jar)
+http://jakarta.apache.org/commons/codec/
+(commons-beanutils-1.7.0.jar)
+http://jakarta.apache.org/commons/beanutils/
+(xercesImpl-2.9.0.jar)
+(xml-apis-2.9.0.jar)
+http://xerces.apache.org/xerces2-j/index.html
+(xbean-1.0.4.jar) 
+http://xmlbeans.apache.org/
+http://www.apache.org/dyn/closer.cgi/xmlbeans
+(cglib-2.1_3.jar) (http://cglib.sourceforge.net/)
+http://downloads.sourceforge.net/cglib/cglib-src-2.1_3.jar?modtime=1129193160&big_mirror=0
+http://downloads.sourceforge.net/cglib/cglib-2.1_3.jar?modtime=1129193089&big_mirror=0
+
+(derby-10.2.2.0.jar, derbynet-10.2.2.0.jar, derbytools-10.2.2.0.jar,
+combined into derby.jar)
+http://db.apache.org/derby/
+http://db.apache.org/derby/releases/release-10.2.2.0.cgi
+
+(smack-3.0.2.jar) (smackx-3.0.2.jar)
+ XXXX still need to do some porting work to use these XXX
+http://www.igniterealtime.org/downloads/download-landing.jsp?file=smack/smack_3_0_2.zip
+http://www.igniterealtime.org/projects/smack/index.jsp
+
+Use of any of this software is governed
 by the terms of the license below:     
 
                                  Apache License
@@ -2212,60 +2131,122 @@ http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231.
 
 
 -----------------------------------------------------------------------
-U) The following software is included in this product:
+R) The following software is included in this product:
+(htmlparser-1.5.jar) http://htmlparser.sourceforge.net/
+http://downloads.sourceforge.net/htmlparser/htmlparser1_5_20050614.zip?modtime=1118735071&big_mirror=0
+http://downloads.sourceforge.net/htmlparser/htmlparser1_6_20060610.zip?modtime=1149940066&big_mirror=0
+
+(hme-1.4.jar)
+(hme-host-sample-1.4.jar)
+(bananas-1.3-custom.jar, customized version of bananas-1.3.jar)
 TiVo HME; Use of any of this software is governed
 by the terms of the license below:     
 
 Common Public License - v 1.0
 
-THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS COMMON PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS COMMON
+PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION OF
+THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
 
 1. DEFINITIONS
 
 "Contribution" means:
 
-      a) in the case of the initial Contributor, the initial code and documentation distributed under this Agreement, and
+      a) in the case of the initial Contributor, the initial code and
+      documentation distributed under this Agreement, and
       b) in the case of each subsequent Contributor:
 
       i) changes to the Program, and
 
       ii) additions to the Program;
 
-      where such changes and/or additions to the Program originate from and are distributed by that particular Contributor. A Contribution 'originates' from a Contributor if it was added to the Program by such Contributor itself or anyone acting on such Contributor's behalf. Contributions do not include additions to the Program which: (i) are separate modules of software distributed in conjunction with the Program under their own license agreement, and (ii) are not derivative works of the Program. 
+      where such changes and/or additions to the Program originate from
+      and are distributed by that particular Contributor. A Contribution
+      'originates' from a Contributor if it was added to the Program by
+      such Contributor itself or anyone acting on such Contributor's
+      behalf. Contributions do not include additions to the Program
+      which: (i) are separate modules of software distributed in
+      conjunction with the Program under their own license agreement,
+      and (ii) are not derivative works of the Program.
 
 "Contributor" means any person or entity that distributes the Program.
 
-"Licensed Patents " mean patent claims licensable by a Contributor which are necessarily infringed by the use or sale of its Contribution alone or when combined with the Program.
+"Licensed Patents " mean patent claims licensable by a Contributor which
+are necessarily infringed by the use or sale of its Contribution alone
+or when combined with the Program.
 
-"Program" means the Contributions distributed in accordance with this Agreement.
+"Program" means the Contributions distributed in accordance with this
+Agreement.
 
-"Recipient" means anyone who receives the Program under this Agreement, including all Contributors.
+"Recipient" means anyone who receives the Program under this Agreement,
+including all Contributors.
 
 2. GRANT OF RIGHTS
 
-      a) Subject to the terms of this Agreement, each Contributor hereby grants Recipient a non-exclusive, worldwide, royalty-free copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, distribute and sublicense the Contribution of such Contributor, if any, and such derivative works, in source code and object code form.
+      a) Subject to the terms of this Agreement, each Contributor hereby
+      grants Recipient a non-exclusive, worldwide, royalty-free
+      copyright license to reproduce, prepare derivative works of,
+      publicly display, publicly perform, distribute and sublicense the
+      Contribution of such Contributor, if any, and such derivative
+      works, in source code and object code form.
 
-      b) Subject to the terms of this Agreement, each Contributor hereby grants Recipient a non-exclusive, worldwide, royalty-free patent license under Licensed Patents to make, use, sell, offer to sell, import and otherwise transfer the Contribution of such Contributor, if any, in source code and object code form. This patent license shall apply to the combination of the Contribution and the Program if, at the time the Contribution is added by the Contributor, such addition of the Contribution causes such combination to be covered by the Licensed Patents. The patent license shall not apply to any other combinations which include the Contribution. No hardware per se is licensed hereunder. 
+      b) Subject to the terms of this Agreement, each Contributor hereby
+      grants Recipient a non-exclusive, worldwide, royalty-free patent
+      license under Licensed Patents to make, use, sell, offer to sell,
+      import and otherwise transfer the Contribution of such
+      Contributor, if any, in source code and object code form. This
+      patent license shall apply to the combination of the Contribution
+      and the Program if, at the time the Contribution is added by the
+      Contributor, such addition of the Contribution causes such
+      combination to be covered by the Licensed Patents. The patent
+      license shall not apply to any other combinations which include
+      the Contribution. No hardware per se is licensed hereunder.
 
-      c) Recipient understands that although each Contributor grants the licenses to its Contributions set forth herein, no assurances are provided by any Contributor that the Program does not infringe the patent or other intellectual property rights of any other entity. Each Contributor disclaims any liability to Recipient for claims brought by any other entity based on infringement of intellectual property rights or otherwise. As a condition to exercising the rights and licenses granted hereunder, each Recipient hereby assumes sole responsibility to secure any other intellectual property rights needed, if any. For example, if a third party patent license is required to allow Recipient to distribute the Program, it is Recipient's responsibility to acquire that license before distributing the Program.
+      c) Recipient understands that although each Contributor grants the
+      licenses to its Contributions set forth herein, no assurances are
+      provided by any Contributor that the Program does not infringe the
+      patent or other intellectual property rights of any other
+      entity. Each Contributor disclaims any liability to Recipient for
+      claims brought by any other entity based on infringement of
+      intellectual property rights or otherwise. As a condition to
+      exercising the rights and licenses granted hereunder, each
+      Recipient hereby assumes sole responsibility to secure any other
+      intellectual property rights needed, if any. For example, if a
+      third party patent license is required to allow Recipient to
+      distribute the Program, it is Recipient's responsibility to
+      acquire that license before distributing the Program.
 
-      d) Each Contributor represents that to its knowledge it has sufficient copyright rights in its Contribution, if any, to grant the copyright license set forth in this Agreement. 
+      d) Each Contributor represents that to its knowledge it has
+      sufficient copyright rights in its Contribution, if any, to grant
+      the copyright license set forth in this Agreement.
 
 3. REQUIREMENTS
 
-A Contributor may choose to distribute the Program in object code form under its own license agreement, provided that:
+A Contributor may choose to distribute the Program in object code form
+under its own license agreement, provided that:
 
       a) it complies with the terms and conditions of this Agreement; and
 
       b) its license agreement:
 
-      i) effectively disclaims on behalf of all Contributors all warranties and conditions, express and implied, including warranties or conditions of title and non-infringement, and implied warranties or conditions of merchantability and fitness for a particular purpose; 
+      i) effectively disclaims on behalf of all Contributors all
+      warranties and conditions, express and implied, including
+      warranties or conditions of title and non-infringement, and
+      implied warranties or conditions of merchantability and fitness
+      for a particular purpose;
 
-      ii) effectively excludes on behalf of all Contributors all liability for damages, including direct, indirect, special, incidental and consequential damages, such as lost profits; 
+      ii) effectively excludes on behalf of all Contributors all
+      liability for damages, including direct, indirect, special,
+      incidental and consequential damages, such as lost profits;
 
-      iii) states that any provisions which differ from this Agreement are offered by that Contributor alone and not by any other party; and
+      iii) states that any provisions which differ from this Agreement
+      are offered by that Contributor alone and not by any other party;
+      and
 
-      iv) states that source code for the Program is available from such Contributor, and informs licensees how to obtain it in a reasonable manner on or through a medium customarily used for software exchange. 
+      iv) states that source code for the Program is available from such
+      Contributor, and informs licensees how to obtain it in a
+      reasonable manner on or through a medium customarily used for
+      software exchange.
 
 When the Program is made available in source code form:
 
@@ -2275,58 +2256,176 @@ When the Program is made available in source code form:
 
 Contributors may not remove or alter any copyright notices contained within the Program.
 
-Each Contributor must identify itself as the originator of its Contribution, if any, in a manner that reasonably allows subsequent Recipients to identify the originator of the Contribution.
+Each Contributor must identify itself as the originator of its
+Contribution, if any, in a manner that reasonably allows subsequent
+Recipients to identify the originator of the Contribution.
 
 4. COMMERCIAL DISTRIBUTION
 
-Commercial distributors of software may accept certain responsibilities with respect to end users, business partners and the like. While this license is intended to facilitate the commercial use of the Program, the Contributor who includes the Program in a commercial product offering should do so in a manner which does not create potential liability for other Contributors. Therefore, if a Contributor includes the Program in a commercial product offering, such Contributor ("Commercial Contributor") hereby agrees to defend and indemnify every other Contributor ("Indemnified Contributor") against any losses, damages and costs (collectively "Losses") arising from claims, lawsuits and other legal actions brought by a third party against the Indemnified Contributor to the extent caused by the acts or omissions of such Commercial Contributor in connection with its distribution of the Program in a commercial product offering. The obligations in this section do not apply to any claims or Losses relating to any actual or alleged intellectual property infringement. In order to qualify, an Indemnified Contributor must: a) promptly notify the Commercial Contributor in writing of such claim, and b) allow the Commercial Contributor to control, and cooperate with the Commercial Contributor in, the defense and any related settlement negotiations. The Indemnified Contributor may participate in any such claim at its own expense.
+Commercial distributors of software may accept certain responsibilities
+with respect to end users, business partners and the like. While this
+license is intended to facilitate the commercial use of the Program, the
+Contributor who includes the Program in a commercial product offering
+should do so in a manner which does not create potential liability for
+other Contributors. Therefore, if a Contributor includes the Program in
+a commercial product offering, such Contributor ("Commercial
+Contributor") hereby agrees to defend and indemnify every other
+Contributor ("Indemnified Contributor") against any losses, damages and
+costs (collectively "Losses") arising from claims, lawsuits and other
+legal actions brought by a third party against the Indemnified
+Contributor to the extent caused by the acts or omissions of such
+Commercial Contributor in connection with its distribution of the
+Program in a commercial product offering. The obligations in this
+section do not apply to any claims or Losses relating to any actual or
+alleged intellectual property infringement. In order to qualify, an
+Indemnified Contributor must: a) promptly notify the Commercial
+Contributor in writing of such claim, and b) allow the Commercial
+Contributor to control, and cooperate with the Commercial Contributor
+in, the defense and any related settlement negotiations. The Indemnified
+Contributor may participate in any such claim at its own expense.
 
-For example, a Contributor might include the Program in a commercial product offering, Product X. That Contributor is then a Commercial Contributor. If that Commercial Contributor then makes performance claims, or offers warranties related to Product X, those performance claims and warranties are such Commercial Contributor's responsibility alone. Under this section, the Commercial Contributor would have to defend claims against the other Contributors related to those performance claims and warranties, and if a court requires any other Contributor to pay any damages as a result, the Commercial Contributor must pay those damages.
+For example, a Contributor might include the Program in a commercial
+product offering, Product X. That Contributor is then a Commercial
+Contributor. If that Commercial Contributor then makes performance
+claims, or offers warranties related to Product X, those performance
+claims and warranties are such Commercial Contributor's responsibility
+alone. Under this section, the Commercial Contributor would have to
+defend claims against the other Contributors related to those
+performance claims and warranties, and if a court requires any other
+Contributor to pay any damages as a result, the Commercial Contributor
+must pay those damages.
 
 5. NO WARRANTY
 
-EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Each Recipient is solely responsible for determining the appropriateness of using and distributing the Program and assumes all risks associated with its exercise of rights under this Agreement, including but not limited to the risks and costs of program errors, compliance with applicable laws, damage to or loss of data, programs or equipment, and unavailability or interruption of operations.
+EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, THE PROGRAM IS PROVIDED
+ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES
+OR CONDITIONS OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR
+A PARTICULAR PURPOSE. Each Recipient is solely responsible for
+determining the appropriateness of using and distributing the Program
+and assumes all risks associated with its exercise of rights under this
+Agreement, including but not limited to the risks and costs of program
+errors, compliance with applicable laws, damage to or loss of data,
+programs or equipment, and unavailability or interruption of operations.
 
 6. DISCLAIMER OF LIABILITY
 
-EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, NEITHER RECIPIENT NOR ANY CONTRIBUTORS SHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, NEITHER RECIPIENT NOR
+ANY CONTRIBUTORS SHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING
+WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
+DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 7. GENERAL
 
-If any provision of this Agreement is invalid or unenforceable under applicable law, it shall not affect the validity or enforceability of the remainder of the terms of this Agreement, and without further action by the parties hereto, such provision shall be reformed to the minimum extent necessary to make such provision valid and enforceable.
+If any provision of this Agreement is invalid or unenforceable under
+applicable law, it shall not affect the validity or enforceability of
+the remainder of the terms of this Agreement, and without further action
+by the parties hereto, such provision shall be reformed to the minimum
+extent necessary to make such provision valid and enforceable.
 
-If Recipient institutes patent litigation against a Contributor with respect to a patent applicable to software (including a cross-claim or counterclaim in a lawsuit), then any patent licenses granted by that Contributor to such Recipient under this Agreement shall terminate as of the date such litigation is filed. In addition, if Recipient institutes patent litigation against any entity (including a cross-claim or counterclaim in a lawsuit) alleging that the Program itself (excluding combinations of the Program with other software or hardware) infringes such Recipient's patent(s), then such Recipient's rights granted under Section 2(b) shall terminate as of the date such litigation is filed.
+If Recipient institutes patent litigation against a Contributor with
+respect to a patent applicable to software (including a cross-claim or
+counterclaim in a lawsuit), then any patent licenses granted by that
+Contributor to such Recipient under this Agreement shall terminate as of
+the date such litigation is filed. In addition, if Recipient institutes
+patent litigation against any entity (including a cross-claim or
+counterclaim in a lawsuit) alleging that the Program itself (excluding
+combinations of the Program with other software or hardware) infringes
+such Recipient's patent(s), then such Recipient's rights granted under
+Section 2(b) shall terminate as of the date such litigation is filed.
 
-All Recipient's rights under this Agreement shall terminate if it fails to comply with any of the material terms or conditions of this Agreement and does not cure such failure in a reasonable period of time after becoming aware of such noncompliance. If all Recipient's rights under this Agreement terminate, Recipient agrees to cease use and distribution of the Program as soon as reasonably practicable. However, Recipient's obligations under this Agreement and any licenses granted by Recipient relating to the Program shall continue and survive.
+All Recipient's rights under this Agreement shall terminate if it fails
+to comply with any of the material terms or conditions of this Agreement
+and does not cure such failure in a reasonable period of time after
+becoming aware of such noncompliance. If all Recipient's rights under
+this Agreement terminate, Recipient agrees to cease use and distribution
+of the Program as soon as reasonably practicable. However, Recipient's
+obligations under this Agreement and any licenses granted by Recipient
+relating to the Program shall continue and survive.
 
-Everyone is permitted to copy and distribute copies of this Agreement, but in order to avoid inconsistency the Agreement is copyrighted and may only be modified in the following manner. The Agreement Steward reserves the right to publish new versions (including revisions) of this Agreement from time to time. No one other than the Agreement Steward has the right to modify this Agreement. IBM is the initial Agreement Steward. IBM may assign the responsibility to serve as the Agreement Steward to a suitable separate entity. Each new version of the Agreement will be given a distinguishing version number. The Program (including Contributions) may always be distributed subject to the version of the Agreement under which it was received. In addition, after a new version of the Agreement is published, Contributor may elect to distribute the Program (including its Contributions) under the new version. Except as expressly stated in Sections 2(a) and 2(b) above, Recipient receives no rights or licenses to the intellectual property of any Contributor under this Agreement, whether expressly, by implication, estoppel or otherwise. All rights in the Program not expressly granted under this Agreement are reserved.
+Everyone is permitted to copy and distribute copies of this Agreement,
+but in order to avoid inconsistency the Agreement is copyrighted and may
+only be modified in the following manner. The Agreement Steward reserves
+the right to publish new versions (including revisions) of this
+Agreement from time to time. No one other than the Agreement Steward has
+the right to modify this Agreement. IBM is the initial Agreement
+Steward. IBM may assign the responsibility to serve as the Agreement
+Steward to a suitable separate entity. Each new version of the Agreement
+will be given a distinguishing version number. The Program (including
+Contributions) may always be distributed subject to the version of the
+Agreement under which it was received. In addition, after a new version
+of the Agreement is published, Contributor may elect to distribute the
+Program (including its Contributions) under the new version. Except as
+expressly stated in Sections 2(a) and 2(b) above, Recipient receives no
+rights or licenses to the intellectual property of any Contributor under
+this Agreement, whether expressly, by implication, estoppel or
+otherwise. All rights in the Program not expressly granted under this
+Agreement are reserved.
 
-This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation. 
+This Agreement is governed by the laws of the State of New York and the
+intellectual property laws of the United States of America. No party to
+this Agreement will bring a legal action under this Agreement more than
+one year after the cause of action arose. Each party waives its rights
+to a jury trial in any resulting litigation.
+
 -----------------------------------------------------------------------
-
-V) The following software is included in this product:
+S) The following software is included in this product:
+(dom4j-1.6.1.jar)
+http://sourceforge.net/projects/dom4j/
+http://downloads.sourceforge.net/dom4j/dom4j-1.6.1.zip?modtime=1116245283&big_mirror=0
 dom4j; Use of any of this software is governed
 by the terms of the license below:     
 
- Redistribution and use of this software and associated documentation ("Software"), with or without modification, are permitted provided that the following conditions are met:
+ Redistribution and use of this software and associated documentation
+ ("Software"), with or without modification, are permitted provided that
+ the following conditions are met:
 
-   1. Redistributions of source code must retain copyright statements and notices. Redistributions must also contain a copy of this document.
-   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-   3. The name "DOM4J" must not be used to endorse or promote products derived from this Software without prior written permission of MetaStuff, Ltd. For written permission, please contact dom4j-info@metastuff.com.
-   4. Products derived from this Software may not be called "DOM4J" nor may "DOM4J" appear in their names without prior written permission of MetaStuff, Ltd. DOM4J is a registered trademark of MetaStuff, Ltd.
+   1. Redistributions of source code must retain copyright statements
+      and notices. Redistributions must also contain a copy of this
+      document.
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in
+      the documentation and/or other materials provided with the
+      distribution.
+
+   3. The name "DOM4J" must not be used to endorse or promote products
+      derived from this Software without prior written permission of
+      MetaStuff, Ltd. For written permission, please contact
+      dom4j-info@metastuff.com.
+
+   4. Products derived from this Software may not be called "DOM4J" nor
+      may "DOM4J" appear in their names without prior written permission
+      of MetaStuff, Ltd. DOM4J is a registered trademark of MetaStuff,
+      Ltd.
+
    5. Due credit should be given to the DOM4J Project - http://www.dom4j.org
 
-THIS SOFTWARE IS PROVIDED BY METASTUFF, LTD. AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL METASTUFF, LTD. OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY METASTUFF, LTD. AND CONTRIBUTORS ``AS IS''
+AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL METASTUFF, LTD. OR ITS
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Copyright 2001-2004 (C) MetaStuff, Ltd. All Rights Reserved. 
 
 -----------------------------------------------------------------------
-V) The following software is included in this product:
-Standard JDBC APIs, Standard JTA API; Use of any of this software is governed
-by the terms of the license below:     
+T) The following software is included in this product:
+(jdbc2_0-stdext.jar)
+http://java.sun.com/products/jdbc/download.html
+JDBC 2.0 Optional Package Binary
 
-
-                Sun Microsystems, Inc.
+Sun Microsystems, Inc.
 Binary Code License Agreement
 
 READ THE TERMS OF THIS AGREEMENT AND ANY PROVIDED
@@ -2520,9 +2619,14 @@ Marks") and agree to comply with the Java
 Trademark Guidelines at
 http://java.sun.com/trademarks.html.
 
------------------------------------------------------------------------
 
-W) The following software is included in this product:
+
+
+
+-----------------------------------------------------------------------
+U) The following software is included in this product:
+(odmg.jar)
+http://www.odmg.org/wrayjohnson.htm
 ODMG API; Use of any of this software is governed
 by the terms of the license below:     
 
@@ -2531,551 +2635,108 @@ Redistribution of this software is permitted provided that the following conditi
 
 1.Redistributions of source or binary code formats must retain the above copyright notice.
 
-2.Redistribution in any product and all advertising materials mentioning features or use of this software must display the following acknowledgment:"This product includes copyrighted software developed by E. Wray Johnson for use and distribution by the Object Data Management Group (http://www.odmg.org/)."
+2.Redistribution in any product and all advertising materials mentioning
+  features or use of this software must display the following
+  acknowledgment:"This product includes copyrighted software developed
+  by E. Wray Johnson for use and distribution by the Object Data
+  Management Group (http://www.odmg.org/)."
+
 NO-NONSENSE DISCLAIMER
-THIS SOFTWARE IS FREE AND PROVIDED “AS-IS” BY THE AUTHOR E. WRAY JOHNSON WHO ASSUMES LIABILITY TO THE EXTENT OF THE AMOUNT THAT IS HEREBY BEING CHARGED FOR THE SOFTWARE.
+
+THIS SOFTWARE IS FREE AND PROVIDED "AS-IS" BY THE AUTHOR E. WRAY JOHNSON
+WHO ASSUMES LIABILITY TO THE EXTENT OF THE AMOUNT THAT IS HEREBY BEING
+CHARGED FOR THE SOFTWARE.
 
 ------------------------------------------------------
-
-X) The following software is included in this product:
-IBM DB2 JDBC Universal driver; Use of any of this software is governed
-by the terms of the license below:     
-
-International Program License Agreement
-
-Part 1 - General Terms
-
-BY DOWNLOADING, INSTALLING, COPYING, ACCESSING, OR USING THE PROGRAM YOU AGREE TO THE TERMS OF THIS AGREEMENT. IF YOU ARE ACCEPTING THESE TERMS ON BEHALF OF ANOTHER PERSON OR A COMPANY OR OTHER LEGAL ENTITY, YOU REPRESENT AND WARRANT THAT YOU HAVE FULL AUTHORITY TO BIND THAT PERSON, COMPANY, OR LEGAL ENTITY TO THESE TERMS. IF YOU DO NOT AGREE TO THESE TERMS,
-
-- DO NOT DOWNLOAD, INSTALL, COPY, ACCESS, OR USE THE PROGRAM; AND
-
-- PROMPTLY RETURN THE PROGRAM AND PROOF OF ENTITLEMENT TO THE PARTY FROM WHOM YOU ACQUIRED IT TO OBTAIN A REFUND OF THE AMOUNT YOU PAID. IF YOU DOWNLOADED THE PROGRAM, CONTACT THE PARTY FROM WHOM YOU ACQUIRED IT.
-
-"IBM" is International Business Machines Corporation or one of its subsidiaries.
-
-"License Information" ("LI") is a document that provides information specific to a Program. The Program's LI is available at http://www.ibm.com/software/sla/ . The LI may also be found in a file in the Program's directory, by the use of a system command, or as a booklet which accompanies the Program.
-
-"Program" is the following, including the original and all whole or partial copies: 1) machine-readable instructions and data, 2) components, 3) audio-visual content (such as images, text, recordings, or pictures), 4) related licensed materials, and 5) license use documents or keys, and documentation.
-
-A "Proof of Entitlement" ("PoE") is evidence of Your authorization to use a Program at a specified level. That level may be measured, for example, by the number of processors or users. The PoE is also evidence of Your eligibility for warranty, future upgrade prices, if any, and potential special or promotional opportunities. If IBM does not provide You with a PoE, then IBM may accept the original paid sales receipt or other sales record from the party (either IBM or its reseller) from whom You acquired the Program, provided that it specifies the name of the Program and the usage level acquired.
-
-"You" and "Your" refer either to an individual person or to a single legal entity.
-
-This Agreement includes Part 1 - General Terms, Part 2 - Country-unique Terms (if any), License Information, and Proof of Entitlement and is the complete agreement between You and IBM regarding the use of the Program. It replaces any prior oral or written communications between You and IBM concerning Your use of the Program. The terms of Part 2 and License Information may replace or modify those of Part 1. To the extent there is a conflict between the terms of this Agreement and those of the IBM International Passport Advantage Agreement, the terms of the latter agreement prevail.
-
-1. Entitlement
-
-License
-
-The Program is owned by IBM or an IBM supplier, and is copyrighted and licensed, not sold.
-
-IBM grants You a nonexclusive license to use the Program when You lawfully acquire it.
-
-You may 1) use the Program up to the level of use specified in the PoE and 2) make and install copies, including a backup copy, to support such use. The terms of this license apply to each copy You make. You will reproduce all copyright notices and all other legends of ownership on each copy, or partial copy, of the Program.
-
-If You acquire the Program as a program upgrade, after You install the upgrade You may not use the Program from which You upgraded or transfer it to another party.
-
-You will ensure that anyone who uses the Program (accessed either locally or remotely) does so only for Your authorized use and complies with the terms of this Agreement.
-
-You may not 1) use, copy, modify, or distribute the Program except as provided in this Agreement; 2) reverse assemble, reverse compile, or otherwise translate the Program except as specifically permitted by law without the possibility of contractual waiver; or 3) sublicense, rent, or lease the Program.
-
-IBM may terminate Your license if You fail to comply with the terms of this Agreement. If IBM does so, You must destroy all copies of the Program and its PoE.
-
-Money-back Guarantee
-
-If for any reason You are dissatisfied with the Program and You are the original licensee, You may obtain a refund of the amount You paid for it, if within 30 days of Your invoice date You return the Program and its PoE to the party from whom You obtained it. If You downloaded the Program, You may contact the party from whom You acquired it for instructions on how to obtain the refund.
-
-Program Transfer
-
-You may transfer a Program and all of Your license rights and obligations to another party only if that party agrees to the terms of this Agreement. When You transfer the Program, You must also transfer a copy of this Agreement, including the Program's PoE. After the transfer, You may not use the Program.
-
-2. Charges
-
-The amount payable for a Program license is a one-time charge.
-
-One-time charges are based on the level of use acquired which is specified in the PoE. IBM does not give credits or refunds for charges already due or paid, except as specified elsewhere in this Agreement.
-
-If You wish to increase the level of use, notify IBM or the party from whom You acquired it and pay any applicable charges.
-
-If any authority imposes a duty, tax, levy or fee, excluding those based on IBM's net income, upon the Program, then You agree to pay the amount specified or supply exemption documentation. You are responsible for any personal property taxes for the Program from the date that You acquire it.
-
-3. Limited Warranty
-
-IBM warrants that when the Program is used in the specified operating environment it will conform to its specifications. The warranty applies only to the unmodified portion of the Program. IBM does not warrant uninterrupted or error-free operation of the Program or that IBM will correct all Program defects. You are responsible for the results obtained from the use of the Program.
-
-IBM provides You with access to IBM databases containing information on known Program defects, defect corrections, restrictions, and bypasses at no additional charge. Consult the IBM Software Support Guide for further information at http://www.ibm.com/software/support . IBM will maintain this information for at least one year after the original licensee acquires the Program ("Warranty Period").
-
-If the Program does not function as warranted during the Warranty Period and the problem cannot be resolved with information available in the IBM databases, You may return the Program and its PoE to the party (either IBM or its reseller) from whom You acquired it and receive a refund in the amount You paid. If You downloaded the Program, You may contact the party from whom You acquired it for instructions on how to obtain the refund.
-
-THESE WARRANTIES ARE YOUR EXCLUSIVE WARRANTIES AND REPLACE ALL OTHER WARRANTIES OR CONDITIONS, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OR CONDITIONS OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. SOME STATES OR JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF EXPRESS OR IMPLIED WARRANTIES, SO THE ABOVE EXCLUSION MAY NOT APPLY TO YOU. IN THAT EVENT, SUCH WARRANTIES ARE LIMITED IN DURATION TO THE WARRANTY PERIOD. NO WARRANTIES APPLY AFTER THAT PERIOD. SOME STATES OR JURISDICTIONS DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS, SO THE ABOVE LIMITATION MAY NOT APPLY TO YOU.
-
-THESE WARRANTIES GIVE YOU SPECIFIC LEGAL RIGHTS AND YOU MAY ALSO HAVE OTHER RIGHTS WHICH VARY FROM STATE TO STATE OR JURISDICTION TO JURISDICTION.
-
-4. Limitation of Liability
-
-Circumstances may arise where, because of a default on IBM's part or other liability, You are entitled to recover damages from IBM. In each such instance, regardless of the basis on which You may be entitled to claim damages from IBM, (including fundamental breach, negligence, misrepresentation, or other contract or tort claim), IBM is liable for no more than 1) damages for bodily injury (including death) and damage to real property and tangible personal property and 2) the amount of any other actual direct damages up to the charges for the Program that is the subject of the claim.
-
-This limitation of liability also applies to IBM's Program developers and suppliers. It is the maximum for which they and IBM are collectively responsible.
-
-UNDER NO CIRCUMSTANCES IS IBM, ITS PROGRAM DEVELOPERS OR SUPPLIERS LIABLE FOR ANY OF THE FOLLOWING, EVEN IF INFORMED OF THEIR POSSIBILITY:
-
-1. LOSS OF, OR DAMAGE TO, DATA;
-
-2. SPECIAL, INCIDENTAL, OR INDIRECT DAMAGES, OR FOR ANY ECONOMIC CONSEQUENTIAL DAMAGES; OR
-
-3. LOST PROFITS, BUSINESS, REVENUE, GOODWILL, OR ANTICIPATED SAVINGS.
-
-SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATION OR EXCLUSION MAY NOT APPLY TO YOU.
-
-5. General
-
-1. Nothing in this Agreement affects any statutory rights of consumers that cannot be waived or limited by contract.
-
-2. In the event that any provision of this Agreement is held to be invalid or unenforceable, the remaining provisions of this Agreement remain in full force and effect.
-
-3. You agree to comply with all applicable export and import laws and regulations.
-
-4. You agree to allow IBM to store and use Your contact information, including names, phone numbers, and e-mail addresses, anywhere they do business. Such information will be processed and used in connection with our business relationship, and may be provided to contractors, Business Partners, and assignees of IBM for uses consistent with their collective business activities, including communicating with You (for example, for processing orders, for promotions, and for market research).
-
-5. Neither You nor IBM will bring a legal action under this Agreement more than two years after the cause of action arose unless otherwise provided by local law without the possibility of contractual waiver or limitation.
-
-6. Neither You nor IBM is responsible for failure to fulfill any obligations due to causes beyond its control.
-
-7. This Agreement will not create any right or cause of action for any third party, nor will IBM be responsible for any third party claims against You except, as permitted by the Limitation of Liability section above, for bodily injury (including death) or damage to real or tangible personal property for which IBM is legally liable.
-
-6. Governing Law, Jurisdiction, and Arbitration
-
-Governing Law
-
-Both You and IBM consent to the application of the laws of the country in which You acquired the Program license to govern, interpret, and enforce all of Your and IBM's rights, duties, and obligations arising from, or relating in any manner to, the subject matter of this Agreement, without regard to conflict of law principles.
-
-The United Nations Convention on Contracts for the International Sale of Goods does not apply.
-
-Jurisdiction
-
-All of our rights, duties, and obligations are subject to the courts of the country in which You acquired the Program license.
-
-Part 2 - Country-unique Terms
-
-AMERICAS
-
-ARGENTINA: Governing Law, Jurisdiction, and Arbitration (Section 6): The following exception is added to this section:
-
-Any litigation arising from this Agreement will be settled exclusively by the Ordinary Commercial Court of the city of Buenos Aires.
-
-BRAZIL: Governing Law, Jurisdiction, and Arbitration (Section 6): The following exception is added to this section:
-
-Any litigation arising from this Agreement will be settled exclusively by the court of Rio de Janeiro, RJ.
-
-CANADA: General (Section 5): The following replaces item 7:
-
-7. This Agreement will not create any right or cause of action for any third party, nor will IBM be responsible for any third party claims against You except as permitted by the Limitation of Liability section above for bodily injury (including death) or physical harm to real or tangible personal property caused by IBM's negligence for which IBM is legally liable.
-
-Governing Law, Jurisdiction, and Arbitration (Section 6): The phrase "the laws of the country in which You acquired the Program license" in the Governing Law subsection is replaced by the following:
-
-the laws in the Province of Ontario
-
-PERU: Limitation of Liability (Section 4): The following is added at the end of this section:
-
-In accordance with Article 1328 of the Peruvian Civil Code, the limitations and exclusions specified in this section will not apply to damages caused by IBM's willful misconduct ("dolo") or gross negligence ("culpa inexcusable").
-
-UNITED STATES OF AMERICA: General (Section 5): The following is added to this section:
-
-U.S. Government Users Restricted Rights - Use, duplication or disclosure restricted by the GSA ADP Schedule Contract with the IBM Corporation.
-
-Governing Law, Jurisdiction, and Arbitration (Section 6): The phrase "the laws of the country in which You acquired the Program license" in the Governing Law subsection is replaced by the following:
-
-the laws of the State of New York, United States of America
-
-ASIA PACIFIC
-
-AUSTRALIA: Limited Warranty (Section 3): The following is added:
-
-The warranties specified in this Section are in addition to any rights You may have under the Trade Practices Act 1974 or other legislation and are only limited to the extent permitted by the applicable legislation.
-
-Limitation of Liability (Section 4): The following is added:
-
-Where IBM is in breach of a condition or warranty implied by the Trade Practices Act 1974, IBM's liability is limited to the repair or replacement of the goods, or the supply of equivalent goods. Where that condition or warranty relates to right to sell, quiet possession or clear title, or the goods are of a kind ordinarily acquired for personal, domestic or household use or consumption, then none of the limitations in this paragraph apply.
-
-Governing Law, Jurisdiction, and Arbitration (Section 6): The phrase "the laws of the country in which You acquired the Program license" in the Governing Law subsection is replaced by the following:
-
-the laws of the State or Territory in which You acquired the Program license
-
-CAMBODIA, LAOS, and VIETNAM: Governing Law, Jurisdiction, and Arbitration (Section 6): The phrase "the laws of the country in which You acquired the Program license" in the Governing Law subsection is replaced by the following:
-
-the laws of the State of New York, United States of America
-
-The following is added to this section:
-
-Arbitration
-
-Disputes arising out of or in connection with this Agreement shall be finally settled by arbitration which shall be held in Singapore in accordance with the Arbitration Rules of Singapore International Arbitration Center ("SIAC Rules") then in effect. The arbitration award shall be final and binding for the parties without appeal and shall be in writing and set forth the findings of fact and the conclusions of law.
-
-The number of arbitrators shall be three, with each side to the dispute being entitled to appoint one arbitrator. The two arbitrators appointed by the parties shall appoint a third arbitrator who shall act as chairman of the proceedings. Vacancies in the post of chairman shall be filled by the president of the SIAC. Other vacancies shall be filled by the respective nominating party. Proceedings shall continue from the stage they were at when the vacancy occurred.
-
-If one of the parties refuses or otherwise fails to appoint an arbitrator within 30 days of the date the other party appoints its, the first appointed arbitrator shall be the sole arbitrator, provided that the arbitrator was validly and properly appointed.
-
-All proceedings shall be conducted, including all documents presented in such proceedings, in the English language. The English language version of this Agreement prevails over any other language version.
-
-HONG KONG S.A.R. and MACAU S.A.R. of China: Governing Law, Jurisdiction, and Arbitration (Section 6): The phrase "the laws of the country in which You acquired the Program license" in the Governing Law subsection is replaced by the following:
-
-the laws of Hong Kong Special Administrative Region of China
-
-INDIA: Limitation of Liability (Section 4): The following replaces the terms of items 1 and 2 of the first paragraph:
-
-1) liability for bodily injury (including death) or damage to real property and tangible personal property will be limited to that caused by IBM's negligence; and 2) as to any other actual damage arising in any situation involving nonperformance by IBM pursuant to, or in any way related to the subject of this Agreement, IBM's liability will be limited to the charge paid by You for the individual Program that is the subject of the claim.
-
-General (Section 5): The following replaces the terms of item 5:
-
-If no suit or other legal action is brought, within three years after the cause of action arose, in respect of any claim that either party may have against the other, the rights of the concerned party in respect of such claim will be forfeited and the other party will stand released from its obligations in respect of such claim.
-
-Governing Law, Jurisdiction, and Arbitration (Section 6): The following is added to this section:
-
-Arbitration
-
-Disputes arising out of or in connection with this Agreement shall be finally settled by arbitration which shall be held in Bangalore, India in accordance with the laws of India then in effect. The arbitration award shall be final and binding for the parties without appeal and shall be in writing and set forth the findings of fact and the conclusions of law.
-
-The number of arbitrators shall be three, with each side to the dispute being entitled to appoint one arbitrator. The two arbitrators appointed by the parties shall appoint a third arbitrator who shall act as chairman of the proceedings. Vacancies in the post of chairman shall be filled by the president of the Bar Council of India. Other vacancies shall be filled by the respective nominating party. Proceedings shall continue from the stage they were at when the vacancy occurred.
-
-If one of the parties refuses or otherwise fails to appoint an arbitrator within 30 days of the date the other party appoints its, the first appointed arbitrator shall be the sole arbitrator, provided that the arbitrator was validly and properly appointed.
-
-All proceedings shall be conducted, including all documents presented in such proceedings, in the English language. The English language version of this Agreement prevails over any other language version.
-
-JAPAN: General (Section 5): The following is inserted after item 5:
-
-Any doubts concerning this Agreement will be initially resolved between us in good faith and in accordance with the principle of mutual trust.
-
-MALAYSIA: Limitation of Liability (Section 4): The word "SPECIAL" in item 2 of the third paragraph is deleted:
-
-NEW ZEALAND: Limited Warranty (Section 3): The following is added:
-
-The warranties specified in this Section are in addition to any rights You may have under the Consumer Guarantees Act 1993 or other legislation which cannot be excluded or limited. The Consumer Guarantees Act 1993 will not apply in respect of any goods which IBM provides, if You require the goods for the purposes of a business as defined in that Act.
-
-Limitation of Liability (Section 4): The following is added:
-
-Where Programs are not acquired for the purposes of a business as defined in the Consumer Guarantees Act 1993, the limitations in this Section are subject to the limitations in that Act.
-
-PEOPLE'S REPUBLIC OF CHINA: Charges (Section 2): The following is added:
-
-All banking charges incurred in the People's Republic of China will be borne by You and those incurred outside the People's Republic of China will be borne by IBM.
-
-Governing Law, Jurisdiction, and Arbitration (Section 6): The phrase "the laws of the country in which You acquired the Program license" in the Governing Law subsection is replaced by the following:
-
-the laws of the State of New York, United States of America (except when local law requires otherwise)
-
-PHILIPPINES: Limitation of Liability (Section 4): The following replaces the terms of item 2 of the third paragraph:
-
-2. special (including nominal and exemplary damages), moral, incidental, or indirect damages or for any economic consequential damages; or
-
-Governing Law, Jurisdiction, and Arbitration (Section 6): The following is added to this section:
-
-Arbitration
-
-Disputes arising out of or in connection with this Agreement shall be finally settled by arbitration which shall be held in Metro Manila, Philippines in accordance with the laws of the Philippines then in effect. The arbitration award shall be final and binding for the parties without appeal and shall be in writing and set forth the findings of fact and the conclusions of law.
-
-The number of arbitrators shall be three, with each side to the dispute being entitled to appoint one arbitrator. The two arbitrators appointed by the parties shall appoint a third arbitrator who shall act as chairman of the proceedings. Vacancies in the post of chairman shall be filled by the president of the Philippine Dispute Resolution Center, Inc. Other vacancies shall be filled by the respective nominating party. Proceedings shall continue from the stage they were at when the vacancy occurred.
-
-If one of the parties refuses or otherwise fails to appoint an arbitrator within 30 days of the date the other party appoints its, the first appointed arbitrator shall be the sole arbitrator, provided that the arbitrator was validly and properly appointed.
-
-All proceedings shall be conducted, including all documents presented in such proceedings, in the English language. The English language version of this Agreement prevails over any other language version.
-
-SINGAPORE: Limitation of Liability (Section 4): The words "SPECIAL" and "ECONOMIC" are deleted from item 2 of the third paragraph.
-
-General (Section 5): The following replaces the terms of item 7:
-
-Subject to the rights provided to IBM's suppliers and Program developers as provided in Section 4 above (Limitation of Liability), a person who is not a party to this Agreement shall have no right under the Contracts (Right of Third Parties) Act to enforce any of its terms.
-
-TAIWAN: Limited Warranty (Section 3): The last paragraph is deleted.
-
-EUROPE, MIDDLE EAST, AFRICA (EMEA)
-
-Limited Warranty (Section 3): In the European Union, the following is added:
-
-In the European Union, consumers have legal rights under applicable national legislation governing the sale of consumer goods. Such rights are not affected by the Limited Warranty provision set out above at section 3 of this Agreement. The territorial scope of the Limited Warranty is worldwide.
-
-Limitation of Liability (Section 4): In Austria, Denmark, Finland, Greece, Italy, Netherlands, Norway, Portugal, Spain, Sweden and Switzerland, the following replaces the terms of this section in its entirety:
-
-Except as otherwise provided by mandatory law:
-
-1. IBM's liability for any damages and losses that may arise as a consequence of the fulfillment of its obligations under or in connection with this agreement or due to any other cause related to this agreement is limited to the compensation of only those damages and losses proved and actually arising as an immediate and direct consequence of the non-fulfillment of such obligations (if IBM is at fault) or of such cause, for a maximum amount equal to the charges You paid for the Program.
-
-The above limitation shall not apply to damages for bodily injuries (including death) and damages to real property and tangible personal property for which IBM is legally liable.
-
-2. UNDER NO CIRCUMSTANCES IS IBM, OR ANY OF ITS PROGRAM DEVELOPERS, LIABLE FOR ANY OF THE FOLLOWING, EVEN IF INFORMED OF THEIR POSSIBILITY: 1) LOSS OF, OR DAMAGE TO, DATA; 2) INCIDENTAL OR INDIRECT DAMAGES, OR FOR ANY ECONOMIC CONSEQUENTIAL DAMAGES; 3) LOST PROFITS, EVEN IF THEY ARISE AS AN IMMEDIATE CONSEQUENCE OF THE EVENT THAT GENERATED THE DAMAGES; OR 4) LOSS OF BUSINESS, REVENUE, GOODWILL, OR ANTICIPATED SAVINGS.
-
-3. The limitation and exclusion of liability herein agreed applies not only to the activities performed by IBM but also to the activities performed by its suppliers and Program developers, and represents the maximum amount for which IBM as well as its suppliers and Program developers, are collectively responsible.
-
-Limitation of Liability (Section 4): In France and Belgium, the following replaces the terms of this section in its entirety:
-
-Except as otherwise provided by mandatory law:
-
-1. IBM's liability for any damages and losses that may arise as a consequence of the fulfillment of its obligations under or in connection with this agreement is limited to the compensation of only those damages and losses proved and actually arising as an immediate and direct consequence of the non-fulfillment of such obligations (if IBM is at fault), for a maximum amount equal to the charges You paid for the Program that has caused the damages.
-
-The above limitation shall not apply to damages for bodily injuries (including death) and damages to real property and tangible personal property for which IBM is legally liable.
-
-2. UNDER NO CIRCUMSTANCES IS IBM, OR ANY OF ITS PROGRAM DEVELOPERS, LIABLE FOR ANY OF THE FOLLOWING, EVEN IF INFORMED OF THEIR POSSIBILITY: 1) LOSS OF, OR DAMAGE TO, DATA; 2) INCIDENTAL OR INDIRECT DAMAGES, OR FOR ANY ECONOMIC CONSEQUENTIAL DAMAGES; 3) LOST PROFITS, EVEN IF THEY ARISE AS AN IMMEDIATE CONSEQUENCE OF THE EVENT THAT GENERATED THE DAMAGES; OR 4) LOSS OF BUSINESS, REVENUE, GOODWILL, OR ANTICIPATED SAVINGS.
-
-3. The limitation and exclusion of liability herein agreed applies not only to the activities performed by IBM but also to the activities performed by its suppliers and Program developers, and represents the maximum amount for which IBM as well as its suppliers and Program developers, are collectively responsible
-
-Governing Law, Jurisdiction, and Arbitration (Section 6)
-
-Governing Law
-
-The phrase "the laws of the country in which You acquired the Program license" is replaced by:
-1) "the laws of Austria" in Albania, Armenia, Azerbeijan, Belarus, Bosnia-Herzegovina, Bulgaria, Croatia, Georgia, Hungary, Kazakhstan, Kyrgyzstan, FYR Macedonia, Moldavia, Poland, Romania, Russia, Slovakia, Slovenia, Tajikistan, Turkmenistan, Ukraine, Uzbekistan, and FR Yugoslavia;
-2) "the laws of France" in Algeria, Benin, Burkina Faso, Cameroon, Cape Verde, Central African Republic, Chad, Comoros, Congo Republic, Djibouti, Democratic Republic of Congo, Equatorial Guinea, French Guiana, French Polynesia, Gabon, Gambia, Guinea, Guinea-Bissau, Ivory Coast, Lebanon, Madagascar, Mali, Mauritania, Mauritius, Mayotte, Morocco, New Caledonia, Niger, Reunion, Senegal, Seychelles, Togo, Tunisia, Vanuatu, and Wallis & Futuna;
-3) "the laws of Finland" in Estonia, Latvia, and Lithuania;
-4) "the laws of England" in Angola, Bahrain, Botswana, Burundi, Egypt, Eritrea, Ethiopia, Ghana, Jordan, Kenya, Kuwait, Liberia, Malawi, Malta, Mozambique, Nigeria, Oman, Pakistan, Qatar, Rwanda, Sao Tome, Saudi Arabia, Sierra Leone, Somalia, Tanzania, Uganda, United Arab Emirates, the United Kingdom, West Bank/Gaza, Yemen, Zambia, and Zimbabwe; and
-5) "the laws of South Africa" in South Africa, Namibia, Lesotho and Swaziland.
-
-Jurisdiction
-
-The following exceptions are added to this section:
-
-1) In Austria the choice of jurisdiction for all disputes arising out of this Agreement and relating thereto, including its existence, will be the competent court of law in Vienna, Austria (Inner-City);
-2) in Angola, Bahrain, Botswana, Burundi, Egypt, Eritrea, Ethiopia, Ghana, Jordan, Kenya, Kuwait, Liberia, Malawi, Malta, Mozambique, Nigeria, Oman, Pakistan, Qatar, Rwanda, Sao Tome, Saudi Arabia, Sierra Leone, Somalia, Tanzania, Uganda, United Arab Emirates, West Bank/Gaza, Yemen, Zambia, and Zimbabwe all disputes arising out of this Agreement or related to its execution, including summary proceedings, will be submitted to the exclusive jurisdiction of the English courts;
-3) in Belgium and Luxembourg, all disputes arising out of this Agreement or related to its interpretation or its execution, the law, and the courts of the capital city, of the country of Your registered office and/or commercial site location only are competent;
-4) in France, Algeria, Benin, Burkina Faso, Cameroon, Cape Verde, Central African Republic, Chad, Comoros, Congo Republic, Djibouti, Democratic Republic of Congo, Equatorial Guinea, French Guiana, French Polynesia, Gabon, Gambia, Guinea, Guinea-Bissau, Ivory Coast, Lebanon, Madagascar, Mali, Mauritania, Mauritius, Mayotte, Morocco, New Caledonia, Niger, Reunion, Senegal, Seychelles, Togo, Tunisia, Vanuatu, and Wallis & Futuna all disputes arising out of this Agreement or related to its violation or execution, including summary proceedings, will be settled exclusively by the Commercial Court of Paris;
-5) in Russia, all disputes arising out of or in relation to the interpretation, the violation, the termination, the nullity of the execution of this Agreement shall be settled by Arbitration Court of Moscow;
-6) in South Africa, Namibia, Lesotho and Swaziland, both of us agree to submit all disputes relating to this Agreement to the jurisdiction of the High Court in Johannesburg;
-7) in Turkey all disputes arising out of or in connection with this Agreement shall be resolved by the Istanbul Central (Sultanahmet) Courts and Execution Directorates of Istanbul, the Republic of Turkey;
-8) in each of the following specified countries, any legal claim arising out of this Agreement will be brought before, and settled exclusively by, the competent court of a) Athens for Greece, b) Tel Aviv-Jaffa for Israel, c) Milan for Italy, d) Lisbon for Portugal, and e) Madrid for Spain; and
-9) in the United Kingdom, both of us agree to submit all disputes relating to this Agreement to the jurisdiction of the English courts.
-
-Arbitration
-
-In Albania, Armenia, Azerbeijan, Belarus, Bosnia-Herzegovina, Bulgaria, Croatia, Georgia, Hungary, Kazakhstan, Kyrgyzstan, FYR Macedonia, Moldavia, Poland, Romania, Russia, Slovakia, Slovenia, Tajikistan, Turkmenistan, Ukraine, Uzbekistan, and FR Yugoslavia all disputes arising out of this Agreement or related to its violation, termination or nullity will be finally settled under the Rules of Arbitration and Conciliation of the International Arbitral Center of the Federal Economic Chamber in Vienna (Vienna Rules) by three arbitrators appointed in accordance with these rules.
-The arbitration will be held in Vienna, Austria, and the official language of the proceedings will be English. The decision of the arbitrators will be final and binding upon both parties. Therefore, pursuant to paragraph 598 (2) of the Austrian Code of Civil Procedure, the parties expressly waive the application of paragraph 595 (1) figure 7 of the Code. IBM may, however, institute proceedings in a competent court in the country of installation.
-
-In Estonia, Latvia and Lithuania all disputes arising in connection with this Agreement will be finally settled in arbitration that will be held in Helsinki, Finland in accordance with the arbitration laws of Finland then in effect. Each party will appoint one arbitrator. The arbitrators will then jointly appoint the chairman. If arbitrators cannot agree on the chairman, then the Central Chamber of Commerce in Helsinki will appoint the chairman.
-
-AUSTRIA: Limited Warranty (Section 3): The following is inserted at the beginning of this Section:
-
-The Warranty Period is twelve months from the date of delivery. The limitation period for consumers in action for breach of warranty is the statutory period as a minimum.
-
-The warranty for a Program covers the functionality of the Program for its normal use and the Program's conformity to its specifications.
-
-The final two paragraphs are replaced with the following:
-
-This is our sole obligation to You, except as otherwise required by applicable statutory law.
-
-General (Section 5): The following is added to item 4:
-
-For purposes of this clause, contact information will also include information about You as a legal entity, for example revenue data and other transactional information.
-
-GERMANY: Limited Warranty (Section 3): The same changes apply as those in Limited Warranty (Section 3) under Austria above.
-
-Limitation of Liability (Section 4): The following paragraph is added to this Section:
-
-The limitations and exclusions specified in this Section will not apply to damages caused by IBM intentionally or by gross negligence.
-
-General (Section 5): The following replace the terms of item 5:
-
-Any claims resulting from this Agreement are subject to a statute of limitation of three years, except as stated in Section 3 (Limited Warranty) of this Agreement.
-
-HUNGARY: Limitation of Liability (Section 4): The following is added at the end of this section:
-
-The limitation and exclusion specified herein shall not apply to liability for a breach of contract damaging life, physical well-being, or health that has been caused intentionally, by gross negligence, or by a criminal act.
-
-The parties accept the limitations of liability as valid provisions and state that the Section 314.(2) of the Hungarian Civil Code applies as the acquisition price as well as other advantages arising out of the present Agreement balance this limitation of liability.
-
-IRELAND: Limited Warranty (Section 3): The following is added to this section:
-
-Except as expressly provided in these terms and conditions, all statutory conditions, including all warranties implied, but without prejudice to the generality of the foregoing, all warranties implied by the Sale of Goods Act 1893 or the Sale of Goods and Supply of Services Act 1980 are hereby excluded.
-
-Limitation of Liability (Section 4): The following replaces the terms of this section in its entirety:
-
-For the purposes of this section, a "Default" means any act, statement, omission, or negligence on the part of IBM in connection with, or in relation to, the subject matter of an Agreement in respect of which IBM is legally liable to You whether in contract or tort. A number of Defaults which together result in, or contribute to, substantially the same loss or damage will be treated as one Default occurring on the date of occurrence of the last such Default.
-
-Circumstances may arise where, because of a Default, You are entitled to recover damages from IBM. This section sets out the extent of IBM's liability and Your sole remedy.
-
-1. IBM will accept unlimited liability for (a) death or personal injury caused by the negligence of IBM, and (b) subject always to the Items for Which IBM is Not Liable below, for physical damage to Your tangible property resulting from the negligence of IBM.
-
-2. Except as provided in item 1 above, IBM's entire liability for actual damages for any one Default will not in any event exceed the greater of 1) EUR 125,000, or 2) 125% of the amount You paid for the Program directly relating to the Default. These limits also apply to any of IBM's suppliers and Program developers. They state the maximum for which IBM and such suppliers and Program developers are collectively responsible.
-
-Items for Which IBM is Not Liable
-
-Save with respect to any liability referred to in item 1 above, under no circumstances is IBM or any of its suppliers or Program developers liable for any of the following, even if IBM or they were informed of the possibility of such losses:
-
-1. loss of, or damage to, data;
-
-2. special, indirect, or consequential loss; or
-
-3. loss of profits, business, revenue, goodwill, or anticipated savings.
-
-ITALY: General (Section 5): The following is added to this section:
-
-IBM and Customer (hereinafter, individually, "Party") shall comply with all the obligations of the applicable provisions of law and/or regulation on personal data protection. Each of the Parties will indemnify and keep the other Party harmless from any damage, claim, cost or expense incurred by the latter, directly and or indirectly, as a consequence of an infringement of the other Party of the mentioned provisions of law and/or regulations.
-
-SLOVAKIA: Limitation of Liability (Section 4): The following is added to the end of the last paragraph:
-
-The limitations apply to the extent they are not prohibited under §§ 373-386 of the Slovak Commercial Code.
-
-General (Section 5): The terms of item 5 are replaced with the following:
-
-THE PARTIES AGREE THAT ANY LEGAL OR OTHER ACTION RELATED TO A BREACH OF THIS AGREEMENT MUST BE COMMENCED NO LATER AS DEFINED BY THE LOCAL LAW (4 YEARS) FROM THE DATE ON WHICH THE CAUSE OF ACTION AROSE.
-
-SOUTH AFRICA, NAMIBIA, LESOTHO, SWAZILAND: Limited Warranty (Section 3): The following is added at the end of the first paragraph:
-
-notwithstanding any advice or assistance that IBM may have given to You prior to the selection of such Programs.
-
-SWITZERLAND: General (Section 5): The following is added to item 4:
-
-For purposes of this clause, contact information will also include information about You as a legal entity, for example revenue data and other transactional information.
-
-UNITED KINGDOM: Limited Warranty (Section 3): The following replaces the first sentence in the fourth paragraph of this section:
-
-THESE WARRANTIES ARE YOUR EXCLUSIVE WARRANTIES AND REPLACE ALL OTHER WARRANTIES OR CONDITIONS, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OR CONDITIONS OF SATISFACTORY QUALITY, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
-Limitation of Liability (Section 4): The following replaces the terms of this section in its entirety:
-
-For the purposes of this section, a "Default" means any act, statement, omission, or negligence on the part of IBM in connection with, or in relation to, the subject matter of an Agreement in respect of which IBM is legally liable to You, whether in contract or tort. A number of Defaults which together result in, or contribute to, substantially the same loss or damage will be treated as one Default.
-
-Circumstances may arise where, because of a Default, You are entitled to recover damages from IBM. This section sets out the extent of IBM's liability and Your sole remedy.
-
-1. IBM will accept unlimited liability for:
-
-(a) death or personal injury caused by the negligence of IBM;
-
-(b) any breach of its obligations implied by Section 12 of the Sale of Goods Act 1979 or Section 2 of the Supply of Goods and Services Act 1982, or any statutory modification or re-enactment of either such Section; and
-
-(c) subject always to the Items for Which IBM is Not Liable below, for physical damage to Your tangible property resulting from the negligence of IBM.
-
-2. IBM's entire liability for actual damages for any one Default will not in any event, except as provided in item 1 above, exceed the greater of 1) £75,000, or 2) 125% of the amount You paid for the Program directly relating to the Default. These limits also apply to IBM's suppliers and Program developers. They state the maximum for which IBM and such suppliers and Program developers are collectively responsible.
-
-Items for Which IBM is Not Liable
-
-Save with respect to any liability referred to in item 1 above, under no circumstances is IBM or any of its suppliers or Program developers liable for any of the following, even if IBM or they were informed of the possibility of such losses:
-
-1. loss of, or damage to, data;
-
-2. special, indirect, or consequential loss; or
-
-3. loss of profits, business, revenue, goodwill, or anticipated savings.
-
-Z125-3301-12 (11/2002)
-
-LICENSE INFORMATION
-
-The Programs listed below are licensed under the following terms and conditions in addition to those of the International Program License Agreement.
-
-Program Name: IBM Cloudscape Version 10.0
-Program Number: 5724-J28
-Authorization for Use on Home/Portable Computer: 1
-
-EXPLANATIONS OF TERMS:
-
-Authorization for Use on Home/Portable Computer:
-"1" means that the Program may be stored on the primary machine and another machine, provided that the Program is not in active use on both machines at the same time.
-"2" means that You may not copy and use this Program on another computer without paying additional license fees.
-
-Specified Operating Environment
-
-The Program's specifications and specified operating environment information may be found in documentation accompanying the Program, if available, such as a read-me file, or other information published by IBM, such as an announcement letter.
-
-Excluded Components
-
-Notwithstanding the terms and conditions of any other agreement You may have with IBM or any of its related or affiliated companies (collectively "IBM") or with any of the third parties that provide IBM products ("Third Parties"), the following terms and conditions apply to all "Excluded Components" identified below: (a) all Excluded Components are provided on an "AS IS" basis; (b) IBM AND THIRD PARTIES DISCLAIM ANY AND ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS INCLUDING, BUT NOT LIMITED TO, THE WARRANTY OF NON-INFRINGEMENT OR INTERFERENCE AND THE IMPLIED WARRANTIES AND CONDITIONS OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE; (c) IBM and Third Parties will not be liable to You or indemnify You for any claims related to the Excluded Components; and (d) IBM and Third Parties will not be liable for any direct, indirect, incidental, special, exemplary, punitive or consequential damages with respect to the Excluded Components.
-
-The following are Excluded Components:
-Apache Derby
-
-Program-unique Terms
-
-Your use of the IBM Program may not exceed the level defined by the number of use authorizations you have acquired. The level of use of the IBM Program is specified by the following:
-
-Use authorization and support fees are based on a single machine (regardless of the machine size) or device where the IBM Program is installed. You must acquire a use authorization for each such machine or device.
-
-Your use of the Program includes the right to copy, modify, prepare derivative works of, and embed the Program into applications you develop and to redistribute the Program, as modified, as part of those applications; provided that you: (1) agree to defend, hold harmless and indemnify IBM from and against any and all claims, liabilities, damages, expenses and costs arising out of or in connection with your use or distribution of the Program, modifications thereof, or your application program(s), and (2) distribute your applications under a license that states (i) that IBM (or any suppliers of code included in your application) assumes no responsibility and extend(s) no warranties covering its (their) code, (ii) disclaims implied warranties and any indemnities for the IBM (or any suppliers') code, and (iii) extends to IBM (or any suppliers of code included in your application) the same cumulative limits of liability protections that you provide for yourself in your license. Each copy or partial copy of the Program or any modifications thereof, must include a copyright notice as follows: "(C) Copyright (your company name) (year). Portions of this code are derived from an IBM Program. (C) Copyright IBM Corp. 1997-2004. All rights reserved."
-
-
-
-D/N: GC18-9321-00
-P/N: L-GKAI-5YPLLM 
-
-
-------------------------------------------------------
-
-Y) The following software is included in this product:
+V) The following software is included in this product:
 Weather images; Use of any of this software is governed
 by the terms of the license below:     
 These weather images are (c) 2003 by Stardock Corporation.  All rights reserved.
 
 Permission:
-Stardock gives you permission to distribute these images and or icons freely as long as this permission document is included. 
+
+Stardock gives you permission to distribute these images and or icons
+freely as long as this permission document is included.
 
 Allowed Uses:
-You may use these images with any Stardock related product (such as creating DesktopX objects or ObjectDock or plugins).
 
-In addition, Stardock licenses this for use with content that is provided free of charge and is not connected to a commercial software product. You may use these images for skins, themes, and other content for freeware software even if it is competitive in nature with Stardock's offerings as long as the copyright notices are included. You may not, however, bundle these images in any way with any software product without Stardock's express permission.
+You may use these images with any Stardock related product (such as
+creating DesktopX objects or ObjectDock or plugins).
 
-You may use these images in your website or product as long as this permission.txt is linked somewhere along with Stardock's copyright notice with a link to Stardock's homepage: http://www.stardock.com.
+In addition, Stardock licenses this for use with content that is
+provided free of charge and is not connected to a commercial software
+product. You may use these images for skins, themes, and other content
+for freeware software even if it is competitive in nature with
+Stardock's offerings as long as the copyright notices are included. You
+may not, however, bundle these images in any way with any software
+product without Stardock's express permission.
+
+You may use these images in your website or product as long as this
+permission.txt is linked somewhere along with Stardock's copyright
+notice with a link to Stardock's homepage: http://www.stardock.com.
 
 Designed Use:
-These weather images are designed to provide the various weather conditions reported by weather services. It was created for use with Stardock DesktopX (http://www.desktopx.net) and Stardock ObjectDock (http://www.objectdock.com) both of which allow users to monitor the weather conditions from their desktop.
+
+These weather images are designed to provide the various weather
+conditions reported by weather services. It was created for use with
+Stardock DesktopX (http://www.desktopx.net) and Stardock ObjectDock
+(http://www.objectdock.com) both of which allow users to monitor the
+weather conditions from their desktop.
 
 
 ------------------------------------------------------
-
-Y) The following software is included in this product:
+W) The following software is included in this product:
+(browserlauncher.jar)
 BrowserLauncher; Use of any of this software is governed
 by the terms of the license below:     
 
-This code is Copyright 1999-2001 by Eric Albert (ejalbert@cs.stanford.edu) and may be redistributed or modified in 
-any form without restrictions as long as the portion of this comment from this paragraph through the end of the comment 
-is not removed. The author requests that he be notified of any application, applet, or other binary that makes use of 
-this code, but that's more out of curiosity than anything and is not required. This software includes no warranty. 
-The author is not repsonsible for any loss of data or functionality or any adverse or unexpected effects of using this software.
+This code is Copyright 1999-2001 by Eric Albert
+(ejalbert@cs.stanford.edu) and may be redistributed or modified in any
+form without restrictions as long as the portion of this comment from
+this paragraph through the end of the comment is not removed. The author
+requests that he be notified of any application, applet, or other binary
+that makes use of this code, but that's more out of curiosity than
+anything and is not required. This software includes no warranty.  The
+author is not repsonsible for any loss of data or functionality or any
+adverse or unexpected effects of using this software.
 
 
 
 ------------------------------------------------------
-
-Y) The following software is included in this product:
+X) The following software is included in this product:
+(yahoo_search-2.0.1.jar)
+http://developer.yahoo.com/download/
 Yahoo! Search Web Services SDK and Examples; Use of any of this software is governed
 by the terms of the license below:     
 
-Yahoo! SDK Copyright (c) 2005, Yahoo! Inc.
+Copyright (C) 2006, Yahoo! Search Web Services Java SDK
 All rights reserved.
 
-Redistribution and use of the Yahoo! SDK in source and
-binary forms, with or without modification, are permitted
-provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-* Redistributions of source code must retain the above
-  copyright notice, this list of conditions and the
-  following disclaimer.
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the  Yahoo! Search Web Services Java SDK nor the names
+      of its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
 
-* Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the
-  following disclaimer in the documentation and/or other
-  materials provided with the distribution.
-
-* Neither the name of Yahoo! Inc. nor the names of its
-  contributors may be used to endorse or promote products
-  derived from this software without specific prior
-  written permission of Yahoo! Inc.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-(The foregoing Agreement is the BSD License, Copyright
-2005 by the Open Source Institute)
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------
-Z) The following software is included in this product:
+Y) The following software is included in this product:
 OSX startup scripts; Use of any of this software is governed
 by the terms of the license below:
 
@@ -3098,3 +2759,453 @@ The MIT License
  * DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************************************************/
+
+-----------------------------------------------------------------------
+Z) The following software is included in this product:
+(concurrent.jar) 
+util.concurrent
+http://g.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
+Public Domain with Sun license:
+
+The Java Software technologies are Copyright (c) 1994-2000 Sun
+Microsystems, Inc.  All rights reserved.
+
+Sun hereby grants Doug Lea a non-exclusive, worldwide, non-transferrable
+license to use, reproduce, create derivate works of, and distribute the
+Java Software and derivative works thereof in source and binary forms as
+part of a larger work, and to sublicense the right to use, reproduce and
+distribute the Java Software and Doug Lea's derivative works as the part
+of larger works through multiple tiers of sublicensees provided that the
+following conditions are met:
+
+-Neither the name of or trademarks of Sun may be used to endorse or
+promote products including or derived from the Java Software technology
+without specific prior written permission; and
+
+-Redistributions of source or binary code must contain the above
+copyright notice, this notice and and the following disclaimers:
+
+This software is provided "AS IS," without a warranty of any kind. ALL
+EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS,
+INC. AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY
+LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING THE SOFTWARE OR
+ITS DERIVATIVES. IN NO EVENT WILL SUN MICROSYSTEMS, INC. OR ITS
+LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT,
+INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES,
+HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF
+THE USE OF OR INABILITY TO USE SOFTWARE, EVEN IF SUN MICROSYSTEMS,
+INC. HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+You acknowledge that Software is not designed,licensed or intended for
+use in the design, construction, operation or maintenance of any nuclear
+facility.
+                                                                                                
+-----------------------------------------------------------------------
+AA) 
+jta-1.1.jar
+http://java.sun.com/products/jta/
+
+
+Sun Microsystems, Inc. ("Sun") ENTITLEMENT for SOFTWARE
+
+Licensee/Company: Entity receiving Software.
+
+Effective Date: Date of delivery of the Software to 
+You.
+
+Software: Java(TM) Transaction API (JTA) Specification 
+1.1
+
+License Term:  Perpetual (subject to termination under 
+the SLA)
+
+Licensed Unit: Software Copy
+
+Licensed unit Count: Unlimited
+
+Permitted Uses:   
+
+1. You may reproduce and use the Software for Your own 
+Individual, Commercial, or Research and Instructional 
+Use for the purposes of designing, developing, 
+testing, and running Your applets and application 
+("Programs").
+
+2. Subject to the terms and conditions of this 
+Agreement and restrictions and exceptions set forth in 
+the Software's documentation, You may reproduce and 
+distribute portions of Software identified as a 
+redistributable in the documentation 
+("Redistributable"), provided that:
+
+(a) You distribute Redistributable complete and 
+unmodified and only bundled as part of Your Programs, 
+
+(b) Your Programs add significant and primary 
+functionality to the Redistributable, 
+
+(c) You distribute Redistributable for the sole 
+purpose of running Your Programs,
+
+(d) You do not distribute additional software intended 
+to replace any component(s) of the Redistributable,
+
+(e) You do not remove or alter any proprietary legends 
+or notices contained in or on the Redistributable.
+ 
+(f) You only distribute the Redistributable subject to 
+a license agreement that protects Sun's interests 
+consistent with the terms contained in this Agreement, 
+and
+
+(g) You agree to defend and indemnify Sun and its 
+licensors from and against any damages, costs, 
+liabilities, settlement amounts and/or expenses  
+(including attorneys' fees) incurred in connection 
+with any claim, lawsuit or action by any third party 
+that arises or results from the use or distribution of 
+any and all Programs and/or Redistributable.
+
+3. Java Technology Restrictions.  You may not create, 
+modify, or change the behavior of, or authorize your 
+licensees to create, modify, or change the behavior 
+of, classes, interfaces, or subpackages that are in 
+any way identified as "java", "javax", "sun" or 
+similar convention as specified by Sun in any naming 
+convention designation.
+
+Sun Microsystems, Inc. ("Sun")
+SOFTWARE LICENSE AGREEMENT
+
+READ THE TERMS OF THIS AGREEMENT ("AGREEMENT") 
+CAREFULLY BEFORE OPENING SOFTWARE MEDIA PACKAGE. BY 
+OPENING SOFTWARE MEDIA PACKAGE, YOU AGREE TO THE TERMS 
+OF THIS AGREEMENT. IF YOU ARE ACCESSING SOFTWARE 
+ELECTRONICALLY, INDICATE YOUR ACCEPTANCE OF THESE 
+TERMS BY SELECTING THE "ACCEPT" BUTTON AT THE END OF 
+THIS AGREEMENT. IF YOU DO NOT AGREE TO ALL OF THE 
+TERMS, PROMPTLY RETURN THE UNUSED SOFTWARE TO YOUR 
+PLACE OF PURCHASE FOR A REFUND OR, IF SOFTWARE IS 
+ACCESSED ELECTRONICALLY, SELECT THE "DECLINE" (OR 
+"EXIT") BUTTON AT THE END OF THIS AGREEMENT. IF YOU 
+HAVE SEPARATELY AGREED TO LICENSE TERMS ("MASTER 
+TERMS") FOR YOUR LICENSE TO THIS SOFTWARE, THEN 
+SECTIONS 1-5 OF THIS AGREEMENT ("SUPPLEMENTAL LICENSE 
+TERMS") SHALL SUPPLEMENT AND SUPERSEDE THE MASTER 
+TERMS IN RELATION TO THIS SOFTWARE.
+
+1.	Definitions.
+
+(a) 	"Entitlement" means the collective set of 
+applicable documents authorized by Sun evidencing your 
+obligation to pay associated fees (if any) for the 
+license, associated Services, and the authorized scope 
+of use of Software under this Agreement.
+
+(b) 	"Licensed Unit" means the unit of measure by 
+which your use of Software and/or Service is licensed, 
+as described in your Entitlement.
+
+(c)	"Permitted Use" means the licensed Software 
+use(s) authorized in this Agreement as specified in 
+your Entitlement. The Permitted Use for any bundled 
+Sun software not specified in your Entitlement will be 
+evaluation use as provided in Section 3.
+
+(d) 	"Service" means the service(s) that Sun or its 
+delegate will provide, if any, as selected in your 
+Entitlement and as further described in the applicable 
+service listings at www.sun.com/service/servicelist.
+
+(e) 	"Software" means the Sun software described in 
+your Entitlement. Also, certain software may be 
+included for evaluation use under Section 3. 
+
+(f)	"You" and "Your" means the individual or legal 
+entity specified in the Entitlement, or for evaluation 
+purposes, the entity performing the evaluation.
+
+2.	License Grant and Entitlement.
+
+Subject to the terms of your Entitlement, Sun grants 
+you a nonexclusive, nontransferable limited license to 
+use Software for its Permitted Use for the license 
+term. Your Entitlement will specify (a) Software 
+licensed, (b) the Permitted Use, (c) the license term, 
+and (d) the Licensed Units. 
+
+Additionally, if your Entitlement includes Services, 
+then it will also specify the (e) Service and (f) 
+service term. 
+
+If your rights to Software or Services are limited in 
+duration and the date such rights begin is other than 
+the purchase date, your Entitlement will provide that 
+beginning date(s).
+
+The Entitlement may be delivered to you in various 
+ways depending on the manner in which you obtain 
+Software and Services, for example, the Entitlement 
+may be provided in your receipt, invoice or your 
+contract with Sun or authorized Sun reseller. It may 
+also be in electronic format if you download Software.
+
+3.	Permitted Use.
+
+As selected in your Entitlement, one or more of the 
+following Permitted Uses will apply to your use of 
+Software. Unless you have an Entitlement that 
+expressly permits it, you may not use Software for any 
+of the other Permitted Uses. If you don't have an 
+Entitlement, or if your Entitlement doesn't cover 
+additional software delivered to you, then such 
+software is for your Evaluation Use.
+
+(a) Evaluation Use. You may evaluate Software 
+internally for a period of 90 days from your first 
+use. 
+
+(b) Research and Instructional Use. You may use 
+Software internally to design, develop and test, and 
+also to provide instruction on such uses.
+
+(c) Individual Use. You may use Software internally 
+for personal, individual use.
+
+(d) Commercial Use. You may use Software internally 
+for your own commercial purposes. 
+
+(e) Service Provider Use. You may make Software 
+functionality accessible (but not by providing 
+Software itself or through outsourcing services) to 
+your end users in an extranet deployment, but not to 
+your affiliated companies or to government agencies.
+
+4.	Licensed Units.
+
+Your Permitted Use is limited to the number of 
+Licensed Units stated in your Entitlement. If you 
+require additional Licensed Units, you will need 
+additional Entitlement(s).
+
+5.	Restrictions.
+
+(a) The copies of Software provided to you under this 
+Agreement are licensed, not sold, to you by Sun. Sun 
+reserves all rights not expressly granted. (b) You may 
+make a single archival copy of Software, but otherwise 
+may not copy, modify, or distribute Software. However 
+if the Sun documentation accompanying Software lists 
+specific portions of Software, such as header files, 
+class libraries, reference source code, and/or 
+redistributable files, that may be handled 
+differently, you may do so only as provided in the Sun 
+documentation. (c) You may not rent, lease, lend or 
+encumber Software. (d) Unless enforcement is 
+prohibited by applicable law, you may not decompile, 
+or reverse engineer Software. (e) The terms and 
+conditions of this Agreement will apply to any 
+Software updates, provided to you at Sun's discretion, 
+that replace and/or supplement the original Software, 
+unless such update contains a separate license. (f) 
+You may not publish or provide the results of any 
+benchmark or comparison tests run on Software to any 
+third party without the prior written consent of Sun. 
+(g) Software is confidential and copyrighted. (h) 
+Unless otherwise specified, if Software is delivered 
+with embedded or bundled software that enables 
+functionality of Software, you may not use such 
+software on a stand-alone basis or use any portion of 
+such software to interoperate with any program(s) 
+other than Software. (i) Software may contain programs 
+that perform automated collection of system data 
+and/or automated software updating services. System 
+data collected through such programs may be used by 
+Sun, its subcontractors, and its service delivery 
+partners for the purpose of providing you with remote 
+system services and/or improving Sun's software and 
+systems. (j) Software is not designed, licensed or 
+intended for use in the design, construction, 
+operation or maintenance of any nuclear facility and 
+Sun and its licensors disclaim any express or implied 
+warranty of fitness for such uses. (k) No right, title 
+or interest in or to any trademark, service mark, logo 
+or trade name of Sun or its licensors is granted under 
+this Agreement.
+
+6.	Term and Termination. 
+
+The license and service term are set forth in your 
+Entitlement(s). Your rights under this Agreement will 
+terminate immediately without notice from Sun if you 
+materially breach it or take any action in derogation 
+of Sun's and/or its licensors' rights to Software. Sun 
+may terminate this Agreement should any Software 
+become, or in Sun's reasonable opinion likely to 
+become, the subject of a claim of intellectual 
+property infringement or trade secret 
+misappropriation. Upon termination, you will cease use 
+of, and destroy, Software and confirm compliance in 
+writing to Sun. Sections 1, 5, 6, 7, and 9-15 will 
+survive termination of the Agreement.
+
+7.	Java Compatibility and Open Source.
+
+Software may contain Java technology. You may not 
+create additional classes to, or modifications of, the 
+Java technology, except under compatibility 
+requirements available under a separate agreement 
+available at www.java.net.
+
+Sun supports and benefits from the global community of 
+open source developers, and thanks the community for 
+its important contributions and open standards-based 
+technology, which Sun has adopted into many of its 
+products.
+
+Please note that portions of Software may be provided 
+with notices and open source licenses from such 
+communities and third parties that govern the use of 
+those portions, and any licenses granted hereunder do 
+not alter any rights and obligations you may have 
+under such open source licenses, however, the 
+disclaimer of warranty and limitation of liability 
+provisions in this Agreement will apply to all 
+Software in this distribution.
+
+8. 	Limited Warranty. 
+
+Sun warrants to you that for a period of 90 days from 
+the date of purchase, as evidenced by a copy of the 
+receipt, the media on which Software is furnished (if 
+any) will be free of defects in materials and 
+workmanship under normal use. Except for the 
+foregoing, Software is provided "AS IS". Your 
+exclusive remedy and Sun's entire liability under this 
+limited warranty will be at Sun's option to replace 
+Software media or refund the fee paid for Software. 
+Some states do not allow limitations on certain 
+implied warranties, so the above may not apply to you. 
+This limited warranty gives you specific legal rights. 
+You may have others, which vary from state to state.
+
+9.	Disclaimer of Warranty. 
+
+UNLESS SPECIFIED IN THIS AGREEMENT, ALL EXPRESS OR 
+IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, 
+INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT 
+ARE DISCLAIMED, EXCEPT TO THE EXTENT THAT THESE 
+DISCLAIMERS ARE HELD TO BE LEGALLY INVALID. 
+
+10. 	Limitation of Liability. 
+
+TO THE EXTENT NOT PROHIBITED BY LAW, IN NO EVENT WILL 
+SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, 
+PROFIT OR DATA, OR FOR SPECIAL, INDIRECT, 
+CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER 
+CAUSED REGARDLESS OF THE THEORY OF LIABILITY, ARISING 
+OUT OF OR RELATED TO THE USE OF OR INABILITY TO USE 
+SOFTWARE, EVEN IF SUN HAS BEEN ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGES. In no event will Sun's 
+liability to you, whether in contract, tort (including 
+negligence), or otherwise, exceed the amount paid by 
+you for Software under this Agreement. The foregoing 
+limitations will apply even if the above stated 
+warranty fails of its essential purpose. Some states 
+do not allow the exclusion of incidental or 
+consequential damages, so some of the terms above may 
+not be applicable to you. 
+
+11. 	Export Regulations. 
+
+All Software, documents, technical data, and any other 
+materials delivered under this Agreement are subject 
+to U.S. export control laws and may be subject to 
+export or import regulations in other countries. You 
+agree to comply strictly with these laws and 
+regulations and acknowledge that you have the 
+responsibility to obtain any licenses to export, 
+re-export, or import as may be required after delivery 
+to you. 
+
+12. 	U.S. Government Restricted Rights. 
+
+If Software is being acquired by or on behalf of the 
+U.S. Government or by a U.S. Government prime 
+contractor or subcontractor (at any tier), then the 
+Government's rights in Software and accompanying 
+documentation will be only as set forth in this 
+Agreement; this is in accordance with 48 CFR 227.7201 
+through 227.7202-4 (for Department of Defense (DOD) 
+acquisitions) and with 48 CFR 2.101 and 12.212 (for 
+non-DOD acquisitions). 
+
+13. 	Governing Law. 
+
+Any action related to this Agreement will be governed 
+by California law and controlling U.S. federal law. No 
+choice of law rules of any jurisdiction will apply. 
+
+14. 	Severability. 
+
+If any provision of this Agreement is held to be 
+unenforceable, this Agreement will remain in effect 
+with the provision omitted, unless omission would 
+frustrate the intent of the parties, in which case 
+this Agreement will immediately terminate.
+
+15. 	Integration. 
+
+This Agreement, including any terms contained in your 
+Entitlement, is the entire agreement between you and 
+Sun relating to its subject matter. It supersedes all 
+prior or contemporaneous oral or written 
+communications, proposals, representations and 
+warranties and prevails over any conflicting or 
+additional terms of any quote, order, acknowledgment, 
+or other communication between the parties relating to 
+its subject matter during the term of this Agreement. 
+No modification of this Agreement will be binding, 
+unless in writing and signed by an authorized 
+representative of each party.
+
+Please contact Sun Microsystems, Inc. 4150 Network 
+Circle, Santa Clara, California 95054 if you have 
+questions.
+
+-----------------------------------------------------------------------
+BB) 
+(asm-1.5.3.jar)
+http://forge.objectweb.org/projects/asm/
+
+
+ ASM: a very small and fast Java bytecode manipulation framework
+ Copyright (c) 2000,2002,2003 INRIA, France Telecom
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. Neither the name of the copyright holders nor the names of its
+    contributors may be used to endorse or promote products derived from
+    this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ THE POSSIBILITY OF SUCH DAMAGE.

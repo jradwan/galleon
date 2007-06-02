@@ -248,7 +248,7 @@ public class Users {
 								buffer.append(" dateRemoved=\""+application.getDateRemoved()+"\"");
 							buffer.append(" lastUsed=\""+mDateFormat.format(application.getLastUsed())+"\"");
 							buffer.append(" total=\""+application.getTotal()+"\"");
-							buffer.append(" shared=\""+(application.getShared().booleanValue()?1:0)+"\"");
+							buffer.append(" shared=\""+(application.isShared()?1:0)+"\"");
 							buffer.append(" />\n");
 						}
 						buffer.append("</applications>\n");

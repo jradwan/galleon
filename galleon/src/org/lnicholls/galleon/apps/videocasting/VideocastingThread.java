@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Video;
@@ -180,7 +180,7 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 													&& tracks[j].getStatus() != VideocastTrack.STATUS_DOWNLOADED
 													&& tracks[j].getStatus() != VideocastTrack.STATUS_DOWNLOAD_ERROR
 													&& tracks[j].getStatus() != VideocastTrack.STATUS_PLAYED) {
-												int errors = tracks[j].getErrors()==null ? 0 : tracks[j].getErrors().intValue();
+												int errors = tracks[j].getErrors();
 												if (errors < 3)
 													mTrack = tracks[j];
 											} else if (tracks[j].getStatus() == VideocastTrack.STATUS_DOWNLOADED
@@ -287,8 +287,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 													mTrack.setDownloadTime(0);
 													mTrack.setTrack(null);
 													mTrack.setStatus(VideocastTrack.STATUS_DOWNLOAD_ERROR);
-													int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
-													mTrack.setErrors(new Integer(errors+1));
+													int errors = mTrack.getErrors();
+													mTrack.setErrors(errors+1);
 													VideocastManager.updateVideocast(mVideocast);
 												} catch (Exception ex2) {
 													Tools.logException(VideocastingThread.class, ex2);
@@ -407,8 +407,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 			synchronized (this) {
 				try {
 					mTrack.setStatus(VideocastTrack.STATUS_DOWNLOAD_ERROR);
-					int errors = mTrack.getErrors()==null ? 0 : mTrack.getErrors().intValue(); 
-					mTrack.setErrors(new Integer(errors+1));
+					int errors = mTrack.getErrors();
+					mTrack.setErrors(errors+1);
 					VideocastManager.updateVideocast(mVideocast);
 					mTrack = mVideocast.getTrack(mTrack.getUrl());
 				} catch (HibernateException ex) {
@@ -462,8 +462,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 							video = (Video) videos.get(0);
 							if (video != null) {
 								video.setOrigen("Videocast");
-								if (mTrack.getDuration() != null)
-									video.setDuration((int) mTrack.getDuration().longValue() / 1000);
+								if (mTrack.getDuration() != 0)
+									video.setDuration((int) mTrack.getDuration() / 1000);
 								VideoManager.updateVideo(video);
 							}
 						} else {
@@ -474,8 +474,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 							}
 							if (video != null) {
 								video.setOrigen("Videocast");
-								if (mTrack.getDuration() != null)
-									video.setDuration((int) mTrack.getDuration().longValue() / 1000);
+								if (mTrack.getDuration() != 0)
+									video.setDuration((int) mTrack.getDuration() / 1000);
 								VideoManager.createVideo(video);
 							}
 						}

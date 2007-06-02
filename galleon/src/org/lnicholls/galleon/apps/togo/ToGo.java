@@ -27,7 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppFactory;
@@ -240,9 +240,7 @@ public class ToGo extends DefaultApplication {
 						// Only display recordings that are still on the
 						// recorder
 						if (video.getStatus() == Video.STATUS_DOWNLOADED || video.getStatus() == Video.STATUS_DELETED) {
-							if (video.getAvailability() == null)
-								continue;
-							else if (video.getAvailability().intValue() == Video.RECORDING_DELETED)
+							if (video.getAvailability() == Video.RECORDING_DELETED)
 								continue;
 						}
 
@@ -598,7 +596,7 @@ public class ToGo extends DefaultApplication {
 				sizeText.setLabel("Size:");
 				sizeText.setValue(mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");
 
-				if (video.getParentalControls() != null && video.getParentalControls().booleanValue())
+				if (video.isParentalControls())
 					mLock.setVisible(true);
 				else
 					mLock.setVisible(false);

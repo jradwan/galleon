@@ -17,11 +17,11 @@ package org.lnicholls.galleon.database;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
@@ -33,7 +33,10 @@ public class PodcastManager {
 	}
 	public static Podcast retrievePodcast(Podcast Podcast)
 			throws HibernateException {
-		return retrievePodcast(Podcast.getId());
+		return retrievePodcast(new Integer(Podcast.getId()));
+	}
+	public static Podcast retrievePodcast(int id) throws HibernateException {
+		return retrievePodcast(new Integer(id));
 	}
 	public static Podcast retrievePodcast(Integer id) throws HibernateException {
 		Podcast result = null;
@@ -70,7 +73,7 @@ public class PodcastManager {
 		return Podcast;
 	}
 	public static void updatePodcast(Podcast Podcast) throws HibernateException {
-		if (Podcast.getId()!=null)
+		if (Podcast.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -102,7 +105,7 @@ public class PodcastManager {
 		}
 	}
 	public static void deletePodcast(Podcast Podcast) throws HibernateException {
-		if (Podcast.getId()!=null)
+		if (Podcast.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

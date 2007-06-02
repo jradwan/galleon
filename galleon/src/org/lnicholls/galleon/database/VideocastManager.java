@@ -17,11 +17,11 @@ package org.lnicholls.galleon.database;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
@@ -33,7 +33,11 @@ public class VideocastManager {
 	}
 	public static Videocast retrieveVideocast(Videocast Videocast)
 			throws HibernateException {
-		return retrieveVideocast(Videocast.getId());
+		return retrieveVideocast(new Integer(Videocast.getId()));
+	}
+	public static Videocast retrieveVideocast(int id)
+	throws HibernateException {
+		return retrieveVideocast(new Integer(id));
 	}
 	public static Videocast retrieveVideocast(Integer id)
 			throws HibernateException {
@@ -72,7 +76,7 @@ public class VideocastManager {
 	}
 	public static void updateVideocast(Videocast Videocast)
 			throws HibernateException {
-		if (Videocast.getId()!=null)
+		if (Videocast.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -105,7 +109,7 @@ public class VideocastManager {
 	}
 	public static void deleteVideocast(Videocast Videocast)
 			throws HibernateException {
-		if (Videocast.getId()!=null)
+		if (Videocast.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

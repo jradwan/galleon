@@ -245,7 +245,7 @@ public class ShoutcastStations {
 	                                                Audio audio = (Audio) all.get(j);
 	                                                for (int k = j; k < all.size(); k++) {
 	                                                    Audio other = (Audio) all.get(k);
-	                                                    if (!audio.getId().equals(other.getId())) {
+	                                                    if (audio.getId() != other.getId()) {
 	                                                        if (audio.getPath()!=null && other.getPath()!=null && audio.getPath().equals(other.getPath())) {
 	                                                            AudioManager.deleteAudio(other);
 	                                                        }

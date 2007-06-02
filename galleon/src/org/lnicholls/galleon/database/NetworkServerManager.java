@@ -49,7 +49,7 @@ public class NetworkServerManager {
         }
         mHibernateProperties.load(new FileInputStream(file));
         
-        if (mHibernateProperties.getProperty("hibernate.dialect").equals("net.sf.hibernate.dialect.DerbyDialect"))
+        if (mHibernateProperties.getProperty("hibernate.dialect").equals("org.hibernate.dialect.DerbyDialect"))
         {
             Properties derbyProperties = new Properties();
             file = new File(System.getProperty("conf") + "/" + "derby.properties");

@@ -271,15 +271,12 @@ public class Photos extends DefaultApplication {
 								}
 								if (thumbnail != null) {
 									synchronized (this) {
-										if (image.getRotation() != null
-												&& image.getRotation()
-														.intValue() != 0) {
+										if (image.getRotation() != 0) {
 											thumbnail = ImageManipulator
 													.rotate(thumbnail, parent
 															.getWidth(), parent
 													.getHeight(), image
-															.getRotation()
-															.intValue());
+															.getRotation());
 										}
 										parent.setResource(
 												createImage(thumbnail),
@@ -739,9 +736,7 @@ public class Photos extends DefaultApplication {
 									synchronized (mThumbnail) {
 										if (mThumbnail.getID() != -1) {
 											synchronized (this) {
-												if (image.getRotation() != null
-														&& image.getRotation()
-																.intValue() != 0) {
+												if (image.getRotation() != 0) {
 													thumbnail = ImageManipulator
 															.rotate(
 																	thumbnail,
@@ -750,8 +745,7 @@ public class Photos extends DefaultApplication {
 																	mThumbnail
 																			.getHeight(),
 																	image
-																			.getRotation()
-																			.intValue());
+																			.getRotation());
 												}
 												mThumbnail.setResource(
 														createImage(thumbnail),
@@ -918,10 +912,10 @@ public class Photos extends DefaultApplication {
 					Image image = currentImage();
 					try {
 						int rotation = 0;
-						if (image.getRotation() != null)
-							rotation = image.getRotation().intValue();
+						if (image.getRotation() != 0)
+							rotation = image.getRotation();
 						rotation = rotation + 90;
-						image.setRotation(new Integer(rotation % 360));
+						image.setRotation(rotation % 360);
 						ImageManager.updateImage(image);
 					} catch (Exception ex) {
 						Tools.logException(Photos.class, ex);
@@ -1028,12 +1022,11 @@ public class Photos extends DefaultApplication {
 											.getScaledImage(photo, mPhoto
 													.getWidth(),
 											mPhoto.getHeight());
-									if (image.getRotation() != null
-											&& image.getRotation().intValue() != 0) {
+									if (image.getRotation() != 0) {
 										scaled = ImageManipulator.rotate(
 												scaled, mPhoto.getWidth(),
 												mPhoto.getHeight(),
-												image.getRotation().intValue());
+												image.getRotation());
 									}
 									if (scaled != null) {
 										mPhoto.setResource(createImage(scaled),
@@ -1246,12 +1239,12 @@ public class Photos extends DefaultApplication {
 														.getHeight());
 								photo.flush();
 								photo = null;
-								if (image.getRotation() != null
-										&& image.getRotation().intValue() != 0) {
+								if (image.getRotation() != 0
+										&& image.getRotation() != 0) {
 									scaled = ImageManipulator.rotate(scaled,
 											mSlideshowScreen.getWidth(),
 											mSlideshowScreen.getHeight(), image
-													.getRotation().intValue());
+													.getRotation());
 								}
 								estimatedTime = System.currentTimeMillis()
 										- startTime;

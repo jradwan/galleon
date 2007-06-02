@@ -63,8 +63,8 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.imageio.ImageIO;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.lob.BlobImpl;
+import org.hibernate.HibernateException;
+import org.hibernate.lob.BlobImpl;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.SystemUtils;

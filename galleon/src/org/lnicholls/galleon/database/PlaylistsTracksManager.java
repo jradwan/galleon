@@ -16,11 +16,11 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 public class PlaylistsTracksManager {
 	private static Logger log = Logger.getLogger(PlaylistsTracksManager.class
@@ -30,7 +30,10 @@ public class PlaylistsTracksManager {
 	}
 	public static PlaylistsTracks retrievePlaylistsTracks(
 			PlaylistsTracks PlaylistsTracks) throws HibernateException {
-		return retrievePlaylistsTracks(PlaylistsTracks.getId());
+		return retrievePlaylistsTracks(new Integer(PlaylistsTracks.getId()));
+	}
+	public static PlaylistsTracks retrievePlaylistsTracks(int id) throws HibernateException {
+		return retrievePlaylistsTracks(new Integer(id));
 	}
 	public static PlaylistsTracks retrievePlaylistsTracks(Integer id)
 			throws HibernateException {
@@ -69,7 +72,7 @@ public class PlaylistsTracksManager {
 	}
 	public static void updatePlaylistsTracks(PlaylistsTracks PlaylistsTracks)
 			throws HibernateException {
-		if (PlaylistsTracks.getId()!=null)
+		if (PlaylistsTracks.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -100,7 +103,7 @@ public class PlaylistsTracksManager {
 	}
 	public static void deletePlaylistsTracks(PlaylistsTracks PlaylistsTracks)
 			throws HibernateException {
-		if (PlaylistsTracks.getId()!=null)
+		if (PlaylistsTracks.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -204,7 +207,7 @@ public class PlaylistsTracksManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPlaylists(Integer id) throws HibernateException {
+	public static List findByPlaylists(int id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -212,7 +215,7 @@ public class PlaylistsTracksManager {
 			List list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.PlaylistsTracks as PlaylistsTracks where PlaylistsTracks.playlists=?")
-					.setInteger(0, id.intValue()).list();
+					.setInteger(0, id).list();
 			tx.commit();
 			return list;
 		} catch (HibernateException he) {

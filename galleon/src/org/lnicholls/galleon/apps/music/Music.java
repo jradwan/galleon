@@ -206,6 +206,9 @@ public class Music extends DefaultApplication {
 				if (filename.endsWith(".lnk"))
 					filename = filename.substring(0, filename.indexOf(".lnk"));
 			} else {
+				File file = (File) nameFile.getValue();
+				Audio audio = getAudio(file.getCanonicalPath());
+                filename = audio.getTrack() + ". " + audio.getTitle();
 				icon.setResource(mCDIcon);
 			}
 
@@ -425,8 +428,15 @@ public class Music extends DefaultApplication {
 			} else {
 				if (nameFile.isPlaylist())
 					icon.setResource(mPlaylistIcon);
-				else
+				else {
+					File file = (File) nameFile.getValue();
+					try {
+                        Audio audio = getAudio(file.getCanonicalPath());
+                        filename = audio.getTrack() + ". " + audio.getTitle();
+					} catch (Exception ex) {
+					}
 					icon.setResource(mCDIcon);
+				}
 			}
 
 			BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);

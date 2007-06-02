@@ -156,7 +156,7 @@ public class M3uPlaylist extends Playlist {
                         }
 
                         try {
-                            if (audio.getId() != null)
+                            if (audio.getId() != 0)
                                 AudioManager.updateAudio(audio);
                             else
                                 AudioManager.createAudio(audio);

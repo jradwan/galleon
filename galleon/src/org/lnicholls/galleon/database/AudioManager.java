@@ -17,11 +17,11 @@ package org.lnicholls.galleon.database;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.media.MediaRefreshThread;
 import org.lnicholls.galleon.util.Tools;
@@ -31,7 +31,10 @@ public class AudioManager {
 		public void visit(Session session, Audio audio);
 	}
 	public static Audio retrieveAudio(Audio audio) throws HibernateException {
-		return retrieveAudio(audio.getId());
+		return retrieveAudio(new Integer(audio.getId()));
+	}
+	public static Audio retrieveAudio(int id) throws HibernateException {
+		return retrieveAudio(new Integer(id));
 	}
 	public static Audio retrieveAudio(Integer id) throws HibernateException {
 		Audio result = null;
@@ -67,7 +70,7 @@ public class AudioManager {
 		return audio;
 	}
 	public static void updateAudio(Audio audio) throws HibernateException {
-		if (audio.getId()!=null)
+		if (audio.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -97,7 +100,7 @@ public class AudioManager {
 		}
 	}
 	public static void deleteAudio(Audio audio) throws HibernateException {
-		if (audio.getId()!=null)
+		if (audio.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -381,7 +384,7 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static int countMP3sByOrigen(String origen)
+	public static long countMP3sByOrigen(String origen)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
@@ -392,7 +395,7 @@ public class AudioManager {
 							"select count(audio) from org.lnicholls.galleon.database.Audio as audio where audio.origen=?")
 					.setString(0, origen).list();
 			tx.commit();
-			return ((Integer) list.iterator().next()).intValue();
+			return ((Long) list.iterator().next()).longValue();
 		} catch (HibernateException he) {
 			if (tx != null)
 				tx.rollback();

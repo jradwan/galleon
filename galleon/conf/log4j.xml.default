@@ -49,17 +49,17 @@
 		<appender-ref ref="AsyncTrace"/>
 	</logger>
 	
-	<logger name="net.sf.hibernate" additivity="false">
+	<logger name="org.hibernate" additivity="false">
 		<level value="INFO"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>	
 	
-	<logger name="net.sf.hibernate.type" additivity="false">
+	<logger name="org.hibernate.type" additivity="false">
 		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>		
 	
-	<logger name="net.sf.hibernate.tool.hbm2ddl" additivity="false">
+	<logger name="org.hibernate.tool.hbm2ddl" additivity="false">
 		<level value="OFF"/>
 		<appender-ref ref="AsyncTrace"/>
 	</logger>			

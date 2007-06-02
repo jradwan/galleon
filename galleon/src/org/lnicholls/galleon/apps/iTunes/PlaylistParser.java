@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
@@ -473,7 +473,7 @@ public class PlaylistParser {
 
 	            audio.setOrigen("iTunes");
 	            try {
-	                if (audio.getId()==null) {
+	                if (audio.getId()==0) {
 	                    AudioManager.createAudio(audio);
 	                } 
 	                else

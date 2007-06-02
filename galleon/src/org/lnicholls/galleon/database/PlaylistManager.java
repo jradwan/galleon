@@ -16,11 +16,11 @@ package org.lnicholls.galleon.database;
  */
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.ScrollableResults;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.classic.Session;
+import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 public class PlaylistManager {
 	private static Logger log = Logger.getLogger(PlaylistManager.class
@@ -30,9 +30,12 @@ public class PlaylistManager {
 	}
 	public static Playlist retrievePlaylist(Playlist playlist)
 			throws HibernateException {
-		return retrievePlaylist(playlist.getId());
+		return retrievePlaylist(new Integer(playlist.getId()));
 	}
-	public static Playlist retrievePlaylist(Integer id)
+	public static Playlist retrievePlaylist(int id)	throws HibernateException {
+		return retrievePlaylist(new Integer(id));
+	}
+public static Playlist retrievePlaylist(Integer id)
 			throws HibernateException {
 		Playlist result = null;
 		Session session = HibernateUtil.openSession();
@@ -69,7 +72,7 @@ public class PlaylistManager {
 	}
 	public static void updatePlaylist(Playlist playlist)
 			throws HibernateException {
-		if (playlist.getId()!=null)
+		if (playlist.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -100,7 +103,7 @@ public class PlaylistManager {
 	}
 	public static void deletePlaylist(Playlist playlist)
 			throws HibernateException {
-		if (playlist.getId()!=null)
+		if (playlist.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	

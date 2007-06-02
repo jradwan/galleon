@@ -203,7 +203,7 @@ public class AudioScrobbler extends DefaultApplication {
                 if (!audio.getPath().startsWith("http")) {
                     // Dont submit if it is less than 30 seconds
                     if (audio.getDuration() / 1000 >= 30) {
-                        if (mCurrentAudio == null || !mCurrentAudio.getId().equals(audio.getId())) {
+                        if (mCurrentAudio == null || mCurrentAudio.getId() != audio.getId()) {
                             mCurrentAudio = audio;
                             mSubmitted = false;
                             mStarted = new Date();

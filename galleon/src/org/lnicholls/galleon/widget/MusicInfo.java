@@ -194,7 +194,7 @@ public class MusicInfo extends BView {
 
                 setRating(audio);
 
-                if (mAudio==null || !mAudio.getId().equals(audio.getId()))
+                if (mAudio==null || mAudio.getId() != audio.getId())
                 {
                 	mAudio = audio;
 
@@ -209,7 +209,7 @@ public class MusicInfo extends BView {
                                 while (getApp().getContext()!=null)
                                 {
                                 	if (mAudio!=null && !mAudio.getPath().startsWith("http")) {
-                                		if (audio==null || !audio.getId().equals(mAudio.getId()))
+                                		if (audio==null || audio.getId() != mAudio.getId())
                                 		{
     	                            		try {
     	            		                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()

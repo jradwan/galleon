@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
+import org.hibernate.HibernateException;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -89,7 +89,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                             if (found)
                             {
 	                        	try {
-	                            	next.setAvailability(new Integer(Video.RECORDING_AVAILABLE));
+	                            	next.setAvailability(Video.RECORDING_AVAILABLE);
 	                                VideoManager.updateVideo(next);
 	                            } catch (HibernateException ex) {
 	                                log.error("Video create failed", ex);
@@ -98,7 +98,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                             else
                             {
                             	try {
-	                            	next.setAvailability(new Integer(Video.RECORDING_DELETED));
+	                            	next.setAvailability(Video.RECORDING_DELETED);
 	                                VideoManager.updateVideo(next);
 	                            } catch (HibernateException ex) {
 	                                log.error("Video create failed", ex);
@@ -154,7 +154,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                                                 || video.getStatus() == Video.STATUS_INCOMPLETE
                                                 || video.getStatus() == Video.STATUS_DELETED)
                                             next.setStatus(video.getStatus());
-                                        	next.setAvailability(new Integer(Video.RECORDING_AVAILABLE));
+                                        	next.setAvailability(Video.RECORDING_AVAILABLE);
                                         if (video.getStatus() == Video.STATUS_DOWNLOADED)
                                         {
                                             next.setPath(video.getPath());
@@ -180,7 +180,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                             synchronized(mToGo)
                             {
                                 try {
-                                	next.setAvailability(new Integer(Video.RECORDING_AVAILABLE));
+                                	next.setAvailability(Video.RECORDING_AVAILABLE);
                                     VideoManager.createVideo(next);
                                 } catch (HibernateException ex) {
                                     log.error("Video create failed", ex);

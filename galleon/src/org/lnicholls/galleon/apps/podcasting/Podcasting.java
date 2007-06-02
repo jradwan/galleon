@@ -37,7 +37,6 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -69,7 +68,6 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
@@ -102,7 +100,6 @@ public class Podcasting extends DefaultApplication {
 	private Resource mFolderIcon;
 
 	private Resource mItemIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -114,30 +111,6 @@ public class Podcasting extends DefaultApplication {
 		mImagesBackground = getSkinImage("images", "background");
 		mFolderIcon = getSkinImage("menu", "folder");
 		mItemIcon = getSkinImage("menu", "item");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Podcasting.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		PodcastingConfiguration podcastingConfiguration = (PodcastingConfiguration) ((PodcastingFactory) getFactory())
 				.getAppContext().getConfiguration();
@@ -742,7 +715,7 @@ public class Podcasting extends DefaultApplication {
 
 	public class PodcastingMenuScreen extends DefaultMenuScreen {
 		public PodcastingMenuScreen(Podcasting app) {
-			super(app, "Podcasting", mTitleColor);
+			super(app, "Podcasting");
 
 			setFooter("Press ENTER for options");
 
@@ -827,7 +800,7 @@ public class Podcasting extends DefaultApplication {
 
 	public class NowPlayingMenuScreen extends DefaultMenuScreen {
 		public NowPlayingMenuScreen(Podcasting app) {
-			super(app, "Now Playing", mTitleColor);
+			super(app, "Now Playing");
 
 			setFooter("Press ENTER for options");
 
@@ -887,7 +860,8 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null)
+			{
 				mFocus = mTracker.getPos();
 				mTracker = (Tracker)mTracker.clone();
 			}
@@ -983,7 +957,7 @@ public class Podcasting extends DefaultApplication {
 
 	public class SubscribedMenuScreen extends DefaultMenuScreen {
 		public SubscribedMenuScreen(Podcasting app) {
-			super(app, "Subscriptions", mTitleColor);
+			super(app, "Subscriptions");
 
 			setFooter("Press ENTER for options");
 
@@ -1069,7 +1043,7 @@ public class Podcasting extends DefaultApplication {
 
 	public class DirectoriesMenuScreen extends DefaultMenuScreen {
 		public DirectoriesMenuScreen(Podcasting app) {
-			super(app, "Podcast Directories", mTitleColor);
+			super(app, "Podcast Directories");
 
 			setFooter("Press ENTER for options");
 
@@ -1181,7 +1155,7 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		public DirectoryScreen(Podcasting app, Tracker tracker, boolean first) {
-			super(app, "Podcasting", mTitleColor);
+			super(app, "Podcasting");
 
 			setFooter("Press ENTER for options");
 
@@ -1445,7 +1419,7 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		public PodcastScreen(Podcasting app, Tracker tracker, boolean showView) {
-			super(app, "", true, mTitleColor);
+			super(app, "", true);
 
 			setFooter("Press ENTER for options");
 
@@ -1750,13 +1724,13 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
@@ -1832,7 +1806,7 @@ public class Podcasting extends DefaultApplication {
 
 	public class PodcastMenuScreen extends DefaultMenuScreen {
 		public PodcastMenuScreen(Podcasting app, Tracker tracker, Podcast podcast) {
-			super(app, "", mTitleColor);
+			super(app, "");
 
 			setFooter("Press ENTER for options");
 
@@ -1950,7 +1924,7 @@ public class Podcasting extends DefaultApplication {
 	public class PodcastItemScreen extends DefaultScreen {
 
 		public PodcastItemScreen(Podcasting app, Tracker tracker) {
-			super(app, "", true, mTitleColor);
+			super(app, "", true);
 
 			setFooter("Press ENTER for options");
 
@@ -2435,7 +2409,7 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 				Object object = mTracker.getList().get(pos);
 				while (object == null) {
@@ -2446,7 +2420,7 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 				Object object = mTracker.getList().get(pos);
 				while (object == null) {
@@ -2491,7 +2465,7 @@ public class Podcasting extends DefaultApplication {
 		}
 
 		private Audio currentAudio() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null) {
@@ -2547,7 +2521,7 @@ public class Podcasting extends DefaultApplication {
 	public class PlayerScreen extends DefaultScreen {
 
 		public PlayerScreen(Podcasting app, Tracker tracker) {
-			super(app, true, mTitleColor);
+			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
 

@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -53,12 +52,10 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
@@ -80,7 +77,6 @@ public class Playlists extends DefaultApplication {
 	private Resource mImagesBackground;
 
 	private Resource mItemIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -91,30 +87,6 @@ public class Playlists extends DefaultApplication {
 		mLyricsBackground = getSkinImage("lyrics", "background");
 		mImagesBackground = getSkinImage("images", "background");
 		mItemIcon = getSkinImage("menu", "item");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Playlists.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		PlaylistsConfiguration playlistsConfiguration = (PlaylistsConfiguration) ((PlaylistsFactory) getFactory()).getAppContext().getConfiguration();
 
@@ -133,7 +105,7 @@ public class Playlists extends DefaultApplication {
 	public class PathScreen extends DefaultMenuScreen {
 
 		public PathScreen(Playlists app, Tracker tracker, boolean first) {
-			super(app, "Playlists", mTitleColor);
+			super(app, "Playlists");
 
 			mFirst = first;
 
@@ -264,7 +236,7 @@ public class Playlists extends DefaultApplication {
 		private BList list;
 
 		public MusicScreen(Playlists app) {
-			super(app, "Song", true, mTitleColor);
+			super(app, "Song", true);
 
 			getBelow().setResource(mInfoBackground);
 
@@ -345,7 +317,7 @@ public class Playlists extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -356,7 +328,7 @@ public class Playlists extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -389,7 +361,7 @@ public class Playlists extends DefaultApplication {
 		}
 
 		private Audio currentAudio() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null) {
@@ -413,7 +385,7 @@ public class Playlists extends DefaultApplication {
 	public class PlayerScreen extends DefaultScreen {
 
 		public PlayerScreen(Playlists app, Tracker tracker) {
-			super(app, true, mTitleColor);
+			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
 
@@ -537,7 +509,7 @@ public class Playlists extends DefaultApplication {
 		private BList list;
 
 		public LyricsScreen(Playlists app, Tracker tracker) {
-			super(app, "Lyrics", false, mTitleColor);
+			super(app, "Lyrics", false);
 
 			getBelow().setResource(mLyricsBackground);
 
@@ -696,7 +668,7 @@ public class Playlists extends DefaultApplication {
 		private BList list;
 
 		public ImagesScreen(Playlists app, Tracker tracker) {
-			super(app, "Images", true, mTitleColor);
+			super(app, "Images", true);
 
 			getBelow().setResource(mImagesBackground);
 

@@ -32,7 +32,6 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.media.ImageManipulator;
@@ -42,7 +41,6 @@ import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultScreen;
 
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.interfaces.IContext;
@@ -66,7 +64,6 @@ public class Traffic extends DefaultApplication {
 	private Resource mIncidentIcon;
 
 	private Resource mConstructionIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -76,30 +73,6 @@ public class Traffic extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mIncidentIcon = getSkinImage("menu", "incident");
 		mConstructionIcon = getSkinImage("menu", "construction");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Traffic.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		TrafficConfiguration trafficConfiguration = (TrafficConfiguration) ((TrafficFactory) getFactory())
 				.getAppContext().getConfiguration();
@@ -121,7 +94,7 @@ public class Traffic extends DefaultApplication {
 
 	public class LocationMenuScreen extends DefaultMenuScreen {
 		public LocationMenuScreen(Traffic app) {
-			super(app, "Traffic", mTitleColor);
+			super(app, "Traffic");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -184,7 +157,7 @@ public class Traffic extends DefaultApplication {
 		}
 
 		public TrafficMenuScreen(Traffic app, TrafficConfiguration.Location location, boolean first) {
-			super(app, "Traffic", mTitleColor);
+			super(app, "Traffic");
 
 			mLocation = location;
 			mFirst = first;
@@ -257,7 +230,7 @@ public class Traffic extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				mFocus = mTracker.getPos();
 			}
 			return super.handleEnter(arg, isReturn);
@@ -275,7 +248,7 @@ public class Traffic extends DefaultApplication {
 	public class SlideshowScreen extends DefaultScreen {
 
 		public SlideshowScreen(Traffic app, Tracker tracker) {
-			super(app, null, null, false, mTitleColor);
+			super(app, null, null, false);
 
 			if (!mShowDescription)
 				setFooter("Press INFO for details", mAnim);
@@ -402,19 +375,19 @@ public class Traffic extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
 
 		private BufferedImage currentImage() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				try {
 					Result result = (Result) mTracker.getList().get(mTracker.getPos());
 					if (result != null) {
@@ -428,7 +401,7 @@ public class Traffic extends DefaultApplication {
 		}
 
 		private String currentDescription() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				try {
 					Result result = (Result) mTracker.getList().get(mTracker.getPos());
 					if (result != null) {
@@ -442,7 +415,7 @@ public class Traffic extends DefaultApplication {
 		}
 
 		private String currentDirection() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				try {
 					Result result = (Result) mTracker.getList().get(mTracker.getPos());
 					if (result != null) {
@@ -456,7 +429,7 @@ public class Traffic extends DefaultApplication {
 		}
 
 		private String currentTitle() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				try {
 					Result result = (Result) mTracker.getList().get(mTracker.getPos());
 					if (result != null) {

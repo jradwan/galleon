@@ -1617,20 +1617,6 @@
 
         <copy file="./media/images/music/background.jpg" tofile="${build}/skins/music/background.jpg" />
 
-        <copy file="./media/images/music/bar.png" tofile="${build}/skins/music/bar.png" />                
-
-        <copy file="./media/images/music/left.png" tofile="${build}/skins/music/left.png" />                
-
-        <copy file="./media/images/music/right.png" tofile="${build}/skins/music/right.png" />                
-
-        <copy file="./media/images/music/pagedown.png" tofile="${build}/skins/music/pagedown.png" />                
-
-        <copy file="./media/images/music/pageup.png" tofile="${build}/skins/music/pageup.png" />                
-
-        <copy file="./media/images/music/up.png" tofile="${build}/skins/music/up.png" />                
-
-        <copy file="./media/images/music/down.png" tofile="${build}/skins/music/down.png" />                
-
 
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
@@ -1640,22 +1626,6 @@
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
 
         <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
-
-        <copy file="./media/images/widget/marker.png" tofile="${build}/skins/photos/marker.png" />        
-
-        <copy file="./media/images/photos/bar.png" tofile="${build}/skins/photos/bar.png" />                
-
-        <copy file="./media/images/photos/left.png" tofile="${build}/skins/photos/left.png" />                
-
-        <copy file="./media/images/photos/right.png" tofile="${build}/skins/photos/right.png" />                
-
-        <copy file="./media/images/photos/pagedown.png" tofile="${build}/skins/photos/pagedown.png" />                
-
-        <copy file="./media/images/photos/pageup.png" tofile="${build}/skins/photos/pageup.png" />                
-
-        <copy file="./media/images/photos/up.png" tofile="${build}/skins/photos/up.png" />                
-
-        <copy file="./media/images/photos/down.png" tofile="${build}/skins/photos/down.png" />                
 
         
 
@@ -1826,20 +1796,6 @@
         <copy file="./media/images/jukebox/item.png" tofile="${build}/skins/jukebox/item.png" />                
 
         <copy file="./media/images/jukebox/background.jpg" tofile="${build}/skins/jukebox/background.jpg" />                                        
-
-        <copy file="./media/images/jukebox/bar.png" tofile="${build}/skins/jukebox/bar.png" />                
-
-        <copy file="./media/images/jukebox/left.png" tofile="${build}/skins/jukebox/left.png" />                
-
-        <copy file="./media/images/jukebox/right.png" tofile="${build}/skins/jukebox/right.png" />                
-
-        <copy file="./media/images/jukebox/pagedown.png" tofile="${build}/skins/jukebox/pagedown.png" />                
-
-        <copy file="./media/images/jukebox/pageup.png" tofile="${build}/skins/jukebox/pageup.png" />                
-
-        <copy file="./media/images/jukebox/up.png" tofile="${build}/skins/jukebox/up.png" />                
-
-        <copy file="./media/images/jukebox/down.png" tofile="${build}/skins/jukebox/down.png" />                
 
         
 

@@ -28,7 +28,6 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -57,12 +56,10 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.Resource;
 
@@ -87,7 +84,6 @@ public class Jukebox extends DefaultApplication {
 	private Resource mCDIcon;
 
 	private Resource mPlaylistIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -100,30 +96,6 @@ public class Jukebox extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Jukebox.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) ((JukeboxFactory) getFactory())
 				.getAppContext().getConfiguration();
@@ -157,7 +129,7 @@ public class Jukebox extends DefaultApplication {
 
 	public class JukeboxMenuScreen extends DefaultMenuScreen {
 		public JukeboxMenuScreen(Jukebox app) {
-			super(app, "Jukebox", mTitleColor);
+			super(app, "Jukebox");
 
 			setFooter("Press ENTER for options, 1 for delete, 9 for delete all");
 
@@ -185,7 +157,7 @@ public class Jukebox extends DefaultApplication {
 			JukeboxConfiguration jukeboxConfiguration = (JukeboxConfiguration) ((JukeboxFactory) getFactory())
 					.getAppContext().getConfiguration();
 
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				Iterator iterator = mTracker.getList().iterator();
 				while (iterator.hasNext()) {
 					Item nameFile = (Item) iterator.next();
@@ -318,8 +290,9 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
-				if (mTracker.getList()!=null && mTracker.getList().size()==0)
+			if (mTracker != null)
+			{
+				if (mTracker.getList().size()==0)
 				{
 					boolean result = super.handleEnter(arg, isReturn);
 					mMenuList.clear();
@@ -346,7 +319,7 @@ public class Jukebox extends DefaultApplication {
 		private BList list;
 
 		public JukeboxScreen(Jukebox app) {
-			super(app, "Song", true, mTitleColor);
+			super(app, "Song", true);
 
 			setFooter("Press ENTER for options");
 
@@ -432,7 +405,7 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -443,7 +416,7 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -476,7 +449,7 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		private Audio currentAudio() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null && nameFile.getValue() != null) {
@@ -500,7 +473,7 @@ public class Jukebox extends DefaultApplication {
 	public class PlayerScreen extends DefaultScreen {
 
 		public PlayerScreen(Jukebox app, Tracker tracker) {
-			super(app, true, mTitleColor);
+			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
 
@@ -638,7 +611,7 @@ public class Jukebox extends DefaultApplication {
 		private BList list;
 
 		public LyricsScreen(Jukebox app, Tracker tracker) {
-			super(app, "Lyrics", false, mTitleColor);
+			super(app, "Lyrics", false);
 
 			getBelow().setResource(mLyricsBackground);
 
@@ -794,7 +767,7 @@ public class Jukebox extends DefaultApplication {
 		private BList list;
 
 		public ImagesScreen(Jukebox app, Tracker tracker) {
-			super(app, "Images", true, mTitleColor);
+			super(app, "Images", true);
 
 			getBelow().setResource(mImagesBackground);
 
@@ -1005,7 +978,7 @@ public class Jukebox extends DefaultApplication {
 		private BList list;
 
 		public ConfirmationScreen(Jukebox app, Tracker tracker) {
-			super(app, "Confirmation", true, mTitleColor);
+			super(app, "Confirmation", true);
 
 			mTracker = tracker;
 

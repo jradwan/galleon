@@ -29,7 +29,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
@@ -44,14 +43,12 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import com.socialistsoftware.upcoming.Event;
 import com.socialistsoftware.upcoming.Venue;
 import com.tivo.hme.bananas.BButton;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BKeyboard;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.bananas.BKeyboard.KeyboardEvent;
-import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.IHmeProtocol;
@@ -72,7 +69,6 @@ public class Upcoming extends DefaultApplication {
 	private Resource mFolderIcon;
 
 	private Resource mItemIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -82,31 +78,6 @@ public class Upcoming extends DefaultApplication {
 		mViewerBackground = getSkinImage("viewer", "background");
 		mFolderIcon = getSkinImage("menu", "folder");
 		mItemIcon = getSkinImage("menu", "item");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Upcoming.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
-
 
 		push(new UpcomingMenuScreen(this), TRANSITION_NONE);
 
@@ -115,7 +86,7 @@ public class Upcoming extends DefaultApplication {
 
 	public class UpcomingMenuScreen extends DefaultMenuScreen {
 		public UpcomingMenuScreen(Upcoming app) {
-			super(app, "Upcoming", mTitleColor);
+			super(app, "Upcoming");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -184,7 +155,7 @@ public class Upcoming extends DefaultApplication {
 
 	public class UpcomingEventsLocationsMenuScreen extends DefaultMenuScreen {
 		public UpcomingEventsLocationsMenuScreen(Upcoming app, List list) {
-			super(app, "Metros", mTitleColor);
+			super(app, "Metros");
 
 			mList = list;
 
@@ -238,7 +209,7 @@ public class Upcoming extends DefaultApplication {
 
 	public class UpcomingEventsMenuScreen extends DefaultMenuScreen {
 		public UpcomingEventsMenuScreen(Upcoming app, UpcomingConfiguration.Location location) {
-			super(app, "Metro Events", mTitleColor);
+			super(app, "Metro Events");
 
 			mLocation = location;
 
@@ -342,7 +313,7 @@ public class Upcoming extends DefaultApplication {
 	public class UpcomingEventsScreen extends DefaultScreen {
 
 		public UpcomingEventsScreen(Upcoming app, Tracker tracker) {
-			super(app, true, mTitleColor);
+			super(app, true);
 
 			mTracker = tracker;
 
@@ -491,13 +462,13 @@ public class Upcoming extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
@@ -525,7 +496,7 @@ public class Upcoming extends DefaultApplication {
 
 	public class UpcomingVenuesLocationsMenuScreen extends DefaultMenuScreen {
 		public UpcomingVenuesLocationsMenuScreen(Upcoming app, List list) {
-			super(app, "Metros", mTitleColor);
+			super(app, "Metros");
 
 			mList = list;
 
@@ -579,7 +550,7 @@ public class Upcoming extends DefaultApplication {
 
 	public class UpcomingVenuesMenuScreen extends DefaultMenuScreen {
 		public UpcomingVenuesMenuScreen(Upcoming app, UpcomingConfiguration.Location location) {
-			super(app, "Metro Venues", mTitleColor);
+			super(app, "Metro Venues");
 
 			mLocation = location;
 
@@ -673,7 +644,7 @@ public class Upcoming extends DefaultApplication {
 	public class UpcomingVenuesScreen extends DefaultScreen {
 
 		public UpcomingVenuesScreen(Upcoming app, Tracker tracker) {
-			super(app, true, mTitleColor);
+			super(app, true);
 
 			setTitle("Venue");
 
@@ -762,13 +733,13 @@ public class Upcoming extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
@@ -785,7 +756,7 @@ public class Upcoming extends DefaultApplication {
 	public class UpcomingSearchScreen extends DefaultScreen {
 
 		public UpcomingSearchScreen(Upcoming app) {
-			super(app, false, mTitleColor);
+			super(app, false);
 
 			setTitle("Search");
 

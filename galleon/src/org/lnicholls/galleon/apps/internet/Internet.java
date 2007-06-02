@@ -2,17 +2,17 @@ package org.lnicholls.galleon.apps.internet;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * 
  * See the file "COPYING" for more details.
  */
 
@@ -36,7 +36,6 @@ import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.internet.InternetConfiguration.SharedUrl;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.apps.rss.RSSConfiguration;
 import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.server.DataConfiguration;
@@ -63,7 +62,6 @@ import org.lnicholls.galleon.data.*;
 import org.lnicholls.galleon.database.Application;
 
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
@@ -77,7 +75,7 @@ public class Internet extends DefaultApplication {
 	private final static Runtime runtime = Runtime.getRuntime();
 
 	public final static String TITLE = "Internet";
-
+	
 	private Resource mMenuBackground;
 
 	private Resource mInfoBackground;
@@ -87,7 +85,6 @@ public class Internet extends DefaultApplication {
 	private Resource mLargeFolderIcon;
 
 	private Resource mItemIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -97,47 +94,23 @@ public class Internet extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mLargeFolderIcon = getSkinImage("menu", "gridFolder");
 		mItemIcon = getSkinImage("menu", "item");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Internet.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory())
 				.getAppContext().getConfiguration();
 
 		Tracker tracker = new Tracker(internetConfiguration.getSharedUrls(), 0);
-
+		
 		if (Server.getServer().getDataConfiguration().isConfigured())
 			push(new InternetMenuScreen(this), TRANSITION_NONE);
 		else
 			push(new FavoritesMenuScreen(this, tracker, true), TRANSITION_NONE);
-
+		
 		initialize();
 	}
-
+	
 	public class InternetMenuScreen extends DefaultMenuScreen {
 		public InternetMenuScreen(Internet app) {
-			super(app, "Internet", mTitleColor);
+			super(app, "Internet");
 
 			setFooter("Press ENTER for options");
 
@@ -151,7 +124,7 @@ public class Internet extends DefaultApplication {
 			if (action.equals("push")) {
 				if (mMenuList.size() > 0) {
 					load();
-
+					
 					final InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
 
 					new Thread() {
@@ -165,7 +138,7 @@ public class Internet extends DefaultApplication {
 								else
 									getBApp().push(new TagsMenuScreen((Internet)getBApp()), TRANSITION_NONE);
 								getBApp().flush();
-
+								
 							} catch (Exception ex) {
 								Tools.logException(Internet.class, ex);
 							}
@@ -206,7 +179,7 @@ public class Internet extends DefaultApplication {
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
-	}
+	}	
 
 	public class OptionsScreen extends DefaultOptionsScreen {
 
@@ -246,8 +219,8 @@ public class Internet extends DefaultApplication {
 			nameValues = new NameValue[] { new NameValue("Yes", "true"), new NameValue("No", "false") };
 			mSortedButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height,
 					true, nameValues, String.valueOf(internetConfiguration.isSorted()));
-
-
+			
+			
 			setFocusDefault(mReloadButton);
 		}
 
@@ -267,7 +240,7 @@ public class Internet extends DefaultApplication {
 							.getAppContext().getConfiguration();
 					internetConfiguration.setReload(Integer.parseInt(mReloadButton.getValue()));
 					internetConfiguration.setSorted(Boolean.valueOf(mSortedButton.getValue()).booleanValue());
-
+	
 					Server.getServer().updateApp(((InternetFactory) getFactory()).getAppContext());
 				}
 			} catch (Exception ex) {
@@ -277,28 +250,28 @@ public class Internet extends DefaultApplication {
 		}
 
 		private OptionsButton mReloadButton;
-
+		
 		private OptionsButton mSortedButton;
 	}
-
+	
 	public class FavoritesMenuScreen extends DefaultMenuScreen {
 		public FavoritesMenuScreen(Internet app, Tracker tracker) {
 			this(app, tracker, false);
 		}
 
 		public FavoritesMenuScreen(Internet app, Tracker tracker, boolean first) {
-			super(app, "Internet", mTitleColor);
-
+			super(app, "Internet");
+			
 			mTracker = tracker;
 			mFirst = first;
-
+			
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
 
 			createMenu();
 		}
-
+		
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
     		if (isReturn)
     		{
@@ -306,11 +279,11 @@ public class Internet extends DefaultApplication {
     		}
 			return super.handleEnter(arg, isReturn);
 		}
-
+		
 		private void createMenu()
 		{
 			InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
-			mMenuList.clear();
+			mMenuList.clear();			
 			InternetConfiguration.SharedUrl urls[] = new InternetConfiguration.SharedUrl[0];
 			urls = (InternetConfiguration.SharedUrl[]) mTracker.getList().toArray(urls);
 			if (internetConfiguration.isSorted())
@@ -319,7 +292,7 @@ public class Internet extends DefaultApplication {
 					public int compare(Object o1, Object o2) {
 						InternetConfiguration.SharedUrl url1 = (InternetConfiguration.SharedUrl) o1;
 						InternetConfiguration.SharedUrl url2 = (InternetConfiguration.SharedUrl) o2;
-
+						
 						return url1.getName().compareTo(url2.getName());
 					}
 				});
@@ -331,7 +304,7 @@ public class Internet extends DefaultApplication {
 			}
 			mTracker = new Tracker(list, 0);
 		}
-
+		
 		public DefaultList createMenuList()
 		{
 			BlockList defaultList = new BlockList(this, SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 290, getWidth()
@@ -342,7 +315,7 @@ public class Internet extends DefaultApplication {
 	                };
 			return defaultList;
 		}
-
+		
 		public boolean handleExit() {
 			mTop = mMenuList.getTop();
 			//mMenuList.clear();
@@ -419,7 +392,7 @@ public class Internet extends DefaultApplication {
 				try
 				{
 					InternetConfiguration.SharedUrl value = (InternetConfiguration.SharedUrl) mMenuList.get(mMenuList.getFocus());
-
+					
 					InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
 					List list = internetConfiguration.getSharedUrls();
 					boolean duplicate = false;
@@ -445,23 +418,23 @@ public class Internet extends DefaultApplication {
 				catch (Exception ex) {
 					Tools.logException(Internet.class, ex);
 				}
-				break;
+				break;				
 			}
 
 			return super.handleKeyPress(code, rawcode);
 		}
-
+		
 		private Tracker mTracker;
-
+		
 		private boolean mFirst;
 
-		private int mTop;
-	}
+		private int mTop;		
+	}	
 
 	public class ImageScreen extends DefaultScreen {
 
 		public ImageScreen(Internet app) {
-			super(app, null, null, false, mTitleColor);
+			super(app, null, null, false);
 
 			// getBelow().setResource(mInfoBackground);
 
@@ -485,7 +458,7 @@ public class Internet extends DefaultApplication {
 			if (image != null) {
 				try {
 					setPainting(false);
-
+					
 					if (image.getWidth(null) > 640 || image.getHeight(null) > 480)
 					{
 						BufferedImage scaled = ImageManipulator.getScaledImage((BufferedImage)image, getWidth(), getHeight());
@@ -572,13 +545,13 @@ public class Internet extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
@@ -588,7 +561,7 @@ public class Internet extends DefaultApplication {
 		}
 
 		private Image currentImage(boolean reload) {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				try {
 					InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) mTracker.getList().get(mTracker.getPos());
 					if (nameValue != null) {
@@ -615,7 +588,7 @@ public class Internet extends DefaultApplication {
 			URL url = new URL(address);
 			if (reload)
 				Tools.cacheImage(url, address);
-
+			
 			Image image = Tools.retrieveCachedImage(url);
 			if (image==null)
 			{
@@ -627,17 +600,17 @@ public class Internet extends DefaultApplication {
 		}
 		return null;
 	}
-
+	
 	public class TagsMenuScreen extends DefaultMenuScreen {
 		public TagsMenuScreen(Internet app) {
-			super(app, "Internet Tags", mTitleColor);
+			super(app, "Internet Tags");
 
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
-
+			
 			DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
-
+			
 			try
 			{
 				String result = Users.retrieveInternetTags(dataConfiguration);
@@ -648,8 +621,8 @@ public class Internet extends DefaultApplication {
 		            StringReader stringReader = new StringReader(result);
 		            Document document = saxReader.read(stringReader);
 		            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
-
-		            Element root = document.getRootElement();
+		
+		            Element root = document.getRootElement(); 
 		            Element tags = root.element("tags");
 		            if (tags!=null)
 		            {
@@ -668,17 +641,17 @@ public class Internet extends DefaultApplication {
 			if (action.equals("push")) {
 				if (mMenuList.size() > 0) {
 					load();
-
+					
 					final InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
 
 					new Thread() {
 						public void run() {
 							try {
-								String tag = (String)mMenuList.get(mMenuList.getFocus());
+								String tag = (String)mMenuList.get(mMenuList.getFocus()); 
 								//Tracker tracker = new Tracker(mMenuList.getRows(), 0);
-
+								
 								DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
-
+								
 								ArrayList list = new ArrayList();
 								String result = Users.retrieveInternetFromTag(dataConfiguration, tag);
 					            if (result != null && result.length()>0)
@@ -688,24 +661,24 @@ public class Internet extends DefaultApplication {
 						            StringReader stringReader = new StringReader(result);
 						            Document document = saxReader.read(stringReader);
 						            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
-
-						            Element root = document.getRootElement();
+						
+						            Element root = document.getRootElement(); 
 						            Element internet = root.element("internet");
 						            if (internet!=null)
 						            {
 							            for (Iterator i = internet.elementIterator("url"); i.hasNext();) {
 							                Element element = (Element) i.next();
-							                InternetConfiguration.SharedUrl sharedUrl = new InternetConfiguration.SharedUrl(Tools.getAttribute(element, "name"), Tools.getAttribute(element, "url"), Tools.getAttribute(element, "description"), tag, SharedUrl.PRIVATE);
+							                InternetConfiguration.SharedUrl sharedUrl = new InternetConfiguration.SharedUrl(Tools.getAttribute(element, "name"), Tools.getAttribute(element, "url"), Tools.getAttribute(element, "description"), tag, SharedUrl.PRIVATE); 
 							                list.add(sharedUrl);
 							            }
 						            }
 					            }
-
+								
 					            Tracker tracker = new Tracker(list, 0);
 					            getBApp().push(new FavoritesMenuScreen((Internet)getBApp(), tracker), TRANSITION_NONE);
 								//getBApp().push(new TagMenuScreen((Internet)getBApp(), tag), TRANSITION_NONE);
 								getBApp().flush();
-
+								
 							} catch (Exception ex) {
 								Tools.logException(Internet.class, ex);
 							}
@@ -749,18 +722,18 @@ public class Internet extends DefaultApplication {
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
-	}
-
+	}	
+	
 	public class TagMenuScreen extends DefaultMenuScreen {
 		public TagMenuScreen(Internet app, String tag) {
-			super(app, "Internet Tag", mTitleColor);
+			super(app, "Internet Tag");
 
 			setFooter("Press ENTER for options");
 
 			getBelow().setResource(mMenuBackground);
-
+			
 			DataConfiguration dataConfiguration = Server.getServer().getDataConfiguration();
-
+			
 			try
 			{
 				String result = Users.retrieveInternetFromTag(dataConfiguration, tag);
@@ -771,8 +744,8 @@ public class Internet extends DefaultApplication {
 		            StringReader stringReader = new StringReader(result);
 		            Document document = saxReader.read(stringReader);
 		            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
-
-		            Element root = document.getRootElement();
+		
+		            Element root = document.getRootElement(); 
 		            Element internet = root.element("internet");
 		            if (internet!=null)
 		            {
@@ -791,7 +764,7 @@ public class Internet extends DefaultApplication {
 			if (action.equals("push")) {
 				if (mMenuList.size() > 0) {
 					load();
-
+					
 					final InternetConfiguration internetConfiguration = (InternetConfiguration) ((InternetFactory) getFactory()).getAppContext().getConfiguration();
 
 					new Thread() {
@@ -807,7 +780,7 @@ public class Internet extends DefaultApplication {
 									getBApp().push(new FavoritesMenuScreen(this, tracker), TRANSITION_NONE);
 								getBApp().flush();
 								*/
-
+								
 							} catch (Exception ex) {
 								Tools.logException(Internet.class, ex);
 							}
@@ -851,7 +824,7 @@ public class Internet extends DefaultApplication {
 			}
 			return super.handleKeyPress(code, rawcode);
 		}
-	}
+	}	
 
 	public static class InternetFactory extends AppFactory {
 
@@ -867,7 +840,7 @@ public class Internet extends DefaultApplication {
 					}
 				}
 			}), internetConfiguration.getReload());
-
+			
 			Server.getServer().scheduleData(new ReloadTask(new ReloadCallback() {
 				public void reload() {
 					try {
@@ -897,21 +870,21 @@ public class Internet extends DefaultApplication {
 						Iterator iterator = internetConfiguration.getSharedUrls().iterator();
 						while (iterator.hasNext()) {
 							InternetConfiguration.SharedUrl nameValue = (InternetConfiguration.SharedUrl) iterator.next();
-
+	
 							try {
 								URL url = new URL(nameValue.getValue());
 								Tools.cacheImage(url, nameValue.getValue());
 							} catch (Exception ex) {
 								Tools.logException(Internet.class, ex);
 							}
-
+	
 						}
 					}
 					catch (Exception ex) {}
 				}
 			}.start();
 		}
-
+		
 		private void updateData() {
 			InternetConfiguration internetConfiguration = (InternetConfiguration) getAppContext()
 					.getConfiguration();

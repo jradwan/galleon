@@ -51,7 +51,6 @@ import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsOptionsPanel.ImagesWrapper;
-import org.lnicholls.galleon.apps.music.Music;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
@@ -87,7 +86,6 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.widget.DefaultApplication.VersionScreen;
 
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
@@ -120,7 +118,6 @@ public class InternetSlideshows extends DefaultApplication {
 	private Resource mLargeFolderIcon;
 
 	private Resource mCameraIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -130,30 +127,6 @@ public class InternetSlideshows extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mLargeFolderIcon = getSkinImage("menu", "gridFolder");
 		mCameraIcon = getSkinImage("menu", "item");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(InternetSlideshows.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		InternetSlideshowsConfiguration imagesConfiguration = (InternetSlideshowsConfiguration) ((InternetSlideshowsFactory)getFactory()).getAppContext().getConfiguration();
 
@@ -308,7 +281,7 @@ public class InternetSlideshows extends DefaultApplication {
 
 	public class PhotosMenuScreen extends DefaultMenuScreen {
 		public PhotosMenuScreen(InternetSlideshows app) {
-			super(app, "Internet Slideshows", mTitleColor);
+			super(app, "Internet Slideshows");
 
 			getBelow().setResource(mMenuBackground);
 
@@ -383,7 +356,7 @@ public class InternetSlideshows extends DefaultApplication {
 		}
 
 		public SlideshowScreen(InternetSlideshows app, Tracker tracker, boolean showSlideshow) {
-			super(app, null, null, false, mTitleColor);
+			super(app, null, null, false);
 
 			mTracker = tracker;
 			mShowSlideshow = showSlideshow;
@@ -512,19 +485,19 @@ public class InternetSlideshows extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				int pos = mTracker.getNextPos();
 			}
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				int pos = mTracker.getPrevPos();
 			}
 		}
 
 		private BufferedImage currentImage() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				try {
 					PhotoDescription photoDescription = (PhotoDescription) mTracker.getList().get(mTracker.getPos());
 					if (photoDescription != null) {
@@ -538,7 +511,7 @@ public class InternetSlideshows extends DefaultApplication {
 		}
 
 		private String currentDescription() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size()>0) {
 				try {
 					PhotoDescription photoDescription = (PhotoDescription) mTracker.getList().get(mTracker.getPos());
 					if (photoDescription != null) {

@@ -75,12 +75,10 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 import com.tivo.hme.bananas.BButton;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
-import com.tivo.hme.bananas.BSkin.Element;
 import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
@@ -107,7 +105,6 @@ public class MusicOrganizer extends DefaultApplication {
 	private Resource mCDIcon;
 
 	private Resource mPlaylistIcon;
-	private Color mTitleColor;
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
@@ -120,30 +117,6 @@ public class MusicOrganizer extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
 		mPlaylistIcon = getSkinImage("menu", "playlist");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(MusicOrganizer.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 
 		push(new MusicMenuScreen(this), TRANSITION_NONE);
 
@@ -152,7 +125,7 @@ public class MusicOrganizer extends DefaultApplication {
 
 	public class MusicMenuScreen extends DefaultMenuScreen {
 		public MusicMenuScreen(MusicOrganizer app) {
-			super(app, "Music", mTitleColor);
+			super(app, "Music");
 
 			setFooter("Press ENTER for options");
 
@@ -326,7 +299,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 
 		public PathScreen(MusicOrganizer app, PathScreen pathScreen, boolean first, FormatString formatString, int level) {
-			super(app, "Music", mTitleColor);
+			super(app, "Music");
 
 			setFooter("Press ENTER for options, 1 for Jukebox");
 
@@ -645,7 +618,7 @@ public class MusicOrganizer extends DefaultApplication {
 		private BList list;
 
 		public MusicScreen(MusicOrganizer app) {
-			super(app, "Song", true, mTitleColor);
+			super(app, "Song", true);
 
 			setFooter("Press ENTER for options");
 
@@ -727,7 +700,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -738,7 +711,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder() || nameFile.isPlaylist()) {
@@ -771,7 +744,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 
 		private Audio currentAudio() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				try {
 					Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 					if (nameFile != null) {
@@ -795,7 +768,7 @@ public class MusicOrganizer extends DefaultApplication {
 	public class PlayerScreen extends DefaultScreen {
 
 		public PlayerScreen(MusicOrganizer app, Tracker tracker) {
-			super(app, true, mTitleColor);
+			super(app, true);
 
 			getBelow().setResource(mPlayerBackground);
 
@@ -925,7 +898,7 @@ public class MusicOrganizer extends DefaultApplication {
 		private BList list;
 
 		public LyricsScreen(MusicOrganizer app, Tracker tracker) {
-			super(app, "Lyrics", false, mTitleColor);
+			super(app, "Lyrics", false);
 
 			getBelow().setResource(mLyricsBackground);
 
@@ -1081,7 +1054,7 @@ public class MusicOrganizer extends DefaultApplication {
 		private BList list;
 
 		public ImagesScreen(MusicOrganizer app, Tracker tracker) {
-			super(app, "Images", true, mTitleColor);
+			super(app, "Images", true);
 
 			getBelow().setResource(mImagesBackground);
 

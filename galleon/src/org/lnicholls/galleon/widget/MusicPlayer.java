@@ -70,7 +70,7 @@ public class MusicPlayer extends DefaultPlayer {
 	}
 
 	private Audio currentAudio() {
-		if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+		if (mTracker != null) {
 			try {
 				Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 				if (nameFile != null) {

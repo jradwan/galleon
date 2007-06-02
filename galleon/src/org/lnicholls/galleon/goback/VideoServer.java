@@ -166,7 +166,7 @@ public class VideoServer extends HttpServer {
 						try {
 							httprequest.reply(200, "Success");
 
-							String details = getAnyVideoDetails(file);
+							String details = getVideoDetails(file);
 							//details = Tools.getFile(new File("d:/galleon/TiVoVideoDetails.xml"));
 							if (details!=null)
 							{
@@ -925,20 +925,8 @@ public class VideoServer extends HttpServer {
 		}
 		return "";
 	}
-	public static String getAnyVideoDetails(File file) {
-		try
-		{
-			// if an xml file exists for the video file, use that instead of the database data
-			File xmlFile = new File(file.getParent()+File.separator+file.getName().substring(0, file.getName().lastIndexOf("."))+".xml");
-			System.out.println(xmlFile.getAbsolutePath());
-			if (xmlFile.exists())
-				return Tools.getFile(xmlFile);
-		} catch (Exception ex) {
-			Tools.logException(VideoServer.class, ex);
-		}
-		return getVideoDetails(file);
-	}
-	public static String getVideoDetails(File file) {
+
+	private String getVideoDetails(File file) {
 		Video video = getVideo(file);
 		if (video != null) {
 			try {
@@ -1232,7 +1220,7 @@ public class VideoServer extends HttpServer {
 		return null;
 	}
 
-	private static Video getVideo(File file) {
+	private Video getVideo(File file) {
 		Video video = null;
 		try {
 			List list = VideoManager.findByPath(file.getCanonicalPath());
@@ -1281,11 +1269,11 @@ public class VideoServer extends HttpServer {
 
 	private String mHost = "Galleon";
 
-	private static SimpleDateFormat mFileDateFormat;
+	private SimpleDateFormat mFileDateFormat;
 
-	private static SimpleDateFormat mTimeDateFormat;
+	private SimpleDateFormat mTimeDateFormat;
 
-	private static SimpleDateFormat mDurationFormat;
+	private SimpleDateFormat mDurationFormat;
 
 	private GregorianCalendar mCalendar;
 

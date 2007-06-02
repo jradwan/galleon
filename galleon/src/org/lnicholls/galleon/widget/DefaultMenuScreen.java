@@ -2,21 +2,20 @@ package org.lnicholls.galleon.widget;
 
 /*
  * Copyright (C) 2005 Leon Nicholls
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
  * version.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * 
  * See the file "COPYING" for more details.
  */
 
-import java.awt.Color;
 import org.lnicholls.galleon.util.Tools;
 
 import com.tivo.hme.bananas.BEvent;
@@ -25,12 +24,11 @@ import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.Resource;
 
 public class DefaultMenuScreen extends DefaultScreen {
+
 	public DefaultMenuScreen(DefaultApplication app, String title) {
-		this(app, title, Color.yellow);
-	}
-	public DefaultMenuScreen(DefaultApplication app, String title, Color color) {
 		super(app);
-		setTitle(title, color);
+		setTitle(title);
+
 		mMenuList = createMenuList();
 		BHighlights h = mMenuList.getHighlights();
 		h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
@@ -58,21 +56,21 @@ public class DefaultMenuScreen extends DefaultScreen {
 		 * The current ease value int animTime = 10000; // Animation time try {
 		 * boolean parity = false; while (getContext() != null) { parity =
 		 * !parity;
-		 *
+		 * 
 		 * Resource anim = getResource("*" + animTime + "," + ((float)ease /
 		 * 100f));
-		 *
+		 * 
 		 * mTitleAnimation.setLocation(-mTitleAnimation.getWidth(),0);
 		 * mTitleAnimation.setTransparency(0.7f);
 		 * mTitleAnimation.setVisible(true);
-		 *
+		 * 
 		 * mTitleAnimation.setLocation(getWidth(),0, anim);
 		 * mTitleAnimation.setTransparency(1.0f, anim); mTitleAnimation.flush();
-		 *
+		 * 
 		 * try { synchronized (this) { wait(animTime); } } catch
 		 * (InterruptedException e) { return; } } } catch (Exception ex) {
 		 * Tools.logException(DefaultMenuScreen.class, ex); } }
-		 *
+		 * 
 		 * public void interrupt() { synchronized (this) { super.interrupt(); } } };
 		 * mAnimationThread.start();
 		 */

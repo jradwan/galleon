@@ -59,7 +59,6 @@ import org.lnicholls.galleon.widget.OptionsButton;
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BSkin;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.interfaces.IContext;
@@ -74,8 +73,6 @@ public class Photos extends DefaultApplication {
 	private Resource mFolderIcon;
 	private Resource mLargeFolderIcon;
 	private Resource mCameraIcon;
-	private Resource mMarkerIcon;
-	private Color mTitleColor;
 	public void init(IContext context) throws Exception {
 		super.init(context);
 		mMenuBackground = getSkinImage("menu", "background");
@@ -83,31 +80,6 @@ public class Photos extends DefaultApplication {
 		mFolderIcon = getSkinImage("menu", "folder");
 		mLargeFolderIcon = getSkinImage("menu", "gridFolder");
 		mCameraIcon = getSkinImage("menu", "item");
-		mMarkerIcon = getSkinImage("menu", "marker");
-		mTitleColor = getSkinColor("menu", "title");
-		setSkin(new BSkin(this) {
-			public BSkin.Element get(String name)
-			{
-				BSkin.Element e = super.get(name);
-		        if (e == null) {
-		            if (name.startsWith("background")) {
-		                e = new Element(this, name, 640, 480, null);
-		            } else {
-		                throw new RuntimeException("unknown element : " + name);
-		            }
-		        }
-		        /**
-		         * If there is an image for this element use it, otherwise take default.
-		         */
-		        Resource img = getSkinImage("menu", name, false);
-		        if (img != null) {
-		            e.setResource(img);
-		        } else {
-		            e.setResource(Photos.this.getResource("com/tivo/hme/bananas/" + name + ".png"));
-		        }
-		        return e;
-			}
-		});
 		PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 				.getAppContext()
 				.getConfiguration();
@@ -154,7 +126,7 @@ public class Photos extends DefaultApplication {
 	}
 	public class PhotosMenuScreen extends DefaultMenuScreen {
 		public PhotosMenuScreen(Photos app) {
-			super(app, "Photos", mTitleColor);
+			super(app, "Photos");
 			setFooter("Press ENTER for options");
 			getBelow().setResource(mMenuBackground);
 			getBelow().flush();
@@ -257,7 +229,7 @@ public class Photos extends DefaultApplication {
 	public class PGrid extends Grid {
 		public PGrid(BView parent, int x, int y, int width, int height,
 				int rowHeight) {
-			super(parent, x, y, width, height, rowHeight, mMarkerIcon);
+			super(parent, x, y, width, height, rowHeight);
 			mThreads = new Vector();
 		}
 		public void createCell(final BView parent, int row, int column,
@@ -279,6 +251,7 @@ public class Photos extends DefaultApplication {
 					parent.flush();
 				} else {
 					// TODO Handle: Photos[#1,uri=null]
+					// handleApplicationError(4,view 1402 not found)
 					Thread thread = new Thread() {
 						public void run() {
 							try {
@@ -495,11 +468,11 @@ public class Photos extends DefaultApplication {
 			this(app, tracker, false);
 		}
 		public PathScreen(Photos app, Tracker tracker, boolean first) {
-			super(app, mTitleColor);
+			super(app);
 			getBelow().setResource(mMenuBackground);
 			getBelow().flush();
 			setFooter("Press ENTER for options");
-			setTitle("Photos", mTitleColor);
+			setTitle("Photos");
 			mTracker = tracker;
 			mFirst = first;
 			int w = getWidth() - 2 * BORDER_LEFT;
@@ -678,11 +651,11 @@ public class Photos extends DefaultApplication {
 	public class PhotosScreen extends DefaultScreen {
 		private BList list;
 		public PhotosScreen(Photos app) {
-			super(app, true, mTitleColor);
+			super(app, true);
 			setFooter("Press ENTER for options");
 			getBelow().setResource(mInfoBackground);
 			getBelow().flush();
-			setTitle("Photo", mTitleColor);
+			setTitle("Photo");
 			mDateFormat = new SimpleDateFormat();
 			mDateFormat.applyPattern("EEE M/d hh:mm a");
 			int start = BORDER_TOP;
@@ -905,7 +878,7 @@ public class Photos extends DefaultApplication {
 			return super.handleKeyPress(code, rawcode);
 		}
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder()) {
@@ -915,7 +888,7 @@ public class Photos extends DefaultApplication {
 			}
 		}
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder()) {
@@ -987,7 +960,7 @@ public class Photos extends DefaultApplication {
 			mTracker = value;
 		}
 		private Image currentImage() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null) {
 				try {
 					FileItem nameFile = (FileItem) mTracker.getList().get(
 							mTracker.getPos());
@@ -1018,7 +991,7 @@ public class Photos extends DefaultApplication {
 		}
 		public SlideshowScreen(Photos app, Tracker tracker,
 				boolean showSlideshow) {
-			super(app, null, null, false, mTitleColor);
+			super(app, null, null, false);
 			mTracker = tracker;
 			mShowSlideshow = showSlideshow;
 			setTitle(" ");
@@ -1154,7 +1127,7 @@ public class Photos extends DefaultApplication {
 			return super.handleKeyPress(code, rawcode);
 		}
 		public void getNextPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				int pos = mTracker.getNextPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder()) {
@@ -1164,7 +1137,7 @@ public class Photos extends DefaultApplication {
 			}
 		}
 		public void getPrevPos() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				int pos = mTracker.getPrevPos();
 				Item nameFile = (Item) mTracker.getList().get(pos);
 				while (nameFile.isFolder()) {
@@ -1174,7 +1147,7 @@ public class Photos extends DefaultApplication {
 			}
 		}
 		private Image currentImage() {
-			if (mTracker != null && mTracker.getList()!=null && mTracker.getList().size()>0) {
+			if (mTracker != null && mTracker.getList().size() > 0) {
 				try {
 					FileItem nameFile = (FileItem) mTracker.getList().get(
 							mTracker.getPos());
@@ -1245,7 +1218,6 @@ public class Photos extends DefaultApplication {
 			FileInputStream is = null;
 			Image image = null;
 			Random random = new Random();
-			boolean first = true;
 			int currentEffect = 0;
 			if (photosConfiguration.getEffect().equals(Effects.SEQUENTIAL))
 				currentEffect = 0;
@@ -1254,6 +1226,8 @@ public class Photos extends DefaultApplication {
 			}
 			while (getApp().getContext() != null) {
 				try {
+					sleep(1000 * photosConfiguration.getDisplayTime());
+					mSlideshowScreen.getNextPos();
 					image = mSlideshowScreen.currentImage();
 					if (image != null) {
 						File file = new File(image.getPath());
@@ -1290,18 +1264,10 @@ public class Photos extends DefaultApplication {
 									currentEffect = random
 											.nextInt(effects.length);
 								}
-								if (!first) {
-									Effect effect = (Effect) effects[currentEffect];
-									effect.setDelay(photosConfiguration
+								Effect effect = (Effect) effects[currentEffect];
+								effect.setDelay(photosConfiguration
 										.getTransitionTime() * 1000);
-									effect.apply(mSlideshowScreen.mPhoto, scaled);
-								}
-								else
-								{
-									mSlideshowScreen.mPhoto.setResource(mSlideshowScreen.mPhoto.createImage(scaled));
-									scaled.flush();
-									scaled = null;
-								}
+								effect.apply(mSlideshowScreen.mPhoto, scaled);
 							}
 						} catch (Exception ex) {
 							Tools.logException(Photos.class, ex,
@@ -1310,10 +1276,7 @@ public class Photos extends DefaultApplication {
 								return;
 						}
 					}
-					sleep(1000 * photosConfiguration.getDisplayTime());
-					mSlideshowScreen.getNextPos();
 					image = null;
-					first = false;
 				} catch (InterruptedException ex) {
 					return;
 				} catch (OutOfMemoryError ex) {

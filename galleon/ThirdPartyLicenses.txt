@@ -1811,6 +1811,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------
 O) The following software is included in this product:
 (XXX XXX  not used?? XXX XXX)
+MovieTimes.ttf from http://www.getfreefonts.info/free_font.movietimes.html
 MovieTimes font; Use of this font is governed
 by the following conditions:     
 

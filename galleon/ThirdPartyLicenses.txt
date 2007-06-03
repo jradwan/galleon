@@ -1913,6 +1913,9 @@ http://db.apache.org/derby/releases/release-10.2.2.0.cgi
 http://www.igniterealtime.org/downloads/download-landing.jsp?file=smack/smack_3_0_2.zip
 http://www.igniterealtime.org/projects/smack/index.jsp
 
+(jaxme2.jar, jaxmeapi.jar, jaxmexs.jar, combined into jax.jar)
+http://ws.apache.org/jaxme: ws-jaxme-0.3.1
+
 Use of any of this software is governed
 by the terms of the license below:     
 

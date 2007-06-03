@@ -18,10 +18,10 @@
 !define PRODUCT_PUBLISHER "Galleon"
 !define PRODUCT_WEB_SITE "http://galleon.tv"
 !define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;hme-1.4.jar;hme-host-sample-1.4.jar;pja-2.5.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
-!define PRODUCT_BUILD_DIR "c:\galleon\build"
+!define PRODUCT_BUILD_DIR "c:\documents and settings\jtk\my documents\Eclipse-local\galleon\build"
 
-!define JRE_VERSION "1.5.0_06"
-!define JRE_URL "c:\download\jre-1_5_0_06-windows-i586-p.exe"
+!define JRE_VERSION "1.5.0_12"
+!define JRE_URL "e:\Install images\jre-1_5_0_12-windows-i586-p.exe"
 !define JRE_PATH $R0
 !define TEMP $R1
 !define TEMP2 $R2
@@ -54,7 +54,7 @@ ShowUnInstDetails show
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
-!insertmacro MUI_PAGE_LICENSE "${PRODUCT_BUILD_DIR}\copying"
+!insertmacro MUI_PAGE_LICENSE "${PRODUCT_BUILD_DIR}\COPYING"
 
 ; Determine if the JRE is already installed
 Page custom CheckInstalledJRE
@@ -123,7 +123,7 @@ Section "JRE" jre
   ;StrCmp ${DOWNLOAD_JRE_FLAG} "NoDownload" End
 
   DetailPrint "Starting the JRE installation"
-  File /oname=$TEMP\jre_setup.exe ${JRE_URL}
+  File /oname=$TEMP\jre_setup.exe "${JRE_URL}"
   DetailPrint "Launching JRE setup"
   ExecWait "$TEMP\jre_setup.exe" $0
   BringToFront
@@ -176,12 +176,12 @@ Section -installGalleon SEC01
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR\bin"
 
-  File ${PRODUCT_BUILD_DIR}\bin\install.cmd
-  File ${PRODUCT_BUILD_DIR}\bin\run.cmd
-  File ${PRODUCT_BUILD_DIR}\bin\uninstall.cmd
-  File ${PRODUCT_BUILD_DIR}\bin\Wrapper.exe
-  File ${PRODUCT_BUILD_DIR}\bin\gui.cmd
-  ;File ${PRODUCT_BUILD_DIR}\bin\ffmpeg.exe
+  File "${PRODUCT_BUILD_DIR}\bin\install.cmd"
+  File "${PRODUCT_BUILD_DIR}\bin\run.cmd"
+  File "${PRODUCT_BUILD_DIR}\bin\uninstall.cmd"
+  File "${PRODUCT_BUILD_DIR}\bin\Wrapper.exe"
+  File "${PRODUCT_BUILD_DIR}\bin\gui.cmd"
+  ;File "${PRODUCT_BUILD_DIR}\bin\ffmpeg.exe"
 
   DetailPrint "Installing Galleon configuration files"
   SetOutPath "$INSTDIR\conf"
@@ -191,10 +191,10 @@ Section -installGalleon SEC01
   Goto CopyFiles
 
 InstallConfiguration:
-  File ${PRODUCT_BUILD_DIR}\conf\configure.xml
+  File "${PRODUCT_BUILD_DIR}\conf\configure.xml"
 
 CopyFiles:
-  File ${PRODUCT_BUILD_DIR}\conf\log4j.xml
+  File "${PRODUCT_BUILD_DIR}\conf\log4j.xml"
   
 ; Replace Customer Name in log4j.xml
   Push "../logs/log.txt"                     #text to be replaced
@@ -210,85 +210,86 @@ CopyFiles:
   Push all                                   #replace all occurrences
   Push $INSTDIR\conf\log4j.xml               #file to replace in
   Call AdvReplaceInFile                      #call find and replace function
-  File ${PRODUCT_BUILD_DIR}\conf\wrapper.conf
-  File ${PRODUCT_BUILD_DIR}\conf\derby.properties
-  File ${PRODUCT_BUILD_DIR}\conf\ehcache.xml
-  File ${PRODUCT_BUILD_DIR}\conf\hibernate.properties
+  File "${PRODUCT_BUILD_DIR}\conf\wrapper.conf"
+  File "${PRODUCT_BUILD_DIR}\conf\derby.properties"
+  File "${PRODUCT_BUILD_DIR}\conf\ehcache.xml"
+  File "${PRODUCT_BUILD_DIR}\conf\hibernate.properties"
 
   SetOutPath "$INSTDIR\media\images"
-  File ${PRODUCT_BUILD_DIR}\media\images\galleon.ico
+  File "${PRODUCT_BUILD_DIR}\media\images\galleon.ico"
   SetOutPath "$INSTDIR\media\winamp"
-  File ${PRODUCT_BUILD_DIR}\media\winamp\metrix.wsz
-  File ${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal-dream.wsz
-  File ${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_gold.wsz
-  File ${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_green.wsz
-  File ${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_red.wsz
+  ;File "${PRODUCT_BUILD_DIR}\media\winamp\metrix.wsz"
+  ;File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal-dream.wsz"
+  ;File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_gold.wsz"
+  ;File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_green.wsz"
+  ;File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_red.wsz"
 
   DetailPrint "Installing Galleon libraries"
   SetOutPath "$INSTDIR\lib"
-  File /oname=MHS-1.6.1-1697.jar ${PRODUCT_BUILD_DIR}\lib\MHS-1.6.1-1697.jar
-  File /oname=bananas-1.3-custom.jar ${PRODUCT_BUILD_DIR}\lib\bananas-1.3-custom.jar
-  File /oname=browserlauncher.jar ${PRODUCT_BUILD_DIR}\lib\browserlauncher.jar
-  File /oname=commons.jar ${PRODUCT_BUILD_DIR}\lib\commons.jar
-  File /oname=concurrent.jar ${PRODUCT_BUILD_DIR}\lib\concurrent.jar
-  File /oname=derby.jar ${PRODUCT_BUILD_DIR}\lib\derby.jar
-  File /oname=dom4j-1.6.1.jar ${PRODUCT_BUILD_DIR}\lib\dom4j-1.6.1.jar
-  File /oname=forms.jar ${PRODUCT_BUILD_DIR}\lib\forms.jar
-  File /oname=galleon.jar ${PRODUCT_BUILD_DIR}\lib\galleon.jar
-  File /oname=hibernate.jar ${PRODUCT_BUILD_DIR}\lib\hibernate.jar
-  File /oname=hme-1.4.jar ${PRODUCT_BUILD_DIR}\lib\hme-1.4.jar
-  File /oname=hme-host-sample-1.4.jar ${PRODUCT_BUILD_DIR}\lib\hme-host-sample-1.4.jar
-  File /oname=htmlparser-1.5.jar ${PRODUCT_BUILD_DIR}\lib\htmlparser-1.5.jar
-  File /oname=informa-0.7.0.jar ${PRODUCT_BUILD_DIR}\lib\informa-0.7.0.jar
-  File /oname=jampal-1.14.jar ${PRODUCT_BUILD_DIR}\lib\jampal-1.14.jar
-  File /oname=javazoom.jar ${PRODUCT_BUILD_DIR}\lib\javazoom.jar
-  File /oname=jawin-1.0.19.jar ${PRODUCT_BUILD_DIR}\lib\jawin-1.0.19.jar
-  File /oname=jawin.dll ${PRODUCT_BUILD_DIR}\lib\jawin.dll
-  File /oname=jax.jar ${PRODUCT_BUILD_DIR}\lib\jax.jar
-  File /oname=jd3lib-a4.jar ${PRODUCT_BUILD_DIR}\lib\jd3lib-a4.jar
-  File /oname=jdai-0.4.jar ${PRODUCT_BUILD_DIR}\lib\jdai-0.4.jar
-  File /oname=jdbc2_0-stdext.jar ${PRODUCT_BUILD_DIR}\lib\jdbc2_0-stdext.jar
-  File /oname=jdom-1.0.jar ${PRODUCT_BUILD_DIR}\lib\jdom-1.0.jar
-  File /oname=js-1.6R5.jar ${PRODUCT_BUILD_DIR}\lib\js-1.6R5.jar
-  File /oname=jshortcut-0.4.jar ${PRODUCT_BUILD_DIR}\lib\jshortcut-0.4.jar
-  File /oname=jshortcut.dll ${PRODUCT_BUILD_DIR}\lib\jshortcut.dll
-  File /oname=log4j-1.2.14.jar ${PRODUCT_BUILD_DIR}\lib\log4j-1.2.14.jar
-  File /oname=mail-1.4.jar ${PRODUCT_BUILD_DIR}\lib\mail-1.4.jar
-  File /oname=mediamanager-videoman-0.8.jar ${PRODUCT_BUILD_DIR}\lib\mediamanager-videoman-0.8.jar
-  File /oname=pja-2.5.jar ${PRODUCT_BUILD_DIR}\lib\pja-2.5.jar
-  File /oname=smack.jar ${PRODUCT_BUILD_DIR}\lib\smack.jar
-  File /oname=upcoming.jar ${PRODUCT_BUILD_DIR}\lib\upcoming.jar
-  File /oname=widgets.jar ${PRODUCT_BUILD_DIR}\lib\widgets.jar
-  File /oname=wrapper-3.2.3.jar ${PRODUCT_BUILD_DIR}\lib\wrapper-3.2.3.jar
-  File /oname=wrapper.dll ${PRODUCT_BUILD_DIR}\lib\wrapper.dll
-  File /oname=xbean-1.0.4.jar ${PRODUCT_BUILD_DIR}\lib\xbean-1.0.4.jar
-  File /oname=xercesImpl-2.9.0.jar ${PRODUCT_BUILD_DIR}\lib\xercesImpl-2.9.0.jar
-  File /oname=xml-apis-2.9.0.jar ${PRODUCT_BUILD_DIR}\lib\xml-apis-2.9.0.jar
-  File /oname=yahoo_search-2.0.1.jar ${PRODUCT_BUILD_DIR}\lib\yahoo_search-2.0.1.jar
+  File /oname=MHS-1.6.1-1697.jar "${PRODUCT_BUILD_DIR}\lib\MHS-1.6.1-1697.jar"
+  File /oname=bananas-1.3-custom.jar "${PRODUCT_BUILD_DIR}\lib\bananas-1.3-custom.jar"
+  File /oname=browserlauncher.jar "${PRODUCT_BUILD_DIR}\lib\browserlauncher.jar"
+  File /oname=cglib-2.1_3.jar "${PRODUCT_BUILD_DIR}\lib\cglib-2.1_3.jar"
+  File /oname=commons.jar "${PRODUCT_BUILD_DIR}\lib\commons.jar"
+  File /oname=concurrent.jar "${PRODUCT_BUILD_DIR}\lib\concurrent.jar"
+  File /oname=derby.jar "${PRODUCT_BUILD_DIR}\lib\derby.jar"
+  File /oname=dom4j-1.6.1.jar "${PRODUCT_BUILD_DIR}\lib\dom4j-1.6.1.jar"
+  File /oname=forms.jar "${PRODUCT_BUILD_DIR}\lib\forms.jar"
+  File /oname=galleon.jar "${PRODUCT_BUILD_DIR}\lib\galleon.jar"
+  File /oname=hibernate.jar "${PRODUCT_BUILD_DIR}\lib\hibernate.jar"
+  File /oname=hme-1.4.jar "${PRODUCT_BUILD_DIR}\lib\hme-1.4.jar"
+  File /oname=hme-host-sample-1.4.jar "${PRODUCT_BUILD_DIR}\lib\hme-host-sample-1.4.jar"
+  File /oname=htmlparser-1.5.jar "${PRODUCT_BUILD_DIR}\lib\htmlparser-1.5.jar"
+  File /oname=informa-0.7.0.jar "${PRODUCT_BUILD_DIR}\lib\informa-0.7.0.jar"
+  File /oname=jampal-1.14.jar "${PRODUCT_BUILD_DIR}\lib\jampal-1.14.jar"
+  File /oname=javazoom.jar "${PRODUCT_BUILD_DIR}\lib\javazoom.jar"
+  File /oname=jawin-1.0.19.jar "${PRODUCT_BUILD_DIR}\lib\jawin-1.0.19.jar"
+  File /oname=jawin.dll "${PRODUCT_BUILD_DIR}\lib\jawin.dll"
+  File /oname=jax.jar "${PRODUCT_BUILD_DIR}\lib\jax.jar"
+  File /oname=jd3lib-a4.jar "${PRODUCT_BUILD_DIR}\lib\jd3lib-a4.jar"
+  File /oname=jdai-0.4.jar "${PRODUCT_BUILD_DIR}\lib\jdai-0.4.jar"
+  File /oname=jdbc2_0-stdext.jar "${PRODUCT_BUILD_DIR}\lib\jdbc2_0-stdext.jar"
+  File /oname=jdom-1.0.jar "${PRODUCT_BUILD_DIR}\lib\jdom-1.0.jar"
+  File /oname=js-1.6R5.jar "${PRODUCT_BUILD_DIR}\lib\js-1.6R5.jar"
+  File /oname=jshortcut-0.4.jar "${PRODUCT_BUILD_DIR}\lib\jshortcut-0.4.jar"
+  File /oname=jshortcut.dll "${PRODUCT_BUILD_DIR}\lib\jshortcut.dll"
+  File /oname=log4j-1.2.14.jar "${PRODUCT_BUILD_DIR}\lib\log4j-1.2.14.jar"
+  File /oname=mail-1.4.jar "${PRODUCT_BUILD_DIR}\lib\mail-1.4.jar"
+  File /oname=mediamanager-videoman-0.8.jar "${PRODUCT_BUILD_DIR}\lib\mediamanager-videoman-0.8.jar"
+  File /oname=pja-2.5.jar "${PRODUCT_BUILD_DIR}\lib\pja-2.5.jar"
+  File /oname=smack.jar "${PRODUCT_BUILD_DIR}\lib\smack.jar"
+  File /oname=upcoming.jar "${PRODUCT_BUILD_DIR}\lib\upcoming.jar"
+  File /oname=widgets.jar "${PRODUCT_BUILD_DIR}\lib\widgets.jar"
+  File /oname=wrapper-3.2.3.jar "${PRODUCT_BUILD_DIR}\lib\wrapper-3.2.3.jar"
+  File /oname=wrapper.dll "${PRODUCT_BUILD_DIR}\lib\wrapper.dll"
+  File /oname=xbean-1.0.4.jar "${PRODUCT_BUILD_DIR}\lib\xbean-1.0.4.jar"
+  File /oname=xercesImpl-2.9.0.jar "${PRODUCT_BUILD_DIR}\lib\xercesImpl-2.9.0.jar"
+  File /oname=xml-apis-2.9.0.jar "${PRODUCT_BUILD_DIR}\lib\xml-apis-2.9.0.jar"
+  File /oname=yahoo_search-2.0.1.jar "${PRODUCT_BUILD_DIR}\lib\yahoo_search-2.0.1.jar"
 
   DetailPrint "Installing Galleon apps"
   SetOutPath "$INSTDIR\apps"
-  File ${PRODUCT_BUILD_DIR}\apps\music.jar
-  File ${PRODUCT_BUILD_DIR}\apps\musicOrganizer.jar
-  File ${PRODUCT_BUILD_DIR}\apps\photos.jar
-  File ${PRODUCT_BUILD_DIR}\apps\rss.jar
-  File ${PRODUCT_BUILD_DIR}\apps\shoutcast.jar
-  File ${PRODUCT_BUILD_DIR}\apps\togo.jar
-  File ${PRODUCT_BUILD_DIR}\apps\weather.jar
-  File ${PRODUCT_BUILD_DIR}\apps\desktop.jar
-  File ${PRODUCT_BUILD_DIR}\apps\email.jar
-  File ${PRODUCT_BUILD_DIR}\apps\internet.jar
-  File ${PRODUCT_BUILD_DIR}\apps\iTunes.jar
-  File ${PRODUCT_BUILD_DIR}\apps\playlists.jar
-  File ${PRODUCT_BUILD_DIR}\apps\podcasting.jar
-  File ${PRODUCT_BUILD_DIR}\apps\movies.jar
-  File ${PRODUCT_BUILD_DIR}\apps\videocasting.jar
-  File ${PRODUCT_BUILD_DIR}\apps\internetSlideshows.jar
-  File ${PRODUCT_BUILD_DIR}\apps\upcoming.jar
-  File ${PRODUCT_BUILD_DIR}\apps\jukebox.jar
-  File ${PRODUCT_BUILD_DIR}\apps\traffic.jar
-  File ${PRODUCT_BUILD_DIR}\apps\menu.jar
-  File ${PRODUCT_BUILD_DIR}\apps\jabber.jar
+  File "${PRODUCT_BUILD_DIR}\apps\music.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\musicOrganizer.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\photos.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\rss.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\shoutcast.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\togo.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\weather.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\desktop.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\email.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\internet.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\iTunes.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\playlists.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\podcasting.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\movies.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\videocasting.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\internetSlideshows.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\upcoming.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\jukebox.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\traffic.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\menu.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\jabber.jar"
   IfFileExists "$INSTDIR\apps\camera.jar" 0 HME
   Delete "$INSTDIR\apps\camera.jar"
 
@@ -296,19 +297,19 @@ HME:
   DetailPrint "Installing HME support"
   SetOutPath "$INSTDIR\hme"
   IfFileExists "${PRODUCT_BUILD_DIR}\hme\launcher.txt" Skins
-  File ${PRODUCT_BUILD_DIR}\hme\launcher.txt
+  File "${PRODUCT_BUILD_DIR}\hme\launcher.txt"
 
 Skins:
   DetailPrint "Installing skins"
   SetOutPath "$INSTDIR\skins"
-  File ${PRODUCT_BUILD_DIR}\skins\galleon.gln
-  File ${PRODUCT_BUILD_DIR}\skins\tivo.gln
+  File "${PRODUCT_BUILD_DIR}\skins\galleon.gln"
+  File "${PRODUCT_BUILD_DIR}\skins\tivo.gln"
 
   DetailPrint "Installing Galleon documentation"
   SetOutPath "$INSTDIR"
-  File ${PRODUCT_BUILD_DIR}\Readme.txt
-  File ${PRODUCT_BUILD_DIR}\copying
-  File ${PRODUCT_BUILD_DIR}\ThirdPartyLicenses.txt
+  File "${PRODUCT_BUILD_DIR}\Readme.txt"
+  File /oname=COPYING "${PRODUCT_BUILD_DIR}\copying"
+  File "${PRODUCT_BUILD_DIR}\ThirdPartyLicenses.txt"
 
   CreateDirectory "$INSTDIR\logs"
   CreateDirectory "$INSTDIR\data"
@@ -436,7 +437,7 @@ CreateBeaconDir:
 CopyBeaconFiles:
   DetailPrint "Copying TiVo Beacon service files"
   SetOutPath "$0\TiVo Shared\Beacon"
-  File ${PRODUCT_BUILD_DIR}\lib\TiVoBeacon.exe
+  File "${PRODUCT_BUILD_DIR}\lib\TiVoBeacon.exe"
 
 RegisterApi:
 ; http://nsis.sourceforge.net/archive/viewpage.php?pageid=38
@@ -735,6 +736,9 @@ Function DetectJRE
   ;ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
   ;StrCmp ${TEMP3} "" DetectTry2
   ;Goto GetJRE
+  StrCpy ${TEMP2} "1.5.0_12"
+  ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
+  StrCmp ${TEMP3} "" 0 GetJRE
   StrCpy ${TEMP2} "1.5.0_11"
   ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
   StrCmp ${TEMP3} "" 0 GetJRE

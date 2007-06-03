@@ -8,6 +8,7 @@ set classpath=%classpath%;..\conf
 set classpath=%classpath%;..\lib\galleon.jar
 set classpath=%classpath%;..\lib\widgets.jar
 set classpath=%classpath%;..\lib\commons.jar
+set classpath=%classpath%;..\lib\cglib-2.1_3.jar
 set classpath=%classpath%;..\lib\derby.jar
 set classpath=%classpath%;..\lib\dom4j-1.6.1.jar
 set classpath=%classpath%;..\lib\hibernate.jar

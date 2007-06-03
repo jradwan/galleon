@@ -2,8 +2,8 @@
 
     <path id="class.path">
       <pathelement location="${basedir}/build" />
-        <fileset dir="${basedir}/../HME-1.4/hme_sdk_1.4" >
-          <include name="**/*.jar"/>
+        <fileset dir="${basedir}/../galleon/lib" >
+          <include name="hme-1.4.jar"/>
         </fileset>
     </path>
 

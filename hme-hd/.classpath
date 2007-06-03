@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/galleon/lib/hme-host-sample-1.4.jar"/>
+	<classpathentry kind="lib" path="/galleon/lib/hme-1.4.jar"/>
+	<classpathentry kind="lib" path="/galleon/lib/bananas-1.3-custom.jar"/>
+	<classpathentry kind="lib" path="/galleon/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="/galleon/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

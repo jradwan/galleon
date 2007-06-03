@@ -17,7 +17,7 @@ APP_NAME="galleon"
 APP_LONG_NAME="galleon"
 
 # Wrapper
-WRAPPER_CMD="./wrapper"
+WRAPPER_CMD="./Wrapper"
 WRAPPER_CONF="../conf/wrapper.conf"
 
 # Java Home

@@ -1,0 +1,84 @@
+<project name="hme-hd" default="usage" basedir=".">
+
+    <path id="class.path">
+      <pathelement location="${basedir}/build" />
+        <fileset dir="${basedir}/../bananas" >
+          <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${basedir}/../galleon" >
+          <include name="lib/hme-*.jar"/>
+          <include name="lib/*log*.jar"/>
+        </fileset>
+    </path>
+
+  <!-- Initializations -->
+  <target name="init">    
+    <echo message="-------------------------------------------------------------"/>  
+    <echo message="------------         BUILDING hme-hd PACKAGE       ----------"/>
+    <echo message=""/>
+    <property name="year" value="2005"/>
+    <property name="jars" value="${basedir}"/>
+    <property name="sources" value="${basedir}/src/java"/>
+    <property name="classes" value="${basedir}/classes"/>
+    <property name="api" value="${basedir}/doc"/>    
+  </target>
+
+  <!-- Clean -->
+  <target name="clean">
+	<delete dir="${classes}" />
+	<delete dir="${api}" />
+
+	<mkdir dir="${classes}" />
+	<mkdir dir="${api}" />
+    </target>
+
+  <!-- Build -->
+  <target name="build" depends="init,clean">
+    <echo message="------ Compiling application"/>
+    <javac srcdir="${sources}" destdir="${classes}" includes="**"
+    	debug="on" optimize="on" deprecation="off" verbose="off" source="5" target="5">
+	  <classpath>
+		<path refid="class.path" />
+	  </classpath>
+	</javac>
+    <copy todir="${classes}">
+       <fileset dir="${sources}" >
+           <include name="**/*.png"/>
+       </fileset>
+     </copy>
+  </target>
+
+  <!-- Archive -->
+  <target name="dist" depends="build">
+    <echo message="------ Building Jar file"/>
+    <jar jarfile="${jars}/hme-hd.jar" basedir="${classes}" />
+  </target>
+
+  <!-- JavaDoc -->
+  <target name="all" depends="dist">
+     <echo message="------ Running JavaDoc"/>
+     <javadoc packagenames="com.*"
+              sourcepath="${sources}"
+              destdir="${api}"
+              bottom="${year}"
+              author="false">
+      <classpath>
+		<path refid="class.path" />
+        <pathelement location="${classes}"/>
+      </classpath>
+     </javadoc>
+  </target>
+
+  <!-- Usage -->
+  <target name="usage">
+     <echo message="*** JavaLayer ANT build script ***"/>
+     <echo message="Usage : "/>
+     <echo message="   ant [target]"/>
+     <echo message=""/>     
+     <echo message="   target : "/>     
+     <echo message="            build : Build Application"/>     
+     <echo message="            dist  : Build Application + Archive (JAR)"/>     
+     <echo message="            all   : Build Application + Archive + JavaDoc"/>       
+  </target>
+       
+</project>

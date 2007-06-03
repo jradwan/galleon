@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
 
 public class HDApplication extends BApplication {
     private static final Log log = LogFactory.getLog(HDApplication.class);
@@ -35,6 +36,8 @@ public class HDApplication extends BApplication {
     private boolean resolutionReceived;
     private boolean applicationInitialized;
     private Timer timer;
+    private Resolution desiredResolution;
+    protected boolean initialized;
 
     protected void setContext(IContext context, int version) {
         if (log.isDebugEnabled()) {
@@ -56,7 +59,7 @@ public class HDApplication extends BApplication {
         this.height = getRoot().getHeight();
     }
     
-    public final void init(IContext context) throws Exception {
+    public void init(IContext context) throws Exception {
         this.context = context;
         super.init(context);
         
@@ -230,6 +233,9 @@ public class HDApplication extends BApplication {
     
     private void initApp() {
         if (applicationInitialized) {
+	    if (log.isDebugEnabled()) {
+		log.debug("Already initialized, not re-initing.");
+	    }
             return;
         }
         applicationInitialized = true;
@@ -300,5 +306,53 @@ public class HDApplication extends BApplication {
         }
     }
     
-    public void initApp(IContext context) throws Exception {}
+    public void initApp(IContext context) throws Exception {
+        // from MovieRentalApplication:
+
+        // Check the current resolution. If needed, tell receiver to switch to
+        // the desired resolution and return. When the receiver finally gets to
+        // the desired resolution, call the application's initService method.
+        ResolutionInfo resInfo = getResolutionInfo();
+        Resolution currentRes = resInfo.getCurrentResolution();
+        desiredResolution = resInfo.getPreferredResolution();
+
+        if (log.isInfoEnabled()) {
+            log.info("Current resolution is: " + currentRes);
+        }
+
+        if (currentRes.equals(desiredResolution)) {
+            if (!initialized) {
+                initService();
+            }
+        } else {
+            if (log.isInfoEnabled()) {
+                log.info("Changing resolution to: " + desiredResolution);
+            }
+            // switch the the preferred resolution
+            setReceiverResolution(desiredResolution);
+        }
+    }
+
+    /**
+     * This event handler snoops on resolution changes and reinitializes the
+     * service when it sees one.
+     */
+    public boolean handleEvent(HmeEvent event) {
+        if (event instanceof ResolutionInfo) {
+            ResolutionInfo resInfo = (ResolutionInfo) event;
+
+            if (log.isInfoEnabled()) {
+                log.info("Received resolution event: " + resInfo);
+            }
+            if (!initialized && desiredResolution != null
+                && resInfo.getCurrentResolution().equals(desiredResolution)) {
+                initService();
+            }
+        }
+        return super.handleEvent(event);
+    }
+
+    public void initService() {
+        // TODO Auto-generated method stub
+    }
 }

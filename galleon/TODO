@@ -1,0 +1,11 @@
+* Clean up non-MacOS stuff, confirm paths for Java 5 are set up right in scripts
+* Verify all apps still work after hibernate change, etc.
+* upgrade commons-betwixt to 0.8.  Something wrong in Configurator.save(),
+  the hack to write the class name doesn't work.
+* Make galleon server exit with command-Q in MacOSX
+* figure out what was going on with skins work (see CVS branch
+  GALLEON_2_4_0_skin_branch), merge it into main trunk branch
+
+* update htmlparser to 1.6
+* update smack toolkit, can't confirm license on old copy
+* license verification on upcoming.jar

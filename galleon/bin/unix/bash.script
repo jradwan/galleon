@@ -48,7 +48,7 @@ if [ "$JAVA_HOME" == "" ] ; then
   exit
 fi
 
-export PATH=$PATH:/usr/java/j2re1.4.2_01/bin
+export PATH=$PATH:/usr/java/j2re1.5.0_11/bin
 
 # Priority (see the start() method if you want to use this)
 PRIORITY=

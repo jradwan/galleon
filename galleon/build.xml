@@ -1186,7 +1186,7 @@
 
         
         <antcall target="combinejars">
-          <param name="fileset" value="**/hibernate*.jar,**/ehcache*.jar,**/jdbc2_0-stdext.jar,**/jta*.jar,**/odmg*.jar,**/cglib-*.jar,**/asm-*.jar,**/freemarker.jar,**/antlr*.jar"/>          
+          <param name="fileset" value="**/hibernate*.jar,**/ehcache*.jar,**/jta*.jar,**/odmg*.jar,**/cglib-*.jar,**/asm-*.jar,**/freemarker.jar,**/antlr*.jar"/>          
           <param name="jarfile" value="hibernate.jar"/>          
         </antcall>                
 
@@ -1218,7 +1218,7 @@
         
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache*.jar,**/jdbc2_0-stdext.jar,**/jta*.jar,**/odmg*.jar,**/cglib-*.jar,**/freemarker.jar,**/antlr*.jar,**/asm-*.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi*.jar,**/tritonus_share.jar,**/forms*.jar,**/looks*.jar,**/smack*.jar,**/smackx*.jar"/>
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache*.jar,**/jta*.jar,**/odmg*.jar,**/cglib-*.jar,**/freemarker.jar,**/antlr*.jar,**/asm-*.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi*.jar,**/tritonus_share.jar,**/forms*.jar,**/looks*.jar,**/smack*.jar,**/smackx*.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />
@@ -1281,7 +1281,7 @@
 
     <target name="package-lib-unix">
         <copy file="./lib/unix/libwrapper.so" tofile="${build}/lib/libwrapper.so" />
-        <copy file="./lib/pja.jar" tofile="${build}/lib/pja.jar" />        
+        <copy file="./lib/pja-2.5.jar" tofile="${build}/lib/pja-2.5.jar" />        
     </target>
 
     <target name="package-bin-unix">

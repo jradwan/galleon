@@ -31,44 +31,45 @@
 		<key>ClassPath</key>
 		<array>
 			<string>$JAVAROOT/conf</string>
-			<string>$JAVAROOT/lib/dom4j.jar</string>
-			<string>$JAVAROOT/lib/derby.jar</string>
-			<string>$JAVAROOT/lib/concurrent.jar</string>
-			<string>$JAVAROOT/lib/commons.jar</string>
+			<string>$JAVAROOT/lib/MHS-1.6.1-1697.jar</string>
+			<string>$JAVAROOT/lib/bananas-1.3-custom.jar</string>
 			<string>$JAVAROOT/lib/browserlauncher.jar</string>
-			<string>$JAVAROOT/lib/bananas.jar</string>
-			<string>$JAVAROOT/lib/activation.jar</string>
-			<string>$JAVAROOT/lib/yahoo_search.jar</string>
-			<string>$JAVAROOT/lib/xml-apis.jar</string>
-			<string>$JAVAROOT/lib/xercesImpl.jar</string>
-			<string>$JAVAROOT/lib/xbean.jar</string>
-			<string>$JAVAROOT/lib/wrapper.jar</string>
-			<string>$JAVAROOT/lib/widgets.jar</string>
-			<string>$JAVAROOT/lib/pja.jar</string>
-			<string>$JAVAROOT/lib/mp3dings.jar</string>
-			<string>$JAVAROOT/lib/MHS.jar</string>
-			<string>$JAVAROOT/lib/mediamanager.jar</string>
-			<string>$JAVAROOT/lib/mail.jar</string>
-			<string>$JAVAROOT/lib/javazoom.jar</string>
-			<string>$JAVAROOT/lib/jampal.jar</string>
-			<string>$JAVAROOT/lib/informa.jar</string>
-			<string>$JAVAROOT/lib/htmlparser.jar</string>
-			<string>$JAVAROOT/lib/hme.jar</string>
-			<string>$JAVAROOT/lib/hme-host-sample.jar</string>
-			<string>$JAVAROOT/lib/hibernate.jar</string>
-			<string>$JAVAROOT/lib/galleon.jar</string>
+			<string>$JAVAROOT/lib/commons.jar</string>
+			<string>$JAVAROOT/lib/concurrent.jar</string>
+			<string>$JAVAROOT/lib/derby.jar</string>
+			<string>$JAVAROOT/lib/dom4j-1.6.1.jar</string>
 			<string>$JAVAROOT/lib/forms.jar</string>
-			<string>$JAVAROOT/lib/jdai.jar</string>
+			<string>$JAVAROOT/lib/galleon.jar</string>
+			<string>$JAVAROOT/lib/hibernate.jar</string>
+			<string>$JAVAROOT/lib/hme-1.4.jar</string>
+			<string>$JAVAROOT/lib/hme-host-sample-1.4.jar</string>
+			<string>$JAVAROOT/lib/htmlparser-1.5.jar</string>
+			<string>$JAVAROOT/lib/informa-0.7.0.jar</string>
+			<string>$JAVAROOT/lib/jampal-1.14.jar</string>
+			<string>$JAVAROOT/lib/javazoom.jar</string>
+			<string>$JAVAROOT/lib/jawin-1.0.19.jar</string>
 			<string>$JAVAROOT/lib/jax.jar</string>
-			<string>$JAVAROOT/lib/jawin.jar</string>
-			<string>$JAVAROOT/lib/log4j.jar</string>
-			<string>$JAVAROOT/lib/jshortcut.jar</string>
-			<string>$JAVAROOT/lib/js.jar</string>
-			<string>$JAVAROOT/lib/jdom.jar</string>
+			<string>$JAVAROOT/lib/jd3lib-a4.jar</string>
+			<string>$JAVAROOT/lib/jdai-0.4.jar</string>
+			<string>$JAVAROOT/lib/jdbc2_0-stdext.jar</string>
+			<string>$JAVAROOT/lib/jdom-1.0.jar</string>
+			<string>$JAVAROOT/lib/jl1.0.jar</string>
+			<string>$JAVAROOT/lib/js-1.6R5.jar</string>
+			<string>$JAVAROOT/lib/jshortcut-0.4.jar</string>
+			<string>$JAVAROOT/lib/log4j-1.2.14.jar</string>
+			<string>$JAVAROOT/lib/mail-1.4.jar</string>
+			<string>$JAVAROOT/lib/mediamanager-videoman-0.8.jar</string>
+			<string>$JAVAROOT/lib/pja-2.5.jar</string>
 			<string>$JAVAROOT/lib/upcoming.jar</string>
+			<string>$JAVAROOT/lib/widgets.jar</string>
+			<string>$JAVAROOT/lib/wrapper-3.2.3.jar</string>
+			<string>$JAVAROOT/lib/xbean-1.0.4.jar</string>
+			<string>$JAVAROOT/lib/xercesImpl-2.9.0.jar</string>
+			<string>$JAVAROOT/lib/xml-apis-2.9.0.jar</string>
+			<string>$JAVAROOT/lib/yahoo_search-2.0.1.jar</string>
 		</array>
 		<key>JVMVersion</key>
-		<string>1.4*</string>
+		<string>1.5*</string>
 		<key>MainClass</key>
 		<string>org.lnicholls.galleon.server.Server</string>
 		<key>Properties</key>

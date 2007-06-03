@@ -1,6 +1,12 @@
 Galleon
 -------
 
+Version 2.3.1:
+----------------------
+Upgraded open-source components to mostly current versions
+Use track title instead of file name for "Music" listings
+Published modified Bananas library
+Switched to build with Java 1.5
 
 Version 2.3.0:
 ----------------------

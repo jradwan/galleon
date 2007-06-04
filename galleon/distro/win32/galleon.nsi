@@ -20,8 +20,8 @@
 !define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;hme-1.4.jar;hme-host-sample-1.4.jar;pja-2.5.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
 !define PRODUCT_BUILD_DIR "c:\documents and settings\jtk\my documents\Eclipse-local\galleon\build"
 
-!define JRE_VERSION "1.5.0_12"
-!define JRE_URL "e:\Install images\jre-1_5_0_12-windows-i586-p.exe"
+!define JRE_VERSION "1.5.0"
+;;!define JRE_URL "e:\Install images\jre-1_5_0_12-windows-i586-p.exe"
 !define JRE_PATH $R0
 !define TEMP $R1
 !define TEMP2 $R2
@@ -116,58 +116,6 @@ Wait:
   Sleep 10000 ; wait for JVM to stop and release resources
   
 End:
-SectionEnd
-
-; Install the JRE if not already installed
-Section "JRE" jre
-  ;StrCmp ${DOWNLOAD_JRE_FLAG} "NoDownload" End
-
-  DetailPrint "Starting the JRE installation"
-  File /oname=$TEMP\jre_setup.exe "${JRE_URL}"
-  DetailPrint "Launching JRE setup"
-  ExecWait "$TEMP\jre_setup.exe" $0
-  BringToFront
-  DetailPrint "Setup finished"
-  Delete "$TEMP\jre_setup.exe"
-  StrCmp $0 "0" InstallVerif 0
-  Push "The JRE setup has been abnormally interrupted: $0"
-  Goto ExitInstallJRE
-
-InstallVerif:
-  DetailPrint "Checking the JRE Setup's outcome"
-  Call DetectJRE
-  Pop $0
-  StrCmp $0 "OK" JavaExeVerif 0
-  Push "The JRE setup failed"
-  Goto ExitInstallJRE
-
-JavaExeVerif:
-  Pop $1
-  IfFileExists $1 JREPathStorage 0
-  Push "The following file : $1, cannot be found."
-  Goto ExitInstallJRE
-
-JREPathStorage:
-  DetailPrint "The JRE was found at: $1"
-  Goto JavaHome
-
-ExitInstallJRE:
-  Pop $2
-  StrLen $3 $2
-  IntOp $3 $3 - 4
-  StrCpy $4 $2 4 $3
-  StrCmp $4 "3010" JavaHome
-  StrCmp $4 "1603" End
-  MessageBox MB_OK "The setup was interrupted for the following reason : $2. Download and install the 1.5.0 JRE from http://java.sun.com"
-  Quit
-
-JavaHome:
-  Push "JAVA_HOME"
-  Push $1
-  Call WriteEnvStr
-
-End:
-
 SectionEnd
 
 ; Install the files for Galleon
@@ -718,15 +666,23 @@ NoFound:
   Goto DownloadJRE
 
 DownloadJRE:
-  StrCpy ${DOWNLOAD_JRE_FLAG} "Download"
-  Return
+  MessageBox MB_OK "The setup was interrupted for the following reason: Unable to find Java 5 compatible Runtime. Download and install the 1.5.0 JRE from http://java.sun.com"
+  Quit
+
+
+
+;;  StrCpy ${DOWNLOAD_JRE_FLAG} "Download"
+;;  Return
 
 NoDownloadJRE:
   Pop ${TEMP2}
   DetailPrint "JRE found at : ${TEMP2}"
   StrCpy ${DOWNLOAD_JRE_FLAG} "NoDownload"
-  SectionSetFlags ${jre} 0
+;;  SectionSetFlags ${jre} 0
   Return
+
+
+End:
 FunctionEnd
 
 Function DetectJRE
@@ -793,8 +749,9 @@ GetJRE:
   ;StrCpy ${VAL1} ${TEMP2} 1 2
   ;StrCpy ${VAL2} ${JRE_VERSION} 1 2
   ;IntCmp ${VAL1} ${VAL2} FoundNew FoundOld FoundNew
-  Push ${TEMP2}
   Push ${JRE_VERSION}
+  Push ${TEMP2}
+;;  MessageBox MB_OK "Comparing ${TEMP2} to ${JRE_VERSION} for JRE"
   Call CompareVersions
   Pop $1
   StrCmp $1 "1" FoundNew NoFound
@@ -811,9 +768,16 @@ FoundOld:
   Return
 
 FoundNew:
+;;  MessageBox MB_OK "New JRE found"
   StrCpy ${JRE_PATH} ${TEMP3}
   Push "${TEMP3}\bin\java.exe"
   Push "OK"
+  Return
+
+JavaHome:
+  Push "JAVA_HOME"
+  Push $1
+  Call WriteEnvStr
   Return
 
 FunctionEnd
@@ -1117,7 +1081,7 @@ FunctionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${jre} "The Java Runtime Environment 5.0 (${JRE_VERSION}) is required for Galleon to run. It will only be installed if it is not detected on you system."
+;;  !insertmacro MUI_DESCRIPTION_TEXT ${jre} "The Java Runtime Environment 5.0 (${JRE_VERSION}) is required for Galleon to run. It will only be installed if it is not detected on you system."
   !insertmacro MUI_DESCRIPTION_TEXT ${desktop} "Create a shortcut on your desktop to the Galleon configuration program."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 

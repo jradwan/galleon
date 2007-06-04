@@ -666,10 +666,8 @@ NoFound:
   Goto DownloadJRE
 
 DownloadJRE:
-  MessageBox MB_OK "The setup was interrupted for the following reason: Unable to find Java 5 compatible Runtime. Download and install the 1.5.0 JRE from http://java.sun.com"
+  MessageBox MB_ICONEXCLAMATION|MB_OKCANCEL "Unable to find Java 5 compatible Runtime.  ${PRODUCT_NAME} needs one to run.  Install anyway? (Download and install the 1.5.0 JRE from http://java.sun.com)" /SD IDOK IDOK NoDownloadJRE
   Quit
-
-
 
 ;;  StrCpy ${DOWNLOAD_JRE_FLAG} "Download"
 ;;  Return

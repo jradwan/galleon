@@ -1,1 +1,6 @@
 build
+build.unix
+build.osx
+build.win32
+configure.xml
+binary

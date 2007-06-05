@@ -8,6 +8,11 @@ Use track title instead of file name for "Music" listings
 Published modified Bananas library
 Switched to build with Java 1.5
 
+Sources are tagged GALLEON_2_3_1 in CVS repository
+
+Native windows packaging is not supported--use the regular version.
+You must have Java 5 JRE or higher installed--none is included.
+
 *** Please send in bug reports if there are any problems with things
     that work fine in 2.3.0.  This release should not behave any
     differently ***

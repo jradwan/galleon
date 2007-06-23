@@ -2,7 +2,12 @@
   distro/win32/galleon.nsi
   src/org/lnicholls/galleon/Server/Constants.java
   conf/configure.xml.default
+  distro/osx/build-osx.sh
   distro/osx/....
+ distro/osx/bundles/Configure Galleon.app/Contents/Info.plist
+ distro/osx/bundles/Galleon Server.app/Contents/Info.plist
+ distro/osx/Info.plist
+
 
 * Scripting of release number
 * Scripting of install library list

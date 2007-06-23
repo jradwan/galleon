@@ -3,14 +3,14 @@
 cd `dirname $0`/../..
 sudo rm -rf osx-dir
 mkdir osx-dir
-mkdir -p osx-dir/ROOT
-(cd distro/osx/bundles && tar -cf - --exclude=\*~ --exclude=CVS *.app)|(cd osx-dir/ROOT && tar xpBf - )
+mkdir -p osx-dir/ROOT/Galleon
+(cd distro/osx/bundles && tar -cf - --exclude=\*~ --exclude=CVS *.app)|(cd osx-dir/ROOT/Galleon && tar xpBf - )
 if [ $# -gt 0 ]; then
     ant -Dplatform=osx package
 fi
-    (cd build && tar cf - *) | (cd  osx-dir/ROOT/Galleon*.app/Contents/Resources && mkdir Java && cd Java && tar xpBf -) 
-(cd osx-dir/ROOT/Conf*.app/Contents/Resources && ln -s ../../../Galleon*.app/Contents/Resources/Java ./Java)
-for i in osx-dir/ROOT/*.app; do
+    (cd build && tar cf - *) | (cd  osx-dir/ROOT/Galleon/Galleon*.app/Contents/Resources && mkdir Java && cd Java && tar xpBf -) 
+(cd osx-dir/ROOT/Galleon/Conf*.app/Contents/Resources && ln -s ../../../Galleon*.app/Contents/Resources/Java ./Java)
+for i in osx-dir/ROOT/Galleon/*.app; do
     mkdir "$i"/Contents/MacOS
 # You might be tempted to symlink this file, but that seems to make finder think both galleon & configure galleon are the same app.
 ##echo     cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$i"/Contents/MacOS/galleon_java_stub >"$i"/Contents/MacOS/ORIGIN.txt
@@ -19,7 +19,7 @@ for i in osx-dir/ROOT/*.app; do
     mkdir "$i"/Contents/Resources/Java/data/tmp
     /Developer/Tools/SetFile -a B "$i"
 done
-mv "osx-dir/ROOT/Galleon Server.app"/Contents/Resources/Java/conf/configure.xml "osx-dir/ROOT/Galleon Server.app"/Contents/Resources/Java/conf/configure.xml-default
+mv "osx-dir/ROOT/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/configure.xml "osx-dir/ROOT/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/configure.xml-default
 #mkdir -p osx-dir/Install_resources/English.lproj
 (cd distro/osx && tar --exclude=CVS --exclude=\*~ -cf - MainResources)|(cd osx-dir && tar xpBf -)
 #cp distro/osx/MainResources/postflight osx-dir/Install_resources
@@ -42,7 +42,7 @@ cp osx-dir/*.rtf osx-dir/MainResources/English.lproj
 # ln -s /Applications osx-dir/Applications
 sudo chown -R root:admin osx-dir
 #/Developer/Tools/packagemaker -build -proj distro/osx/Galleon.pmproj -p distro/osx/Galleon.pkg -v
-VER="2.4.0"
+VER="2.4.1"
 
 /Developer/Tools/packagemaker -build \
 -f osx-dir/ROOT -ds -v -r osx-dir/MainResources \

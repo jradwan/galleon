@@ -33,7 +33,7 @@ import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.widget.DefaultApplication;
+import org.lnicholls.galleon.widget.DefaultSDOnlyApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionsScreen;
 import org.lnicholls.galleon.widget.OptionsButton;
@@ -46,7 +46,7 @@ import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.Resource;
 
-public class Menu extends DefaultApplication {
+public class Menu extends DefaultSDOnlyApplication {
 
 	private static Logger log = Logger.getLogger(Menu.class.getName());
 
@@ -61,6 +61,7 @@ public class Menu extends DefaultApplication {
 	public void init(IContext context) throws Exception {
 		super.init(context);
 	}
+	
 	public void initService() {
 
 		mMenuBackground = getSkinImage("menu", "background");
@@ -237,7 +238,7 @@ public class Menu extends DefaultApplication {
 
 	public class OptionsScreen extends DefaultOptionsScreen {
 
-		public OptionsScreen(DefaultApplication app) {
+		public OptionsScreen(DefaultSDOnlyApplication app) {
 			super(app);
 
 			getBelow().setResource(mMenuBackground);
@@ -274,7 +275,7 @@ public class Menu extends DefaultApplication {
 		public boolean handleExit() {
 
 			try {
-				DefaultApplication application = (DefaultApplication)getApp();
+				DefaultSDOnlyApplication application = (DefaultSDOnlyApplication)getApp();
 				if (!application.isDemoMode())
 				{
 					PersistentValueManager.savePersistentValue(Menu.this.getClass().getName() + "." + "sort", mSortedButton

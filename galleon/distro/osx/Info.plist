@@ -3,15 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleGetInfoString</key>
-	<string>2.4.0 alpha</string>
+	<string>2.4.1 alpha</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.lnicholls.galleon</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.0</string>
+	<string>2.4.1</string>
 	<key>IFMajorVersion</key>
 	<integer>2</integer>
-	<key>IFMinorVersion</key>
-	<integer>4</integer>
+	<key>IFMinorVersion</key><integer>4</integer>
 	<key>IFPkgFlagAllowBackRev</key>
 	<false/>
 	<key>IFPkgFlagAuthorizationAction</key>

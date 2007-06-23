@@ -9,22 +9,28 @@ PKG="$1"
 DEST="$2"
 VOL="$3"
 SYSROOT="$4"
-#echo postflight running >/dev/ttyp2
-#echo dest=$DEST >/dev/ttyp2
-#echo VOL=$VOL >/dev/ttyp2
-#echo PKG=$PKG >/dev/ttyp2
-#echo SYSROOT=$SYSROOT >/dev/ttyp2
-#echo cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Galleon Server.app/Contents/MacOS/galleon_java_stub" >/dev/ttyp2
-cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Galleon Server.app/Contents/MacOS/galleon_java_stub"
-#echo cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Configure Galleon.app/Contents/MacOS/galleon_java_stub" >/dev/ttyp2
-cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Configure Galleon.app/Contents/MacOS/galleon_java_stub"
-#echo cd "$DEST/Galleon Server.app/Contents/Resources/Java/conf"
-cd "$DEST/Galleon Server.app/Contents/Resources/Java/conf"
+#echo postflight running >/dev/ttyp3
+#echo dest=$DEST >/dev/ttyp3
+#echo VOL=$VOL >/dev/ttyp3
+#echo PKG=$PKG >/dev/ttyp3
+#echo SYSROOT=$SYSROOT >/dev/ttyp3
+DESTDIR="$DEST/Galleon"
+#echo cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DESTDIR/Galleon Server.app/Contents/MacOS/galleon_java_stub" >/dev/ttyp3
+cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DESTDIR/Galleon Server.app/Contents/MacOS/galleon_java_stub"
+#echo cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DESTDIR/Configure Galleon.app/Contents/MacOS/galleon_java_stub" >/dev/ttyp3
+cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DESTDIR/Configure Galleon.app/Contents/MacOS/galleon_java_stub"
+#echo cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/conf"
+cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/conf"
 if [ ! -f configure.xml ]; then
-    cp configure.xml-default configure.xml
-#    echo "copied default configure" >/dev/ttyp2
+    if [ -f "$DEST/Galleon Server.app/Contents/Resources/Java/conf/configure.xml" ]; then
+	cp "$DEST/Galleon Server.app/Contents/Resources/Java/conf/configure.xml" configure.xml
+	echo "copied previous location configure" >/dev/ttyp3
+    else
+	cp configure.xml-default configure.xml
+	echo "copied default configure" >/dev/ttyp3
+    fi
 fi
-#echo cd "$DEST/Galleon Server.app/Contents/Resources/Java/data" >/dev/ttyp2
-cd "$DEST/Galleon Server.app/Contents/Resources/Java/data"
-#echo rm -rf galleon itunes >/dev/ttyp2
+#echo cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/data" >/dev/ttyp3
+cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/data"
+#echo rm -rf galleon itunes >/dev/ttyp3
 rm -rf galleon itunes

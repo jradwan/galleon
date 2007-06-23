@@ -1,6 +1,14 @@
 Galleon
 -------
 
+Version 2.4.1 alpha:
+----------------------
+* Turned off HD for applications that don't need it (e.g. top level menu,
+  Weather since its maps are small)
+* Updated Mac OS X install to put applications in subdirectory:
+  /Applications/Galleon/
+
+
 Version 2.4.0 alpha:
 ----------------------
 HD application support.  Try out HD photos!

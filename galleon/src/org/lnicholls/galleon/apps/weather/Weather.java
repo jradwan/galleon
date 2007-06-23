@@ -34,7 +34,7 @@ import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.widget.DefaultApplication;
+import org.lnicholls.galleon.widget.DefaultSDOnlyApplication;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultOptionList;
 import org.lnicholls.galleon.widget.DefaultScreen;
@@ -52,7 +52,7 @@ import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
 
-public class Weather extends DefaultApplication {
+public class Weather extends DefaultSDOnlyApplication {
 
     private static Logger log = Logger.getLogger(Weather.class.getName());
 

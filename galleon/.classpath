@@ -57,7 +57,7 @@
 	<classpathentry kind="lib" path="lib/ehcache-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-betwixt-0.6.jar"/>
-	<classpathentry kind="lib" path="lib/hme-hd.jar"/>
+	<classpathentry kind="lib" path="lib/hme-hd.jar" sourcepath="/hme-hd/src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jdbc2_0-stdext.jar"/>
 	<classpathentry kind="lib" path="lib/concurrent.jar"/>

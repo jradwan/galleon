@@ -1,5 +1,9 @@
 -----------------------------------------------------------------------
 A) The following software is included in this product:
+(org.lnicholls.galleon.downloads package code from
+gdownloader-0.2 with local modifications)
+http://downloads.sourceforge.net/gdownloader/gdownloader-0.2-src.jar
+
 (pja-2.5.jar) from http://www.eteks.com/pja/en
 http://www.eteks.com/pja/pja_2.5.zip
 

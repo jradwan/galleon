@@ -29,7 +29,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.awt.peer.RobotPeer;
 
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.util.Tools;
@@ -41,23 +41,30 @@ import sun.awt.ComponentFactory;
 import com.tivo.hme.interfaces.IContext;
 
 public class Desktop extends DefaultApplication {
-
+    
 	private static Logger log = Logger.getLogger(Desktop.class.getName());
 
 	public final static String TITLE = "Desktop";
 
-	public void init(IContext context) throws Exception {
+
+    public void init(IContext context) throws Exception {
 		super.init(context);
+		log.setLevel(Level.DEBUG);
+		// Suspend the push() until initApp() after resolution is changed
+		//push(new DesktopScreen(this), TRANSITION_NONE);
 
-		push(new DesktopScreen(this), TRANSITION_NONE);
-
-		initialize();
+		//initialize();
+		// called when resolution shows up... super.initApp(context);
 	}
+    
 
 	public class DesktopScreen extends DefaultScreen {
-
+		private Desktop mApp;
+		
 		public DesktopScreen(Desktop app) {
 			super(app, null, false);
+			mApp = app;
+		
 		}
 
 		private void update() {
@@ -77,7 +84,7 @@ public class Desktop extends DefaultApplication {
 
 					DataBufferInt buffer;
 					WritableRaster raster;
-					DirectColorModel screenCapCM = screenCapCM = new DirectColorModel(24,
+					DirectColorModel screenCapCM = new DirectColorModel(24,
 					/* red mask */0x00FF0000,
 					/* green mask */0x0000FF00,
 					/* blue mask */0x000000FF);
@@ -110,8 +117,8 @@ public class Desktop extends DefaultApplication {
 			try {
 				setPainting(false);
 				if (image != null && getApp().getContext() != null) {
-					if (image.getWidth() > 640 || image.getHeight() > 480) {
-						BufferedImage scaled = ImageManipulator.getScaledImage(image, 640, 480);
+					if (image.getWidth() > mApp.getWidth() || image.getHeight() > mApp.getHeight()) {
+						BufferedImage scaled = ImageManipulator.getScaledImage(image, mApp.getWidth(), mApp.getHeight());
 						image.flush();
 						image = null;
 
@@ -124,6 +131,8 @@ public class Desktop extends DefaultApplication {
 						image = null;
 					}
 				}
+			} catch (Exception ex) {
+				Tools.logException(Desktop.class, ex);
 			} finally {
 				setPainting(true);
 			}
@@ -177,5 +186,11 @@ public class Desktop extends DefaultApplication {
 		public void initialize() {
 
 		}
+	}
+	public void initService() {
+		// Called after each resolution switch?? XXX
+		super.initService();
+		push(new DesktopScreen(this), TRANSITION_NONE);
+		initialize();
 	}
 }

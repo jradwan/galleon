@@ -69,6 +69,8 @@ public class Jabber extends DefaultApplication {
 	private Resource mDndIcon;
 	public void init(IContext context) throws Exception {
 		super.init(context);
+	}
+	public void initService() {
 		((JabberFactory) getFactory()).available();
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");

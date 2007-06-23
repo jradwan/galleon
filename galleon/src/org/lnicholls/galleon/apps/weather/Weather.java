@@ -57,6 +57,12 @@ public class Weather extends DefaultApplication {
     private static Logger log = Logger.getLogger(Weather.class.getName());
 
     public final static String TITLE = "Weather";
+	private final static int CURRENT_CONDITIONS = 0;
+	private final static int FORECAST_SUMMARY = 1;
+	private final static int FORECAST_TEXT = 2;
+	private final static int LOCAL_RADAR = 3;
+	private final static int NATIONAL_RADAR = 4;
+	private final static int ALERTS = 5;
 
     private int mCurrent = 0;
 
@@ -72,7 +78,9 @@ public class Weather extends DefaultApplication {
 
     public void init(IContext context) throws Exception {
         super.init(context);
+	}
 
+	public void initService() {
         mMenuBackground = getSkinImage("menu", "background");
         mInfoBackground = getSkinImage("info", "background");
         mAlertIcon = getSkinImage("menu", "alert");
@@ -101,7 +109,8 @@ public class Weather extends DefaultApplication {
             WeatherData weatherData = ((WeatherFactory) getFactory()).getWeatherData();
             
             mMenuList.add("Current Conditions");
-            mMenuList.add("Forecast");
+			mMenuList.add("Forecast Summary");
+			mMenuList.add("Forecast text");
             mMenuList.add("Local Radar");
             mMenuList.add("National Radar");
             if (weatherData.hasAlerts())
@@ -116,16 +125,16 @@ public class Weather extends DefaultApplication {
 
                 WeatherData weatherData = ((WeatherFactory) getFactory()).getWeatherData();
                 mGenericWeatherScreen.setScreen(mMenuList.getFocus());
-                if (mMenuList.getFocus() == 0)
-                    getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
-                else if (mMenuList.getFocus() == 1)
-                    getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
-                else if (mMenuList.getFocus() == 2)
-                    getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
-                else if (mMenuList.getFocus() == 3)
-                    getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
-                else if (mMenuList.getFocus() == 4)
-                    getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				if (mMenuList.getFocus() == CURRENT_CONDITIONS)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				else if (mMenuList.getFocus() == FORECAST_SUMMARY)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				else if (mMenuList.getFocus() == FORECAST_TEXT)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				else if (mMenuList.getFocus() == LOCAL_RADAR)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				else if (mMenuList.getFocus() == NATIONAL_RADAR)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
                 return true;
             }
             return super.handleAction(view, action);
@@ -133,7 +142,7 @@ public class Weather extends DefaultApplication {
 
         protected void createRow(BView parent, int index) {
             BView icon = new BView(parent, 10, 3, 30, 30);
-            if (index == 4)
+            if (index == ALERTS)
                 icon.setResource(mAlertIcon);
             else
                 icon.setResource(mIcon);
@@ -165,6 +174,8 @@ public class Weather extends DefaultApplication {
             mCurrentConditions.setVisible(false);
             mForecast = new ForecastScreen(getBelow(), data);
             mForecast.setVisible(false);
+            mForecastText = new ForecastTextScreen(getBelow(), data);
+            mForecastText.setVisible(false);
             mLocalRadar = new LocalRadarScreen(getBelow(), data);
             mLocalRadar.setVisible(false);
             mNationalRadar = new NationalRadarScreen(getBelow(), data);
@@ -228,12 +239,12 @@ public class Weather extends DefaultApplication {
         public void getNextPos() {
         	if (mWeatherData.hasAlerts())
         	{
-        		if (++mScreen > 4)
+        		if (++mScreen > ALERTS)
 	        		mScreen = 0;
         	}
         	else
         	{
-	        	if (++mScreen > 3)
+	        	if (++mScreen > NATIONAL_RADAR)
 	        		mScreen = 0;
         	}
 		}
@@ -242,12 +253,12 @@ public class Weather extends DefaultApplication {
 			if (mWeatherData.hasAlerts())
         	{
 				if (--mScreen < 0)
-					mScreen = 4;				
+					mScreen = ALERTS;
         	}
 			else
 			{
 				if (--mScreen < 0)
-					mScreen = 3;				
+					mScreen = NATIONAL_RADAR;
 			}
 		}        
         
@@ -265,9 +276,10 @@ public class Weather extends DefaultApplication {
         	try {
                 setPainting(false);
 	        	switch (screen) {
-				case 0:
+				case CURRENT_CONDITIONS:
 					setTitle("Current Conditions");
 		            mForecast.setVisible(false);
+					mForecastText.setVisible(false);
 		            mLocalRadar.setVisible(false);
 		            mNationalRadar.setVisible(false);
 		            mAlerts.setVisible(false);
@@ -276,7 +288,7 @@ public class Weather extends DefaultApplication {
 		            mCurrentScreen = mCurrentConditions;		            
 		            setFooter("weather.com");				
 					break;
-				case 1:
+				case FORECAST_SUMMARY:
 					setTitle("Forecast");
 		            mCurrentConditions.setVisible(false);
 		            mLocalRadar.setVisible(false);
@@ -284,13 +296,27 @@ public class Weather extends DefaultApplication {
 		            mAlerts.setVisible(false);
 		            mForecast.setVisible(true);
 		            mForecast.updateText();
+					mForecastText.setVisible(false);
 		            mCurrentScreen = mForecast;
 		            setFooter("weather.com");				
 					break;				
-				case 2:
+				case FORECAST_TEXT:
+					setTitle("Forecast");
+					mCurrentConditions.setVisible(false);
+					mLocalRadar.setVisible(false);
+					mNationalRadar.setVisible(false);
+					mAlerts.setVisible(false);
+					mForecast.setVisible(false);
+					mForecastText.setVisible(true);
+					mForecastText.updateText();
+					mCurrentScreen = mForecastText;
+					setFooter("weather.gov");
+					break;
+				case LOCAL_RADAR:
 					setTitle(" ");
 		            mCurrentConditions.setVisible(false);
 		            mForecast.setVisible(false);
+					mForecastText.setVisible(false);
 		            mNationalRadar.setVisible(false);
 		            mAlerts.setVisible(false);
 		            mLocalRadar.setVisible(true);
@@ -298,10 +324,11 @@ public class Weather extends DefaultApplication {
 		            mCurrentScreen = mLocalRadar;
 		            setFooter(" ");				
 					break;
-				case 3:
+				case NATIONAL_RADAR:
 					setTitle(" ");
 		            mCurrentConditions.setVisible(false);
 		            mForecast.setVisible(false);
+					mForecastText.setVisible(false);
 		            mLocalRadar.setVisible(false);
 		            mAlerts.setVisible(false);
 		            mNationalRadar.setVisible(true);
@@ -309,10 +336,11 @@ public class Weather extends DefaultApplication {
 		            mCurrentScreen = mNationalRadar;		            
 		            setFooter(" ");				
 					break;				
-				case 4:
+				case ALERTS:
 					setTitle("Alerts");
 		            mCurrentConditions.setVisible(false);
 		            mForecast.setVisible(false);
+					mForecastText.setVisible(false);
 		            mLocalRadar.setVisible(false);
 		            mNationalRadar.setVisible(false);
 		            mAlerts.setVisible(true);
@@ -331,6 +359,7 @@ public class Weather extends DefaultApplication {
         
         private CurrentConditionsScreen mCurrentConditions;
         private ForecastScreen mForecast;
+		private ForecastTextScreen mForecastText;
         private LocalRadarScreen mLocalRadar;
         private NationalRadarScreen mNationalRadar;
         private AlertsScreen mAlerts;
@@ -719,7 +748,7 @@ public class Weather extends DefaultApplication {
         WeatherData mWeatherData;
     }
 
-    public class AlertsScreen extends BView {
+    public class BaseTextScreen extends BView {
     	protected final int TOP = SAFE_TITLE_V + 80;
         
         protected final int PAD = 10;
@@ -732,7 +761,7 @@ public class Weather extends DefaultApplication {
 
         protected final int BODY_HEIGHT = getHeight() - 2 * SAFE_TITLE_V;
 
-        public AlertsScreen(BView parent, WeatherData data) {
+        public BaseTextScreen(BView parent, WeatherData data) {
         	super(parent, 0, 0, parent.getWidth(), parent.getHeight());
 
             mWeatherData = data;
@@ -774,18 +803,6 @@ public class Weather extends DefaultApplication {
         }
 
         public void updateText() {
-            Iterator iterator = mWeatherData.getAlerts();
-            if (iterator.hasNext()) {
-                WeatherData.Alert alert = (WeatherData.Alert) iterator.next();
-
-                eventText.setValue(alert.getEvent() != null ? alert.getEvent() : alert.getHeadline());
-                if (alert.getEffective() != null)
-                    datesText.setValue(mDateFormat.format(alert.getEffective()) + " to "
-                            + mDateFormat.format(alert.getExpires()));
-                scrollText.setText(alert.getDescription());
-                scrollText.setVisible(true);
-                scrollText.flush();
-            }
         }
         
         public void setVisible(boolean visible)
@@ -807,16 +824,56 @@ public class Weather extends DefaultApplication {
             return super.handleKeyPress(code, rawcode);
         }
 
-        private BText eventText;
+        protected BText eventText;
 
-        private BText datesText;
+        protected BText datesText;
 
-        private ScrollText scrollText;
+        protected ScrollText scrollText;
 
-        private SimpleDateFormat mDateFormat;
+        protected SimpleDateFormat mDateFormat;
 
         WeatherData mWeatherData;
     }
+
+	public class AlertsScreen extends BaseTextScreen {
+		public AlertsScreen(BView parent, WeatherData data) {
+			super(parent, data);
+		}
+		
+        public void updateText() {
+            Iterator iterator = mWeatherData.getAlerts();
+            if (iterator.hasNext()) {
+                WeatherData.Alert alert = (WeatherData.Alert) iterator.next();
+
+                eventText.setValue(alert.getEvent() != null ? alert.getEvent() : alert.getHeadline());
+                if (alert.getEffective() != null)
+                    datesText.setValue(mDateFormat.format(alert.getEffective()) + " to "
+                            + mDateFormat.format(alert.getExpires()));
+                scrollText.setText(alert.getDescription());
+                scrollText.setVisible(true);
+                scrollText.flush();
+            }
+        }
+	}
+	
+	public class ForecastTextScreen extends BaseTextScreen {
+		public ForecastTextScreen(BView parent, WeatherData data) {
+			super(parent, data);
+		}
+		
+		public void updateText() {
+			WeatherData.ForecastText text = mWeatherData.getForecastText();
+			if (text == null) {
+				eventText.setValue("");
+				scrollText.setText("Not available");
+			} else {
+				eventText.setValue(text.getHeadline());
+				scrollText.setText(text.getDescription());
+			}
+			scrollText.setVisible(true);
+			scrollText.flush();
+		}
+	}
 
     class WeatherList extends DefaultOptionList {
         public WeatherList(BView parent, int x, int y, int width, int height, int rowHeight) {

@@ -106,6 +106,8 @@ public class iTunes extends DefaultApplication {
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
+	}
+	public void initService() {
 
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");

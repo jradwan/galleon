@@ -53,6 +53,7 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.PersistentValue;
 
+import com.almilli.tivo.bananas.hd.HDApplication;
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -69,7 +70,7 @@ import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.interfaces.IArgumentList;
 import com.tivo.core.ds.TeDict;
 
-public class DefaultApplication extends BApplication {
+public class DefaultApplication extends HDApplication {
 
     private static final Logger log = Logger.getLogger(DefaultApplication.class.getName());
 
@@ -147,6 +148,7 @@ public class DefaultApplication extends BApplication {
         mLastObject = baos;
 
         if (baos != null) {
+        	// XXX add size check and skin scaling?  Or put explicit HD skins into skin level?
             /*
              * if (image.getWidth() > 640 || image.getHeight() > 480) image = ImageManipulator.getScaledImage(image,
              * 640, 480);

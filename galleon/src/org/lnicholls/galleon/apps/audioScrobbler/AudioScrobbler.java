@@ -70,6 +70,8 @@ public class AudioScrobbler extends DefaultApplication {
 
     public void init(IContext context) throws Exception {
         super.init(context);
+	}
+	public void initService() {
 
         mMenuBackground = getSkinImage("menu", "background");
         mItemIcon = getSkinImage(null, "icon");

@@ -36,39 +36,47 @@ public class MusicOptionsScreen extends DefaultOptionsScreen {
 		text.setShadow(true);
 		text.setValue("Player");
 
-		NameValue[] nameValues = new NameValue[] {
-				new NameValue(StringUtils.capitalize(MusicPlayerConfiguration.CLASSIC),
-						MusicPlayerConfiguration.CLASSIC),
-				new NameValue(StringUtils.capitalize(MusicPlayerConfiguration.WINAMP), MusicPlayerConfiguration.WINAMP) };
+		List skins = Server.getServer().getWinampSkins();
+		NameValue[] nameValues;
+		if (skins.size() > 0) {
+			nameValues = new NameValue[] {
+					new NameValue(StringUtils.capitalize(MusicPlayerConfiguration.CLASSIC),
+							MusicPlayerConfiguration.CLASSIC),
+							new NameValue(StringUtils.capitalize(MusicPlayerConfiguration.WINAMP), MusicPlayerConfiguration.WINAMP) };
+		} else {
+			// XXX array extension?  I forget how to do that.
+			nameValues = new NameValue[] {
+					new NameValue(StringUtils.capitalize(MusicPlayerConfiguration.CLASSIC),
+							MusicPlayerConfiguration.CLASSIC)};
+		}
 		mPlayerButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
 				nameValues, musicPlayerConfiguration.getPlayer());
 		setFocusDefault(mPlayerButton);
 
 		start = start + increment;
 
-		text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
-		text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
-		text.setFont("default-24-bold.font");
-		text.setShadow(true);
-		text.setValue("Winamp Classic Skin");
+		if (skins.size() > 0) {
+			text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
+			text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
+			text.setFont("default-24-bold.font");
+			text.setShadow(true);
+			text.setValue("Winamp Classic Skin");
 
-		List skins = Server.getServer().getWinampSkins();
-		Iterator iterator = skins.iterator();
-		List nameValuesList = new ArrayList();
-		while (iterator.hasNext()) {
-			File file = (File) iterator.next();
-			try {
-				String name = Tools.extractName(file.getCanonicalPath());
-				nameValuesList.add(new NameValue(name, file.getCanonicalPath()));
-			} catch (Exception ex) {
+			Iterator iterator = skins.iterator();
+			List nameValuesList = new ArrayList();
+			while (iterator.hasNext()) {
+				File file = (File) iterator.next();
+				try {
+					String name = Tools.extractName(file.getCanonicalPath());
+					nameValuesList.add(new NameValue(name, file.getCanonicalPath()));
+				} catch (Exception ex) {
+				}
 			}
+			nameValues = (NameValue[]) nameValuesList.toArray(new NameValue[0]);
+			mSkinButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
+					nameValues, musicPlayerConfiguration.getSkin());
+			start = start + increment;
 		}
-		nameValues = (NameValue[]) nameValuesList.toArray(new NameValue[0]);
-		mSkinButton = new OptionsButton(getNormal(), BORDER_LEFT + BODY_WIDTH - width, start, width, height, true,
-				nameValues, musicPlayerConfiguration.getSkin());
-
-		start = start + increment;
-
 		text = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
 		text.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP | RSRC_VALIGN_CENTER);
 		text.setFont("default-24-bold.font");

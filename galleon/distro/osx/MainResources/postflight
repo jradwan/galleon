@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# postflight script for Galleon.
+#
+# (1) Copy the JavaApplicationStub from the local computer into the Galleon
+# directories.
+# (2) delete database (it gets rebuilt)
+PKG="$1"
+DEST="$2"
+VOL="$3"
+SYSROOT="$4"
+#echo postflight running >/dev/ttyp2
+#echo dest=$DEST >/dev/ttyp2
+#echo VOL=$VOL >/dev/ttyp2
+#echo PKG=$PKG >/dev/ttyp2
+#echo SYSROOT=$SYSROOT >/dev/ttyp2
+#echo cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Galleon Server.app/Contents/MacOS/galleon_java_stub" >/dev/ttyp2
+cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Galleon Server.app/Contents/MacOS/galleon_java_stub"
+#echo cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Configure Galleon.app/Contents/MacOS/galleon_java_stub" >/dev/ttyp2
+cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$DEST/Configure Galleon.app/Contents/MacOS/galleon_java_stub"
+#echo cd "$DEST/Galleon Server.app/Contents/Resources/Java/conf"
+cd "$DEST/Galleon Server.app/Contents/Resources/Java/conf"
+if [ ! -f configure.xml ]; then
+    cp configure.xml-default configure.xml
+#    echo "copied default configure" >/dev/ttyp2
+fi
+#echo cd "$DEST/Galleon Server.app/Contents/Resources/Java/data" >/dev/ttyp2
+cd "$DEST/Galleon Server.app/Contents/Resources/Java/data"
+#echo rm -rf galleon itunes >/dev/ttyp2
+rm -rf galleon itunes

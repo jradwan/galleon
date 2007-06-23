@@ -8,10 +8,10 @@
 
     <path id="class.path">
       <pathelement location="${basedir}/build" />
-        <fileset dir="${basedir}/lib" >
-          <include name="**/*.jar"/>
-        </fileset>
-        <pathelement path="${basedir}/conf" />
+      <fileset dir="${basedir}/lib" >
+	<include name="**/*.jar"/>
+      </fileset>
+      <pathelement path="${basedir}/conf" />
     </path>
 
     <path id="class.path.hibernate3">
@@ -326,13 +326,13 @@
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
           <attribute name="HME-Arguments" value=""/>
           <attribute name="Title" value="Weather"/>
-          <attribute name="ReleaseDate" value="03/03/05"/>          
+          <attribute name="ReleaseDate" value="2007-05-31"/>
           <attribute name="Description" value="The weather app displays the current weather conditions, 5 day forecast, local radar image, national radar image and any weather alerts."/>                    
           <attribute name="Documentation" value="http://galleon.tv/content/view/15/46/"/>                              
-          <attribute name="Author" value="Leon Nicholls"/>                                        
-          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Author" value="Leon Nicholls, John Kohl"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net"/>                                                  
           <attribute name="Homepage" value="http://galleon.tv"/>                                                            
-          <attribute name="Version" value="1.0"/>
+          <attribute name="Version" value="1.1"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.weather.WeatherConfiguration"/>                      
           <attribute name="Tags" value="Weather"/>                        
@@ -478,13 +478,13 @@
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.desktop.Desktop"/>
           <attribute name="HME-Arguments" value=""/>
           <attribute name="Title" value="Desktop"/>
-          <attribute name="ReleaseDate" value="05/04/05"/>          
+          <attribute name="ReleaseDate" value="2007-05-31"/>          
           <attribute name="Description" value="The Desktop app provides a live view of the desktop of the PC running Galleon."/>                    
           <attribute name="Documentation" value="http://galleon.tv/content/view/26/30/"/>
-          <attribute name="Author" value="Leon Nicholls"/>                                        
-          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Author" value="Leon Nicholls, John Kohl"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net"/>                                                  
           <attribute name="Homepage" value="http://galleon.tv"/>                                                            
-          <attribute name="Version" value="1.0"/>
+          <attribute name="Version" value="2.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.desktop.DesktopOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.desktop.DesktopConfiguration"/>                      
           <attribute name="Tags" value="PC, Photos"/>                                                                        

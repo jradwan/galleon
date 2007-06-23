@@ -1,3 +1,13 @@
+* To update version number:
+  distro/win32/galleon.nsi
+  src/org/lnicholls/galleon/Server/Constants.java
+  conf/configure.xml.default
+  distro/osx/....
+
+* Scripting of release number
+* Scripting of install library list
+* OSX installer
+
 * Clean up non-MacOS stuff, confirm paths for Java 5 are set up right in scripts
 * Verify all apps still work after hibernate change, etc.
 * upgrade commons-betwixt to 0.8.  Something wrong in Configurator.save(),
@@ -9,3 +19,15 @@
 * update htmlparser to 1.6
 * update smack toolkit, can't confirm license on old copy
 * license verification on upcoming.jar
+
+* iPhoto integration?
+
+HD stuff:
+
+* Improve layout, backgrounds of HD weather, music, etc.
+* scale music album art to HD resolutions
+* Fix all apps to have HD stylized initApp()/initService() methods
+
+* Talk to s2kdave to figure out good way to handle hme-hd dependency,
+  and galleon-HD local changes.
+

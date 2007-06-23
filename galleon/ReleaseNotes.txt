@@ -1,6 +1,16 @@
 Galleon
 -------
 
+Version 2.4.0 alpha:
+----------------------
+HD application support.  Try out HD photos!
+Local forecast page added to weather.
+Known problems:
+ * tracker on music in HD is goofy
+ * galleon skins in HD don't cover screen--use tivo skins
+ * lots of layout glitches in HD
+ * HD menu highlights are too big for text
+ 
 Version 2.3.1:
 ----------------------
 Upgraded open-source components to mostly current versions

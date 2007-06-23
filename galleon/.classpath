@@ -51,12 +51,13 @@
 	<classpathentry kind="lib" path="lib/jta-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-2.1_3.jar"/>
 	<classpathentry kind="lib" path="lib/asm-1.5.3.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate-3.2.4sp1.jar" sourcepath="/Users/jtk/Documents/workspace-galleon-2.3.1/hibernate-3.2.4.sp1.zip"/>
+	<classpathentry kind="lib" path="lib/hibernate-3.2.4sp1.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker.jar"/>
 	<classpathentry kind="lib" path="lib/hibernate-tools-3.2.0beta9.jar"/>
 	<classpathentry kind="lib" path="lib/ehcache-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-betwixt-0.6.jar"/>
+	<classpathentry kind="lib" path="lib/hme-hd.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jdbc2_0-stdext.jar"/>
 	<classpathentry kind="lib" path="lib/concurrent.jar"/>

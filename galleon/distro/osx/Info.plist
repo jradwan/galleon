@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleGetInfoString</key>
+	<string>2.4.0 alpha</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.lnicholls.galleon</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.4.0</string>
+	<key>IFMajorVersion</key>
+	<integer>2</integer>
+	<key>IFMinorVersion</key>
+	<integer>4</integer>
+	<key>IFPkgFlagAllowBackRev</key>
+	<false/>
+	<key>IFPkgFlagAuthorizationAction</key>
+	<string>NoAuthorization</string>
+	<key>IFPkgFlagBackgroundAlignment</key>
+	<string>topleft</string>
+	<key>IFPkgFlagBackgroundScaling</key>
+	<string>none</string>
+	<key>IFPkgFlagDefaultLocation</key>
+	<string>/Applications</string>
+	<key>IFPkgFlagFollowLinks</key>
+	<true/>
+	<key>IFPkgFlagInstallFat</key>
+	<false/>
+	<key>IFPkgFlagIsRequired</key>
+	<false/>
+	<key>IFPkgFlagOverwritePermissions</key>
+	<false/>
+	<key>IFPkgFlagRelocatable</key>
+	<false/>
+	<key>IFPkgFlagRestartAction</key>
+	<string>NoRestart</string>
+	<key>IFPkgFlagRootVolumeOnly</key>
+	<false/>
+	<key>IFPkgFlagUpdateInstalledLanguages</key>
+	<false/>
+	<key>IFPkgFormatVersion</key>
+	<real>0.10000000149011612</real>
+	<key>IFRequirementDicts</key>
+	<array>
+		<dict>
+			<key>Level</key>
+			<string>requires</string>
+			<key>MessageKey</key>
+			<string>Java must be Present</string>
+			<key>SpecArgument</key>
+			<string>/System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub</string>
+			<key>SpecType</key>
+			<string>file</string>
+			<key>TestObject</key>
+			<true/>
+			<key>TestOperator</key>
+			<string>eq</string>
+			<key>TitleKey</key>
+			<string>JavaPresent</string>
+		</dict>
+	</array>
+</dict>
+</plist>

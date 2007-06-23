@@ -889,7 +889,7 @@ public class MainFrame extends JFrame {
 			builder.add(mVersionField, cc.xyw(3, 5, 2));
 			builder.addLabel("Reload", cc.xy(1, 7));
 			builder.add(mReloadCombo, cc.xyw(3, 7, 2));
-			builder.addLabel("Skin", cc.xy(1, 9));
+			builder.addLabel("Skin (use tivo for best HD looks)", cc.xy(1, 9));
 			builder.add(mSkinCombo, cc.xyw(3, 9, 2));
 			// TODO Only show for Windows
 			builder.add(mGenerateThumbnails, cc.xy(3, 11));

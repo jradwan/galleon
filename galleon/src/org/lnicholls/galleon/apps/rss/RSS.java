@@ -68,6 +68,8 @@ public class RSS extends DefaultApplication {
 	private Resource mItemIcon;
 	public void init(IContext context) throws Exception {
 		super.init(context);
+	}
+	public void initService() {
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mViewerBackground = getSkinImage("viewer", "background");

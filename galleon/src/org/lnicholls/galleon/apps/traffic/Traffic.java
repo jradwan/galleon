@@ -67,7 +67,9 @@ public class Traffic extends DefaultApplication {
 
 	public void init(IContext context) throws Exception {
 		super.init(context);
-
+	}
+	
+	public void initService() {
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mFolderIcon = getSkinImage("menu", "folder");

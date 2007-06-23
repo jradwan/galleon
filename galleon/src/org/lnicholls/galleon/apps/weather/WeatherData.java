@@ -16,7 +16,6 @@ package org.lnicholls.galleon.apps.weather;
  * See the file "COPYING" for more details.
  */
 
-import java.io.Serializable;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -109,6 +108,7 @@ public class WeatherData implements Serializable {
         new Thread() {
             public void run() {
                 getAllWeather();
+                determineForecast();
                 determineFip();
                 determineAlerts();
                 determineLocalRadar();
@@ -166,6 +166,7 @@ public class WeatherData implements Serializable {
 
                 if (mTimeCounter % 2 == 0) // every 10 mins
                 {
+                    determineForecast();
                     determineFip();
                     determineAlerts();
                 }
@@ -625,21 +626,11 @@ public class WeatherData implements Serializable {
         return;
     }
 
-    public static class Alert implements Serializable {
+    public static class Alert extends BasicText {
         public Alert(String event, Date effective, Date expires, String headline, String description) {
-            mEvent = event.trim();
+        	super(event, headline, description);
             mEffective = effective;
             mExpires = expires;
-            mHeadline = headline.trim();
-            setDescription(description);
-        }
-
-        public void setEvent(String value) {
-            mEvent = value;
-        }
-
-        public String getEvent() {
-            return mEvent;
         }
 
         public void setEffective(Date value) {
@@ -658,31 +649,10 @@ public class WeatherData implements Serializable {
             return mEffective;
         }
 
-        public void setHeadline(String value) {
-            mHeadline = value;
-        }
-
-        public String getHeadline() {
-            return mHeadline;
-        }
-
-        public void setDescription(String value) {
-            mDescription = value.trim().replaceAll("\\.\\.\\.", ", ").replaceAll("\\n", " ");
-        }
-
-        public String getDescription() {
-            return mDescription;
-        }
-
-        private String mEvent;
-
         private Date mEffective;
 
         private Date mExpires;
 
-        private String mHeadline;
-
-        private String mDescription;
     }
 
     private static String CAP_ALERT = "alert";
@@ -779,6 +749,196 @@ public class WeatherData implements Serializable {
             log.error("Could not parse weather alerts", ex);
         }
     }
+
+    public static class BasicText implements Serializable {
+        public BasicText(String event, String headline, String description) {
+            mEvent = event.trim();
+            mHeadline = headline.trim();
+            mDescription = description;
+        }
+
+        public void setEvent(String value) {
+            mEvent = value;
+        }
+
+        public String getEvent() {
+            return mEvent;
+        }
+
+        public void setHeadline(String value) {
+            mHeadline = value;
+        }
+
+        public String getHeadline() {
+            return mHeadline;
+        }
+
+        public void setDescription(String value) {
+            mDescription = value.trim().replaceAll("\\.\\.\\.", ", ").replaceAll("\\n", " ");
+        }
+
+        public String getDescription() {
+            return mDescription;
+        }
+
+        private String mEvent;
+
+        private String mHeadline;
+
+        private String mDescription;
+    }
+    
+    public static class ForecastText extends BasicText {
+
+		public ForecastText(String event, String headline, String description) {
+			super(event, headline, description);
+			// TODO Auto-generated constructor stub
+		}
+
+    }
+    
+    public void determineForecast() {
+    	try {
+            // Read CAP XML alerts feed from http://www.nws.noaa.gov/alerts/nh.cap
+            HttpClient httpclient = new HttpClient();
+            httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+            httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
+
+            //Get location/county mapping from census bureau:
+            // http://quickfacts.census.gov/cgi-bin/qfd/lookup?state=33000&place=nashua,nh,03060
+            GetMethod get = new GetMethod("http://www.srh.noaa.gov/zipcity.php");
+            get.setFollowRedirects(true);
+            NameValuePair zip = new NameValuePair("inputstring", mZip);
+            NameValuePair go = new NameValuePair("Go2", "Go");
+			get.setQueryString(new NameValuePair[] { zip, go });
+
+            try {
+                int iGetResultCode = httpclient.executeMethod(get);
+                final String strGetResponseBody = get.getResponseBodyAsString();
+				String headline;
+				String forecast;
+                log.debug(strGetResponseBody);
+
+                if (strGetResponseBody != null) {
+					//                    parseLocalForecast(strGetResponseBody);
+					String REGEX = "Point Forecast:</b> ([^<]+)<br>.*Last Update:[^0-9]*([^<]*)";
+					Pattern p = Pattern.compile(REGEX);
+					Matcher m = p.matcher(strGetResponseBody);
+					if (m.find()) {
+						headline = m.group(1) + " as of " + m.group(2);
+						if (log.isDebugEnabled())
+							log.debug("Title: " + headline);
+					} else {
+						headline = "unknown city and time";
+					}
+					REGEX = "<a name=\"contents\"></a>.*\n.*\n^(<b>.*)$";
+					// TODO: rich text instead of cleaning out HTML tags.
+					p = Pattern.compile(REGEX, Pattern.MULTILINE);//, Pattern.DOTALL);
+					m = p.matcher(strGetResponseBody);
+					if (m.find()) {
+						forecast = m.group(1);
+						forecast = forecast.replaceAll("<br>", "\n");
+						forecast = forecast.replaceAll("<[^>]*>", " ");
+						if (log.isDebugEnabled())
+							log.debug("Forecast: " + forecast);
+					} else {
+						forecast = "unknown forecast";
+					}
+					mForecastText = new ForecastText("no event", headline, forecast);
+                }
+            } catch (Exception ex) {
+                log.error("Could not determine local forecast", ex);
+            } finally {
+                get.releaseConnection();
+            }
+            return;
+
+        } catch (Exception ex) {
+            Tools.logException(WeatherData.class, ex);
+        }
+        log.error("Could not find alerts for: " + mCity + "," + mState + "," + mZip);
+        return;
+    }
+
+    private void parseLocalForecast(String value) {
+        try {
+            SAXReader saxReader = new SAXReader();
+            //Document document = saxReader.read(new File("d:/galleon/nh.cap.xml"));
+            StringReader stringReader = new StringReader(value);
+            Document document = saxReader.read(stringReader);
+
+            // <cap:alert>
+            Element root = document.getRootElement();
+
+            for (Iterator i = root.elementIterator(); i.hasNext();) {
+                Element element = (Element) i.next();
+                boolean found = false;
+                String event = "";
+                Date effective = null;
+                Date expires = null;
+                String headline = "";
+                String description = "";
+                if (element.getName().equals(CAP_INFO)) {
+                    for (Iterator elementIterator = element.elementIterator(); elementIterator.hasNext();) {
+                        Element infoNode = (Element) elementIterator.next();
+                        if (infoNode.getName().equals(CAP_EVENT)) {
+                            event = infoNode.getText();
+                            if (log.isDebugEnabled())
+                                log.debug("event:" + event);
+                        } else if (infoNode.getName().equals(CAP_EFFECTIVE)) {
+                            String dateString = infoNode.getText();
+                            if (dateString != null)
+                                effective = mTimeDateFormat.parse(dateString);
+                            if (log.isDebugEnabled())
+                                log.debug("effective:" + effective);
+                        } else if (infoNode.getName().equals(CAP_EXPIRES)) {
+                            String dateString = infoNode.getText();
+                            if (dateString != null)
+                                expires = mTimeDateFormat.parse(dateString);
+                            if (log.isDebugEnabled())
+                                log.debug("expires:" + expires);
+                        } else if (infoNode.getName().equals(CAP_HEADLINE)) {
+                            headline = infoNode.getText();
+                            if (log.isDebugEnabled())
+                                log.debug("headline:" + headline);
+                        } else if (infoNode.getName().equals(CAP_DESCRIPTION)) {
+                            description = infoNode.getText();
+                            if (log.isDebugEnabled())
+                                log.debug("description:" + description);
+                        } else if (infoNode.getName().equals(CAP_AREA)) {
+                            for (Iterator areaIterator = infoNode.elementIterator(); areaIterator.hasNext();) {
+                                Element areaNode = (Element) areaIterator.next();
+                                if (log.isDebugEnabled())
+                                    log.debug("areaNode:" + areaNode.getName());
+                                if (areaNode.getName().equals(CAP_GEOCODE)) {
+                                    String geoCode = areaNode.getText();
+                                    if (log.isDebugEnabled())
+                                        log.debug("geoCode:" + geoCode);
+                                    if (log.isDebugEnabled())
+                                        log.debug("mFIP:" + mFip);
+                                    if (mFip.endsWith("000")) // whole state
+                                    {
+                                        found = true;
+                                    } else if (geoCode.endsWith(mFip)) // specific county
+                                    {
+                                        found = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (found) {
+                    mForecastText = new ForecastText(event, headline, description);
+                } else
+                    mForecastText = new ForecastText("event", "headline", "forecast not available");
+            }
+        } catch (Exception ex) {
+            log.error("Could not parse weather alerts", ex);
+            mForecastText = new ForecastText("event", "headline", "forecast not available");
+        }
+    }
+
 
     public static class Location implements Serializable {
         public String getId() {
@@ -1454,6 +1614,10 @@ public class WeatherData implements Serializable {
         return mNationalRadar;
     }
 
+    public ForecastText getForecastText() {
+        return mForecastText;
+    }
+
     public boolean hasAlerts() {
         return mAlerts.size() > 0;
     }
@@ -1514,6 +1678,8 @@ public class WeatherData implements Serializable {
 
     private Forecasts mForecasts;
 
+    private ForecastText mForecastText;
+    
     private String mLocalRadar;
 
     private String mNationalRadar = "http://image.weather.com/images/maps/current/curwx_600x405.jpg";

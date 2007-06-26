@@ -7,6 +7,7 @@ Version 2.4.1 alpha:
   Weather since its maps are small)
 * Updated Mac OS X install to put applications in subdirectory:
   /Applications/Galleon/
+* Fixed Mac OS launch scripts to enable quit function
 
 
 Version 2.4.0 alpha:

@@ -13,7 +13,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Galleon.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.lnicholls.galleon.server.Server</string>
+	<string>org.lnicholls.galleon.server.OSXServer</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

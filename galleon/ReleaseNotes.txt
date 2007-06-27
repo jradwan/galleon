@@ -8,7 +8,7 @@ Version 2.4.1 alpha:
 * Updated Mac OS X install to put applications in subdirectory:
   /Applications/Galleon/
 * Fixed Mac OS launch scripts to enable quit function
-
+* Fixed installer JRE detection (accepts Java 6)
 
 Version 2.4.0 alpha:
 ----------------------

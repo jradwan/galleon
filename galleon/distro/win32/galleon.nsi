@@ -18,7 +18,7 @@
 !define PRODUCT_PUBLISHER "Galleon"
 !define PRODUCT_WEB_SITE "http://galleon.tv"
 !define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;hme-1.4.jar;hme-host-sample-1.4.jar;pja-2.5.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
-!define PRODUCT_BUILD_DIR "c:\documents and settings\jtk\my documents\Galleon-HD\galleon\build"
+!define PRODUCT_BUILD_DIR "..\..\build"
 
 !define JRE_VERSION "1.5.0"
 ;;!define JRE_URL "e:\Install images\jre-1_5_0_12-windows-i586-p.exe"
@@ -55,6 +55,9 @@ ShowUnInstDetails show
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !insertmacro MUI_PAGE_LICENSE "${PRODUCT_BUILD_DIR}\COPYING"
+
+; License page
+!insertmacro MUI_PAGE_LICENSE "${PRODUCT_BUILD_DIR}\ThirdPartyLicenses.txt"
 
 ; Determine if the JRE is already installed
 Page custom CheckInstalledJRE
@@ -541,12 +544,12 @@ StartService:
   StrCmp $0 "true" Done
 Done:
   ; Check if Galleon service is starting
-  DetailPrint "Activating ${PRODUCT_NAME} service"
+  DetailPrint "Waiting for ${PRODUCT_NAME} service to be ready"
   Sleep 15000
-  DetailPrint "Initializing ${PRODUCT_NAME} server"
-  Sleep 15000
-  DetailPrint "Loading ${PRODUCT_NAME} server"
-  Sleep 10000
+;  DetailPrint "Initializing ${PRODUCT_NAME} server"
+;  Sleep 15000
+;  DetailPrint "Loading ${PRODUCT_NAME} server"
+;  Sleep 10000
   Push "installed"
   Push "${PRODUCT_NAME}"
   Push "action=status;"
@@ -691,22 +694,7 @@ Function DetectJRE
   ;ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
   ;StrCmp ${TEMP3} "" DetectTry2
   ;Goto GetJRE
-  StrCpy ${TEMP2} "1.5.0_12"
-  ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
-  StrCmp ${TEMP3} "" 0 GetJRE
-  StrCpy ${TEMP2} "1.5.0_11"
-  ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
-  StrCmp ${TEMP3} "" 0 GetJRE
-  StrCpy ${TEMP2} "1.5.0_06"
-  ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
-  StrCmp ${TEMP3} "" 0 GetJRE
-  StrCpy ${TEMP2} "1.5.0_05"
-  ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
-  StrCmp ${TEMP3} "" 0 GetJRE
-  StrCpy ${TEMP2} "1.5.0_04"
-  ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
-  StrCmp ${TEMP3} "" 0 GetJRE
-  StrCpy ${TEMP2} "1.5.0"
+  StrCpy ${TEMP2} "1.6"
   ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
   StrCmp ${TEMP3} "" 0 GetJRE
   StrCpy ${TEMP2} "1.5"
@@ -726,7 +714,7 @@ DetectTry2:
   ;ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\${TEMP2}" "JavaHome"
   ;StrCmp ${TEMP3} "" NoFound
 
-  StrCpy ${TEMP2} "1.5.0"
+  StrCpy ${TEMP2} "1.6"
   ReadRegStr ${TEMP3} HKLM "SOFTWARE\JavaSoft\Java Development Kit\${TEMP2}" "JavaHome"
   StrCmp ${TEMP3} "" 0 GetJRE
   StrCpy ${TEMP2} "1.5"

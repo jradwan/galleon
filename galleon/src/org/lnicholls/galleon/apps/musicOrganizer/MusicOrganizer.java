@@ -150,7 +150,7 @@ public class MusicOrganizer extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			int count = 0;
+			long count = 0;
 			try {
 				count = AudioManager.countMP3s();
 			} catch (Exception ex) {

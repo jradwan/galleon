@@ -365,7 +365,7 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static int countMP3s() throws HibernateException {
+	public static long countMP3s() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -375,7 +375,7 @@ public class AudioManager {
 							"select count(audio) from org.lnicholls.galleon.database.Audio as audio where substr(audio.path,1,4)<>'http'")
 					.list();
 			tx.commit();
-			return ((Integer) list.iterator().next()).intValue();
+			return ((Long) list.iterator().next()).longValue();
 		} catch (HibernateException he) {
 			if (tx != null)
 				tx.rollback();

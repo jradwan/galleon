@@ -1055,7 +1055,9 @@ public class Movies extends DefaultApplication {
 							        	   }
 							        	   else
 								           {
-								        		   if (td.toPlainTextString().replaceAll("&nbsp;","").trim().length()>0 && td.getAttribute("width")!=null && td.getAttribute("width").equals("45%"))
+							        		   if (td.toPlainTextString().replaceAll("&nbsp;","").trim().length()>0
+							        				   && td.getAttribute("valign") != null
+								        			   && td.getAttribute("valign").equals("top"))
 								        		   {
 								        			   for (int k = 0; k < linkList.size (); k++)
 											           {

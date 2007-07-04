@@ -8,7 +8,9 @@ Version 2.4.1 alpha:
 * Updated Mac OS X install to put applications in subdirectory:
   /Applications/Galleon/
 * Fixed Mac OS launch scripts to enable quit function
-* Fixed installer JRE detection (accepts Java 6)
+* Fixed Movies application (needed an update to parse HTML output change from data source)
+* Fixed Windows installer JRE detection (accepts Java 6)
+
 
 Version 2.4.0 alpha:
 ----------------------

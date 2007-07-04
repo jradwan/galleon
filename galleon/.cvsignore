@@ -4,3 +4,7 @@ build.osx
 build.win32
 configure.xml
 binary
+*.dmg
+*.pkg
+*.zip
+osx-dir

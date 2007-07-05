@@ -26,19 +26,9 @@ mv "osx-dir/ROOT/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/config
 #cp distro/osx/MainResources/postinstall osx-dir/Install_resources
 cp ThirdPartyLicenses.txt osx-dir
 cp copying osx-dir/COPYING
-cat <<EOF >osx-dir/License.txt
-This Software includes original code under the following license
-and additional code under licenses shown after the GPL (search for ----).
-
-EOF
-cat copying >>osx-dir/License.txt
-cat ThirdPartyLicenses.txt >> osx-dir/License.txt
-cp distro/osx/ReadMe.fragment.txt osx-dir/ReadMe.txt
-cat build/ReleaseNotes.txt >>osx-dir/ReadMe.txt
-textutil -convert rtf osx-dir/ReadMe.txt
-textutil -convert rtf osx-dir/License.txt
-cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir
-cp osx-dir/*.rtf osx-dir/MainResources/English.lproj
+textutil -cat rtf -output osx-dir/MainResources/English.lproj/License.rtf distro/osx/License.fragment.rtf copying ThirdPartyLicenses.txt
+textutil -cat rtf -output osx-dir/MainResources/English.lproj/ReadMe.rtf distro/osx/ReadMe.fragment.rtf build/ReleaseNotes.txt
+cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir/MainResources/English.lproj
 # ln -s /Applications osx-dir/Applications
 sudo chown -R root:admin osx-dir
 #/Developer/Tools/packagemaker -build -proj distro/osx/Galleon.pmproj -p distro/osx/Galleon.pkg -v

@@ -540,8 +540,10 @@ http://downloads.sourceforge.net/jd3lib/jd3lib-a4.zip?modtime=1035417600&big_mir
 http://downloads.sourceforge.net/hibernate/hibernate-3.2.4.sp1.zip?modtime=1179477574&big_mirror=1
 (hibernate-tools-3.2.0beta9.jar, freemarker.jar, ehcache-1.2.3.jar, antlr-2.7.6.jar)
 http://downloads.sourceforge.net/jboss/HibernateTools-3.2.0.beta9a.zip?modtime=1169040399&big_mirror=1
-(hme-hd.jar)
-https://hmehd.svn.sourceforge.net/svnroot/hmehd, take the trunk
+(hme-hd-0.4.1.jar)
+http://hmehd.sourceforge.net
+(movieRentals.jar)
+http://movierentals.sourceforge.net
 
 JShortcut, jicyshout, JCache, JLayer, Tritonus, MP3SPI, 
 JmDNS, Hibernate3, jd3lib; 

@@ -11,7 +11,7 @@ Version 2.4.1 alpha:
 * Fixed Movies application (needed an update to parse HTML output change from data source)
 * Fixed Windows installer JRE detection (accepts Java 6)
 * Fixed MusicOrganizer MP3 count (1746310)
-
+* Upgrade to htmlparser-1.6 (fixes movierentals add-on application)
 
 Version 2.4.0 alpha:
 ----------------------

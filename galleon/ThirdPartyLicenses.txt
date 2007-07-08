@@ -2142,8 +2142,7 @@ http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231.
 
 -----------------------------------------------------------------------
 R) The following software is included in this product:
-(htmlparser-1.5.jar) http://htmlparser.sourceforge.net/
-http://downloads.sourceforge.net/htmlparser/htmlparser1_5_20050614.zip?modtime=1118735071&big_mirror=0
+(htmlparser-1.6.jar) http://htmlparser.sourceforge.net/
 http://downloads.sourceforge.net/htmlparser/htmlparser1_6_20060610.zip?modtime=1149940066&big_mirror=0
 
 (hme-1.4.jar)

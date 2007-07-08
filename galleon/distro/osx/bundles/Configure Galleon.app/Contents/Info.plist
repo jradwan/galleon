@@ -45,7 +45,7 @@
 			<string>$JAVAROOT/lib/hme-1.4.jar</string>
 			<string>$JAVAROOT/lib/hme-hd.jar</string>
 			<string>$JAVAROOT/lib/hme-host-sample-1.4.jar</string>
-			<string>$JAVAROOT/lib/htmlparser-1.5.jar</string>
+			<string>$JAVAROOT/lib/htmlparser-1.6.jar</string>
 			<string>$JAVAROOT/lib/informa-0.7.0.jar</string>
 			<string>$JAVAROOT/lib/jampal-1.14.jar</string>
 			<string>$JAVAROOT/lib/javazoom.jar</string>

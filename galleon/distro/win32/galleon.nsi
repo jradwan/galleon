@@ -191,7 +191,7 @@ CopyFiles:
   File /oname=hme-1.4.jar "${PRODUCT_BUILD_DIR}\lib\hme-1.4.jar"
   File /oname=hme-hd.jar "${PRODUCT_BUILD_DIR}\lib\hme-hd.jar"
   File /oname=hme-host-sample-1.4.jar "${PRODUCT_BUILD_DIR}\lib\hme-host-sample-1.4.jar"
-  File /oname=htmlparser-1.5.jar "${PRODUCT_BUILD_DIR}\lib\htmlparser-1.5.jar"
+  File /oname=htmlparser-1.6.jar "${PRODUCT_BUILD_DIR}\lib\htmlparser-1.6.jar"
   File /oname=informa-0.7.0.jar "${PRODUCT_BUILD_DIR}\lib\informa-0.7.0.jar"
   File /oname=jampal-1.14.jar "${PRODUCT_BUILD_DIR}\lib\jampal-1.14.jar"
   File /oname=javazoom.jar "${PRODUCT_BUILD_DIR}\lib\javazoom.jar"

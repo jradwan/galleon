@@ -203,7 +203,7 @@ public class IMDB {
 
 				// <title>The Godfather (1972)</title>
 				parser.reset();
-				Node[] nodes = parser.extractAllNodesThatAre(TitleTag.class);
+				Node[] nodes = parser.extractAllNodesThatMatch(new NodeClassFilter(TitleTag.class)).toNodeArray();
 				if (nodes != null && nodes.length > 0) {
 					TitleTag tag = (TitleTag) nodes[0];
 					title = tag.getTitle();

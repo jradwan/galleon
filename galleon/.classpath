@@ -27,7 +27,6 @@
 	<classpathentry kind="lib" path="lib/derbytools-10.2.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/hme-host-sample-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/hme-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/htmlparser-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/odmg.jar"/>
 	<classpathentry kind="lib" path="lib/yahoo_search-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
@@ -58,6 +57,7 @@
 	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-betwixt-0.6.jar"/>
 	<classpathentry kind="lib" path="lib/hme-hd.jar" sourcepath="/hme-hd/src/java"/>
+	<classpathentry kind="lib" path="lib/htmlparser-1.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jdbc2_0-stdext.jar"/>
 	<classpathentry kind="lib" path="lib/concurrent.jar"/>

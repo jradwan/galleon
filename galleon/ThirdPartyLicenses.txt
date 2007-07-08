@@ -1875,6 +1875,14 @@ the following restrictions:
 
 -----------------------------------------------------------------------
 Q) The following software is included in this product:
+(axis-1.3.jar)
+http://ws.apache.org/axis/
+(axis-jaxrpc-1.3.jar)
+http://ws.apache.org/axis/
+(axis-saaj-1.3.jar)
+http://ws.apache.org/axis/
+(axis-wsdl4j-1.5.1.jar)
+http://ws.apache.org/axis/
 (log4j.jar)
 http://logging.apache.org/log4j/docs/index.html
 (commons-betwixt-0.6.jar)
@@ -1883,6 +1891,8 @@ http://jakarta.apache.org/commons/betwixt/
 http://jakarta.apache.org/commons/collections/
 (commons-digester-1.8.jar)
 http://jakarta.apache.org/commons/digester/
+(commons-discovery-0.2.jar)
+http://jakarta.apache.org/commons/discovery/
 (commons-lang-2.3.jar)
 http://jakarta.apache.org/commons/lang/
 (commons-dbcp-1.2.2.jar)

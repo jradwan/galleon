@@ -12,6 +12,8 @@ Version 2.4.1 alpha:
 * Fixed Windows installer JRE detection (accepts Java 6)
 * Fixed MusicOrganizer MP3 count (1746310)
 * Upgrade to htmlparser-1.6 (fixes movierentals add-on application)
+* Added movieRentals application to distribution
+* Fixed log file location on windows to put logs inside the logs directory
 
 Version 2.4.0 alpha:
 ----------------------

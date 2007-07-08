@@ -147,16 +147,22 @@ InstallConfiguration:
 CopyFiles:
   File "${PRODUCT_BUILD_DIR}\conf\log4j.xml"
   
+  Var /GLOBAL INSTDIR_ESC
+  Push $INSTDIR                              #text to convert slashes
+  Push "\"                                   #character to convert to forward slash
+  Call StrSlash
+  Pop $INSTDIR_ESC
+  
 ; Replace Customer Name in log4j.xml
   Push "../logs/log.txt"                     #text to be replaced
-  Push "$INSTDIR\logs\log.txt"               #replace with
+  Push "$INSTDIR_ESC/logs/log.txt"           #replace with
   Push all                                   #replace all occurrences
   Push all                                   #replace all occurrences
   Push $INSTDIR\conf\log4j.xml               #file to replace in
   Call AdvReplaceInFile                      #call find and replace function
 ; Replace Customer Name in log4j.xml
   Push "../logs/gui.txt"                     #text to be replaced
-  Push "$INSTDIR\logs\gui.txt"               #replace with
+  Push "$INSTDIR_ESC/logs/gui.txt"           #replace with
   Push all                                   #replace all occurrences
   Push all                                   #replace all occurrences
   Push $INSTDIR\conf\log4j.xml               #file to replace in
@@ -189,7 +195,7 @@ CopyFiles:
   File /oname=galleon.jar "${PRODUCT_BUILD_DIR}\lib\galleon.jar"
   File /oname=hibernate.jar "${PRODUCT_BUILD_DIR}\lib\hibernate.jar"
   File /oname=hme-1.4.jar "${PRODUCT_BUILD_DIR}\lib\hme-1.4.jar"
-  File /oname=hme-hd.jar "${PRODUCT_BUILD_DIR}\lib\hme-hd.jar"
+  File /oname=hme-hd-0.4.1.jar "${PRODUCT_BUILD_DIR}\lib\hme-hd-0.4.1.jar"
   File /oname=hme-host-sample-1.4.jar "${PRODUCT_BUILD_DIR}\lib\hme-host-sample-1.4.jar"
   File /oname=htmlparser-1.6.jar "${PRODUCT_BUILD_DIR}\lib\htmlparser-1.6.jar"
   File /oname=informa-0.7.0.jar "${PRODUCT_BUILD_DIR}\lib\informa-0.7.0.jar"
@@ -1245,4 +1251,42 @@ Function AdvReplaceInFile
          Pop $2
          Pop $1
          Pop $0
+FunctionEnd
+
+; http://nsis.sourceforge.net/Another_String_Replace_%28and_Slash/BackSlash_Converter%29
+; Push $filenamestring (e.g. 'c:\this\and\that\filename.htm')
+; Push "\"
+; Call StrSlash
+; Pop $R0
+; ;Now $R0 contains 'c:/this/and/that/filename.htm'
+Function StrSlash
+  Exch $R3 ; $R3 = needle ("\" or "/")
+  Exch
+  Exch $R1 ; $R1 = String to replacement in (haystack)
+  Push $R2 ; Replaced haystack
+  Push $R4 ; $R4 = not $R3 ("/" or "\")
+  Push $R6
+  Push $R7 ; Scratch reg
+  StrCpy $R2 ""
+  StrLen $R6 $R1
+  StrCpy $R4 "\"
+  StrCmp $R3 "/" loop
+  StrCpy $R4 "/"  
+loop:
+  StrCpy $R7 $R1 1
+  StrCpy $R1 $R1 $R6 1
+  StrCmp $R7 $R3 found
+  StrCpy $R2 "$R2$R7"
+  StrCmp $R1 "" done loop
+found:
+  StrCpy $R2 "$R2$R4"
+  StrCmp $R1 "" done loop
+done:
+  StrCpy $R3 $R2
+  Pop $R7
+  Pop $R6
+  Pop $R4
+  Pop $R2
+  Pop $R1
+  Exch $R3
 FunctionEnd

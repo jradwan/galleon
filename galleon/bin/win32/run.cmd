@@ -5,6 +5,7 @@ REM
 rem set JAVA_HOME=c:\Program Files\Java\jre1.5.0_11
 set oldclasspath=%classpath%
 set classpath=%classpath%;..\conf
+set classpath=%classpath%;..\lib\axis.jar
 set classpath=%classpath%;..\lib\galleon.jar
 set classpath=%classpath%;..\lib\widgets.jar
 set classpath=%classpath%;..\lib\commons.jar
@@ -14,7 +15,7 @@ set classpath=%classpath%;..\lib\dom4j-1.6.1.jar
 set classpath=%classpath%;..\lib\hibernate.jar
 set classpath=%classpath%;..\lib\jdbc2_0-stdext.jar
 set classpath=%classpath%;..\lib\hme-1.4.jar
-set classpath=%classpath%;..\lib\hme-hd.jar
+set classpath=%classpath%;..\lib\hme-hd-0.4.1.jar
 set classpath=%classpath%;..\lib\jdai-0.4.jar
 set classpath=%classpath%;..\lib\jdom-1.0.jar
 set classpath=%classpath%;..\lib\javazoom.jar

@@ -7,23 +7,45 @@ galleon-developers@lists.sourceforge.net: used for developer issues,
 galleon-commits@lists.sourceforge.net: used by CVS to automatically post all checkins.
 Both these mailing lists are archived on the project development page.
 
-To help us keep track of who is doing what, we use the project bug and feature trackers. 
-If you want to fix a particular bug or implement a feature, assign it to yourself. If there 
-are any new features you want to work on, go ahead and add new features to the tracker. 
-If you decide to do any significant development changes to JavaHMO it is recommended that 
-you use the mailing list to get feedback first.
+To help us keep track of who is doing what, we use the project bug and
+feature trackers.  If you want to fix a particular bug or implement a
+feature, assign it to yourself. If there are any new features you want
+to work on, go ahead and add new features to the tracker.  If you decide
+to do any significant development changes to JavaHMO it is recommended
+that you use the mailing list to get feedback first.
 
-I suggest that you read through the developer documentation provided by Sourceforge. 
-Everything you will need to know to use CVS and the project tools are explained in detail.
+I suggest that you read through the developer documentation provided by
+Sourceforge.  Everything you will need to know to use CVS and the
+project tools are explained in detail.
 
+
+Upgrading or adding Third-party components
+--------
+
+1. Update ThirdPartyLicenses.txt as appropriate.  If the license is a
+   common one, just add the new item to the list for that license.
+   Include a URL where you got it.
+
+   When adding java libraries to lib/, include the version number in the name
+
+2. update the classpath used by Eclipse (add the jar file to the project
+   build path)
+
+3. update one or more of the following to ensure the jar files are
+   included in the build and in the classpath at run-time:
+
+   build.xml
+   bin/win32/run.cmd
+   distro/osx/bundles/Configure Galleon.app/Contents/Info.plist
+   distro/osx/bundles/Galleon Server.app/Contents/Info.plist
+   distro/win32/galleon.nsi
+
+   (UNIX/Linux classpath just takes everything in the lib directory, no
+   file to edit)
 
 Building
 --------
-Galleon uses JDK 1.4
-Galleon also uses the JMF:
-http://java.sun.com/products/java-media/jmf/2.1.1/download.html
-The JMF sound.jar and jmf.jar files need to be copied into the Galleon lib directory.
-
+Galleon uses JDK 5
 
 Ant build scripts are used to manage the build process (http://ant.apache.org).  
 To compile the galleon.jar file:

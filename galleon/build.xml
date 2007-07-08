@@ -12,6 +12,7 @@
 	<include name="**/*.jar"/>
       </fileset>
       <pathelement path="${basedir}/conf" />
+      <pathelement path="${basedir}/distro/osx/AppleJavaExtensions/AppleJavaExtensions.jar" />
     </path>
 
     <path id="class.path.hibernate3">
@@ -86,8 +87,6 @@
         <echo message="data path   : ${data}" />                
         <echo message="hme path    : ${hme}" />                  
         <echo message="skins path  : ${skins}" />   
-    	<echo message="extra src   : ${extrasrc}"/>
-    	<echo message="otherplatsrc: ${otherplatsrc}"/>
 
         <filter token="lib" value="${lib}" />
         <filter token="win32comment" value="${win32comment}" />
@@ -105,8 +104,6 @@
         <filter token="apps" value="${apps}" />        
         <filter token="hme" value="${hme}" />                
         <filter token="skins" value="${skins}" />
-    	<filter token="extrasrc" value="${extrasrc}" />
-    	<filter token="otherplatsrc" value="${otherplatsrc}" />
 
         <property name="filtering" value="no" />
 
@@ -184,9 +181,8 @@
 
         <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off" source="5" target="5">
            		<include name="**/*.java" />
-            	<exclude name="${otherplatsrc}" />
-        		<include name="${extrasrc}"/>
-            <classpath>
+        	   <exclude name="**/apps/camera,**/util/CameraDevice.java" />
+        	<classpath>
                 <path refid="class.path" />
             </classpath>
 <!--            

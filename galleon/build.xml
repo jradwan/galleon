@@ -833,6 +833,7 @@
         </jar>
         <copy file="${build}/apps/jabber.jar" tofile="./apps/jabber.jar" />        
 
+        <copy file="./apps/movieRentals.jar" tofile="${build}/apps/movieRentals.jar" />
 
         <copy file="./apps/launcher.txt" tofile="${build}/hme/launcher.txt" />                
         <copy file="./ReleaseNotes.txt" tofile="${build}/ReleaseNotes.txt" />                                
@@ -1181,6 +1182,11 @@
         <echo>Combining libraries</echo>
 
         <antcall target="combinejars">
+          <param name="fileset" value="**/axis*.jar"/>
+          <param name="jarfile" value="axis.jar"/>          
+        </antcall>    
+
+        <antcall target="combinejars">
           <param name="fileset" value="**/commons*.jar"/>
           <param name="jarfile" value="commons.jar"/>          
         </antcall>        
@@ -1219,7 +1225,7 @@
         
         <echo>Copying libraries</echo>
         <copy todir="${build}/lib/">
-            <fileset dir="./lib" includes="**/*.jar" excludes="**/commons*.jar,**/hibernate*.jar,**/ehcache*.jar,**/freemarker.jar,**/antlr*.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi*.jar,**/tritonus_share.jar,**/forms*.jar,**/looks*.jar,**/smack*.jar,**/smackx*.jar"/>
+            <fileset dir="./lib" includes="**/*.jar" excludes="**/axis*.jar,**/commons*.jar,**/hibernate*.jar,**/ehcache*.jar,**/freemarker.jar,**/antlr*.jar,**/derby*.jar,**/jax*.jar,**/jl.jar,**/mp3spi*.jar,**/tritonus_share.jar,**/forms*.jar,**/looks*.jar,**/smack*.jar,**/smackx*.jar"/>
         </copy>        
 
         <antcall target="package-lib-${platform}" />
@@ -1400,7 +1406,7 @@
             <fileset dir="./media/sounds" includes="**/*.mp3" />
         </copy>                
         
-        <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />                                
+        <copy file="./apps/launcher.txt" tofile="${build}/apps/launcher.txt" />
         
         <copy file="./skins/skin.xml" tofile="${build}/skins/skin.xml" />                                        
         <copy file="./skins/tivoskin.xml" tofile="${build}/skins/tivoskin.xml" />

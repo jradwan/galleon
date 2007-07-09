@@ -1,7 +1,7 @@
 Galleon
 -------
 
-Version 2.4.1 alpha:
+Version 2.4.1:
 ----------------------
 * Turned off HD for applications that don't need it (e.g. top level menu,
   Weather since its maps are small)

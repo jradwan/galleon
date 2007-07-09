@@ -174,12 +174,12 @@ CopyFiles:
 
   SetOutPath "$INSTDIR\media\images"
   File "${PRODUCT_BUILD_DIR}\media\images\galleon.ico"
-;  SetOutPath "$INSTDIR\media\winamp"
-;  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix.wsz"
-;  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal-dream.wsz"
-;  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_gold.wsz"
-;  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_green.wsz"
-;  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_red.wsz"
+  SetOutPath "$INSTDIR\media\winamp"
+  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix.wsz"
+  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal-dream.wsz"
+  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_gold.wsz"
+  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_green.wsz"
+  File "${PRODUCT_BUILD_DIR}\media\winamp\metrix_metal_dream_red.wsz"
 
   DetailPrint "Installing Galleon libraries"
   SetOutPath "$INSTDIR\lib"

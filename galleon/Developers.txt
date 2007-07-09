@@ -57,6 +57,28 @@ ant package
 To create a source copy:
 ant source
 
+Winamp skins (text from ReleaseNotes.txt):
+
+       The project has permission from the author of the Metrix Winamp classic
+       skins (Sven Kistner) to distribute the skins with the Galleon project:
+
+       http://www.winamp.com/skins/browse.php?search=yes&filter=S&query=metrix
+
+       However, for copyright reasons, the skins are not checked into the
+       project CVS. The Galleon build script will add any *.wsz Winamp skin
+       files that are in the media/winamp directory to a package build. The
+       Galleon GUI will detect any *.wsz files that are in the media/winamp
+       directory and will allow the user to pick a skin in the music app
+       configuration screen.
+
+You need to have these files in your source directories to build
+correctly-functioning distribution packages:
+
+	./media/winamp/metrix.wsz
+	./media/winamp/metrix_metal-dream.wsz
+	./media/winamp/metrix_metal_dream_gold.wsz
+	./media/winamp/metrix_metal_dream_green.wsz
+	./media/winamp/metrix_metal_dream_red.wsz
 
 Running
 -------

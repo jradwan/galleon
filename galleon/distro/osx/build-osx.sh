@@ -6,9 +6,11 @@ mkdir osx-dir
 mkdir -p osx-dir/ROOT/Galleon
 (cd distro/osx/bundles && tar -cf - --exclude=\*~ --exclude=CVS *.app)|(cd osx-dir/ROOT/Galleon && tar xpBf - )
 if [ $# -gt 0 ]; then
+    rm -rf build.osx
     ant -Dplatform=osx package
+    mv build build.osx
 fi
-    (cd build && tar cf - *) | (cd  osx-dir/ROOT/Galleon/Galleon*.app/Contents/Resources && mkdir Java && cd Java && tar xpBf -) 
+    (cd build.osx && tar cf - *) | (cd  osx-dir/ROOT/Galleon/Galleon*.app/Contents/Resources && mkdir Java && cd Java && tar xpBf -) 
 (cd osx-dir/ROOT/Galleon/Conf*.app/Contents/Resources && ln -s ../../../Galleon*.app/Contents/Resources/Java ./Java)
 for i in osx-dir/ROOT/Galleon/*.app; do
     mkdir "$i"/Contents/MacOS
@@ -27,7 +29,7 @@ mv "osx-dir/ROOT/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/config
 cp ThirdPartyLicenses.txt osx-dir
 cp copying osx-dir/COPYING
 textutil -cat rtf -output osx-dir/MainResources/English.lproj/License.rtf distro/osx/License.fragment.rtf copying ThirdPartyLicenses.txt
-textutil -cat rtf -output osx-dir/MainResources/English.lproj/ReadMe.rtf distro/osx/ReadMe.fragment.rtf build/ReleaseNotes.txt
+textutil -cat rtf -output osx-dir/MainResources/English.lproj/ReadMe.rtf distro/osx/ReadMe.fragment.rtf build.osx/ReleaseNotes.txt
 cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir/MainResources/English.lproj
 # ln -s /Applications osx-dir/Applications
 sudo chown -R root:admin osx-dir

@@ -51,11 +51,43 @@ Ant build scripts are used to manage the build process (http://ant.apache.org).
 To compile the galleon.jar file:
 ant compile
 
-To build the Galleon package:
-ant package
+To build Galleon packages:
+
+* Windows: run 'ant compile' then use NSIS (nsis.sourceforge.net) to compile
+  distro/win32/galleon.nsi
+  to create distro/win32/Setup.exe
+  (Very nice to use the NSIS eclipse plugin)
+  http://eclipsensis.sourceforge.net/
+
+* Linux: run 'distro/unix/build-zipfile.sh yes'
+  (runs ant for you)
+  generates galleon-<release>-linux.zip
+  you can do this on OSX or Linux.
+
+* OSX: run 'distro/osx/build-osx.sh yes'
+  (runs ant for you)
+  generates Galleon-<release>.dmg
 
 To create a source copy:
 ant source
+
+To update the version number:
+
+* Edit ReleaseNotes.txt to add a new section
+* run ./update-vno.sh (on UNIX, Linux or OSX)
+* commit the resulting changes
+
+To create a release:
+
+* Create a new file release (sourceforge admin tasks "File releases")
+* Upload the Galleon-<release>.dmg, galleon-<release>.exe,
+  galleon-<release>-linux.zip files
+
+* Create a new news item in galleon.sourceforge.net (admin->news) titled
+  "Galleon <release> for TiVo".
+
+  That news item will trigger existing galleon installations to notify
+  the owners that there's a new release.
 
 Winamp skins (text from ReleaseNotes.txt):
 

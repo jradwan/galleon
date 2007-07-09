@@ -7,6 +7,7 @@ OMINOR=4
 OSUB=0
 for i in \
   distro/win32/galleon.nsi \
+  distro/unix/build-zipfile.sh \
   src/org/lnicholls/galleon/Server/Constants.java \
   conf/configure.xml.default \
   distro/osx/build-osx.sh \

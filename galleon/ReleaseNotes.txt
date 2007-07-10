@@ -1,6 +1,9 @@
 Galleon
 -------
 
+Version 2.4.2:
+----------------------
+
 Version 2.4.1:
 ----------------------
 * Turned off HD for applications that don't need it (e.g. top level menu,

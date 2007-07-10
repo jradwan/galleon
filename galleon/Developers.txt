@@ -75,6 +75,8 @@ To update the version number:
 
 * Edit ReleaseNotes.txt to add a new section
 * run ./update-vno.sh (on UNIX, Linux or OSX)
+  no args: previews and shows what it would change
+  one arg: does the change
 * commit the resulting changes
 
 To create a release:

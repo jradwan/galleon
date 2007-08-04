@@ -130,7 +130,7 @@ public class Photos extends DefaultApplication {
 		public PhotosMenuScreen(Photos app) {
 			super(app, "Photos");
 			setFooter("Press ENTER for options");
-			getBelow().setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 			getBelow().flush();
 			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 			.getAppContext().getConfiguration();
@@ -343,7 +343,7 @@ public class Photos extends DefaultApplication {
 	public class OptionsScreen extends DefaultOptionsScreen {
 		public OptionsScreen(DefaultApplication app) {
 			super(app);
-			getBelow().setResource(mInfoBackground);
+			getBelow().setResource(mInfoBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 			getBelow().flush();
 			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) ((PhotosFactory) getFactory())
 			.getAppContext().getConfiguration();
@@ -429,7 +429,7 @@ public class Photos extends DefaultApplication {
 					.getTransitionTime()));
 		}
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			getBelow().setResource(mInfoBackground);
+			getBelow().setResource(mInfoBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 			getBelow().flush();
 			return super.handleEnter(arg, isReturn);
 		}
@@ -468,8 +468,8 @@ public class Photos extends DefaultApplication {
 		}
 		public PathScreen(Photos app, Tracker tracker, boolean first) {
 			super(app);
-			getBelow().setResource(mMenuBackground);
-			getBelow().flush();
+			getBelow().setResource(mMenuBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
+            getBelow().flush();
 			setFooter("Press ENTER for options");
 			setTitle("Photos");
 			mTracker = tracker;
@@ -652,7 +652,7 @@ public class Photos extends DefaultApplication {
 		public PhotosScreen(Photos app) {
 			super(app, true);
 			setFooter("Press ENTER for options");
-			getBelow().setResource(mInfoBackground);
+			getBelow().setResource(mInfoBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 			getBelow().flush();
 			setTitle("Photo");
 			mDateFormat = new SimpleDateFormat();

@@ -123,6 +123,7 @@ public class InternetSlideshows extends DefaultApplication {
 		super.init(context);
 	}
 	public void initService() {
+        super.initService();
 
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");

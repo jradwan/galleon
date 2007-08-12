@@ -63,6 +63,7 @@ public class Menu extends DefaultSDOnlyApplication {
 	}
 	
 	public void initService() {
+        super.initService();
 
 		mMenuBackground = getSkinImage("menu", "background");
 		mFolderIcon = getSkinImage("menu", "folder");

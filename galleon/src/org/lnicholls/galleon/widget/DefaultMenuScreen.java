@@ -33,13 +33,17 @@ public class DefaultMenuScreen extends DefaultScreen {
 		BHighlights h = mMenuList.getHighlights();
 		h.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
 		h.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
+        
 
 		setFocusDefault(mMenuList);
 	}
 
 	public DefaultList createMenuList() {
-		return new MenuList(this, SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 290, getWidth()
-				- ((SAFE_TITLE_H * 2) + 32), 280, 35);
+        int rowHeight = (isHighDef()) ? 60 : 35;
+        int diff = getContentHeight()%rowHeight;
+        int contentHeight = getContentHeight() - diff;
+        return new MenuList(this, getContentX(), getContentY() + diff/2, getContentWidth(), 
+                contentHeight, rowHeight);
 	}
 
 	public DefaultList getMenuList() {

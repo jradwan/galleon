@@ -21,7 +21,7 @@ public class MusicOptionsScreen extends DefaultOptionsScreen {
 
 		mBackground = background;
 
-		getBelow().setResource(mBackground);
+		getBelow().setResource(mBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 		MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getServerConfiguration()
 				.getMusicPlayerConfiguration();
@@ -141,7 +141,7 @@ public class MusicOptionsScreen extends DefaultOptionsScreen {
 	}
 
 	public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-		getBelow().setResource(mBackground);
+		getBelow().setResource(mBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 		return super.handleEnter(arg, isReturn);
 	}

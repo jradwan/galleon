@@ -71,6 +71,7 @@ public class Jabber extends DefaultApplication {
 		super.init(context);
 	}
 	public void initService() {
+        super.initService();
 		((JabberFactory) getFactory()).available();
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");

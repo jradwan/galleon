@@ -85,6 +85,7 @@ public class ToGo extends DefaultApplication {
 		super.init(context);
 	}
 	public void initService() {
+        super.initService();
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mYellowIcon = getSkinImage("menu", "expiresSoon");

@@ -96,6 +96,7 @@ public class Music extends DefaultApplication {
 	}
 	
 	public void initService() {
+        super.initService();
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mPlayerBackground = getSkinImage("player", "background");
@@ -133,7 +134,7 @@ public class Music extends DefaultApplication {
 
 			setFooter("Press ENTER for options");
 
-			getBelow().setResource(mMenuBackground);
+			getBelow().setResource(mMenuBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 			MusicConfiguration musicConfiguration = (MusicConfiguration) ((MusicFactory) getFactory()).getAppContext()
 					.getConfiguration();
@@ -278,7 +279,7 @@ public class Music extends DefaultApplication {
 
 			setFooter("Press ENTER for options, 1 for Jukebox");
 
-			getBelow().setResource(mMenuBackground);
+            getBelow().setResource(mMenuBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 			mTracker = tracker;
 			mFirst = first;
@@ -420,7 +421,9 @@ public class Music extends DefaultApplication {
 		}
 
 		protected void createRow(BView parent, int index) {
-			BView icon = new BView(parent, 9, 2, 32, 32);
+            int parentWidth = parent.getWidth();
+            int parentHeight = parent.getHeight();
+			BView icon = new BView(parent, 9, (parentHeight-32)/2, 32, 32);
 			Item nameFile = (Item) mMenuList.get(index);
 			String filename = nameFile.getName();
 			if (nameFile.isFolder()) {
@@ -441,7 +444,10 @@ public class Music extends DefaultApplication {
 				}
 			}
 
-			BText name = new BText(parent, 50, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+			BText name = new BText(parent, 50, 4, parentWidth - 40, parentHeight - 4);
+            if (isHighDef()) {
+                name.setFont("default-32.font");
+            }
 			name.setShadow(true);
 			name.setFlags(RSRC_HALIGN_LEFT);
 			name.setValue(Tools.trim(Tools.clean(filename), 40));
@@ -505,7 +511,7 @@ public class Music extends DefaultApplication {
 
 			setFooter("Press ENTER for options");
 
-			getBelow().setResource(mInfoBackground);
+			getBelow().setResource(mInfoBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 			mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
 
@@ -518,7 +524,7 @@ public class Music extends DefaultApplication {
 		}
 
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			getBelow().setResource(mInfoBackground);
+			getBelow().setResource(mInfoBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 			updateView();
 
 			return super.handleEnter(arg, isReturn);
@@ -657,7 +663,7 @@ public class Music extends DefaultApplication {
 		public PlayerScreen(Music app, Tracker tracker) {
 			super(app, true);
 
-			getBelow().setResource(mPlayerBackground);
+			getBelow().setResource(mPlayerBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 			boolean sameTrack = false;
 			DefaultApplication defaultApplication = (DefaultApplication) getApp();
@@ -795,7 +801,7 @@ public class Music extends DefaultApplication {
 		public LyricsScreen(Music app, Tracker tracker) {
 			super(app, "Lyrics", false);
 
-			getBelow().setResource(mLyricsBackground);
+			getBelow().setResource(mLyricsBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 			mTracker = tracker;
 
@@ -951,7 +957,7 @@ public class Music extends DefaultApplication {
 		public ImagesScreen(Music app, Tracker tracker) {
 			super(app, "Images", true);
 
-			getBelow().setResource(mImagesBackground);
+			getBelow().setResource(mImagesBackground, RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
 			mTracker = tracker;
 

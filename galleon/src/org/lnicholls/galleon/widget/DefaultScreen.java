@@ -20,6 +20,7 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
+import com.almilli.tivo.bananas.hd.HDApplication;
 import com.tivo.hme.bananas.BHighlight;
 import com.tivo.hme.bananas.BHighlights;
 import com.tivo.hme.bananas.BScreen;
@@ -42,6 +43,16 @@ public class DefaultScreen extends BScreen {
     protected final int BODY_WIDTH = getWidth() - BORDER_LEFT - (SAFE_TITLE_H);
 
     protected final int BODY_HEIGHT = getHeight() - 2 * SAFE_TITLE_V;
+
+    private BText mTitle;
+
+    private BText mFooter;
+
+    private HintsView mHints;
+
+    protected BView mBusy;
+    
+    protected BView mTitleAnimation;
 
     static final class HintsView extends BView {
         public HintsView(BView parent, int x, int y, int width, int height, boolean visible) {
@@ -216,14 +227,61 @@ public class DefaultScreen extends BScreen {
             h.refresh();
         }
     }
-
-    private BText mTitle;
-
-    private BText mFooter;
-
-    private HintsView mHints;
-
-    protected BView mBusy;
     
-    protected BView mTitleAnimation;
+    public DefaultApplication getApp() {
+        return (DefaultApplication)super.getApp();
+    }
+    
+    public boolean isHighDef() {
+        return getApp().isHighDef();
+    }
+    
+    public int getSafeTitleHorizontal() {
+        return getApp().getSafeTitleHorizontal();
+    }
+
+    public int getSafeTitleVertical() {
+        return getApp().getSafeTitleVertical();
+    }
+
+    public int getSafeActionHorizontal() {
+        return getApp().getSafeActionHorizontal();
+    }
+
+    public int getSafeActionVertical() {
+        return getApp().getSafeActionVertical();
+    }
+
+    
+    public int getContentX() {
+        return getSafeTitleHorizontal() + 10;
+    }
+    
+    public int getContentY() {
+        if (isHighDef()) {
+            return getSafeTitleVertical() + 94;
+        } else {
+            return getSafeTitleVertical() + 100;
+        }
+    }
+    
+    public int getContentWidth() {
+        return getWidth() - getContentX() - getSafeTitleHorizontal();
+    }
+    
+    public int getContentHeight() {
+        if (isHighDef()) {
+            return getHeight() - getContentY() - getSafeTitleVertical() - 10;
+        } else {
+            return getHeight() - getContentY() - getSafeTitleVertical() - 20;
+        }
+    }
+    
+    public int getContentBottom() {
+        return getContentY() + getContentHeight();
+    }
+    
+    public int getContentRight() {
+        return getContentX() + getContentWidth();
+    }
 }

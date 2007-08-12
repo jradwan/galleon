@@ -70,6 +70,7 @@ public class RSS extends DefaultApplication {
 		super.init(context);
 	}
 	public void initService() {
+        super.initService();
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mViewerBackground = getSkinImage("viewer", "background");

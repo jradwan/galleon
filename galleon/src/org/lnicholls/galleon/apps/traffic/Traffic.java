@@ -70,6 +70,7 @@ public class Traffic extends DefaultApplication {
 	}
 	
 	public void initService() {
+        super.initService();
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
 		mFolderIcon = getSkinImage("menu", "folder");

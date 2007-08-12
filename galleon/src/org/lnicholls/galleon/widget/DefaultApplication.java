@@ -16,6 +16,20 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import com.almilli.tivo.bananas.hd.HDApplication;
+import com.tivo.core.ds.TeDict;
+import com.tivo.hme.bananas.BButton;
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.host.sample.HostContext;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.sdk.HmeEvent;
+import com.tivo.hme.sdk.IHmeEventHandler;
+import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Resource;
+import com.tivo.hme.sdk.StreamResource;
+import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,24 +38,27 @@ import java.net.Socket;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
-
+import java.util.Vector;
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
-import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-
-import org.apache.log4j.Logger;
-import org.lnicholls.galleon.app.*;
-import org.lnicholls.galleon.database.*;
-import org.lnicholls.galleon.database.AudioManager;
+import org.hibernate.classic.Session;
+import org.lnicholls.galleon.app.AppConfiguration;
+import org.lnicholls.galleon.app.AppContext;
+import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.database.Application;
 import org.lnicholls.galleon.database.ApplicationManager;
+import org.lnicholls.galleon.database.Audio;
+import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.HibernateUtil;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
@@ -50,25 +67,6 @@ import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
-import org.lnicholls.galleon.database.PersistentValueManager;
-import org.lnicholls.galleon.database.PersistentValue;
-
-import com.almilli.tivo.bananas.hd.HDApplication;
-import com.tivo.hme.bananas.BApplication;
-import com.tivo.hme.bananas.BButton;
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
-import com.tivo.hme.sdk.HmeEvent;
-import com.tivo.hme.sdk.IHmeEventHandler;
-import com.tivo.hme.sdk.IHmeProtocol;
-import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.sdk.StreamResource;
-import com.tivo.hme.sdk.HmeEvent.ResourceInfo;
-import com.tivo.hme.host.sample.HostContext;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.interfaces.IArgumentList;
-import com.tivo.core.ds.TeDict;
 
 public class DefaultApplication extends HDApplication {
 
@@ -85,6 +83,8 @@ public class DefaultApplication extends HDApplication {
     private byte mMemento[];
 
     private TeDict mParams;
+    
+    private boolean highDef;
 
     public void init(IContext context) throws Exception {
         super.init(context);
@@ -124,6 +124,15 @@ public class DefaultApplication extends HDApplication {
         } catch (Exception ex) {
             Tools.logException(DefaultApplication.class, ex);
         }
+    }
+    
+
+    protected void initService() {
+        highDef = getWidth() > 480;
+    }
+
+    public boolean isHighDef() {
+        return highDef;
     }
 
     public Resource getStarIcon() {

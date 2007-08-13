@@ -102,12 +102,12 @@ public class PlayBar extends BView {
         mBarRight = new BView(mBar, this.getWidth()-PLAYBAR_RIGHT, 0, PLAYBAR_RIGHT, PLAYBAR_H);
         mBarRight.setResource(createImage("org/lnicholls/galleon/widget/playbar_right.png"));
 
-        mStart = new BText(mBar, 0, 0, TIMEWIDTH, 25);
+        mStart = new BText(mBar, 0, 0, TIMEWIDTH, 23);
         mStart.setFont("default-15.font");
         mStart.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
         mStart.setValue(formatTime(0));
 
-        mEnd = new BText(mBar, this.getWidth() - TIMEWIDTH, 0, TIMEWIDTH, 25);
+        mEnd = new BText(mBar, this.getWidth() - TIMEWIDTH, 0, TIMEWIDTH, 23);
         mEnd.setFont("default-15.font");
         mEnd.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
         mEnd.setValue(formatTime(0));
@@ -124,7 +124,7 @@ public class PlayBar extends BView {
         mShuttleTop = new BView(mShuttle, 0, 0, SHUTTLEPART_WIDTH, SHUTTLEPART_HEIGHT);
         mShuttleTop.setResource(createImage("org/lnicholls/galleon/widget/playbar_shuttle_top.png"));
 
-        mShuttleTime = new BText(mShuttle, 0, 0, SHUTTLEPART_WIDTH, 18);
+        mShuttleTime = new BText(mShuttle, 0, 2, SHUTTLEPART_WIDTH, 18);
         mShuttleTime.setFont("default-15.font");
         mShuttleTime.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_CENTER);
         mShuttleTime.setValue(formatTime(0));

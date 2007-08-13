@@ -28,17 +28,24 @@ import com.tivo.hme.bananas.BView;
 
 public class PlayBar extends BView {
 
-    private static final int PREFERRED_H = 52;
+    private static final int PREFERRED_H = 71;
 
-    private static final int PLAYBAR_H = 28;
+    private static final int PLAYBAR_H = 31;
 
-    private static final int PLAYBAR_Y_OFFSET = 12;
+    private static final int PLAYBAR_LEFT = 54;
+
+    private static final int PLAYBAR_RIGHT = 57;
+
+    private static final int PLAYBAR_Y_OFFSET = 20;
 
     private static final int TIMEWIDTH = 45;
 
-    private static final int SHUTTLEPART_HEIGHT = 15;
+    private static final int SHUTTLEPART_HEIGHT = 20;
+    
+    private static final int SHUTTLEPART_WIDTH = 75;
 
-    private static final int SHUTTLE_WIDTH = (int) (TIMEWIDTH * 2.0);
+    private static final int CAP_WIDTH = PLAYBAR_LEFT + PLAYBAR_RIGHT;
+    
 
     private static final int SHUTTLE_HEIGHT = PREFERRED_H;
 
@@ -77,20 +84,22 @@ public class PlayBar extends BView {
     public PlayBar(BView parent) {
         super(parent, 0, parent.getHeight() - PREFERRED_H - 10, parent.getWidth(), PREFERRED_H);
 
-        mProgress = new BView(this, TIMEWIDTH, PLAYBAR_Y_OFFSET + 8, this.getWidth() - 2 * TIMEWIDTH, PLAYBAR_H - 16);
+        mProgress = new BView(this, PLAYBAR_LEFT-1, PLAYBAR_Y_OFFSET + 8, 
+                this.getWidth() - CAP_WIDTH - 2, PLAYBAR_H - 16);
         mProgress.setVisible(false);
         mProgress.setResource(Color.GREEN);
         setProgress(0);
 
         mBar = new BView(this, 0, PLAYBAR_Y_OFFSET, this.getWidth(), PLAYBAR_H, false);
 
-        mBarLeft = new BView(mBar, 0, 0, 47, PLAYBAR_H);
+        mBarLeft = new BView(mBar, 0, 0, PLAYBAR_LEFT, PLAYBAR_H);
         mBarLeft.setResource(createImage("org/lnicholls/galleon/widget/playbar_left.png"));
 
-        mBarMiddle = new HTileView(mBar, 47, 0, this.getWidth()-94, PLAYBAR_H, 408);
+        mBarMiddle = new HTileView(mBar, PLAYBAR_LEFT, 0, this.getWidth() - CAP_WIDTH, 
+                PLAYBAR_H, 450);
         mBarMiddle.setResource(createImage("org/lnicholls/galleon/widget/playbar.png"));
 
-        mBarRight = new BView(mBar, this.getWidth()-47, 0, 47, PLAYBAR_H);
+        mBarRight = new BView(mBar, this.getWidth()-PLAYBAR_RIGHT, 0, PLAYBAR_RIGHT, PLAYBAR_H);
         mBarRight.setResource(createImage("org/lnicholls/galleon/widget/playbar_right.png"));
 
         mStart = new BText(mBar, 0, 0, TIMEWIDTH, 25);
@@ -103,31 +112,30 @@ public class PlayBar extends BView {
         mEnd.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
         mEnd.setValue(formatTime(0));
 
-        int diff = (getWidth() - 2 * TIMEWIDTH) / 4;
-        int[] tickX = { diff, 2 * diff, 3 * diff };
+        int diff = (getWidth() - CAP_WIDTH) / 4;
         for (int i = 0; i < 3; ++i) {
-            BView playbarTick = new BView(this, TIMEWIDTH + tickX[i], PLAYBAR_Y_OFFSET + 8, 2, 3);
+            BView playbarTick = new BView(this, TIMEWIDTH + (i+1)*diff, PLAYBAR_Y_OFFSET + 10, 2, 3);
             playbarTick.setResource(java.awt.Color.WHITE);
         }
         mBar.setVisible(true);
 
-        mShuttle = new BView(this, TIMEWIDTH - (SHUTTLE_WIDTH / 2), 0, SHUTTLE_WIDTH, SHUTTLE_HEIGHT);
+        mShuttle = new BView(this, TIMEWIDTH - (SHUTTLEPART_WIDTH / 2), 0, SHUTTLEPART_WIDTH, SHUTTLE_HEIGHT);
 
-        mShuttleTop = new BView(mShuttle, 0, 0, SHUTTLE_WIDTH, SHUTTLEPART_HEIGHT);
+        mShuttleTop = new BView(mShuttle, 0, 0, SHUTTLEPART_WIDTH, SHUTTLEPART_HEIGHT);
         mShuttleTop.setResource(createImage("org/lnicholls/galleon/widget/playbar_shuttle_top.png"));
 
-        mShuttleTime = new BText(mShuttle, 0, 0, SHUTTLE_WIDTH, 18);
+        mShuttleTime = new BText(mShuttle, 0, 0, SHUTTLEPART_WIDTH, 18);
         mShuttleTime.setFont("default-15.font");
         mShuttleTime.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_CENTER);
         mShuttleTime.setValue(formatTime(0));
 
-        mShuttleBottom = new BView(mShuttle, 0, SHUTTLE_HEIGHT - SHUTTLEPART_HEIGHT, SHUTTLE_WIDTH, SHUTTLEPART_HEIGHT);
+        mShuttleBottom = new BView(mShuttle, 0, SHUTTLE_HEIGHT - SHUTTLEPART_HEIGHT, SHUTTLEPART_WIDTH, SHUTTLEPART_HEIGHT);
         mShuttleBottom.setResource(createImage("org/lnicholls/galleon/widget/playbar_shuttle_bottom.png"));
 
-        mShuttleIcon = new BView(mShuttleBottom, (SHUTTLE_WIDTH - 15) / 2, 2, 15, 15);
+        mShuttleIcon = new BView(mShuttleBottom, (SHUTTLEPART_WIDTH - 15) / 2, 2, 15, 15);
         mShuttleIcon.setResource(createImage("org/lnicholls/galleon/widget/pause.png"));
 
-        BView playbarShuttleNeedle = new BView(mShuttle, SHUTTLE_WIDTH / 2, SHUTTLEPART_HEIGHT + 5, 2, PLAYBAR_H - 16);
+        BView playbarShuttleNeedle = new BView(mShuttle, SHUTTLEPART_WIDTH / 2, SHUTTLEPART_HEIGHT + 10, 2, PLAYBAR_H - 18);
         playbarShuttleNeedle.setResource(Color.WHITE);
     }
 
@@ -152,16 +160,16 @@ public class PlayBar extends BView {
             return;
 
         int centerOffset = 0;
-        int maxWidth = this.getWidth() - 2 * TIMEWIDTH;
+        int maxWidth = this.getWidth() - CAP_WIDTH - 2;
 
         mPosition = Math.min(Math.max(seconds, 0), mDuration);
 
         if (mDuration > 0) {
-            centerOffset = (int) ((((float) mPosition) / ((float) mDuration)) * maxWidth);
+            centerOffset = (mPosition * maxWidth) / mDuration;
             mProgress.setVisible(true);
         }
         mShuttleTime.setValue(formatTime(mPosition));
-        mShuttle.setLocation(TIMEWIDTH - (SHUTTLE_WIDTH / 2) + centerOffset, mShuttle.getY());
+        mShuttle.setLocation(PLAYBAR_LEFT + centerOffset - SHUTTLEPART_WIDTH / 2, mShuttle.getY());
         mShuttle.flush();
         
         mProgress.setSize(centerOffset+1, mProgress.getHeight());
@@ -173,12 +181,12 @@ public class PlayBar extends BView {
             return;
 
         int newWidth = 0;
-        int maxWidth = this.getWidth() - 2 * TIMEWIDTH;
+        int maxWidth = this.getWidth() - CAP_WIDTH - 2;
 
         mProgressed = Math.min(Math.max(seconds, 0), mDuration);
 
         if (mDuration > 0) {
-            newWidth = (int) ((((float) mProgressed) / ((float) mDuration)) * maxWidth);
+            newWidth = (mProgressed * maxWidth) / mDuration;
             mProgress.setVisible(true);
         }
         mProgress.setSize(newWidth, mProgress.getHeight());

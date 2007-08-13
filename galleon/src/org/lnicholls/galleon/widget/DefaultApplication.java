@@ -128,7 +128,7 @@ public class DefaultApplication extends HDApplication {
     
 
     protected void initService() {
-        highDef = getWidth() > 480;
+        highDef = getHeight() > 480;
     }
 
     public boolean isHighDef() {

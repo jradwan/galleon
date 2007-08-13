@@ -43,6 +43,45 @@ public class MusicInfo extends BView {
 
     private static Logger log = Logger.getLogger(MusicInfo.class.getName());
 
+
+    private Audio mAudio;
+
+    private SimpleDateFormat mTimeFormatShort;
+
+    private SimpleDateFormat mTimeFormatLong;
+
+    private Resource mAnim = getResource("*2000");
+
+    private BView mCover;
+
+    private BText mTitleText;
+
+    private LabelText mSongText;
+
+    private LabelText mTrackText;
+
+    private LabelText mArtistText;
+
+    private LabelText mAlbumText;
+
+    private LabelText mDurationText;
+
+    private LabelText mYearText;
+
+    private LabelText mGenreText;
+
+    private Tracker mTracker;
+
+    private BView[] mStars;
+
+    private CoverChanger mCoverThread;
+
+    private List mResults;
+
+    private int mPos;
+
+    private boolean mWebImages;
+
     public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible) {
         this(parent, x, y, width, height, visible, false);
     }
@@ -200,163 +239,7 @@ public class MusicInfo extends BView {
 
                 	if (mCoverThread==null)
                     {
-                        mCoverThread = new Thread() {
-                        	public void run() {
-                                int x = mCover.getX();
-                                int y = mCover.getY();
-
-                                Audio audio = null;
-                                while (getApp().getContext()!=null)
-                                {
-                                	if (mAudio!=null && !mAudio.getPath().startsWith("http")) {
-                                		if (audio==null || audio.getId() != mAudio.getId())
-                                		{
-    	                            		try {
-    	            		                    MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
-    	            		                            .getMusicPlayerConfiguration();
-    	            		                    java.awt.Image image = Mp3File.getCover(mAudio, musicPlayerConfiguration
-    	            		                            .isUseAmazon(), musicPlayerConfiguration.isUseFile());
-    	            		                    if (image != null) {
-    	            		                        synchronized (this) {
-    	            		                            mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-    	            		                            mCover.setVisible(true);
-    	            		                            mCover.setTransparency(0.0f, mAnim);
-    	            		                            getBApp().flush();
-    	            		                        }
-    	            		                    } else {
-    	            		                        synchronized (this) {
-    	            		                        	mCover.setVisible(false);
-    	            		                        	mCover.flush();
-    	            		                        	mCover.clearResource();
-    	            		                            getBApp().flush();
-    	            		                        }
-    	            		                    }
-    	            		                    audio = mAudio;
-    	            		                } catch (Exception ex) {
-    	            		                    Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
-    	            		                }
-
-    	            		                while (mWebImages & getApp().getContext() != null) {
-    	            		                    try {
-    	            		                        if (mCover.getResource() != null)
-    	            		                        	synchronized(this)
-    	            		                        	{
-    	            		                        		wait(10000);
-    	            		                        	}
-
-    	            		                        if (!audio.getArtist().equals(mAudio.getArtist()))
-    	            		                        {
-    	            		                        	if (mResults != null) {
-    	            		                                mResults.clear();
-    	            		                                mResults = null;
-    	            		                            }
-
-    	            		                        	mCover.setVisible(false);
-    	            		                            if (mCover.getResource() != null)
-    	            		                            {
-    	            		                            	mCover.getResource().flush();
-    	            		                                mCover.getResource().remove();
-    	            		                            }
-
-    	            		                            break;
-    	            		                        }
-
-    	            		                        if (mResults == null) {
-    	            		                            if (mResults != null) {
-    	            		                                mResults.clear();
-    	            		                                mResults = null;
-    	            		                            }
-
-    	            		                            mResults = Yahoo.getImages("\"" + audio.getArtist() + "\" music");
-    	            		                            if (mResults.size() == 0) {
-    	            		                                mResults = null;
-    	            		                                return;
-    	            		                            }
-    	            		                            mPos = 0;
-    	            		                        }
-
-    	            		                        NameValue nameValue = (NameValue) mResults.get(mPos);
-    	            		                        Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
-
-    	            		                        if (image != null) {
-    	            		                                setPainting(false);
-    	            		                                try {
-    	            		                                	if (getApp().getContext()!=null)
-    	            		                                    {
-	    	            		                                    if (mCover.getResource() != null)
-	    	            		                                    {
-	    	            		                                    	mCover.getResource().flush();
-	    	            		                                        mCover.getResource().remove();
-	    	            		                                    }
-	    	            		                                    //mUrlText.setValue(nameValue.getName());
-	    	            		                                    mCover.setLocation(x + mCover.getWidth(), y);
-	    	            		                                    mCover.setVisible(true);
-	    	            		                                    mCover.setTransparency(1f);
-	    	            		                                    mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
-	    	            		                                    Resource resource = getResource("*1000");
-	    	            		                                    mCover.setTransparency(0f, resource);
-	    	            		                                    mCover.setLocation(x, y, resource);
-    	            		                                    }
-    	            		                                    image.flush();
-    	            		                                    image = null;
-    	            		                                } finally {
-    	            		                                    setPainting(true);
-    	            		                                }
-    	            		                        } else {
-    	            		                            mResults.remove(mPos);
-    	            		                        }
-
-    	            		                        mPos = (mPos + 1) % mResults.size();
-
-    	            		                    } catch (InterruptedException ex) {
-    	            		                        return;
-    	            		                    } catch (Exception ex) {
-    	            		                        Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
-    	            		                        try {
-    	            		                            mResults.remove(mPos);
-    	            		                        } catch (Throwable ex2) {
-    	            		                        }
-    	            		                    } finally {
-    	            		                        getBApp().flush();
-    	            		                    }
-    	            		                }
-                                		}
-                                		else
-                                    	{
-                                			try
-                    	                	{
-                    		                	synchronized(this)
-                                            	{
-                                            		wait(10000);
-                                            	}
-                    	                	} catch (InterruptedException ex) {
-                    	                        return;
-                    	                	}
-                                    	}
-                	                }
-                                	else
-                                	{
-    		                            try
-                	                	{
-                		                	synchronized(this)
-                                        	{
-                		                		mCover.setVisible(false);
-            		                            if (mCover.getResource() != null)
-            		                            {
-            		                            	mCover.getResource().flush();
-            		                                mCover.getResource().remove();
-            		                            }
-            		                            getBApp().flush();
-
-                                        		wait(10000);
-                                        	}
-                	                	} catch (InterruptedException ex) {
-                	                        return;
-                	                	}
-                                	}
-                                }
-                            }
-                        };
+                        mCoverThread = new CoverChanger();
                         mCoverThread.start();
                     }
 
@@ -396,8 +279,7 @@ public class MusicInfo extends BView {
     private void clearCover() {
         setPainting(false);
         try {
-                if (mCoverThread != null && mCoverThread.isAlive()) {
-                    mCoverThread.interrupt();
+                if (mCoverThread != null) {
                     mCoverThread.stop();
                     mCoverThread = null;
 
@@ -471,42 +353,177 @@ public class MusicInfo extends BView {
         }
         return super.handleKeyPress(code, rawcode);
     }
+    
+    private class CoverChanger implements Runnable {
+        private int x;
+        private int y;
+        private Audio audio;
+        private long nextChangeTime;
+        
+        private Thread thread;
 
-    private Audio mAudio;
+        public CoverChanger() {
+            x = mCover.getX();
+            y = mCover.getY();
+        }
+        
+        public void start() {
+            thread = new Thread(this, "Cover Changer");
+            thread.setDaemon(true);
+            thread.start();
+        }
+        
+        public void stop() {
+            thread = null;
+            synchronized(this) {
+                //wake up to shutdown
+                notifyAll();
+            }
+        }
 
-    private SimpleDateFormat mTimeFormatShort;
+        public void run() {
+            while (thread != null && getApp().getContext() != null) {
+                long now = System.currentTimeMillis();
+                if (mAudio != null && !mAudio.getPath().startsWith("http")) {
+                    if ( nextChangeTime < now) {
+                        if (audio == null || audio.getId() != mAudio.getId()) {
+                            showCover();
+                        } else if (mWebImages) {
+                            showNextWebImage();
+                        }
+                        nextChangeTime = System.currentTimeMillis() + 10000;
+                    } else {
+                        try {
+                            synchronized (this) {
+                                long waitTime = nextChangeTime - now;
+                                if (waitTime > 0) {
+                                    wait(nextChangeTime - now);
+                                }
+                            }
+                        } catch (InterruptedException ex) {
+                            return;
+                        }
+                    }
+                } else {
+                    try {
+                        synchronized (this) {
+                            mCover.setVisible(false);
+                            if (mCover.getResource() != null) {
+                                mCover.getResource().flush();
+                                mCover.getResource().remove();
+                            }
+                            getBApp().flush();
 
-    private SimpleDateFormat mTimeFormatLong;
+                            long waitTime = nextChangeTime - now;
+                            if (waitTime > 0) {
+                                wait(nextChangeTime - now);
+                            }
+                        }
+                    } catch (InterruptedException ex) {
+                        return;
+                    }
+                }
+            }
+        }
+        
+        private void showNextWebImage() {
+            try {
+                if (!audio.getArtist().equals(mAudio.getArtist())) {
+                    if (mResults != null) {
+                        mResults.clear();
+                        mResults = null;
+                    }
 
-    private Resource mAnim = getResource("*2000");
+                    mCover.setVisible(false);
+                    if (mCover.getResource() != null) {
+                        mCover.getResource().flush();
+                        mCover.getResource().remove();
+                    }
 
-    private BView mCover;
+                    return;
+                }
 
-    private BText mTitleText;
+                if (mResults == null) {
+                    if (mResults != null) {
+                        mResults.clear();
+                        mResults = null;
+                    }
 
-    private LabelText mSongText;
+                    mResults = Yahoo.getImages("\"" + audio.getArtist() + "\" music");
+                    if (mResults.size() == 0) {
+                        mResults = null;
+                        return;
+                    }
+                    mPos = 0;
+                }
 
-    private LabelText mTrackText;
+                NameValue nameValue = (NameValue) mResults.get(mPos);
+                Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
 
-    private LabelText mArtistText;
+                if (image != null) {
+                    setPainting(false);
+                    try {
+                        if (getApp().getContext() != null) {
+                            if (mCover.getResource() != null) {
+                                mCover.getResource().flush();
+                                mCover.getResource().remove();
+                            }
+                            // mUrlText.setValue(nameValue.getName());
+                            mCover.setLocation(x + mCover.getWidth(), y);
+                            mCover.setVisible(true);
+                            mCover.setTransparency(1f);
+                            mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                            Resource resource = getResource("*1000");
+                            mCover.setTransparency(0f, resource);
+                            mCover.setLocation(x, y, resource);
+                        }
+                        image.flush();
+                        image = null;
+                    } finally {
+                        setPainting(true);
+                    }
+                } else {
+                    mResults.remove(mPos);
+                }
 
-    private LabelText mAlbumText;
+                mPos = (mPos + 1) % mResults.size();
 
-    private LabelText mDurationText;
+            } catch (Exception ex) {
+                Tools.logException(MusicInfo.class, ex, "Could not retrieve web image");
+                try {
+                    mResults.remove(mPos);
+                } catch (Throwable ex2) {
+                }
+            } finally {
+                getBApp().flush();
+            }
+        }
 
-    private LabelText mYearText;
-
-    private LabelText mGenreText;
-
-    private Tracker mTracker;
-
-    private BView[] mStars;
-
-    private Thread mCoverThread;
-
-    private List mResults;
-
-    private int mPos;
-
-    private boolean mWebImages;
+        private void showCover() {
+            try {
+                MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
+                        .getMusicPlayerConfiguration();
+                java.awt.Image image = Mp3File.getCover(mAudio, 
+                        musicPlayerConfiguration.isUseAmazon(), musicPlayerConfiguration.isUseFile());
+                if (image != null) {
+                    synchronized (this) {
+                        mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                        mCover.setVisible(true);
+                        mCover.setTransparency(0.0f, mAnim);
+                        getBApp().flush();
+                    }
+                } else {
+                    synchronized (this) {
+                        mCover.setVisible(false);
+                        mCover.flush();
+                        mCover.clearResource();
+                        getBApp().flush();
+                    }
+                }
+                audio = mAudio;
+            } catch (Exception ex) {
+                Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
+            }
+        }
+    }
 }

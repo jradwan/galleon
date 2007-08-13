@@ -18,7 +18,6 @@ package org.lnicholls.galleon.apps.music;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.util.NameValue;

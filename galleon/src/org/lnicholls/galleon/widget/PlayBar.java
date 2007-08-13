@@ -42,6 +42,38 @@ public class PlayBar extends BView {
 
     private static final int SHUTTLE_HEIGHT = PREFERRED_H;
 
+    private BView mBar;
+
+    private BView mBarLeft;
+
+    private BView mBarMiddle;
+
+    private BView mBarRight;
+    
+    private BView mBorder;
+
+    private BView mProgress;
+
+    private BView mShuttle;
+
+    private BText mStart;
+
+    private BText mEnd;
+
+    private BView mShuttleTop;
+
+    private BView mShuttleBottom;
+
+    private BText mShuttleTime;
+
+    private BView mShuttleIcon;
+
+    private int mDuration;
+
+    private int mProgressed;
+
+    private int mPosition;
+
     public PlayBar(BView parent) {
         super(parent, 0, parent.getHeight() - PREFERRED_H - 10, parent.getWidth(), PREFERRED_H);
 
@@ -51,7 +83,15 @@ public class PlayBar extends BView {
         setProgress(0);
 
         mBar = new BView(this, 0, PLAYBAR_Y_OFFSET, this.getWidth(), PLAYBAR_H, false);
-        mBar.setResource(createImage("org/lnicholls/galleon/widget/playbar.png"));
+
+        mBarLeft = new BView(mBar, 0, 0, 47, PLAYBAR_H);
+        mBarLeft.setResource(createImage("org/lnicholls/galleon/widget/playbar_left.png"));
+
+        mBarMiddle = new HTileView(mBar, 47, 0, this.getWidth()-94, PLAYBAR_H, 408);
+        mBarMiddle.setResource(createImage("org/lnicholls/galleon/widget/playbar.png"));
+
+        mBarRight = new BView(mBar, this.getWidth()-47, 0, 47, PLAYBAR_H);
+        mBarRight.setResource(createImage("org/lnicholls/galleon/widget/playbar_right.png"));
 
         mStart = new BText(mBar, 0, 0, TIMEWIDTH, 25);
         mStart.setFont("default-15.font");
@@ -177,30 +217,4 @@ public class PlayBar extends BView {
         else
             return minute + ":" + secondD + "" + second;
     }
-
-    private BView mBar;
-
-    private BView mBorder;
-
-    private BView mProgress;
-
-    private BView mShuttle;
-
-    private BText mStart;
-
-    private BText mEnd;
-
-    private BView mShuttleTop;
-
-    private BView mShuttleBottom;
-
-    private BText mShuttleTime;
-
-    private BView mShuttleIcon;
-
-    private int mDuration;
-
-    private int mProgressed;
-
-    private int mPosition;
 }

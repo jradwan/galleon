@@ -283,7 +283,9 @@
         <copy file="./media/images/widget/stop.png" tofile="${build}/org/lnicholls/galleon/widget/stop.png" />        
         <copy file="./media/images/widget/play.png" tofile="${build}/org/lnicholls/galleon/widget/play.png" />        
         <copy file="./media/images/widget/rewind.png" tofile="${build}/org/lnicholls/galleon/widget/rewind.png" />        
-        <copy file="./media/images/widget/playbar.png" tofile="${build}/org/lnicholls/galleon/widget/playbar.png" />                
+        <copy file="./media/images/widget/playbar.png" tofile="${build}/org/lnicholls/galleon/widget/playbar.png" />
+        <copy file="./media/images/widget/playbar_left.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_left.png" />
+        <copy file="./media/images/widget/playbar_right.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_right.png" />
         <copy file="./media/images/widget/playbar_shuttle_bottom.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_shuttle_bottom.png" />
         
 

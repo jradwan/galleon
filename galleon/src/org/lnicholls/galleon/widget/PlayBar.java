@@ -84,8 +84,8 @@ public class PlayBar extends BView {
     public PlayBar(BView parent) {
         super(parent, 0, parent.getHeight() - PREFERRED_H - 10, parent.getWidth(), PREFERRED_H);
 
-        mProgress = new BView(this, PLAYBAR_LEFT-1, PLAYBAR_Y_OFFSET + 8, 
-                this.getWidth() - CAP_WIDTH - 2, PLAYBAR_H - 16);
+        mProgress = new HTileView(this, PLAYBAR_LEFT-1, PLAYBAR_Y_OFFSET + 8, 
+                this.getWidth() - CAP_WIDTH - 2, PLAYBAR_H - 16, 650);
         mProgress.setVisible(false);
         mProgress.setResource(Color.GREEN);
         setProgress(0);

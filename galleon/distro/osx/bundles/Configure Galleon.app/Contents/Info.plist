@@ -26,17 +26,17 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>2.4.2</string>
-	<key>Properties</key>
-	<dict>
-	  <key>apple.laf.useScreenMenuBar</key>
-	  <string>true</string>
-	  <key>com.apple.mrj.application.live-resize</key>
-	  <string>true</string>
-	  <key>java.awt.fonts</key>
-	  <string>/Library/Java/Home/lib/fonts</string>
-	</dict> 
 	<key>Java</key>
 	<dict>
+		<key>Properties</key>
+		<dict>
+		  <key>apple.laf.useScreenMenuBar</key>
+		  <string>true</string>
+		  <key>com.apple.mrj.application.live-resize</key>
+		  <string>true</string>
+		  <key>java.awt.fonts</key>
+		  <string>/Library/Java/Home/lib/fonts</string>
+		</dict> 
 		<key>ClassPath</key>
 		<array>
 			<string>$JAVAROOT/conf</string>

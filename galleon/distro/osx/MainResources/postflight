@@ -24,10 +24,10 @@ cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/conf"
 if [ ! -f configure.xml ]; then
     if [ -f "$DEST/Galleon Server.app/Contents/Resources/Java/conf/configure.xml" ]; then
 	cp "$DEST/Galleon Server.app/Contents/Resources/Java/conf/configure.xml" configure.xml
-	echo "copied previous location configure" >/dev/ttyp3
+##	echo "copied previous location configure" >/dev/ttyp3
     else
 	cp configure.xml-default configure.xml
-	echo "copied default configure" >/dev/ttyp3
+##	echo "copied default configure" >/dev/ttyp3
     fi
 fi
 #echo cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/data" >/dev/ttyp3

@@ -148,7 +148,7 @@ public class DefaultApplication extends HDApplication {
     }
 
     protected Resource getSkinImage(String screen, String key) {
-        ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, key);
+        ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, getHeight(), key);
         if (mLastObject != null && mLastResource != null) {
             if (mLastObject == baos) {
                 return mLastResource;

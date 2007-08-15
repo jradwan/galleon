@@ -28,8 +28,8 @@
   	<image source="music/playlist.png" id="playlist"/>		
     <!-- max 640x480 -->  
     <!-- if background is MPG then only one is allowed -->      
-    <image source="music/background.mpg" id="background"/>
-  
+    <image source="music/background.mpg" id="background"/>   
+    <image source="music/background_hd.mpg" id="background" resolution="720"/>
   </app>
 
 

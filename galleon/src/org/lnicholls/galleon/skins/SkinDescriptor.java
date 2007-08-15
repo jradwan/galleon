@@ -103,7 +103,7 @@ public class SkinDescriptor extends Descriptor {
         return null;
     }
 
-    public String getImage(String appId, String screenId, String id) {
+    public String getImage(String appId, String screenId, int resolution, String id) {
         if (appId != null) {
             App app = getApp(appId);
             if (app != null) {
@@ -111,20 +111,20 @@ public class SkinDescriptor extends Descriptor {
                     App.Screen screen = app.getScreen(screenId);
                     if (screen != null) {
                         if (id != null) {
-                            Image image = screen.getImage(id);
+                            Image image = screen.getImage(id, resolution);
                             if (image != null)
                                 return image.getSource();
                         }
                     }
                 }
-                Image image = app.getImage(id);
+                Image image = app.getImage(id, resolution);
                 if (image != null)
                     return image.getSource();
             }
         }
 
         if (id != null) {
-            Image image = getImage(id);
+            Image image = getImage(id, resolution);
             if (image != null)
                 return image.getSource();
         }

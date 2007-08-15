@@ -28,6 +28,7 @@
   	<image source="music/playlist.png" id="playlist"/>		
     <!-- max 640x480 -->  
     <image source="music/background.jpg" id="background"/>
+    <image source="music/background_hd.jpg" id="background" resolution="720"/>
   
     <!-- Each app consists of several screens, each possibly with their -->
     <!-- own backgrounds. If each screen does not have a background     -->

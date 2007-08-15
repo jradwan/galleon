@@ -35,15 +35,21 @@ public class Descriptor {
         return mImages;
     }
     
-    public Image getImage(String id)
+    public Image getImage(String id, int resolution)
     {
+        Image defaultImage = null;
         for (int i = 0; i < mImages.size(); i++) {
             Image image = (Image) mImages.get(i);
             if (image.getId().toLowerCase().equals(id.toLowerCase())) {
-                return image;
+                if (defaultImage == null && image.getResolution() == 0) {
+                    defaultImage = image;
+                }
+                if (image.getResolution() == resolution) {
+                    return image;
+                }
             }
         }
-        return null;
+        return defaultImage;
     }
 
     public void addImage(Image value) {
@@ -71,6 +77,14 @@ public class Descriptor {
             mId = value;
         }
 
+        public int getResolution() {
+            return mResolution;
+        }
+
+        public void setResolution(int value) {
+            mResolution = value;
+        }
+
         public String toString() {
             return ToStringBuilder.reflectionToString(this);
         }
@@ -78,6 +92,8 @@ public class Descriptor {
         private String mSource;
 
         private String mId;
+        
+        private int mResolution;
     }    
     
     private List mImages;

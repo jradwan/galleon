@@ -852,6 +852,7 @@
         <copy file="./media/images/music/cd.png" tofile="${build}/skins/music/cd.png" />                
         <copy file="./media/images/music/playlist.png" tofile="${build}/skins/music/playlist.png" />                        
         <copy file="./media/images/music/background.jpg" tofile="${build}/skins/music/background.jpg" />
+        <copy file="./media/images/music/background_hd.jpg" tofile="${build}/skins/music/background_hd.jpg" />
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
@@ -1002,6 +1003,7 @@
         <copy file="./media/images/music/cd.png" tofile="${build}/skins/music/cd.png" />                
         <copy file="./media/images/music/playlist.png" tofile="${build}/skins/music/playlist.png" />                        
         <copy file="./media/images/tivo/blue.mpg" tofile="${build}/skins/music/background.mpg" />
+        <copy file="./media/images/tivo/green_hd.mpg" tofile="${build}/skins/music/background_hd.mpg" />
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        

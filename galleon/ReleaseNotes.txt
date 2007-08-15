@@ -5,6 +5,7 @@ Version 2.4.2:
 ----------------------
 * Added scalable backgrounds that fit the screen in HD mode for pictures and music
 * Fixed the HD playbar in the music app so it draws properly
+* Fixed layout on music player screen when in HD mode
 * Increased font size on music app in HD mode
 * Fix MacOS problems (tracker #1760027)
 

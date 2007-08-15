@@ -30,9 +30,8 @@ public class PlayerScreen extends DefaultScreen {
         getBelow().setResource(app.getPlayerBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
         boolean sameTrack = false;
-        DefaultApplication defaultApplication = (DefaultApplication) getApp();
-        Audio currentAudio = defaultApplication.getCurrentAudio();
-        Tracker currentTracker = defaultApplication.getTracker();
+        Audio currentAudio = app.getCurrentAudio();
+        Tracker currentTracker = app.getTracker();
         if (currentTracker != null && currentAudio != null) {
             Item newItem = (Item) tracker.getList().get(tracker.getPos());
             if (currentAudio.getPath().equals(newItem.getValue().toString())) {
@@ -70,12 +69,20 @@ public class PlayerScreen extends DefaultScreen {
                         setPainting(false);
                         MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                                 .getMusicPlayerConfiguration();
-                        if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-                            player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
-                                    BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
-                        else
+                        if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC)) {
+                            int y;
+                            if (isHighDef()) {
+                                y = getSafeTitleVertical() + 20;
+                            } else {
+                                y = getSafeTitleHorizontal();
+                            }
+                            player = new MusicPlayer(PlayerScreen.this, getContentX(), 
+                                    y, getContentWidth(),
+                                    BODY_HEIGHT, false, getApp(), mTracker);
+                        } else {
                             player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),
-                                    PlayerScreen.this.getHeight(), false, (DefaultApplication) getApp(), mTracker);
+                                    PlayerScreen.this.getHeight(), false, getApp(), mTracker);
+                        }
                         player.updatePlayer();
                         player.setVisible(true);
                     } finally {

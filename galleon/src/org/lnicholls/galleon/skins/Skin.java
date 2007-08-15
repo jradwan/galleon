@@ -72,6 +72,10 @@ public class Skin {
                     Descriptor.Image image = new Descriptor.Image();
                     image.setSource(Tools.getAttribute(element, "source"));
                     image.setId(Tools.getAttribute(element, "id"));
+                    String resStr = Tools.getAttribute(element, "resolution");
+                    if (resStr != null) {
+                        image.setResolution(new Integer(resStr));
+                    }
                     app.addImage(image);
                 }
 
@@ -85,6 +89,10 @@ public class Skin {
                         Descriptor.Image image = new Descriptor.Image();
                         image.setSource(Tools.getAttribute(element, "source"));
                         image.setId(Tools.getAttribute(element, "id"));
+                        String resStr = Tools.getAttribute(element, "resolution");
+                        if (resStr != null) {
+                            image.setResolution(new Integer(resStr));
+                        }
                         screen.addImage(image);
                     }
 
@@ -101,7 +109,11 @@ public class Skin {
     }
 
     public ByteArrayOutputStream getImage(String appId, String screenId, String id) {
-        String image = mSkinDescriptor.getImage(appId, screenId, id);
+        return getImage(appId, screenId, 0, id);
+    }
+
+    public ByteArrayOutputStream getImage(String appId, String screenId, int resolution, String id) {
+        String image = mSkinDescriptor.getImage(appId, screenId, resolution, id);
         if (image != null) {
             //return (BufferedImage)mSkinLoader.getResource(image);
             return mSkinLoader.findResource(image);

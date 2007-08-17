@@ -31,29 +31,32 @@ public class LyricsScreen extends DefaultScreen {
 
         mTracker = tracker;
 
-        scrollText = new ScrollText(getNormal(), BORDER_LEFT, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
-                - TOP - 70, "");
-        scrollText.setVisible(false);
-
         // setFocusDefault(scrollText);
 
         // setFooter("lyrc.com.ar");
-        setFooter("lyrictracker.com");
+        //setFooter("lyrictracker.com");
+        setFooter("autolyrics.com");
 
         mBusy.setVisible(true);
 
-        /*
-         * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10,
-         * (getHeight() - SAFE_TITLE_V) - 60, (int) Math .round((getWidth() -
-         * (SAFE_TITLE_H * 2)) / 2), 90, 35);
-         * //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-         * list.add("Back to player"); setFocusDefault(list);
-         */
-
-        BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
-                .round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
-        button.setResource(createText("default-24.font", Color.white, "Return to player"));
+        Object font;
+        int buttonHeight;
+        if (isHighDef()) {
+            buttonHeight = 60;
+            font = "default-32.font";
+        } else {
+            buttonHeight = 35;
+            font = "default-24.font";
+        }
+        BButton button = new BButton(getNormal(), getContentX(), getContentBottom() - buttonHeight - 10, 
+                Math.round((getWidth() - (getSafeTitleHorizontal() * 2)) / 2), buttonHeight);
+        button.setResource(createText(font, Color.white, "Return to player"));
         button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
+
+        scrollText = new ScrollText(getNormal(), getContentX(), getContentY(), getContentWidth(), 
+                getContentHeight() - buttonHeight - 25, "");
+        scrollText.setVisible(false);
+        
         setFocus(button);
     }
     

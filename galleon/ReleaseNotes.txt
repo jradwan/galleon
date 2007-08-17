@@ -6,7 +6,8 @@ Version 2.4.2:
 * Added scalable backgrounds that fit the screen in HD mode for pictures and music
 * Fixed the HD playbar in the music app so it draws properly
 * Fixed layout on music player screen when in HD mode
-* Increased font size on music app in HD mode
+* Increased font size on music app in HD mode for all screens
+* Fixed lyrics downloading to grab from a different source since lyrictracker is down
 * Fix MacOS problems (tracker #1760027)
 
 Version 2.4.1:

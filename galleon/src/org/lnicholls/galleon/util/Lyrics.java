@@ -17,14 +17,29 @@ package org.lnicholls.galleon.util;
  */
 
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
-
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.htmlparser.Node;
+import org.htmlparser.NodeFilter;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.AndFilter;
+import org.htmlparser.filters.HasAttributeFilter;
+import org.htmlparser.filters.HasParentFilter;
+import org.htmlparser.filters.NodeClassFilter;
+import org.htmlparser.filters.NotFilter;
+import org.htmlparser.nodes.TagNode;
+import org.htmlparser.nodes.TextNode;
+import org.htmlparser.tags.LinkTag;
+import org.htmlparser.tags.TableTag;
+import org.htmlparser.util.NodeIterator;
+import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 import org.lnicholls.galleon.database.Version;
 import org.lnicholls.galleon.server.Constants;
 
@@ -35,6 +50,7 @@ public class Lyrics {
     /*
      * http://lyrictracker.com/soap.php?cln=lyrictracker&clv=3.1.1&id=NjA1MzU=&act=detail
      * http://lyrc.com.ar/xsearch.php?songname=Faith&artist=Celine%20Dion&act=1
+     * http://www.autolyrics.com/tema1.php?search=coldplay+scientist
      */
 
     private static String RESULT = "result";
@@ -63,11 +79,89 @@ public class Lyrics {
         }
         mTime = System.currentTimeMillis();
 
-        String lyrics = getLyrics1(song, artist);
+        String lyrics = getLyrics3(song, artist);
         if (lyrics == null) {
-            lyrics = getLyrics2(song, artist);
+            lyrics = getLyrics1(song, artist);
         }
         return lyrics;
+    }
+
+    public static String getLyrics3(String song, String artist) {
+        //http://www.autolyrics.com/tema1.php?search=coldplay+scientist
+        
+        try {
+            Parser parser = new Parser();
+            String search = artist + " " + song;
+            URL baseUrl = new URL("http://www.autolyrics.com/tema1.php?search=" + 
+                    URLEncoder.encode(search));
+            parser.setURL(baseUrl.toString());
+            
+            NodeFilter linkFilter = new AndFilter(new NodeFilter[] {
+                new NodeClassFilter(LinkTag.class),
+                new HasParentFilter(new HasAttributeFilter("class", "TEXT"))
+            });
+            
+            URL lyricsUrl = null;
+            NodeList list = parser.extractAllNodesThatMatch(linkFilter);
+            NodeIterator iter = list.elements();
+            while(iter.hasMoreNodes()) {
+                LinkTag link = (LinkTag)iter.nextNode();
+                if (link.getLink().indexOf("tema1.php") != -1) {
+                    //it's a lyrics link, check the name
+                    String text = link.getLinkText();
+                    int index = text.indexOf('-');
+                    if (index == -1) {
+                        continue;
+                    }
+                    String artistPart = text.substring(0, index).replaceAll("[^\\s\\w]", "").trim();
+                    String songPart = text.substring(index+1).replaceAll("[^\\s\\w]", "").trim();
+                    if (artistPart.equalsIgnoreCase(artist) && songPart.equalsIgnoreCase(song)) {
+                        //we have a match
+                        lyricsUrl = new URL(baseUrl, link.getLink());
+                        break;
+                    }
+                }
+            }
+            
+            //now load the lyrics if we have a lyricsUrl
+            if (lyricsUrl != null) {
+                parser.setURL(lyricsUrl.toString());
+
+                NodeFilter lyricFilter = new AndFilter(new NodeFilter[] {
+                    new NotFilter(new NodeClassFilter(TableTag.class)),
+                    new HasParentFilter(new HasAttributeFilter("class", "TEXT"))
+                });
+
+                list = parser.extractAllNodesThatMatch(lyricFilter);
+                
+                StringBuilder lyrics = new StringBuilder();
+                iter = list.elements();
+                while(iter.hasMoreNodes()) {
+                    Node node = iter.nextNode();
+                    if (node instanceof TextNode) {
+                        TextNode textNode = (TextNode)node;
+                        lyrics.append(textNode.getText().trim().replace("\n", ""));
+                        
+                    } else if (node instanceof TagNode) {
+                        TagNode tag = (TagNode)node;
+                        if (tag.getTagName().equalsIgnoreCase("br")) {
+                            lyrics.append('\n');
+                        }
+                    }
+                }
+                return lyrics.toString();
+            }
+            
+        } catch (ParserException e) {
+            Tools.logException(Lyrics.class, e, "Could not get auto lyrics for: " + song);
+            return null;
+            
+        } catch (MalformedURLException e) {
+            Tools.logException(Lyrics.class, e, "Could not get auto lyrics for: " + song);
+            return null;
+        }
+        
+        return null;
     }
 
     public static String getLyrics1(String song, String artist) {

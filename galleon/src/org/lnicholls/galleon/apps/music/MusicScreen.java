@@ -1,7 +1,6 @@
 package org.lnicholls.galleon.apps.music;
 
 import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BView;
 import java.io.File;
 import org.lnicholls.galleon.database.Audio;
@@ -15,7 +14,7 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 public class MusicScreen extends DefaultScreen {
 
-    private BList list;
+    private DefaultOptionList list;
 
     private MusicInfo mMusicInfo;
 
@@ -28,10 +27,23 @@ public class MusicScreen extends DefaultScreen {
 
         getBelow().setResource(app.getInfoBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
 
-        mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
+        int barHeight;
+        int y;
+        if (isHighDef()) {
+            barHeight = 60;
+            y = getSafeTitleVertical() + 20;
+        } else {
+            barHeight = 35;
+            y = getSafeTitleHorizontal();
+        }
+        mMusicInfo = new MusicInfo(this.getNormal(), getContentX(), y, getContentWidth(), BODY_HEIGHT, true);
 
-        list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
-                (int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
+        int height = 2*barHeight + 10;
+        list = new DefaultOptionList(this.getNormal(), getSafeTitleHorizontal() + 10, getContentBottom() - height,
+                (int) Math.round((getWidth() - (getSafeTitleHorizontal() * 2)) / 2.5), height, barHeight);
+        if (isHighDef()) {
+            list.setFont("default-32.font");
+        }
         list.add("Play");
         list.add("Don't do anything");
 

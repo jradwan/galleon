@@ -21,6 +21,8 @@ import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
 public class DefaultOptionList extends BList {
+    private Object font;
+    
     public DefaultOptionList(BView parent, int x, int y, int width, int height, int rowHeight) {
         super(parent, x, y, width, height, rowHeight);
 
@@ -29,6 +31,9 @@ public class DefaultOptionList extends BList {
 
     protected void createRow(BView parent, int index) {
         BText text = new BText(parent, 10, 4, parent.getWidth() - 40, parent.getHeight() - 4);
+        if (font !=null) {
+            text.setFont(font);
+        }
         text.setShadow(true);
         text.setFlags(RSRC_HALIGN_LEFT);
         text.setValue(get(index).toString());
@@ -44,5 +49,13 @@ public class DefaultOptionList extends BList {
             return getParent().handleKeyPress(code, rawcode);
         }
         return super.handleKeyPress(code, rawcode);
+    }
+
+    public Object getFont() {
+        return font;
+    }
+
+    public void setFont(Object font) {
+        this.font = font;
     }
 }

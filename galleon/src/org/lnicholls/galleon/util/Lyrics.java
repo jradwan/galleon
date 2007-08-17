@@ -87,6 +87,56 @@ public class Lyrics {
     }
 
     public static String getLyrics3(String song, String artist) {
+        //http://www.autolyrics.com/tema1en.php?artist=coldplay&songname=trouble
+        
+        try {
+            Parser parser = new Parser();
+            URL baseUrl = new URL("http://www.autolyrics.com/tema1en.php?artist=" +
+                    URLEncoder.encode(artist) +
+                    "&songname=" + 
+                    URLEncoder.encode(song));
+            parser.setURL(baseUrl.toString());
+
+            NodeFilter lyricFilter = new AndFilter(new NodeFilter[] {
+                new HasParentFilter(new HasAttributeFilter("class", "TEXT"))
+            });
+
+            NodeList list = parser.extractAllNodesThatMatch(lyricFilter);
+            
+            StringBuilder lyrics = new StringBuilder();
+            
+            if (list.size() > 0) {
+                
+                NodeIterator iter = list.elements();
+                while(iter.hasMoreNodes()) {
+                    Node node = iter.nextNode();
+                    if (node instanceof TextNode) {
+                        TextNode textNode = (TextNode)node;
+                        lyrics.append(textNode.getText().trim().replace("\n", ""));
+                        
+                    } else if (node instanceof TagNode) {
+                        TagNode tag = (TagNode)node;
+                        if (tag.getTagName().equalsIgnoreCase("br")) {
+                            lyrics.append('\n');
+                        }
+                    }
+                }
+                String str = lyrics.toString().trim();
+                if (!str.startsWith("Suggestions :")) {
+                    return str;
+                }
+            }
+            
+        } catch (ParserException e) {
+            Tools.logException(Lyrics.class, e, "Could not get auto lyrics for: " + song);
+            
+        } catch (MalformedURLException e) {
+            Tools.logException(Lyrics.class, e, "Could not get auto lyrics for: " + song);
+        }
+        return null;
+    }
+
+    public static String getLyrics4(String song, String artist) {
         //http://www.autolyrics.com/tema1.php?search=coldplay+scientist
         
         try {
@@ -289,4 +339,8 @@ public class Lyrics {
     }
 
     private static long mTime = System.currentTimeMillis();
+    
+    public static void main(String[] args) {
+        System.out.println(getLyrics("Why Does It Always Rain On Me", "Cold Play"));
+    }
 }

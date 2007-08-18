@@ -3,6 +3,7 @@ Galleon
 
 Version 2.4.2:
 ----------------------
+* Reimplemented skin resource loading so they don't use as much memory and cpu
 * Added scalable backgrounds that fit the screen in HD mode for pictures and music
 * Fixed the HD playbar in the music app so it draws properly
 * Fixed layout on music player screen when in HD mode

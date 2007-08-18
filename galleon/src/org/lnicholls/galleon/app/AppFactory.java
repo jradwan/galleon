@@ -14,8 +14,10 @@ package org.lnicholls.galleon.app;
  * 
  * See the file "COPYING" for more details.
  */
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.tivo.hme.interfaces.IHmeConstants;
+import com.tivo.hme.interfaces.IHttpRequest;
+import com.tivo.hme.sdk.Application;
+import com.tivo.hme.sdk.Factory;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.log4j.Logger;
@@ -26,12 +28,11 @@ import org.lnicholls.galleon.media.Mp3Url;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
-import com.tivo.hme.interfaces.IHmeConstants;
-import com.tivo.hme.interfaces.IHttpRequest;
-import com.tivo.hme.sdk.Application;
-import com.tivo.hme.sdk.Factory;
+
 public class AppFactory extends Factory {
-	private static Logger log = Logger.getLogger(AppFactory.class.getName());
+	private static final Logger log = Logger.getLogger(AppFactory.class.getName());
+    private static final String SKIN = "skin/";
+    
 	public AppFactory() {
 		super();
 	}
@@ -42,37 +43,56 @@ public class AppFactory extends Factory {
 	public void setConfiguration(AppConfiguration appConfiguration) {
 		getAppContext().setConfiguration(appConfiguration);
 	}
-	protected InputStream getImage(String key) throws IOException {
+    
+	protected InputStream getImageStream(String uri) throws IOException {
 		try
 		{
-			ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(
-	
-					this.getClass().getName().substring(0,
-							this.getClass().getName().indexOf("$")), null, key);
-	
-			// ByteArrayOutputStream byteArrayOutputStream = new
-	
-			// ByteArrayOutputStream();
-	
-			// ImageIO.write(image, "png", byteArrayOutputStream);
-	
-			return new ByteArrayInputStream(baos.toByteArray());
+            String path = uri.substring(SKIN.length());
+			return Server.getServer().getSkin().getResourceAsStream(path);
 		}
 		catch (Throwable ex)
 		{
 			Tools.logException(AppFactory.class, ex);
 			try
 			{
-				return super.getStream(key);
+				return super.getStream(uri);
 			}
 			catch (Throwable ex2){}
 		}
-		return this.getClass().getResourceAsStream("/guiicon.png");
+		return null;
 	}
+    
+    protected InputStream getIconImage() throws IOException {
+        try
+        {
+            String appId = this.getClass().getName().substring(0,
+                    this.getClass().getName().indexOf("$"));
+            
+            return Server.getServer().getSkin().getImageInputStream(appId, null, 0, "icon");
+        }
+        catch (Throwable ex)
+        {
+            Tools.logException(AppFactory.class, ex);
+            try
+            {
+                return super.getStream(uri);
+            }
+            catch (Throwable ex2){}
+        }
+        return this.getClass().getResourceAsStream("/guiicon.png");
+    }
+    
 	public InputStream getStream(String uri) throws IOException {
 		try {
-			if (uri.toLowerCase().equals("icon.png")) {
-				return getImage("icon");
+            if (log.isDebugEnabled()) {
+                log.debug("Loading stream: " + uri);
+            }
+            if (uri.startsWith(SKIN)) {
+                return getImageStream(uri);
+                
+            } else if (uri.toLowerCase().equals("icon.png")) {
+				return getIconImage();
+                
 			} else if (uri.toLowerCase().endsWith(".mp3")) {
 				String[] parts = uri.split("/");
 				DefaultApplication application = null;

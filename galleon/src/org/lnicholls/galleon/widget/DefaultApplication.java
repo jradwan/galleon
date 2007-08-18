@@ -86,6 +86,9 @@ public class DefaultApplication extends HDApplication {
     
     private boolean highDef;
 
+    private String lastImageResourcePath;
+    private Resource lastImageResource;
+
     public void init(IContext context) throws Exception {
         super.init(context);
 
@@ -148,29 +151,14 @@ public class DefaultApplication extends HDApplication {
     }
 
     protected Resource getSkinImage(String screen, String key) {
-        ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(this.getClass().getName(), screen, getHeight(), key);
-        if (mLastObject != null && mLastResource != null) {
-            if (mLastObject == baos) {
-                return mLastResource;
-            }
+        String path = Server.getServer().getSkin().getImagePath(this.getClass().getName(), screen, getHeight(), key);
+        if (lastImageResourcePath != null && lastImageResourcePath.equals(path)) {
+            return lastImageResource;
         }
-        mLastObject = baos;
-
-        if (baos != null) {
-        	// XXX add size check and skin scaling?  Or put explicit HD skins into skin level?
-            /*
-             * if (image.getWidth() > 640 || image.getHeight() > 480) image = ImageManipulator.getScaledImage(image,
-             * 640, 480);
-             */
-            try {
-                mLastResource = createImage(baos.toByteArray());
-                return mLastResource;
-            } catch (Exception ex) {
-                Tools.logException(DefaultApplication.class, ex);
-            }
-        }
-        mLastResource = createImage(Tools.getDefaultImage());
-        return mLastResource;
+        Resource resource = createImage("skin/" + path);
+        lastImageResource = resource;
+        lastImageResourcePath = path;
+        return resource;
     }
 
     protected void dispatchEvent(HmeEvent event) {

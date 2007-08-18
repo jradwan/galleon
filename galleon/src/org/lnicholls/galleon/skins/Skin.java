@@ -16,10 +16,13 @@ package org.lnicholls.galleon.skins;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Iterator;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -30,17 +33,49 @@ public class Skin {
 
     private static Logger log = Logger.getLogger(Skin.class.getName());
 
-    public Skin(String path) {
+    private String mPath;
+    
+    private ZipFile skinFile;
+
+    private SkinDescriptor mSkinDescriptor;
+
+    public Skin(String path) throws IOException {
         mPath = path;
-        mSkinLoader = new SkinLoader(path);
-        mSkinDescriptor = parse(new String(mSkinLoader.findResource("skin.xml").toByteArray()));
+        skinFile = new ZipFile(path);
+        InputStream input = null;
+        try {
+            input = getResourceAsStream("skin.xml");
+            mSkinDescriptor = parse(input);
+        } finally {
+            if (input != null) {
+                input.close();
+            }
+        }
+    }
+    
+    public void close() throws IOException {
+        if (skinFile != null) {
+            skinFile.close();
+            skinFile = null;
+        }
     }
 
-    private SkinDescriptor parse(String value) {
+    public InputStream getResourceAsStream(String key) {
+        try {
+            ZipEntry entry = skinFile.getEntry(key);
+            return skinFile.getInputStream(entry);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private SkinDescriptor parse(InputStream input) {
         try {
             SAXReader saxReader = new SAXReader();
-            StringReader stringReader = new StringReader(value);
-            Document document = saxReader.read(stringReader);
+            Reader reader = new InputStreamReader(input);
+            Document document = saxReader.read(reader);
             //Document document = saxReader.read(new File("d:/galleon/skin.xml"));
 
             SkinDescriptor skinDescriptor = new SkinDescriptor();
@@ -108,26 +143,19 @@ public class Skin {
         return null;
     }
 
-    public ByteArrayOutputStream getImage(String appId, String screenId, String id) {
-        return getImage(appId, screenId, 0, id);
-    }
-
-    public ByteArrayOutputStream getImage(String appId, String screenId, int resolution, String id) {
-        String image = mSkinDescriptor.getImage(appId, screenId, resolution, id);
-        if (image != null) {
-            //return (BufferedImage)mSkinLoader.getResource(image);
-            return mSkinLoader.findResource(image);
+    public InputStream getImageInputStream(String appId, String screenId, int resolution, String id) {
+        String path = getImagePath(appId, screenId, resolution, id);
+        if (path != null) {
+            return getResourceAsStream(path);
         }
         return null;
+    }
+    
+    public String getImagePath(String appId, String screenId, int resolution, String id) {
+        return mSkinDescriptor.getImage(appId, screenId, resolution, id);
     }
 
     public String getPath() {
         return mPath;
     }
-
-    private String mPath;
-
-    private SkinLoader mSkinLoader;
-
-    private SkinDescriptor mSkinDescriptor;
 }

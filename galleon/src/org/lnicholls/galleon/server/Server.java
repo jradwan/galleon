@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -59,8 +60,6 @@ import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.skins.Skin;
 import org.lnicholls.galleon.togo.DownloadThread;
 import org.lnicholls.galleon.togo.ToGoThread;
-import org.lnicholls.galleon.util.Configurator;
-import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.data.*;
 import org.lnicholls.galleon.goback.*;
@@ -472,6 +471,11 @@ public class Server {
 			 * if (mPluginManager != null) { mPluginManager.destroyAllPlugins();
 			 * mPluginManager = null; }
 			 */
+            
+            if (mSkin != null) {
+                mSkin.close();
+                mSkin = null;
+            }
 
 			if (mDownloadManager != null) {
                 try
@@ -843,10 +847,15 @@ public class Server {
 				}
 			} else
 				skin = mServerConfiguration.getSkin();
-			if (skin != null)
-				mSkin = new Skin(skin);
-			else
-				log.error("No skin configured.");
+			if (skin != null) {
+                try {
+                    mSkin = new Skin(skin);
+                } catch (IOException e) {
+                    log.error("Cannot load skin: " + skin);
+                }
+            } else {
+                log.error("No skin configured.");
+            }
 		}
 		return mSkin;
 	}

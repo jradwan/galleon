@@ -607,19 +607,22 @@ public class Weather extends DefaultSDOnlyApplication {
                     if (iconString[counter]!=null && !iconString[counter].equals(dayPart.getIcon()))
                     {
 	                    iconString[counter] = dayPart.getIcon();
-	                    ByteArrayOutputStream baos = Server.getServer().getSkin().getImage(
-	                            Weather.this.getClass().getName(), null, pad(dayPart.getIcon()));
-	
-	                    java.awt.Image image = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()))
-	                            .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
-	                    //BufferedImage image = (BufferedImage) getSkinImage(null,
-	                    // pad(dayPart.getIcon())).getScaledInstance(
-	                    //        BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
-	                    //java.awt.Image image = Tools.getResourceAsImage(getClass(), pad(dayPart.getIcon()) + ".png")
-	                    //        .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
-	                    //image = (BufferedImage) Tools.getImage(image); ???
-	                    //icon[counter].setResource(getSkinImage(null, pad(dayPart.getIcon())), RSRC_IMAGE_BESTFIT);
-	                    icon[counter].setResource(createImage(image));
+	                    InputStream input = Server.getServer().getSkin().getImageInputStream(
+	                            Weather.this.getClass().getName(), null, getHeight(), pad(dayPart.getIcon()));
+	                    try {
+    	                    java.awt.Image image = ImageIO.read(input)
+    	                            .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
+                            //BufferedImage image = (BufferedImage) getSkinImage(null,
+                            // pad(dayPart.getIcon())).getScaledInstance(
+                            //        BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
+                            //java.awt.Image image = Tools.getResourceAsImage(getClass(), pad(dayPart.getIcon()) + ".png")
+                            //        .getScaledInstance(BODY_WIDTH / 5, BODY_WIDTH / 5, java.awt.Image.SCALE_SMOOTH);
+                            //image = (BufferedImage) Tools.getImage(image); ???
+                            //icon[counter].setResource(getSkinImage(null, pad(dayPart.getIcon())), RSRC_IMAGE_BESTFIT);
+                            icon[counter].setResource(createImage(image));
+                        } finally {
+                            input.close();
+                        }
                     }
                     dayText[counter].setValue(forecast.getDescription());
                     String value = forecast.getHigh();

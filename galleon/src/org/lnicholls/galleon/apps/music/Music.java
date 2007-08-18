@@ -20,7 +20,6 @@ import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.Resource;
 import java.io.File;
 import java.util.List;
-import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -31,12 +30,9 @@ import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
-import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.widget.DefaultApplication;
 
 public class Music extends DefaultApplication {
-
-	private static Logger log = Logger.getLogger(Music.class.getName());
 
 	public final static String TITLE = "Music";
 
@@ -78,7 +74,6 @@ public class Music extends DefaultApplication {
 			try {
 				NameValue nameValue = (NameValue) musicConfiguration.getPaths().get(0);
 				File file = new File(nameValue.getValue());
-				FileItem nameFile = new FileItem(nameValue.getName(), file);
 				FileSystemContainer fileSystemContainer = new FileSystemContainer(file.getCanonicalPath());
 				//setCurrentTrackerContext(file.getCanonicalPath());
 				Tracker tracker = new Tracker(fileSystemContainer.getItemsSorted(FileFilters.audioDirectoryFilter), 0);

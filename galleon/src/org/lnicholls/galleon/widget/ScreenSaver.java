@@ -35,10 +35,11 @@ public class ScreenSaver extends Thread {
                 synchronized (this) {
                 	((DefaultApplication)mDefaultScreen.getApp()).setHandleTimeout(true);
                 	if (mShades == null) {
-                        Resource resource = mDefaultScreen.getResource("*30000");
-                        mShades = new View(mDefaultScreen, 0, 0, mDefaultScreen.getWidth(), mDefaultScreen.getHeight());
-                        mShades.setResource(Color.BLACK);
+                        //Resource resource = mDefaultScreen.getResource("*30000");
+                        Resource resource = mDefaultScreen.getResource("*5000");
+                        mShades = new TileView(mDefaultScreen, 0, 0, mDefaultScreen.getWidth(), mDefaultScreen.getHeight(), 650, 360);
                         mShades.setTransparency(1.0f);
+                        mShades.setResource(Color.BLACK);
                         mShades.setTransparency(0.15f, resource);
                         mDefaultScreen.flush();
                     }

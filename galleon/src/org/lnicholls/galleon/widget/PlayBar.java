@@ -16,10 +16,9 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
-import java.awt.Color;
-
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import java.awt.Color;
 
 /*
  * 
@@ -84,8 +83,8 @@ public class PlayBar extends BView {
     public PlayBar(BView parent) {
         super(parent, 0, parent.getHeight() - PREFERRED_H - 10, parent.getWidth(), PREFERRED_H);
 
-        mProgress = new HTileView(this, PLAYBAR_LEFT-1, PLAYBAR_Y_OFFSET + 8, 
-                this.getWidth() - CAP_WIDTH - 2, PLAYBAR_H - 16, 650);
+        mProgress = new TileView(this, PLAYBAR_LEFT-1, PLAYBAR_Y_OFFSET + 8, 
+                this.getWidth() - CAP_WIDTH - 2, PLAYBAR_H - 16, 650, PLAYBAR_H - 16);
         mProgress.setVisible(false);
         mProgress.setResource(Color.GREEN);
         setProgress(0);
@@ -95,8 +94,8 @@ public class PlayBar extends BView {
         mBarLeft = new BView(mBar, 0, 0, PLAYBAR_LEFT, PLAYBAR_H);
         mBarLeft.setResource(createImage("org/lnicholls/galleon/widget/playbar_left.png"));
 
-        mBarMiddle = new HTileView(mBar, PLAYBAR_LEFT, 0, this.getWidth() - CAP_WIDTH, 
-                PLAYBAR_H, 450);
+        mBarMiddle = new TileView(mBar, PLAYBAR_LEFT, 0, this.getWidth() - CAP_WIDTH, 
+                PLAYBAR_H, 450, PLAYBAR_H);
         mBarMiddle.setResource(createImage("org/lnicholls/galleon/widget/playbar.png"));
 
         mBarRight = new BView(mBar, this.getWidth()-PLAYBAR_RIGHT, 0, PLAYBAR_RIGHT, PLAYBAR_H);

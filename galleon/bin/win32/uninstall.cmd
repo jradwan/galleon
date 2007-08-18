@@ -1,20 +1,36 @@
 @echo off
+setlocal
+
+rem Copyright (c) 1999, 2006 Tanuki Software Inc.
+rem
+rem Java Service Wrapper general NT service uninstall script
+rem
+
+if "%OS%"=="Windows_NT" goto nt
+echo This script only works with NT-based versions of Windows.
+goto :eof
+
+:nt
 rem
 rem Find the application home.
 rem
-if "%OS%"=="Windows_NT" goto nt
+rem %~dp0 is location of current script under NT
+set _REALPATH=%~dp0
 
-echo This is not NT, so please edit this script and set _APP_HOME manually
-set _APP_HOME=..
-
-goto conf
-
-:nt
-rem %~dp0 is name of current script under NT
-set _APP_HOME=%~dp0
-rem : operator works similar to make : operator
-set _APP_HOME=%_APP_HOME:\bin\=%
-
+rem Decide on the wrapper binary.
+set _WRAPPER_BASE=wrapper
+set _WRAPPER_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-x86-32.exe
+if exist "%_WRAPPER_EXE%" goto conf
+set _WRAPPER_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-x86-64.exe
+if exist "%_WRAPPER_EXE%" goto conf
+set _WRAPPER_EXE=%_REALPATH%%_WRAPPER_BASE%.exe
+if exist "%_WRAPPER_EXE%" goto conf
+echo Unable to locate a Wrapper executable using any of the following names:
+echo %_REALPATH%%_WRAPPER_BASE%-windows-x86-32.exe
+echo %_REALPATH%%_WRAPPER_BASE%-windows-x86-64.exe
+echo %_REALPATH%%_WRAPPER_BASE%.exe
+pause
+goto :eof
 
 rem
 rem Find the wrapper.conf
@@ -22,19 +38,13 @@ rem
 :conf
 set _WRAPPER_CONF="%~f1"
 if not %_WRAPPER_CONF%=="" goto startup
-set _WRAPPER_CONF="%_APP_HOME%\conf\wrapper.conf"
-
+set _WRAPPER_CONF="%_REALPATH%..\conf\wrapper.conf"
 
 rem
-rem Run the application.
-rem At runtime, the current directory will be that of Wrapper.exe
+rem Uninstall the Wrapper as an NT service.
 rem
 :startup
-"%_APP_HOME%\bin\Wrapper.exe" -r %_WRAPPER_CONF%
-if not errorlevel 1 goto end
+"%_WRAPPER_EXE%" -r %_WRAPPER_CONF%
+if not errorlevel 1 goto :eof
 pause
-
-:end
-set _APP_HOME=
-set _WRAPPER_CONF=
 

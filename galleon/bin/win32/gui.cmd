@@ -21,7 +21,6 @@ set classpath=%classpath%;..\lib\jl1.0.jar
 set classpath=%classpath%;..\lib\js-1.6R5.jar
 set classpath=%classpath%;..\lib\jshortcut-0.4.jar
 set classpath=%classpath%;..\lib\log4j-1.2.14.jar
-set classpath=%classpath%;..\lib\pja-2.5.jar
 set classpath=%classpath%;..\lib\simulator.jar
 set classpath=%classpath%;..\lib\wrapper-3.2.3.jar
 set classpath=%classpath%;..\lib\xbean-1.0.4.jar

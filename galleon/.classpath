@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="lib/MHS-1.6.1-1697.jar"/>
 	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
 	<classpathentry kind="lib" path="lib/mediamanager-videoman-0.8.jar"/>
-	<classpathentry kind="lib" path="lib/pja-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jshortcut-0.4.jar"/>
 	<classpathentry kind="lib" path="lib/wrapper-3.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/informa-0.7.0.jar"/>

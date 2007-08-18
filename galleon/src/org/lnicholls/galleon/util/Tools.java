@@ -20,6 +20,11 @@ package org.lnicholls.galleon.util;
  * See the file "COPYING" for more details.
  */
 
+import EDU.oswego.cs.dl.util.concurrent.Callable;
+import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.tivo.hme.sdk.View;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -29,21 +34,25 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
@@ -53,7 +62,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -62,25 +70,15 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.imageio.ImageIO;
-
-import org.hibernate.HibernateException;
-import org.hibernate.lob.BlobImpl;
-
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
+import org.hibernate.HibernateException;
+import org.hibernate.lob.BlobImpl;
 import org.lnicholls.galleon.database.Thumbnail;
 import org.lnicholls.galleon.database.ThumbnailManager;
 import org.lnicholls.galleon.media.ImageManipulator;
 import org.lnicholls.galleon.server.Constants;
-
-import EDU.oswego.cs.dl.util.concurrent.Callable;
-import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
-
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import com.tivo.hme.sdk.View;
 
 /**
  * @author sthompso
@@ -405,36 +403,6 @@ public class Tools {
 		return new String(bytes);
 	}
 
-	public static Toolkit getDefaultToolkit() {
-		// return Toolkit.getDefaultToolkit();
-		try {
-			String headless = System.getProperty("java.awt.headless");
-			if (headless == null || !headless.equals("true"))
-				try {
-					if (SystemUtils.IS_OS_WINDOWS)
-						return (Toolkit) Class.forName(
-								"sun.awt.windows.WToolkit").newInstance();
-					else if (SystemUtils.IS_OS_LINUX)
-						return (Toolkit) Class
-								.forName("sun.awt.motif.MToolkit")
-								.newInstance();
-					else if (SystemUtils.IS_OS_MAC_OSX)
-						return (Toolkit) Class.forName("apple.awt.CToolkit")
-								.newInstance();
-				} catch (Throwable ex) {
-				}
-			return Toolkit.getDefaultToolkit();
-		} catch (Throwable ex) {
-			try {
-				return (Toolkit) Class.forName("com.eteks.awt.PJAToolkit")
-						.newInstance();
-			} catch (Exception ex2) {
-
-			}
-		}
-		return null;
-	}
-
 	public static Image getResourceAsImage(Class theClass, String resource) {
 		try {
 			if (!resource.startsWith("/"))
@@ -653,11 +621,11 @@ public class Tools {
 	private static final class ImageTracker implements ImageObserver {
 
 		public ImageTracker(URL url) {
-			this(Tools.getDefaultToolkit().getImage(url));
+			this(Toolkit.getDefaultToolkit().getImage(url));
 		}
 
 		public ImageTracker(String filename) {
-			this(Tools.getDefaultToolkit().getImage(filename));
+			this(Toolkit.getDefaultToolkit().getImage(filename));
 		}
 
 		public ImageTracker(Image image) {
@@ -666,7 +634,7 @@ public class Tools {
 
 		public synchronized Image load() {
 			try {
-				if (!Tools.getDefaultToolkit().prepareImage(mImage, -1, -1,
+				if (!Toolkit.getDefaultToolkit().prepareImage(mImage, -1, -1,
 						this)) {
 					while (true) {
 						wait(0);
@@ -914,17 +882,7 @@ public class Tools {
 
 	public static BufferedImage createBufferedImage(int width, int height,
 			int imageType) {
-		// return new BufferedImage(width, height, imageType);
-		if (java.awt.GraphicsEnvironment.isHeadless())
-			return new com.eteks.java2d.PJABufferedImage(width, height,
-					imageType);
-		else
-			try {
-				return new BufferedImage(width, height, imageType);
-			} catch (Throwable ex) {
-				return new com.eteks.java2d.PJABufferedImage(width, height,
-						imageType);
-			}
+		return new BufferedImage(width, height, imageType);
 	}
 
 	public static BufferedImage getDefaultImage() {
@@ -936,7 +894,6 @@ public class Tools {
 		try {
 			return Toolkit.getDefaultToolkit().createImage(producer);
 		} catch (Throwable th) {
-			// return new com.eteks.awt.PJAImage (producer);
 			return null;
 		}
 	}

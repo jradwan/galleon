@@ -65,7 +65,6 @@
 			<string>$JAVAROOT/lib/mediamanager-videoman-0.8.jar</string>
 			<string>$JAVAROOT/lib/MHS-1.6.1-1697.jar</string>
 			<string>$JAVAROOT/lib/odmg.jar</string>
-			<string>$JAVAROOT/lib/pja-2.5.jar</string>
 			<string>$JAVAROOT/lib/smack.jar</string>
 			<string>$JAVAROOT/lib/upcoming.jar</string>
 			<string>$JAVAROOT/lib/widgets.jar</string>

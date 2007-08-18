@@ -1292,7 +1292,6 @@
 
     <target name="package-lib-unix">
         <copy file="./lib/unix/libwrapper.so" tofile="${build}/lib/libwrapper.so" />
-<!-- copied by generic copy        <copy file="./lib/pja.jar" tofile="${build}/lib/pja.jar" />         -->
     </target>
 
     <target name="package-bin-unix">

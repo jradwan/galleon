@@ -4,9 +4,6 @@ A) The following software is included in this product:
 gdownloader-0.2 with local modifications)
 http://downloads.sourceforge.net/gdownloader/gdownloader-0.2-src.jar
 
-(pja-2.5.jar) from http://www.eteks.com/pja/en
-http://www.eteks.com/pja/pja_2.5.zip
-
 (jampal-1.14.jar) (jampal.sourcforge.net)
 http://downloads.sourceforge.net/jampal/jampal-source-1.14.zip?modtime=1175627571&big_mirror=0
 http://downloads.sourceforge.net/jampal/jampal-1.14.jar?modtime=1175627471&big_mirror=0

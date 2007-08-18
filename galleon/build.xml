@@ -858,6 +858,7 @@
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
         <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
+        <copy file="./media/images/photos/background_hd.jpg" tofile="${build}/skins/photos/background_hd.jpg" />
         <copy file="./media/images/togo/background.jpg" tofile="${build}/skins/togo/background.jpg" />
         <copy file="./media/images/togo/icon.png" tofile="${build}/skins/togo/icon.png" />                
         <copy file="./media/images/togo/yellowball.png" tofile="${build}/skins/togo/yellowball.png" />                
@@ -1009,6 +1010,7 @@
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
         <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/photos/background.mpg" />        
+        <copy file="./media/images/tivo/red_hd.mpg" tofile="${build}/skins/photos/background_hd.mpg" />
         
         <copy file="./media/images/togo/background.jpg" tofile="${build}/skins/togo/background.jpg" />
         <copy file="./media/images/togo/icon.png" tofile="${build}/skins/togo/icon.png" />                

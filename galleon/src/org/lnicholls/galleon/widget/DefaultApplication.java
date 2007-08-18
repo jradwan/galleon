@@ -163,8 +163,11 @@ public class DefaultApplication extends HDApplication {
                 lastImageResourcePath = path;
             }
             return resource;
+            
+        } else {
+            log.warn("Missing skin resource: " + path);
+            return null;
         }
-        return null;
     }
 
     protected void dispatchEvent(HmeEvent event) {

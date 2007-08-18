@@ -60,6 +60,10 @@ public class Skin {
         }
     }
 
+    public boolean exists(String key) {
+        return skinFile.getEntry(key) != null;
+    }
+
     public InputStream getResourceAsStream(String key) {
         try {
             ZipEntry entry = skinFile.getEntry(key);

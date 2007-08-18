@@ -65,6 +65,7 @@
     <image source="photos/folder_red_open.png" id="gridFolder"/>
     <image source="photos/camera.png" id="item"/>    
     <image source="photos/background.jpg" id="background"/>    
+    <image source="photos/background_hd.jpg" id="background" resolution="720"/>
   </app>  
   
 

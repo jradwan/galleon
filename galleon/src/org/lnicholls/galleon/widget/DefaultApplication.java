@@ -155,10 +155,16 @@ public class DefaultApplication extends HDApplication {
         if (lastImageResourcePath != null && lastImageResourcePath.equals(path)) {
             return lastImageResource;
         }
-        Resource resource = createImage("skin/" + path);
-        lastImageResource = resource;
-        lastImageResourcePath = path;
-        return resource;
+        if (Server.getServer().getSkin().exists(path)) {
+            path = "skin/" + path;
+            Resource resource = createImage(path);
+            if (resource != null) {
+                lastImageResource = resource;
+                lastImageResourcePath = path;
+            }
+            return resource;
+        }
+        return null;
     }
 
     protected void dispatchEvent(HmeEvent event) {

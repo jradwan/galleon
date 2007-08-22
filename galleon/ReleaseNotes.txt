@@ -3,6 +3,8 @@ Galleon
 
 Version 2.4.2:
 ----------------------
+* Added a new HD Photos plugin that will download, install and run the TiVo Desktop hdphotos 
+    HME application integrated into Galleon similar to what it does for TiVo Desktop
 * Reimplemented skin resource loading so they don't use as much memory and cpu
 * Added scalable backgrounds that fit the screen in HD mode for pictures and music
 * Fixed the HD playbar in the music app so it draws properly

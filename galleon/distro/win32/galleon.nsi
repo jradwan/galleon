@@ -230,6 +230,8 @@ CopyFiles:
   File "${PRODUCT_BUILD_DIR}\apps\music.jar"
   File "${PRODUCT_BUILD_DIR}\apps\musicOrganizer.jar"
   File "${PRODUCT_BUILD_DIR}\apps\photos.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\hdphotos.jar"
+  File "${PRODUCT_BUILD_DIR}\apps\hdphotos\hdphotos-ext.jar"
   File "${PRODUCT_BUILD_DIR}\apps\rss.jar"
   File "${PRODUCT_BUILD_DIR}\apps\shoutcast.jar"
   File "${PRODUCT_BUILD_DIR}\apps\togo.jar"

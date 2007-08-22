@@ -63,7 +63,7 @@ public class AppHost implements ILogger {
 	}
 
 	public AppHost(ArgumentList argumentlist, boolean flag) throws IOException {
-		factories = new ArrayList();
+		factories = new ArrayList<IFactory>();
 		config = new Config();
 		// config.put("listener.debug", "" + log.isDebugEnabled());
 		mInterface = argumentlist.getInt("--port", 7288);
@@ -165,6 +165,15 @@ public class AppHost implements ILogger {
 					rv[k] = new JmDNS(InetAddress.getByName(as[k]));
 
 			}
+            List<IFactory> factories = new ArrayList<IFactory>(this.factories);
+            for (Iterator<IFactory> iterator = factories.iterator(); iterator.hasNext();) {
+                IFactory factory = iterator.next();
+                if (factory.getAppName() == null) {
+                    //don't listen on this factory, but set it active
+                    factory.setActive(activate);
+                    iterator.remove();
+                }
+            }
 			listener.setFactories(factories);
 			IFactory ifactory;
 			for (Iterator iterator = factories.iterator(); iterator.hasNext();) {
@@ -193,13 +202,19 @@ public class AppHost implements ILogger {
 				AppFactory appFactory = (AppFactory) ifactory;
 				name = appFactory.getTitle();
 			}
-			list.add(new NameValue(name, "http://" + as[0] + ":" + ai[0] + ifactory.getAppName()));
+            if (ifactory.getAppName() != null) {
+                list.add(new NameValue(name, "http://" + as[0] + ":" + ai[0] + ifactory.getAppName()));
+            }
 		}
 		return list;
 	}
 
 	public void listen(IFactory factory) {
-		factory.setActive(true);
+        factory.setActive(true);
+        if (factory.getAppName() == null) {
+            //don't listen to the factory
+            return;
+        }
 		listener.add(factory);
 		try {
 			register(factory);
@@ -210,6 +225,10 @@ public class AppHost implements ILogger {
 
 	public void remove(IFactory factory) {
 		factory.setActive(false);
+        if (factory.getAppName() == null) {
+            //don't listen to the factory
+            return;
+        }
 		listener.remove(factory);
 		try {
 			unregister(factory);
@@ -445,7 +464,7 @@ public class AppHost implements ILogger {
 
 	protected Listener listener;
 
-	protected List factories;
+	protected List<IFactory> factories;
 
 	protected JmDNS rv[];
 

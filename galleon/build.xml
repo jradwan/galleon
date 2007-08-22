@@ -834,6 +834,35 @@
             <fileset dir="./src/org/lnicholls/galleon/apps/jabber" excludes="*.java" />
         </jar>
         <copy file="${build}/apps/jabber.jar" tofile="./apps/jabber.jar" />        
+		
+		
+        <manifest file="${build}/MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}"/>
+          <attribute name="Main-Class" value="org.lnicholls.galleon.apps.hdphotos.HDPhotos"/>
+          <attribute name="HME-Arguments" value=""/>
+          <attribute name="Title" value="HD Photos"/>
+          <attribute name="ReleaseDate" value="08/18/07"/>          
+          <attribute name="Description" value="The hd photos app plugs in the TiVo Desktop HD photos."/>                    
+          <attribute name="Documentation" value="http://galleon.tv/content/view/16/36/"/>                              
+          <attribute name="Author" value="David Almilli"/>                                        
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+          <attribute name="Version" value="1.0"/>
+          <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.hdphotos.HDPhotosOptionsPanel"/>            
+          <attribute name="Configuration" value="org.lnicholls.galleon.apps.hdphotos.HDPhotosConfiguration"/>                      
+          <attribute name="Tags" value="HDPhotos"/>                                    
+        </manifest>     
+        <jar jarfile="${build}/apps/hdphotos.jar" compress="yes" manifest="${build}/MANIFEST.MF">
+            <fileset dir="${build}" includes="org/lnicholls/galleon/apps/hdphotos/**"/>
+        </jar>
+        <copy file="${build}/apps/hdphotos.jar" tofile="./apps/hdphotos.jar" />   
+
+		<mkdir dir="${build}/apps/hdphotos"/>
+        <jar jarfile="${build}/apps/hdphotos/hdphotos-ext.jar" compress="yes">
+            <fileset dir="${build}" includes="com/tivo/hme/hdphotos/**"/>
+        </jar>
+		<mkdir dir="./apps/hdphotos"/>
+        <copy file="${build}/apps/hdphotos/hdphotos-ext.jar" tofile="./apps/hdphotos/hdphotos-ext.jar" />   
 
         <copy file="./apps/movieRentals.jar" tofile="${build}/apps/movieRentals.jar" />
 

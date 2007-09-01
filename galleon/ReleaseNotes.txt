@@ -13,6 +13,8 @@ Version 2.4.2:
 * Fixed screen saver on music app to fill the entire screen
 * Fixed lyrics downloading to grab from a different source since lyrictracker is down
 * Fix MacOS problems (tracker #1760027)
+* Upgraded Movie Rentals app to 0.7
+* Fixed missing jars in windows installer
 
 Version 2.4.1:
 ----------------------

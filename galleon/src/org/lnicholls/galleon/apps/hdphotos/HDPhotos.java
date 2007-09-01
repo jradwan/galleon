@@ -196,7 +196,7 @@ public class HDPhotos {
         }
 
         public void setActive(boolean active) {
-            super.setActive(active);
+            this.isActive = active;
             
             if (active) {
                 if (process == null) {

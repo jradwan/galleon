@@ -871,6 +871,7 @@
         
 
         <delete dir="${build}/org" />
+        <delete dir="${build}/com" />
 
         <echo>Creating Galleon skin</echo>
         <copy file="./media/images/busy2.gif" tofile="${build}/skins/music/busy.gif" />                                
@@ -1207,7 +1208,10 @@
         <copy file="./conf/configure.xml.default" tofile="${build}/conf/configure.xml" />
         <copy file="./conf/derby.properties" tofile="${build}/conf/derby.properties" />        
         <copy file="./conf/hibernate.properties" tofile="${build}/conf/hibernate.properties" />                
-        <copy file="./conf/ehcache.xml" tofile="${build}/conf/ehcache.xml" />                        
+        <copy file="./conf/ehcache.xml" tofile="${build}/conf/ehcache.xml" />
+		
+		<mkdir dir="${build}/conf/templates"/>
+        <copy file="./conf/templates/netflix.zip" tofile="${build}/conf/templates/netflix.zip" />                        
 
         <antcall target="package-misc-${platform}" />
 

@@ -180,7 +180,9 @@ public class BroadcastThread extends Thread implements Constants {
 
     protected void finalize() throws Throwable {
         try {
-            mSocket.close();
+            if (mSocket != null) {
+                mSocket.close();
+            }
         } finally {
             super.finalize();
         }

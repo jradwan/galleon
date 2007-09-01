@@ -64,5 +64,7 @@
 	<classpathentry kind="lib" path="lib/hme-hd-0.4.1.jar"/>
 	<classpathentry kind="lib" path="distro/osx/AppleJavaExtensions/AppleJavaExtensions.jar"/>
 	<classpathentry kind="lib" path="ext/hdphotos.jar"/>
+	<classpathentry kind="lib" path="lib/jtidy-8.0-20060801.131059-3.jar"/>
+	<classpathentry kind="lib" path="lib/saxon-8.7.jar"/>
 	<classpathentry kind="output" path="binary"/>
 </classpath>

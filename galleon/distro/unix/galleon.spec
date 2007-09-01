@@ -29,6 +29,7 @@ ant package
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/templates
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}/lib
@@ -42,6 +43,7 @@ install -m 644 lib/* $RPM_BUILD_ROOT%{_datadir}/%{name}/lib
 install -m 644 images/* $RPM_BUILD_ROOT%{_datadir}/%{name}/images
 install -m 644 plugins/* $RPM_BUILD_ROOT%{_datadir}/%{name}/plugins
 install -m 644 conf/* $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
+install -m 644 conf/templates/* $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/templates
 install -s -m 755 bin/wrapper $RPM_BUILD_ROOT%{_bindir}/wrapper
 install -s -m 755 bin/JavaHMO $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d
 install -s -m 755 bin/bash.script $RPM_BUILD_ROOT%{_bindir}/jhmo

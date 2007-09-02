@@ -15,6 +15,7 @@ Version 2.4.2:
 * Fix MacOS problems (tracker #1760027)
 * Upgraded Movie Rentals app to 0.7
 * Fixed missing jars in windows installer
+* Added service wrapper for unix release and a Makefile to do "make install" or "make uninstall"
 
 Version 2.4.1:
 ----------------------

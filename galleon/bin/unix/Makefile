@@ -58,9 +58,11 @@ install:
 	ln -sf ${LOGDIR} ${APPDIR}/logs 
 	ln -sf ${VARDIR}/skins ${APPDIR}/skins
 	ln -sf ${VARDIR}/templates ${CONFDIR}/templates
-
+	ln -sf ${APPDIR}/bin/galleon /etc/init.d/galleon
+	chkconfig --add galleon
 
 uninstall:
+	chkconfig --del galleon
 	rm -f ${APPDIR}/apps
 	rm -f ${APPDIR}/conf
 	rm -f ${APPDIR}/data
@@ -69,6 +71,7 @@ uninstall:
 	rm -f ${APPDIR}/logs
 	rm -f ${APPDIR}/skins
 	rm -f ${CONFDIR}/templates
+	rm -f /etc/init.d/galleon
 	-rm -rf ${CONFDIR}
 	-rm -rf ${LOGDIR}
 	-rm -rf ${CACHEDIR}

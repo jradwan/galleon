@@ -14,6 +14,8 @@ package org.lnicholls.galleon.app;
  * 
  * See the file "COPYING" for more details.
  */
+import com.tivo.hme.bananas.BApplication;
+import com.tivo.hme.interfaces.IApplication;
 import com.tivo.hme.interfaces.IHmeConstants;
 import com.tivo.hme.interfaces.IHttpRequest;
 import com.tivo.hme.sdk.Application;
@@ -26,6 +28,7 @@ import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.media.Mp3Url;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.ScreenSaverManager;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 
@@ -40,7 +43,26 @@ public class AppFactory extends Factory {
 	}
 	public void remove() {
 	}
-	public void setConfiguration(AppConfiguration appConfiguration) {
+    
+	@Override
+    public void addApplication(IApplication app) {
+        super.addApplication(app);
+        
+        if (app instanceof BApplication) {
+            ScreenSaverManager.getManager().addApplication((BApplication)app);
+        }
+    }
+    
+    @Override
+    public void removeApplication(IApplication app) {
+        super.removeApplication(app);
+        
+        if (app instanceof BApplication) {
+            ScreenSaverManager.getManager().removeApplication((BApplication)app);
+        }
+    }
+    
+    public void setConfiguration(AppConfiguration appConfiguration) {
 		getAppContext().setConfiguration(appConfiguration);
 	}
     

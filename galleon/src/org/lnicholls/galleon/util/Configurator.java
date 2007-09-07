@@ -79,6 +79,8 @@ public class Configurator implements Constants {
     
     private static String TAG_GOBACK_CONFIGURATION = "goBackConfiguration";
     
+    private static String TAG_SCREENSAVER_CONFIGURATION = "screenSaverConfiguration";
+    
     private static String TAG_DOWNLOAD_CONFIGURATION = "downloadConfiguration";
 
     private static String ATTRIBUTE_VERSION = "version";
@@ -592,6 +594,19 @@ public class Configurator implements Constants {
                         } catch (IntrospectionException ex) {
                             log.error("Could not load GoBack Configuration");
                         }
+                    } else if (node.getNodeName().equals(TAG_SCREENSAVER_CONFIGURATION)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Found Screen Saver Configuration");
+                        
+                        ScreenSaverConfiguration screenSaverConfiguration = 
+                            new ScreenSaverConfiguration();
+                        
+                        screenSaverConfiguration.load((Element)node);
+
+                        serverConfiguration.setScreenSaverConfiguration(screenSaverConfiguration);
+
+                        if (log.isDebugEnabled())
+                            log.debug("ScreenSaverConfiguration=" + screenSaverConfiguration);
                     } else if (node.getNodeName().equals(TAG_DOWNLOAD_CONFIGURATION)) {
                         if (log.isDebugEnabled())
                             log.debug("Found Download Configuration");
@@ -886,6 +901,20 @@ public class Configurator implements Constants {
                     beanWriter.enablePrettyPrint();
 
                     beanWriter.write("goBackConfiguration", goBackConfiguration);
+
+                    buffer.append(outputWriter.toString());
+                } catch (Exception ex) {
+                    Tools.logException(Configurator.class, ex, "Could not save goback configuration: " + goBackConfiguration);
+                }
+                
+                //ScreenSaver Configuration
+                ScreenSaverConfiguration screenSaverConfiguration = null;
+                try {
+                    screenSaverConfiguration = serverConfiguration.getScreenSaverConfiguration();
+                    log.debug("ScreenSaverConfiguration: " + screenSaverConfiguration);
+                    StringWriter outputWriter = new StringWriter();
+
+                    screenSaverConfiguration.save(TAG_SCREENSAVER_CONFIGURATION, outputWriter);
 
                     buffer.append(outputWriter.toString());
                 } catch (Exception ex) {

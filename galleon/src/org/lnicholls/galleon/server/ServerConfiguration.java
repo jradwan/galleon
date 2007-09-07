@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.togo.Rule;
+import org.lnicholls.galleon.util.ScreenSaverConfiguration;
 import org.lnicholls.galleon.util.Tools;
 
 public class ServerConfiguration implements Serializable {
@@ -255,6 +256,14 @@ public class ServerConfiguration implements Serializable {
         return mGoBackConfiguration;
     }
     
+    public void setScreenSaverConfiguration(ScreenSaverConfiguration value) {
+        mScreenSaverConfiguration = value;
+    }
+
+    public ScreenSaverConfiguration getScreenSaverConfiguration() {
+        return mScreenSaverConfiguration;
+    }
+    
     public void setDownloadConfiguration(DownloadConfiguration value) {
         mDownloadConfiguration = value;
     }
@@ -313,4 +322,6 @@ public class ServerConfiguration implements Serializable {
     private GoBackConfiguration mGoBackConfiguration = new GoBackConfiguration();
     
     private DownloadConfiguration mDownloadConfiguration = new DownloadConfiguration();
+    
+    private ScreenSaverConfiguration mScreenSaverConfiguration = new ScreenSaverConfiguration();
 }

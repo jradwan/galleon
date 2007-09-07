@@ -8,9 +8,14 @@
 
 package com.tivo.hme.bananas;
 
+import com.tivo.hme.bananas.ext.HmeEventListener;
 import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.sdk.*;
-import java.util.*;
+import com.tivo.hme.interfaces.ILogger;
+import com.tivo.hme.sdk.Application;
+import com.tivo.hme.sdk.HmeEvent;
+import com.tivo.hme.sdk.View;
+import java.util.Vector;
+import javax.swing.event.EventListenerList;
 
 /**
  * A bananas application.
@@ -57,6 +62,8 @@ abstract public class BApplication extends Application implements IBananas
 
     /** If true, a push/pop occurred recently. */
     private boolean screenChanged;
+    
+    private EventListenerList listeners;
 
     /**
      * Init the application. Subclasses must call super.init().
@@ -65,12 +72,33 @@ abstract public class BApplication extends Application implements IBananas
      */
     public void init(IContext context) throws Exception
     {
-    	super.init(context);
+        initImpl(context);
+    }
+    
+    protected void initImpl(IContext context) throws Exception
+    {
+        super.init(context);
         below  = new BView(getRoot());
         normal = new BView(getRoot());
         above  = new BView(getRoot());
         stack = new Vector();
         skin = new BSkin(this);
+    }
+    
+    public int getSafeActionHorizontal() {
+        return SAFE_ACTION_H;
+    }
+    
+    public int getSafeActionVertical() {
+        return SAFE_ACTION_V;
+    }
+    
+    public int getSafeTitleHorizontal() {
+        return SAFE_TITLE_H;
+    }
+    
+    public int getSafeTitleVertical() {
+        return SAFE_TITLE_V;
     }
 
     //
@@ -144,6 +172,34 @@ abstract public class BApplication extends Application implements IBananas
     {
         this.skin = skin;
     }
+    
+    public void addHmeEventListener(HmeEventListener listener) {
+        if (listeners == null) {
+            listeners = new EventListenerList();
+        }
+        listeners.add(HmeEventListener.class, listener);
+    }
+    
+    public void removeHmeEventListener(HmeEventListener listener) {
+        if (listeners != null) {
+            listeners.remove(HmeEventListener.class, listener);
+        }
+    }
+    
+    protected void fireEventReceived(HmeEvent event) {
+        if (listeners != null) {
+            HmeEventListener[] list = listeners.getListeners(HmeEventListener.class);
+            for (HmeEventListener listener : list) {
+                try {
+                    listener.eventReceived(this, event);
+                } catch (Throwable t) {
+                    log(ILogger.LOG_WARNING, 
+                            "An exception occurred during listener eventReceived: " + 
+                            t.getMessage());
+                }
+            }
+        }
+    }
 
     //
     // event handlers
@@ -154,6 +210,9 @@ abstract public class BApplication extends Application implements IBananas
      */
     protected void dispatchEvent(HmeEvent event)
     {
+        //fire to the event listeners
+        fireEventReceived(event);
+        
         switch (event.getOpCode()) {
           case EVT_KEY:
             dispatchKeyEvent((HmeEvent.Key)event);

@@ -40,6 +40,7 @@ public class ScreenSaverConfiguration implements Serializable {
             writer.append(" class=\"").append(screenSaverClass);
         }
         writer.append(" duration=\"").append(Integer.toString(duration));
+        writer.append('"');
         writer.append(' ');
         
         for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
@@ -48,7 +49,7 @@ public class ScreenSaverConfiguration implements Serializable {
             writer.append('"');
         }
 
-        writer.append("/>");
+        writer.append("/>\n");
     }
 
     public String getScreenSaverClass() {

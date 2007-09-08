@@ -1,7 +1,7 @@
 Galleon
 -------
 
-Version 2.4.2:
+Version 2.5.0:
 ----------------------
 * Added a new HD Photos plugin that will download, install and run the TiVo Desktop hdphotos 
     HME application integrated into Galleon similar to what it does for TiVo Desktop

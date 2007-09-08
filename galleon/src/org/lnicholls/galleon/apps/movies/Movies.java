@@ -90,8 +90,6 @@ public class Movies extends DefaultApplication {
 
 	private Resource mInfoBackground;
 
-	private Resource mPlayerBackground;
-
 	private Resource mLyricsBackground;
 
 	private Resource mImagesBackground;
@@ -99,8 +97,6 @@ public class Movies extends DefaultApplication {
 	private Resource mFolderIcon;
 
 	private Resource mCDIcon;
-
-	private Resource mPlaylistIcon;
 
 	private Resource mFavoriteIcon;
 
@@ -112,12 +108,10 @@ public class Movies extends DefaultApplication {
 
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
-		mPlayerBackground = getSkinImage("player", "background");
 		mLyricsBackground = getSkinImage("lyrics", "background");
 		mImagesBackground = getSkinImage("images", "background");
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
-		mPlaylistIcon = getSkinImage("menu", "playlist");
 		mFavoriteIcon = getSkinImage("menu", "favorite");
 
 		MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())

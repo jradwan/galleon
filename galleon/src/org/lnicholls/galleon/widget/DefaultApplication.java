@@ -155,7 +155,7 @@ public class DefaultApplication extends HDApplication {
         if (lastImageResourcePath != null && lastImageResourcePath.equals(path)) {
             return lastImageResource;
         }
-        if (Server.getServer().getSkin().exists(path)) {
+        if (path != null && Server.getServer().getSkin().exists(path)) {
             path = "skin/" + path;
             Resource resource = createImage(path);
             if (resource != null) {
@@ -165,7 +165,7 @@ public class DefaultApplication extends HDApplication {
             return resource;
             
         } else {
-            log.warn("Missing skin resource: " + path);
+            log.warn("Missing skin resource: appId=" + this.getClass().getName() +" id=" + key);
             return null;
         }
     }

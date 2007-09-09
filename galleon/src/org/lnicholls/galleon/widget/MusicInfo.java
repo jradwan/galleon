@@ -16,13 +16,15 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.Resource;
 import java.awt.Color;
 import java.awt.Image;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -33,11 +35,6 @@ import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
-
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
-import com.tivo.hme.sdk.Resource;
-import com.tivo.hme.sdk.View;
 
 public class MusicInfo extends BView {
 
@@ -81,6 +78,8 @@ public class MusicInfo extends BView {
     private int mPos;
 
     private boolean mWebImages;
+    
+    private MusicScreenSaver screenSaver;
 
     public MusicInfo(BView parent, boolean isHighDef, int x, int y, int width, int height, boolean visible) {
         this(parent, isHighDef, x, y, width, height, visible, false);
@@ -172,6 +171,9 @@ public class MusicInfo extends BView {
     }
 
     public synchronized void setAudio(final Audio audio, String title) {
+        if (screenSaver != null) {
+            screenSaver.setAudio(audio);
+        }
         if (audio != null) {
             try {
                 setPainting(false);
@@ -459,7 +461,8 @@ public class MusicInfo extends BView {
                 }
 
                 NameValue nameValue = (NameValue) mResults.get(mPos);
-                Image image = Tools.getImage(new URL(nameValue.getValue()), -1, -1);
+                URL imageUrl = new URL(nameValue.getValue());
+                Image image = Tools.getImage(imageUrl, -1, -1);
 
                 if (image != null) {
                     setPainting(false);
@@ -473,7 +476,11 @@ public class MusicInfo extends BView {
                             mCover.setLocation(x + mCover.getWidth(), y);
                             mCover.setVisible(true);
                             mCover.setTransparency(1f);
-                            mCover.setResource(createImage(image), RSRC_IMAGE_BESTFIT);
+                            Resource imageRes = createImage(image);
+                            if (screenSaver != null) {
+                                screenSaver.setImage(imageRes, image.getWidth(null), image.getHeight(null));
+                            }
+                            mCover.setResource(imageRes, RSRC_IMAGE_BESTFIT);
                             Resource resource = getResource("*1000");
                             mCover.setTransparency(0f, resource);
                             mCover.setLocation(x, y, resource);
@@ -525,6 +532,17 @@ public class MusicInfo extends BView {
             } catch (Exception ex) {
                 Tools.logException(MusicInfo.class, ex, "Could not retrieve cover");
             }
+        }
+    }
+
+    public MusicScreenSaver getScreenSaver() {
+        return screenSaver;
+    }
+
+    public void setScreenSaver(MusicScreenSaver screenSaver) {
+        this.screenSaver = screenSaver;
+        if (screenSaver != null) {
+            screenSaver.setAudio(mAudio);
         }
     }
 }

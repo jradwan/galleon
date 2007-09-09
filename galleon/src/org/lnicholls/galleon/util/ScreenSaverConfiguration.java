@@ -35,7 +35,7 @@ public class ScreenSaverConfiguration implements Serializable {
     }
     
     public void save(String nodeName, Writer writer) throws IOException {
-        writer.append('<').append(nodeName);
+        writer.append("  <").append(nodeName);
         if (screenSaverClass != null) {
             writer.append(" class=\"").append(screenSaverClass);
         }

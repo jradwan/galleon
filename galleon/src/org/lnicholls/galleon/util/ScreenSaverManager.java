@@ -2,18 +2,14 @@ package org.lnicholls.galleon.util;
 
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BScreen;
-import com.tivo.hme.bananas.ext.HmeEventListener;
 import com.tivo.hme.sdk.HmeEvent;
-import com.tivo.hme.sdk.HmeObject;
+import com.tivo.hme.sdk.IHmeEventHandler;
 import com.tivo.hme.sdk.util.Ticker;
 import java.awt.Color;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -31,8 +27,8 @@ public class ScreenSaverManager {
     
     public void addApplication(BApplication app) {
         if (!listenerMap.containsKey(app)) {
-            ScreenSaverListener listener = new ScreenSaverListener();
-            app.addHmeEventListener(listener);
+            ScreenSaverListener listener = new ScreenSaverListener(app);
+            app.addHandler(listener);
             listenerMap.put(app, listener);
         }
     }
@@ -40,7 +36,7 @@ public class ScreenSaverManager {
     public void removeApplication(BApplication app) {
         ScreenSaverListener listener = listenerMap.remove(app);
         if (listener != null) {
-            app.removeHmeEventListener(listener);
+            app.removeHandler(listener);
         }
     }
 
@@ -48,35 +44,44 @@ public class ScreenSaverManager {
         return manager;
     }
     
-    private static class ScreenSaverListener implements HmeEventListener, Ticker.Client {
+    private static class ScreenSaverListener implements IHmeEventHandler, Ticker.Client {
 
         private BeanUtilsBean beanUtils;
         private BApplication app;
         private long idleStart;
         private boolean timing;
         private boolean sleeping;
-        
+
+        private ScreenSaver overriddenScreenSaver;
         private ScreenSaver screenSaver;
 
-        public ScreenSaverListener() {
+        public ScreenSaverListener(BApplication app) {
+            this.app = app;
             idleStart = System.currentTimeMillis();
 
             ConvertUtilsBean convertUtils = new ConvertUtilsBean();
             convertUtils.register(new ColorConverter(), Color.class);
             beanUtils = new BeanUtilsBean(convertUtils, new PropertyUtilsBean());
+            resetTimer();
         }
         
-        public void eventReceived(HmeObject object, HmeEvent event) {
-            if (!(object instanceof BApplication)) {
-                return;
-            }
-            app = (BApplication)object;
+        public void postEvent(HmeEvent event) {
             
-            if (event instanceof HmeEvent.Key && sleeping) {
-                wakeUp();
+            if (event instanceof HmeEvent.Key) {
+                ScreenSaver current = currentScreenSaver();
+                if (sleeping && current != null && current.isWakeEvent(event)) {
+                    wakeUp();
+                }
+                
+                resetTimer();
             }
-            
-            resetTimer();
+        }
+        
+        private ScreenSaver currentScreenSaver() {
+            if (overriddenScreenSaver != null) {
+                return overriddenScreenSaver;
+            }
+            return screenSaver;
         }
         
         public long tick(long tm, Object arg) {
@@ -98,8 +103,13 @@ public class ScreenSaverManager {
             if (!timing) {
                 log.debug("Start idle timer");
                 idleStart = System.currentTimeMillis();
-                timing = true;
-                Ticker.master.add(this, getRemainingIdle(), null);
+                long remaining = getRemainingIdle();
+                if (remaining > 0) {
+                    timing = true;
+                    Ticker.master.add(this, remaining, null);
+                } else if (!sleeping) {
+                    sleep();
+                }
                 
             } else {
                 log.debug("Update idle timer");
@@ -120,21 +130,36 @@ public class ScreenSaverManager {
         protected void wakeUp() {
             log.info("Disabling screen saver");
             sleeping = false;
-            if (screenSaver != null) {
-                screenSaver.deactivate();
+            ScreenSaver current = currentScreenSaver();
+            if (current != null) {
+                current.deactivate();
             }
+            //get rid of the temporary override
+            overriddenScreenSaver = null;
         }
         
         protected void sleep() {
+            if (app.getCurrentScreen() == null) {
+                return;
+            }
             log.info("Enabling screen saver");
             sleeping = true;
             
             ScreenSaver screenSaver = this.screenSaver;
             BScreen screen = app.getCurrentScreen();
-            if (screen instanceof ScreenSaver) {
+            if (screen instanceof ScreenSaverFactory) {
+                //override the normal screen saver for this screen
+                screenSaver = ((ScreenSaverFactory)screen).getScreenSaver();
+                if (screenSaver != null) {
+                    screenSaver.init(app);
+                }
+                overriddenScreenSaver = screenSaver;
+            }
+            if (screenSaver == null && screen instanceof ScreenSaver) {
                 //override the normal screen saver for this screen
                 screenSaver = (ScreenSaver)screen;
                 screenSaver.init(app);
+                overriddenScreenSaver = screenSaver;
             }
             
             if (screenSaver == null) {

@@ -2,6 +2,7 @@ package org.lnicholls.galleon.widget;
 
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BScreen;
+import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 import java.awt.Color;
@@ -17,17 +18,29 @@ public class ShadeScreenSaver implements ScreenSaver {
 
     public void activate() {
         BScreen screen = app.getCurrentScreen();
-        Resource resource = screen.getResource("*" + fadeDuration);
-        shades = new TileView(screen, 0, 0, screen.getWidth(), screen.getHeight(), 650, 360);
-        shades.setTransparency(1.0f);
-        shades.setResource(color);
-        shades.setTransparency(transparency, resource);
-        screen.flush();
+        if (screen != null) {
+            Resource anim = null;
+            if (fadeDuration > 0) {
+                anim = screen.getResource("*" + fadeDuration);
+            }
+            shades = new TileView(screen, 0, 0, screen.getWidth(), screen.getHeight(), 650, 360);
+            shades.setTransparency(1.0f);
+            shades.setResource(color);
+            shades.setTransparency(transparency, anim);
+            screen.flush();
+        }
+    }
+    
+    public boolean isWakeEvent(HmeEvent event) {
+        return event instanceof HmeEvent.Key;
     }
 
     public void deactivate() {
-        shades.clearResource();
-        shades = null;
+        if (shades != null) {
+            shades.remove();
+            shades.clearResource();
+            shades = null;
+        }
     }
 
     public void init(BApplication app) {
@@ -56,6 +69,10 @@ public class ShadeScreenSaver implements ScreenSaver {
 
     public void setTransparency(float transparency) {
         this.transparency = transparency;
+    }
+
+    protected BApplication getApp() {
+        return app;
     }
 
 }

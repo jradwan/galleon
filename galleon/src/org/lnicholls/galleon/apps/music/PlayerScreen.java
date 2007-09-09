@@ -1,20 +1,23 @@
 package org.lnicholls.galleon.apps.music;
 
+import com.tivo.hme.bananas.BApplication;
+import com.tivo.hme.sdk.HmeEvent;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
+import org.lnicholls.galleon.util.ScreenSaver;
+import org.lnicholls.galleon.util.ScreenSaverFactory;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
-import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
+import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.MusicPlayer;
-import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.DefaultApplication.Player;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
 
 
-public class PlayerScreen extends DefaultScreen {
+public class PlayerScreen extends DefaultScreen implements ScreenSaverFactory {
 
     // private WinampPlayer player;
 
@@ -22,7 +25,7 @@ public class PlayerScreen extends DefaultScreen {
 
     private Tracker mTracker;
 
-    private ScreenSaver mScreenSaver;
+    private MusicScreenSaver screenSaver;
 
     public PlayerScreen(Music app, Tracker tracker) {
         super(app, true);
@@ -56,6 +59,10 @@ public class PlayerScreen extends DefaultScreen {
     
     public Music getApp() {
         return (Music)super.getApp();
+    }
+
+    public ScreenSaver getScreenSaver() {
+        return screenSaver;
     }
 
     public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
@@ -96,8 +103,10 @@ public class PlayerScreen extends DefaultScreen {
                 MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
                         .getMusicPlayerConfiguration();
                 if (musicPlayerConfiguration.isScreensaver()) {
-                    mScreenSaver = new ScreenSaver(PlayerScreen.this);
-                    mScreenSaver.start();
+                    screenSaver = new MusicScreenSaver();
+                    if (player instanceof MusicPlayer) {
+                        ((MusicPlayer)player).setScreenSaver(screenSaver);
+                    }
                 }
                 getBApp().flush();
             }
@@ -115,10 +124,6 @@ public class PlayerScreen extends DefaultScreen {
     public boolean handleExit() {
         try {
             setPainting(false);
-            if (mScreenSaver != null && mScreenSaver.isAlive()) {
-                mScreenSaver.interrupt();
-                mScreenSaver = null;
-            }
             if (player != null) {
                 player.stopPlayer();
                 player.setVisible(false);
@@ -133,8 +138,6 @@ public class PlayerScreen extends DefaultScreen {
     }
 
     public boolean handleKeyPress(int code, long rawcode) {
-        if (mScreenSaver != null)
-            mScreenSaver.handleKeyPress(code, rawcode);
         switch (code) {
         case KEY_INFO:
         case KEY_NUM0:

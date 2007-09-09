@@ -16,9 +16,10 @@ package org.lnicholls.galleon.widget;
  * See the file "COPYING" for more details.
  */
 
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BView;
 import java.io.File;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -30,9 +31,6 @@ import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication.Player;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
-
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BView;
 
 public class MusicPlayer extends DefaultPlayer {
 
@@ -61,7 +59,7 @@ public class MusicPlayer extends DefaultPlayer {
 	public void updatePlayer() {
 		final Audio audio = currentAudio();
 		if (audio != null) {
-			mMusicInfo.setAudio(audio);
+            mMusicInfo.setAudio(audio);
 			if (!mPlaying)
 				playPlayer();
 
@@ -120,7 +118,7 @@ public class MusicPlayer extends DefaultPlayer {
 			if (audio.getTitle().equals(Mp3File.DEFAULT_ARTIST)) {
 				audio.setTitle(nameFile.getName());
 			}
-			mMusicInfo.setAudio(audio);
+            mMusicInfo.setAudio(audio);
 		} catch (Exception ex) {
 		}
 	}
@@ -152,7 +150,7 @@ public class MusicPlayer extends DefaultPlayer {
 				audio = getAudio((String) nameFile.getValue());
 
 			/*
-			 * if (mPlaying && audio != null) { mMusicInfo.setAudio(audio); }
+			 * if (mPlaying && audio != null) { setAudio(audio); }
 			 */
 		} catch (Exception ex) {
 		}
@@ -266,7 +264,7 @@ public class MusicPlayer extends DefaultPlayer {
 				} else
 					mAudio = getAudio((String) nameFile.getValue());
 				if (mPlaying && mAudio != null) {
-					mMusicInfo.setAudio(mAudio);
+                    mMusicInfo.setAudio(mAudio);
 					mPlayBar.setDuration((int) mAudio.getDuration() / 1000);
 				}
 			} catch (Exception ex) {
@@ -318,6 +316,14 @@ public class MusicPlayer extends DefaultPlayer {
 		flush();
 		super.remove();
 	}
+
+    public MusicScreenSaver getScreenSaver() {
+        return mMusicInfo.getScreenSaver();
+    }
+
+    public void setScreenSaver(MusicScreenSaver screenSaver) {
+        mMusicInfo.setScreenSaver(screenSaver);
+    }
 
 	private DefaultApplication mApplication;
 

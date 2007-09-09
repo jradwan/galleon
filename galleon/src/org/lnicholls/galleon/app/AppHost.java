@@ -65,7 +65,8 @@ public class AppHost implements ILogger {
 	public AppHost(ArgumentList argumentlist, boolean flag) throws IOException {
 		factories = new ArrayList<IFactory>();
 		config = new Config();
-		// config.put("listener.debug", "" + log.isDebugEnabled());
+//		config.put("listener.debug", Boolean.toString(log.isDebugEnabled()));
+//        config.put("listener.debug", "true");
 		mInterface = argumentlist.getInt("--port", 7288);
 		config.put("http.ports", "" + mInterface);
 		String s = "";

@@ -19,6 +19,8 @@ Version 2.5.0:
 * Upgraded Movie Rentals app to 0.7
 * Fixed missing jars in windows installer
 * Added service wrapper for unix release and a Makefile to do "make install" or "make uninstall"
+* Added a global screen saver framework for all apps that extend BApplication and AppFactory
+* Added a bouncing screen saver to display cover art and track title for the music app
 
 Version 2.4.1:
 ----------------------

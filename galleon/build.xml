@@ -288,6 +288,7 @@
         <copy file="./media/images/widget/playbar_left.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_left.png" />
         <copy file="./media/images/widget/playbar_right.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_right.png" />
         <copy file="./media/images/widget/playbar_shuttle_bottom.png" tofile="${build}/org/lnicholls/galleon/widget/playbar_shuttle_bottom.png" />
+        <copy file="./media/images/widget/tivologo.png" tofile="${build}/org/lnicholls/galleon/widget/tivologo.png" />
         
 
         <jar jarfile="${build}/lib/widgets.jar" compress="yes"

@@ -385,13 +385,13 @@
           <attribute name="Main-Class" value="org.lnicholls.galleon.apps.photos.Photos"/>
           <attribute name="HME-Arguments" value=""/>
           <attribute name="Title" value="Photos"/>
-          <attribute name="ReleaseDate" value="03/03/05"/>          
+          <attribute name="ReleaseDate" value="09/08/07"/>          
           <attribute name="Description" value="The photos app allows you to browse JPEG, BMP, PNG and GIF files using the file system folders."/>                    
           <attribute name="Documentation" value="http://galleon.tv/content/view/20/38/"/>
           <attribute name="Author" value="Leon Nicholls"/>                                        
-          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Email" value="javahmo@users.sourceforge.net"/> 
           <attribute name="Homepage" value="http://galleon.tv"/>                                                            
-          <attribute name="Version" value="1.0"/>
+          <attribute name="Version" value="1.1"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
           <attribute name="Configuration" value="org.lnicholls.galleon.apps.photos.PhotosConfiguration"/>                      
           <attribute name="Tags" value="Photos"/>                                                

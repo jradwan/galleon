@@ -243,7 +243,7 @@ public class Playlists extends DefaultApplication {
 
 			getBelow().setResource(mInfoBackground);
 
-			mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
+			mMusicInfo = new MusicInfo(this.getNormal(), isHighDef(), BORDER_LEFT, TOP, BODY_WIDTH, BODY_HEIGHT, true);
 
 			list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 80,
 					(int) Math.round((getWidth() - (SAFE_TITLE_H * 2)) / 2.5), 90, 35);
@@ -430,7 +430,7 @@ public class Playlists extends DefaultApplication {
 							MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
 									.getMusicPlayerConfiguration();
 							if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-								player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
+								player = new MusicPlayer(PlayerScreen.this, isHighDef(), BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
 										BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker);
 							else
 								player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),

@@ -2501,7 +2501,7 @@ public class Videocasting extends DefaultApplication {
 								Tools.logException(Videocasting.class, ex);
 							}
 							if (musicPlayerConfiguration.getPlayer().equals(MusicPlayerConfiguration.CLASSIC))
-								player = new MusicPlayer(PlayerScreen.this, BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
+								player = new MusicPlayer(PlayerScreen.this, isHighDef(), BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
 										BODY_HEIGHT, false, (DefaultApplication) getApp(), mTracker, false);
 							else
 								player = new WinampPlayer(PlayerScreen.this, 0, 0, PlayerScreen.this.getWidth(),

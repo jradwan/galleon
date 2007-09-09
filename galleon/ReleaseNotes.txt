@@ -3,6 +3,7 @@ Galleon
 
 Version 2.5.0:
 ----------------------
+* Increased album artwork size in music players (HD)
 * Fixed built-in Photos application to lay out the grid better for HD.
 * Fixed JPG image tag reading for Photos
 * Added a new HD Photos plugin that will download, install and run the TiVo Desktop hdphotos 

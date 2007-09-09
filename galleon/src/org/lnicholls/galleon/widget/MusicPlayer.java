@@ -38,12 +38,12 @@ public class MusicPlayer extends DefaultPlayer {
 
 	private static Logger log = Logger.getLogger(MusicPlayer.class.getName());
 
-	public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
+	public MusicPlayer(DefaultScreen parent, boolean isHighDef, int x, int y, int width, int height, boolean visible,
 			DefaultApplication application, Tracker tracker) {
-		this(parent, x, y, width, height, visible, application, tracker, true);
+		this(parent, isHighDef, x, y, width, height, visible, application, tracker, true);
 	}
 
-	public MusicPlayer(DefaultScreen parent, int x, int y, int width, int height, boolean visible,
+	public MusicPlayer(DefaultScreen parent, boolean isHighDef, int x, int y, int width, int height, boolean visible,
 			DefaultApplication application, Tracker tracker, boolean showWebImages) {
 		super(parent, x, y, width, height, visible);
 
@@ -52,7 +52,7 @@ public class MusicPlayer extends DefaultPlayer {
 
 		MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer().getMusicPlayerConfiguration();
 
-		mMusicInfo = new MusicInfo(this, 0, 0, width, height, true, showWebImages
+		mMusicInfo = new MusicInfo(this, isHighDef, 0, 0, width, height, true, showWebImages
 				&& musicPlayerConfiguration.isShowImages());
 
 		mPlayBar = new PlayBar(this);

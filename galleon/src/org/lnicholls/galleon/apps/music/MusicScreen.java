@@ -36,7 +36,7 @@ public class MusicScreen extends DefaultScreen {
             barHeight = 35;
             y = getSafeTitleHorizontal();
         }
-        mMusicInfo = new MusicInfo(this.getNormal(), getContentX(), y, getContentWidth(), BODY_HEIGHT, true);
+        mMusicInfo = new MusicInfo(this.getNormal(), isHighDef(), getContentX(), y, getContentWidth(), BODY_HEIGHT, true);
 
         int height = 2*barHeight + 10;
         list = new DefaultOptionList(this.getNormal(), getSafeTitleHorizontal() + 10, getContentBottom() - height,

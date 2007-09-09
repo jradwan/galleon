@@ -437,7 +437,7 @@ public class Shoutcast extends DefaultApplication {
 		public MusicScreen(Shoutcast app) {
 			super(app, "Song", true);
 			getBelow().setResource(mInfoBackground);
-			mMusicInfo = new MusicInfo(this.getNormal(), BORDER_LEFT, TOP,
+			mMusicInfo = new MusicInfo(this.getNormal(), isHighDef(), BORDER_LEFT, TOP,
 					BODY_WIDTH, BODY_HEIGHT, true);
 			list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10,
 					(getHeight() - SAFE_TITLE_V) - 80,
@@ -592,7 +592,7 @@ public class Shoutcast extends DefaultApplication {
 									.getMusicPlayerConfiguration();
 							if (musicPlayerConfiguration.getPlayer().equals(
 									MusicPlayerConfiguration.CLASSIC))
-								player = new MusicPlayer(PlayerScreen.this,
+								player = new MusicPlayer(PlayerScreen.this, isHighDef(),
 										BORDER_LEFT, SAFE_TITLE_H, BODY_WIDTH,
 										BODY_HEIGHT, false,
 										(DefaultApplication) getApp(), mTracker);

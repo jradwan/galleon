@@ -76,7 +76,7 @@ public class PlayerScreen extends DefaultScreen {
                             } else {
                                 y = getSafeTitleHorizontal();
                             }
-                            player = new MusicPlayer(PlayerScreen.this, getContentX(), 
+                            player = new MusicPlayer(PlayerScreen.this, isHighDef(), getContentX(),
                                     y, getContentWidth(),
                                     BODY_HEIGHT, false, getApp(), mTracker);
                         } else {

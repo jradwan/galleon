@@ -82,11 +82,11 @@ public class MusicInfo extends BView {
 
     private boolean mWebImages;
 
-    public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible) {
-        this(parent, x, y, width, height, visible, false);
+    public MusicInfo(BView parent, boolean isHighDef, int x, int y, int width, int height, boolean visible) {
+        this(parent, isHighDef, x, y, width, height, visible, false);
     }
 
-    public MusicInfo(BView parent, int x, int y, int width, int height, boolean visible, boolean webImages) {
+    public MusicInfo(BView parent, boolean isHighDef, int x, int y, int width, int height, boolean visible, boolean webImages) {
         super(parent, x, y, width, height, visible);
 
         mWebImages = webImages;
@@ -98,8 +98,9 @@ public class MusicInfo extends BView {
         mTimeFormatLong.applyPattern("h:mm:ss");
 
         int start = 0;
-
-        mCover = new BView(this, this.getWidth() - 210, 130, 200, 200, false);
+        int thumb_size = isHighDef ? 400 : 200;
+        
+        mCover = new BView(this, this.getWidth() - thumb_size - 10, 130, thumb_size, thumb_size, false);
         mCover.setResource(Color.BLACK);
         mCover.setTransparency(0.75f);
 

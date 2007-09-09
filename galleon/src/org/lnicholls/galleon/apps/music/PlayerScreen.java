@@ -1,7 +1,5 @@
 package org.lnicholls.galleon.apps.music;
 
-import com.tivo.hme.bananas.BApplication;
-import com.tivo.hme.sdk.HmeEvent;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
@@ -10,8 +8,8 @@ import org.lnicholls.galleon.util.ScreenSaverFactory;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
-import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.DefaultApplication.Player;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;

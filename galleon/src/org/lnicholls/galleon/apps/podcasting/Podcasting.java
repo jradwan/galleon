@@ -16,6 +16,18 @@ package org.lnicholls.galleon.apps.podcasting;
  * See the file "COPYING" for more details.
  */
 
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Resource;
+import de.nava.informa.core.ChannelBuilderIF;
+import de.nava.informa.core.ChannelIF;
+import de.nava.informa.core.ItemIF;
+import de.nava.informa.impl.basic.ChannelBuilder;
+import de.nava.informa.parsers.FeedParser;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
@@ -30,7 +42,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -51,6 +62,8 @@ import org.lnicholls.galleon.media.Mp3File;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ScreenSaver;
+import org.lnicholls.galleon.util.ScreenSaverFactory;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
@@ -62,24 +75,9 @@ import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.OptionsButton;
-import org.lnicholls.galleon.widget.ScreenSaver;
-import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
-
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.sdk.IHmeProtocol;
-import com.tivo.hme.sdk.Resource;
-
-import de.nava.informa.core.ChannelBuilderIF;
-import de.nava.informa.core.ChannelIF;
-import de.nava.informa.core.ItemIF;
-import de.nava.informa.impl.basic.ChannelBuilder;
-import de.nava.informa.parsers.FeedParser;
 
 public class Podcasting extends DefaultApplication {
 
@@ -2521,7 +2519,7 @@ public class Podcasting extends DefaultApplication {
 		private String mCurrentImage;
 	}
 
-	public class PlayerScreen extends DefaultScreen {
+	public class PlayerScreen extends DefaultScreen implements ScreenSaverFactory {
 
 		public PlayerScreen(Podcasting app, Tracker tracker) {
 			super(app, true);
@@ -2627,8 +2625,10 @@ public class Podcasting extends DefaultApplication {
 					MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
 							.getMusicPlayerConfiguration();
 					if (musicPlayerConfiguration.isScreensaver()) {
-						mScreenSaver = new ScreenSaver(PlayerScreen.this);
-						mScreenSaver.start();
+                        screenSaver = new MusicScreenSaver();
+                        if (player instanceof MusicPlayer) {
+                            ((MusicPlayer)player).setScreenSaver(screenSaver);
+                        }
 					}
 					getBApp().flush();
 				}
@@ -2647,10 +2647,6 @@ public class Podcasting extends DefaultApplication {
 			try {
 				setPainting(false);
 
-				if (mScreenSaver != null && mScreenSaver.isAlive()) {
-					mScreenSaver.interrupt();
-					mScreenSaver = null;
-				}
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
@@ -2664,17 +2660,15 @@ public class Podcasting extends DefaultApplication {
 			return super.handleExit();
 		}
 
-		public boolean handleKeyPress(int code, long rawcode) {
-			if (mScreenSaver != null)
-				mScreenSaver.handleKeyPress(code, rawcode);
-			return super.handleKeyPress(code, rawcode);
-		}
+        public ScreenSaver getScreenSaver() {
+            return screenSaver;
+        }
 
 		private DefaultPlayer player;
 
 		private Tracker mTracker;
 
-		private ScreenSaver mScreenSaver;
+		private MusicScreenSaver screenSaver;
 	}
 
 	private static Audio getAudio(String path) {

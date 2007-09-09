@@ -16,6 +16,18 @@ package org.lnicholls.galleon.apps.videocasting;
  * See the file "COPYING" for more details.
  */
 
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Resource;
+import de.nava.informa.core.ChannelBuilderIF;
+import de.nava.informa.core.ChannelIF;
+import de.nava.informa.core.ItemIF;
+import de.nava.informa.impl.basic.ChannelBuilder;
+import de.nava.informa.parsers.FeedParser;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
@@ -30,7 +42,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -38,7 +49,6 @@ import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
-import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Video;
@@ -46,11 +56,12 @@ import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.database.Videocast;
 import org.lnicholls.galleon.database.VideocastManager;
 import org.lnicholls.galleon.database.VideocastTrack;
-import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.media.VideoFile;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ScreenSaver;
+import org.lnicholls.galleon.util.ScreenSaverFactory;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
@@ -62,24 +73,9 @@ import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.OptionsButton;
-import org.lnicholls.galleon.widget.ScreenSaver;
-import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
-
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.sdk.IHmeProtocol;
-import com.tivo.hme.sdk.Resource;
-
-import de.nava.informa.core.ChannelBuilderIF;
-import de.nava.informa.core.ChannelIF;
-import de.nava.informa.core.ItemIF;
-import de.nava.informa.impl.basic.ChannelBuilder;
-import de.nava.informa.parsers.FeedParser;
 
 public class Videocasting extends DefaultApplication {
 
@@ -2429,7 +2425,7 @@ public class Videocasting extends DefaultApplication {
 		private String mCurrentImage;
 	}
 
-	public class PlayerScreen extends DefaultScreen {
+	public class PlayerScreen extends DefaultScreen implements ScreenSaverFactory {
 
 		public PlayerScreen(Videocasting app, Tracker tracker) {
 			super(app, true);
@@ -2535,8 +2531,10 @@ public class Videocasting extends DefaultApplication {
 					MusicPlayerConfiguration musicPlayerConfiguration = Server.getServer()
 							.getMusicPlayerConfiguration();
 					if (musicPlayerConfiguration.isScreensaver()) {
-						mScreenSaver = new ScreenSaver(PlayerScreen.this);
-						mScreenSaver.start();
+                        screenSaver = new MusicScreenSaver();
+                        if (player instanceof MusicPlayer) {
+                            ((MusicPlayer)player).setScreenSaver(screenSaver);
+                        }
 					}
 					getBApp().flush();
 				}
@@ -2554,11 +2552,6 @@ public class Videocasting extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-
-				if (mScreenSaver != null && mScreenSaver.isAlive()) {
-					mScreenSaver.interrupt();
-					mScreenSaver = null;
-				}
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
@@ -2572,17 +2565,15 @@ public class Videocasting extends DefaultApplication {
 			return super.handleExit();
 		}
 
-		public boolean handleKeyPress(int code, long rawcode) {
-			if (mScreenSaver != null)
-				mScreenSaver.handleKeyPress(code, rawcode);
-			return super.handleKeyPress(code, rawcode);
-		}
+        public ScreenSaver getScreenSaver() {
+            return screenSaver;
+        }
 
 		private DefaultPlayer player;
 
 		private Tracker mTracker;
 
-		private ScreenSaver mScreenSaver;
+		private MusicScreenSaver screenSaver;
 	}
 
 	public static class VideocastingFactory extends AppFactory {

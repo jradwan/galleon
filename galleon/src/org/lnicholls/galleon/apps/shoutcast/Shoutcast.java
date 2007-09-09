@@ -14,6 +14,13 @@ package org.lnicholls.galleon.apps.shoutcast;
  *
  * See the file "COPYING" for more details.
  */
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.sdk.IHmeProtocol;
+import com.tivo.hme.sdk.Resource;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
@@ -35,6 +42,8 @@ import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ScreenSaver;
+import org.lnicholls.galleon.util.ScreenSaverFactory;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
@@ -46,17 +55,10 @@ import org.lnicholls.galleon.widget.DefaultPlayer;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicPlayer;
+import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.OptionsButton;
-import org.lnicholls.galleon.widget.ScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
 import org.lnicholls.galleon.winamp.WinampPlayer;
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.sdk.IHmeProtocol;
-import com.tivo.hme.sdk.Resource;
 public class Shoutcast extends DefaultApplication {
 	private static Logger log = Logger.getLogger(Shoutcast.class.getName());
 	public final static String TITLE = "Shoutcast";
@@ -570,7 +572,7 @@ public class Shoutcast extends DefaultApplication {
 		private MusicInfo mMusicInfo;
 		private Tracker mTracker;
 	}
-	public class PlayerScreen extends DefaultScreen {
+	public class PlayerScreen extends DefaultScreen implements ScreenSaverFactory {
 		public PlayerScreen(Shoutcast app, Tracker tracker) {
 			super(app, true);
 			getBelow().setResource(mPlayerBackground);
@@ -614,8 +616,10 @@ public class Shoutcast extends DefaultApplication {
 							.getServer()
 							.getMusicPlayerConfiguration();
 					if (musicPlayerConfiguration.isScreensaver()) {
-						mScreenSaver = new ScreenSaver(PlayerScreen.this);
-						mScreenSaver.start();
+                        screenSaver = new MusicScreenSaver();
+                        if (player instanceof MusicPlayer) {
+                            ((MusicPlayer)player).setScreenSaver(screenSaver);
+                        }
 					}
 					getBApp().flush();
 				}
@@ -630,10 +634,6 @@ public class Shoutcast extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				if (mScreenSaver != null && mScreenSaver.isAlive()) {
-					mScreenSaver.interrupt();
-					mScreenSaver = null;
-				}
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
@@ -646,15 +646,13 @@ public class Shoutcast extends DefaultApplication {
 			}
 			return super.handleExit();
 		}
-		public boolean handleKeyPress(int code, long rawcode) {
-			if (mScreenSaver != null)
-				mScreenSaver.handleKeyPress(code, rawcode);
-			return super.handleKeyPress(code, rawcode);
-		}
+        public ScreenSaver getScreenSaver() {
+            return screenSaver;
+        }
 		// private WinampPlayer player;
 		private DefaultPlayer player;
 		private Tracker mTracker;
-		private ScreenSaver mScreenSaver;
+		private MusicScreenSaver screenSaver;
 	}
 	public class LyricsScreen extends DefaultScreen {
 		private BList list;

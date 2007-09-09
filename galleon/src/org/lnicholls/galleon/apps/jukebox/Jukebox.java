@@ -17,6 +17,13 @@ package org.lnicholls.galleon.apps.jukebox;
  * See the file "COPYING" for more details.
  */
 
+import com.tivo.hme.bananas.BButton;
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BList;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+import com.tivo.hme.interfaces.IContext;
+import com.tivo.hme.sdk.Resource;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
@@ -25,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
@@ -37,6 +43,8 @@ import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ScreenSaver;
+import org.lnicholls.galleon.util.ScreenSaverFactory;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.Yahoo;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
@@ -49,19 +57,9 @@ import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.MusicInfo;
 import org.lnicholls.galleon.widget.MusicOptionsScreen;
 import org.lnicholls.galleon.widget.MusicPlayer;
-import org.lnicholls.galleon.widget.ScreenSaver;
+import org.lnicholls.galleon.widget.MusicScreenSaver;
 import org.lnicholls.galleon.widget.ScrollText;
-import org.lnicholls.galleon.widget.DefaultList;
-import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.winamp.WinampPlayer;
-
-import com.tivo.hme.bananas.BButton;
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BList;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
-import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.sdk.Resource;
 
 public class Jukebox extends DefaultApplication {
 
@@ -473,7 +471,7 @@ public class Jukebox extends DefaultApplication {
 		private Tracker mTracker;
 	}
 
-	public class PlayerScreen extends DefaultScreen {
+	public class PlayerScreen extends DefaultScreen implements ScreenSaverFactory {
 
 		public PlayerScreen(Jukebox app, Tracker tracker) {
 			super(app, true);
@@ -506,6 +504,10 @@ public class Jukebox extends DefaultApplication {
 				getPlayer().startTrack();
 		}
 
+        public ScreenSaver getScreenSaver() {
+            return screenSaver;
+        }
+
 		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
 			new Thread() {
 				public void run() {
@@ -536,8 +538,10 @@ public class Jukebox extends DefaultApplication {
 					MusicPlayerConfiguration jukeboxPlayerConfiguration = Server.getServer()
 							.getMusicPlayerConfiguration();
 					if (jukeboxPlayerConfiguration.isScreensaver()) {
-						mScreenSaver = new ScreenSaver(PlayerScreen.this);
-						mScreenSaver.start();
+                        screenSaver = new MusicScreenSaver();
+                        if (player instanceof MusicPlayer) {
+                            ((MusicPlayer)player).setScreenSaver(screenSaver);
+                        }
 					}
 					getBApp().flush();
 				}
@@ -555,10 +559,6 @@ public class Jukebox extends DefaultApplication {
 		public boolean handleExit() {
 			try {
 				setPainting(false);
-				if (mScreenSaver != null && mScreenSaver.isAlive()) {
-					mScreenSaver.interrupt();
-					mScreenSaver = null;
-				}
 				if (player != null) {
 					player.stopPlayer();
 					player.setVisible(false);
@@ -573,8 +573,6 @@ public class Jukebox extends DefaultApplication {
 		}
 
 		public boolean handleKeyPress(int code, long rawcode) {
-			if (mScreenSaver != null)
-				mScreenSaver.handleKeyPress(code, rawcode);
 			switch (code) {
 			case KEY_INFO:
 			case KEY_NUM0:
@@ -607,7 +605,7 @@ public class Jukebox extends DefaultApplication {
 
 		private Tracker mTracker;
 
-		private ScreenSaver mScreenSaver;
+		private MusicScreenSaver screenSaver;
 	}
 
 	public class LyricsScreen extends DefaultScreen {

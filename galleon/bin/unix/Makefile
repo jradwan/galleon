@@ -32,6 +32,9 @@ a:
 	@echo "    http://galleon.tv/"
 	@echo " "
 
+test:
+	$(shell if [ -d /etc ] then echo exists fi )
+	echo done
 
 install:
 	install -d ${APPDIR}
@@ -41,6 +44,7 @@ install:
 	install -d ${LOGDIR}
 	install -d ${VARDIR}/hme
 	install -d ${VARDIR}/data
+	mv -f ${CONFDIR}/configure.xml ${CONFDIR}/configure.xml.save
 	cp -rf bin media ${APPDIR}
 	cp -f Makefile COPYING *.txt ${APPDIR}
 	cp -f conf/*.* ${CONFDIR}
@@ -50,6 +54,7 @@ install:
 	chmod a+rwx ${APPDIR}/bin/run.sh
 	chmod a+rwx ${APPDIR}/bin/gui.sh
 	chmod a+rwx ${APPDIR}/bin/galleon
+	chmod a+rwx ${APPDIR}/bin/wrapper*
 	ln -sf ${VARDIR}/apps ${APPDIR}/apps
 	ln -sf ${CONFDIR} ${APPDIR}/conf
 	ln -sf ${VARDIR}/data ${APPDIR}/data
@@ -59,6 +64,7 @@ install:
 	ln -sf ${VARDIR}/skins ${APPDIR}/skins
 	ln -sf ${VARDIR}/templates ${CONFDIR}/templates
 	ln -sf ${APPDIR}/bin/galleon /etc/init.d/galleon
+	mv -f ${CONFDIR}/configure.xml.save ${CONFDIR}/configure.xml
 	chkconfig --add galleon
 
 uninstall:

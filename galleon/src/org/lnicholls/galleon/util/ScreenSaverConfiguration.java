@@ -37,10 +37,9 @@ public class ScreenSaverConfiguration implements Serializable {
     public void save(String nodeName, Writer writer) throws IOException {
         writer.append("  <").append(nodeName);
         if (screenSaverClass != null) {
-            writer.append(" class=\"").append(screenSaverClass);
+            writer.append(" class=\"").append(screenSaverClass).append('"');
         }
-        writer.append(" duration=\"").append(Integer.toString(duration));
-        writer.append('"');
+        writer.append(" duration=\"").append(Integer.toString(duration)).append('"');
         writer.append(' ');
         
         for (Map.Entry<String, String> entry : attributeMap.entrySet()) {

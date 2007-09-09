@@ -114,7 +114,7 @@ public class HDPhotos {
         
         //rename the temp file
         tmpFile.renameTo(destFile);
-        if (origFile.delete()) {
+        if (!origFile.delete()) {
             log.warn("Cannot delete original file: " + origFile);
         }
         log.info("files saved as " + destFile);
@@ -229,11 +229,16 @@ public class HDPhotos {
                         return;
                     }
                     
+                    String os = System.getProperty("os.name").toLowerCase();
+                    String sep = os.indexOf("windows") != -1 ? ";" : ":";
+                    
+                    String port = "7111";
+                    
                     List<String> cmd = new ArrayList<String>();
                     cmd.add("java");
                     cmd.add("-Xmx128M");
                     cmd.add("-classpath");
-                    cmd.add("hdphotos-ext.jar;hdphotos.jar;hme-host-sample.jar");
+                    cmd.add("hdphotos-ext.jar" + sep + "hdphotos.jar" + sep + "hme-host-sample.jar");
                     cmd.add("-Dhdphotos.path=" + paths.toString());
                     cmd.add("-Dcom.tivo.calypso.host=localhost:" + calypsoPort);
                     if (config.getName() != null) {
@@ -250,9 +255,25 @@ public class HDPhotos {
                     cmd.add("com.tivo.hme.host.sample.Main");
                     cmd.add("--exitwithcalypso");
                     cmd.add("--port");
-                    cmd.add("7111");
+                    cmd.add(port);
                     cmd.add("--class");
                     cmd.add("com.tivo.hme.hdphotos.HDPhotos");
+                    
+                    if (log.isInfoEnabled()) {
+                        StringBuilder sb = new StringBuilder();
+                        for (String arg : cmd) {
+                            sb.append(' ');
+                            boolean quote = arg.indexOf(' ') != -1;
+                            if (quote) {
+                                sb.append('"');
+                            }
+                            sb.append(arg);
+                            if (quote) {
+                                sb.append('"');
+                            }
+                        }
+                        log.info("Starting hdphotos process:" + sb);
+                    }
                     
                     try {
                         process = Runtime.getRuntime().exec(
@@ -261,6 +282,9 @@ public class HDPhotos {
                         err = new ProcessReader("ERR: ", process.getErrorStream());
                         in.start();
                         err.start();
+                        if (log.isInfoEnabled()) {
+                            log.info("HDPhotos process started on port " + port);
+                        }
                     } catch (IOException e) {
                         log.error("Cannot startup hdphotos process", e);
                     }

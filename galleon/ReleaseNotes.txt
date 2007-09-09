@@ -7,7 +7,8 @@ Version 2.5.0:
 * Fixed built-in Photos application to lay out the grid better for HD.
 * Fixed JPG image tag reading for Photos
 * Added a new HD Photos plugin that will download, install and run the TiVo Desktop hdphotos 
-    HME application integrated into Galleon similar to what it does for TiVo Desktop
+    HME application integrated into Galleon similar to what it does for TiVo Desktop. 
+    (you must open TCP port 7111 on your firewall)
 * Reimplemented skin resource loading so they don't use as much memory and cpu
 * Added scalable backgrounds that fit the screen in HD mode for pictures and music
 * Fixed the HD playbar in the music app so it draws properly

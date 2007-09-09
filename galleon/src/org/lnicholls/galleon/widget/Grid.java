@@ -28,7 +28,11 @@ import com.tivo.hme.sdk.View;
  */
 
 public abstract class Grid extends BList {
-
+	public static final int ROWS_HD = 5;
+	public static final int COLUMNS_HD = 5;
+	public static final int ROWS_SD = 3;
+	public static final int COLUMNS_SD = 3;
+	
     /**
      * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
      * rowHeight.
@@ -47,7 +51,7 @@ public abstract class Grid extends BList {
      *            the height of each row contained in the list.
      */
     public Grid(BView parent, int x, int y, int width, int height, int rowHeight) {
-        this(parent, x, y, width, height, rowHeight, true);
+        this(parent, x, y, width, height, rowHeight, true, false);
     }
 
     /**
@@ -70,9 +74,37 @@ public abstract class Grid extends BList {
      *            if true, make the view visibile
      */
     public Grid(BView parent, int x, int y, int width, int height, int rowHeight, boolean visible) {
+    	this(parent, x, y, width, height, rowHeight, visible, false);
+    }
+    /**
+     * Creates a new BList instance. To avoid drawing partial rows, the list height should be a multiple of the
+     * rowHeight.
+     * 
+     * @param parent
+     *            parent
+     * @param x
+     *            x
+     * @param y
+     *            y
+     * @param width
+     *            width
+     * @param height
+     *            height
+     * @param rowHeight
+     *            the height of each row contained in the list.
+     * @param visible
+     *            if true, make the view visible
+     * @param HiDef
+     *            if true, lay out the grid for a High Definition screen
+     */
+    public Grid(BView parent, int x, int y, int width, int height, int rowHeight, boolean visible, boolean HiDef) {
         super(parent, x, y, width, height, rowHeight, visible);
-
-        mMarker = new View(this, 0, 0, width / 3, rowHeight);
+        mRowCount = HiDef ? ROWS_HD : ROWS_SD;
+        mColumnCount = HiDef ? COLUMNS_HD : COLUMNS_SD;
+        	
+        mMarker = new View(this, 0, 0,
+                           HiDef ? width / COLUMNS_HD : width / COLUMNS_SD,
+                           rowHeight);
         mMarker.setResource(createImage("org/lnicholls/galleon/widget/marker.png")); // TODO Make configurable
     }
 
@@ -87,8 +119,10 @@ public abstract class Grid extends BList {
      * @return the new row
      */
     protected void createRow(BView parent, int index) {
-        for (int i = 0; i < 3; i++) {
-            BView view = new BView(parent, i * parent.getWidth() / 3 + 3, 0, parent.getWidth() / 3 - 6, getRowHeight() - 6);
+    	final int PADDING = 3;
+        for (int i = 0; i < mColumnCount; i++) {
+            BView view = new BView(parent, i * parent.getWidth() / mColumnCount + PADDING, 0,
+            					   parent.getWidth() / mColumnCount - 2 * PADDING, getRowHeight() - 2 * PADDING);
             createCell(view, index, i, index == getFocus());
         }
     }
@@ -150,7 +184,10 @@ public abstract class Grid extends BList {
     }
 
     private void updateMarker() {
-        BRect markerBounds = new BRect(mColumn * (getWidth() / 3), getFocus() * getRowHeight(), getWidth() / 3, getRowHeight());
+        BRect markerBounds = new BRect(mColumn * (getWidth() / mColumnCount),
+                                       getFocus() * getRowHeight(),
+                                       getWidth() / mColumnCount,
+                                       getRowHeight());
         mMarker.setBounds(markerBounds.x, markerBounds.y, markerBounds.width, markerBounds.height);
     }
 
@@ -166,17 +203,27 @@ public abstract class Grid extends BList {
     }
 
     public int getPos() {
-        return getFocus() * 3 + mColumn;
+        return getFocus() * mColumnCount + mColumn;
     }
 
     public void setPos(int value) {
-        setFocus(value / 3, false);
-        mColumn = value % 3;
+        setFocus(value / mColumnCount, false);
+        mColumn = value % mColumnCount;
         updateMarker();
         refresh();
     }
+    
+    public int getRowCount() {
+    	return mRowCount;
+    }
+    public int getColumnCount() {
+    	return mColumnCount;
+    }
 
     private int mColumn;
+    private int mColumnCount;
+    private int mRowCount;
+    
 
     private View mMarker;
 }

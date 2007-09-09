@@ -33,6 +33,12 @@ public final class JpgFile extends ImageFile {
 
 	private static final String DEFAULT_TITLE = "unknown";
 
+	public static Image getImage(String filename) {
+		Image image = new Image();
+		defaultProperties(image);
+		return JpgFile.getImage(image, filename);
+	}
+
 	public static final Image getImage(Image image, String filename) {
 		image.setPath(filename);
 		try {

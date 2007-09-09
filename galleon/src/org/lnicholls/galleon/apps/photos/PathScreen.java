@@ -29,8 +29,7 @@ public class PathScreen extends DefaultScreen {
         mFirst = first;
         int w = getContentWidth();
         int h = getContentHeight();
-        grid = new PGrid(app, this.getNormal(), getContentX(), getContentY(), w, h,
-                (int) (h / 2.9));
+        grid = new PGrid(app, this.getNormal(), getContentX(), getContentY(), w, h);
         BHighlights highlights = grid.getHighlights();
         highlights.setPageHint(H_PAGEUP, A_RIGHT + 13, A_TOP - 25);
         highlights.setPageHint(H_PAGEDOWN, A_RIGHT + 13, A_BOTTOM + 30);
@@ -56,7 +55,7 @@ public class PathScreen extends DefaultScreen {
                 getBApp().flush();
                 mTop = grid.getTop();
                 ArrayList photos = (ArrayList) object;
-                final Item nameFile = (Item) photos.get(grid.getPos() % 3);
+                final Item nameFile = (Item) photos.get(grid.getPos() % grid.getColumnCount());
                 if (nameFile.isFolder()) {
                     new Thread() {
                         public void run() {
@@ -104,7 +103,7 @@ public class PathScreen extends DefaultScreen {
             getBApp().flush();
             mTop = grid.getTop();
             ArrayList photos = (ArrayList) object;
-            final Item nameFile = (Item) photos.get(grid.getPos() % 3);
+            final Item nameFile = (Item) photos.get(grid.getPos() % grid.getColumnCount());
             if (nameFile.isFolder()) {
                 new Thread() {
                     public void run() {
@@ -161,7 +160,7 @@ public class PathScreen extends DefaultScreen {
                 while (iterator.hasNext()) {
                     Item nameFile = (Item) iterator.next();
                     photos.add(nameFile);
-                    if (photos.size() == 3) {
+                    if (photos.size() == grid.getColumnCount()) {
                         grid.add(photos);
                         photos = new ArrayList();
                     }

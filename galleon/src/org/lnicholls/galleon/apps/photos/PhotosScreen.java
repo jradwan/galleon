@@ -32,7 +32,7 @@ public class PhotosScreen extends DefaultScreen {
         getBelow().flush();
         setTitle("Photo");
         mDateFormat = new SimpleDateFormat();
-        mDateFormat.applyPattern("EEE M/d hh:mm a");
+        mDateFormat.applyPattern("EEE MMM d, yyyy hh:mm a");
         int start = BORDER_TOP;
         mThumbnail = new BView(getBelow(), getWidth() - SAFE_TITLE_H - 210,
                 getHeight() - SAFE_TITLE_V - 200, 200,

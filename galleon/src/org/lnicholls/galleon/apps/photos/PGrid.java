@@ -24,11 +24,16 @@ public class PGrid extends Grid {
     
     public PGrid(Photos app, BView parent, int x, int y, int width, int height,
             int rowHeight) {
-        super(parent, x, y, width, height, rowHeight);
+        super(parent, x, y, width, height, rowHeight, true, app.isHighDef());
         this.app = app;
         mThreads = new Vector();
     }
-    public void createCell(final BView parent, int row, int column,
+    public PGrid(Photos app, BView parent, int x, int y, int width, int height) {
+        super(parent, x, y, width, height, app.isHighDef() ? (int) (height / 4.9) : (int) (height / 2.9), true, app.isHighDef());
+        this.app = app;
+        mThreads = new Vector();
+    }
+	public void createCell(final BView parent, int row, int column,
             boolean selected) {
         ArrayList photos = (ArrayList) get(row);
         if (column < photos.size()) {
@@ -40,7 +45,7 @@ public class PGrid extends Grid {
                 folderImage.flush();
                 BText nameText = new BText(parent, 0,
                         parent.getHeight() - 25, parent.getWidth(), 25);
-                nameText.setFlags(RSRC_HALIGN_LEFT | RSRC_VALIGN_BOTTOM);
+                nameText.setFlags(RSRC_HALIGN_CENTER | RSRC_VALIGN_BOTTOM);
                 nameText.setFont("default-18-bold.font");
                 nameText.setShadow(true);
                 nameText.setValue(nameFile.getName());

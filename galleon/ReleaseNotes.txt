@@ -3,6 +3,8 @@ Galleon
 
 Version 2.5.0:
 ----------------------
+* Fixed built-in Photos application to lay out the grid better for HD.
+* Fixed JPG image tag reading for Photos
 * Added a new HD Photos plugin that will download, install and run the TiVo Desktop hdphotos 
     HME application integrated into Galleon similar to what it does for TiVo Desktop
 * Reimplemented skin resource loading so they don't use as much memory and cpu

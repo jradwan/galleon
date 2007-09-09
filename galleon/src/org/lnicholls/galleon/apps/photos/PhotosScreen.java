@@ -34,9 +34,10 @@ public class PhotosScreen extends DefaultScreen {
         mDateFormat = new SimpleDateFormat();
         mDateFormat.applyPattern("EEE MMM d, yyyy hh:mm a");
         int start = BORDER_TOP;
-        mThumbnail = new BView(getBelow(), getWidth() - SAFE_TITLE_H - 210,
-                getHeight() - SAFE_TITLE_V - 200, 200,
-                200, false);
+        int thumb_size = isHighDef() ? 400 : 200;
+        mThumbnail = new BView(getBelow(), getWidth() - SAFE_TITLE_H - thumb_size - 10,
+                getHeight() - SAFE_TITLE_V - thumb_size, thumb_size,
+                thumb_size, false);
         mTitleText = new LabelText(getNormal(), BORDER_LEFT, start,
                 BODY_WIDTH, 30, true);
         mTitleText.setFlags(RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP

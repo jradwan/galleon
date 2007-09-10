@@ -3,6 +3,7 @@ package org.lnicholls.galleon.widget;
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.sdk.HmeEvent;
+import com.tivo.hme.sdk.IHmeProtocol;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 import java.awt.Color;
@@ -32,7 +33,16 @@ public class ShadeScreenSaver implements ScreenSaver {
     }
     
     public boolean isWakeEvent(HmeEvent event) {
-        return event instanceof HmeEvent.Key;
+        if (event instanceof HmeEvent.Key) {
+            HmeEvent.Key keyEvent = (HmeEvent.Key)event;
+            int code = keyEvent.getCode();
+            if (code == IHmeProtocol.KEY_TIVO) {
+                //don't wake up on special keys
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     public void deactivate() {

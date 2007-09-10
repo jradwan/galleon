@@ -219,6 +219,7 @@ CopyFiles:
   File /oname=jtidy-8.0-20060801.131059-3.jar "${PRODUCT_BUILD_DIR}\lib\jtidy-8.0-20060801.131059-3.jar"
   File /oname=log4j-1.2.14.jar "${PRODUCT_BUILD_DIR}\lib\log4j-1.2.14.jar"
   File /oname=mail-1.4.jar "${PRODUCT_BUILD_DIR}\lib\mail-1.4.jar"
+  File /oname=activation.jar "${PRODUCT_BUILD_DIR}\lib\activation.jar"
   File /oname=mediamanager-videoman-0.8.jar "${PRODUCT_BUILD_DIR}\lib\mediamanager-videoman-0.8.jar"
   File /oname=smack.jar "${PRODUCT_BUILD_DIR}\lib\smack.jar"
   File /oname=saxon-8.7.jar "${PRODUCT_BUILD_DIR}\lib\saxon-8.7.jar"

@@ -55,6 +55,7 @@ install:
 	chmod a+rwx ${APPDIR}/bin/gui.sh
 	chmod a+rwx ${APPDIR}/bin/galleon
 	chmod a+rwx ${APPDIR}/bin/wrapper*
+	chmod +rw ${CONFDIR}/configure.xml
 	ln -sf ${VARDIR}/apps ${APPDIR}/apps
 	ln -sf ${CONFDIR} ${APPDIR}/conf
 	ln -sf ${VARDIR}/data ${APPDIR}/data

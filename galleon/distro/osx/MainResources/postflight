@@ -4,7 +4,7 @@
 #
 # (1) Copy the JavaApplicationStub from the local computer into the Galleon
 # directories.
-# (2) delete database (it gets rebuilt)
+# (2) [Don't] delete database (it gets updated)
 PKG="$1"
 DEST="$2"
 VOL="$3"
@@ -31,6 +31,7 @@ if [ ! -f configure.xml ]; then
     fi
 fi
 #echo cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/data" >/dev/ttyp3
-cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/data"
+## don't remove schema, we can update it in place now.
+##cd "$DESTDIR/Galleon Server.app/Contents/Resources/Java/data"
 #echo rm -rf galleon itunes >/dev/ttyp3
-rm -rf galleon itunes
+##rm -rf galleon itunes

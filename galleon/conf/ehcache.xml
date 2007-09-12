@@ -80,6 +80,14 @@
         overflowToDisk="true"
         />                                 
         
+    <cache name="org.lnicholls.galleon.database.Imagelist"
+        maxElementsInMemory="1"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        overflowToDisk="true"
+        />                                 
+        
     <cache name="org.lnicholls.galleon.database.Movie"
         maxElementsInMemory="10"
         eternal="false"

@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.photos;
+package org.lnicholls.galleon.apps.iPhoto;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BHighlights;
@@ -16,15 +16,15 @@ import org.lnicholls.galleon.apps.photos.Photos;
 
 public class PathScreen extends DefaultScreen {
     private PGrid grid;
-    public PathScreen(Photos app, Tracker tracker) {
+    public PathScreen(iPhoto app, Tracker tracker) {
         this(app, tracker, false);
     }
-    public PathScreen(Photos app, Tracker tracker, boolean first) {
+    public PathScreen(iPhoto app, Tracker tracker, boolean first) {
         super(app);
         getBelow().setResource(getApp().getInfoBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
         getBelow().flush();
         setFooter("Press ENTER for options");
-        setTitle(Photos.TITLE);
+        setTitle(iPhoto.TITLE);
         mTracker = tracker;
         mFirst = first;
         int w = getContentWidth();
@@ -39,11 +39,11 @@ public class PathScreen extends DefaultScreen {
         mBusy.setVisible(false);
     }
     
-    public Photos getApp() {
-        return (Photos)super.getApp();
+    public iPhoto getApp() {
+        return (iPhoto)super.getApp();
     }
     
-    public PhotosConfiguration getConfiguration() {
+    public iPhotoConfiguration getConfiguration() {
         return getApp().getConfiguration();
     }
     
@@ -70,11 +70,11 @@ public class PathScreen extends DefaultScreen {
                                                 .getItemsSorted(FileFilters.imageDirectoryFilter),
                                         0);
                                 PathScreen pathScreen = new PathScreen(
-                                        (Photos) getBApp(), tracker);
+                                        (iPhoto) getBApp(), tracker);
                                 getBApp().push(pathScreen, TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Photos.class, ex);
+                                Tools.logException(iPhoto.class, ex);
                             }
                         }
                     }.start();
@@ -82,15 +82,15 @@ public class PathScreen extends DefaultScreen {
                     new Thread() {
                         public void run() {
                             try {
-                                PhotosScreen photosScreen = new PhotosScreen(
-                                        (Photos) getBApp());
+                                iPhotoScreen photosScreen = new iPhotoScreen(
+                                        (iPhoto) getBApp());
                                 mTracker.setPos(grid.getPos());
                                 photosScreen.setTracker(mTracker);
                                 getBApp().push(photosScreen,
                                         TRANSITION_LEFT);
                                 getBApp().flush();
                             } catch (Exception ex) {
-                                Tools.logException(Photos.class, ex);
+                                Tools.logException(iPhoto.class, ex);
                             }
                         }
                     }.start();
@@ -117,15 +117,15 @@ public class PathScreen extends DefaultScreen {
                                     fileSystemContainer
                                             .getItems(FileFilters.imageDirectoryFilter),
                                     0);
-                            PhotosConfiguration imagesConfiguration = getConfiguration();
+                            iPhotoConfiguration imagesConfiguration = getConfiguration();
                             tracker.setRandom(imagesConfiguration
                                     .isRandomPlayFolders());
                             getBApp().push(
-                                    new SlideshowScreen((Photos) getBApp(),
+                                    new SlideshowScreen((iPhoto) getBApp(),
                                             tracker), TRANSITION_LEFT);
                             getBApp().flush();
                         } catch (Exception ex) {
-                            Tools.logException(Photos.class, ex);
+                            Tools.logException(iPhoto.class, ex);
                         }
                     }
                 }.start();
@@ -133,15 +133,15 @@ public class PathScreen extends DefaultScreen {
                 new Thread() {
                     public void run() {
                         try {
-                            PhotosScreen photosScreen = new PhotosScreen(
-                                    (Photos) getBApp());
+                            iPhotoScreen photosScreen = new iPhotoScreen(
+                                    (iPhoto) getBApp());
                             mTracker.setPos(grid.getPos());
                             getBApp().push(
-                                    new SlideshowScreen((Photos) getBApp(),
+                                    new SlideshowScreen((iPhoto) getBApp(),
                                             mTracker), TRANSITION_LEFT);
                             getBApp().flush();
                         } catch (Exception ex) {
-                            Tools.logException(Photos.class, ex);
+                            Tools.logException(iPhoto.class, ex);
                         }
                     }
                 }.start();
@@ -172,7 +172,7 @@ public class PathScreen extends DefaultScreen {
                 grid.setTop(mTop);
                 grid.setPos(mTracker.getPos());
             } catch (Exception ex) {
-                Tools.logException(Photos.class, ex);
+                Tools.logException(iPhoto.class, ex);
             } finally {
                 setPainting(true);
             }
@@ -197,7 +197,7 @@ public class PathScreen extends DefaultScreen {
             postEvent(new BEvent.Action(this, "play"));
             return true;
         case KEY_ENTER:
-            getBApp().push(new OptionsScreen((Photos) getBApp()),
+            getBApp().push(new OptionsScreen((iPhoto) getBApp()),
                     TRANSITION_LEFT);
             return true;
         }

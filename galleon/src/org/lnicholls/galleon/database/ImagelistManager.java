@@ -22,25 +22,27 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
-import org.lnicholls.galleon.util.Tools;
-public class ImageManager {
-	private static Logger log = Logger.getLogger(ImageManager.class.getName());
+public class ImagelistManager {
+	private static Logger log = Logger.getLogger(ImagelistManager.class
+			.getName());
 	public static interface Callback {
-		public void visit(Session session, Image image);
+		public void visit(Session session, Imagelist imagelist);
 	}
-	public static Image retrieveImage(Image image) throws HibernateException {
-		return retrieveImage(new Integer(image.getId()));
+	public static Imagelist retrieveImagelist(Imagelist imagelist)
+			throws HibernateException {
+		return retrieveImagelist(new Integer(imagelist.getId()));
 	}
-	public static Image retrieveImage(int id) throws HibernateException {
-		return retrieveImage(new Integer(id));
+	public static Imagelist retrieveImagelist(int id)	throws HibernateException {
+		return retrieveImagelist(new Integer(id));
 	}
-	public static Image retrieveImage(Integer id) throws HibernateException {
-		Image result = null;
+public static Imagelist retrieveImagelist(Integer id)
+			throws HibernateException {
+		Imagelist result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			result = (Image) session.load(Image.class, id);
+			result = (Imagelist) session.load(Imagelist.class, id);
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -51,12 +53,13 @@ public class ImageManager {
 		}
 		return result;
 	}
-	public static Image createImage(Image image) throws HibernateException {
+	public static Imagelist createImagelist(Imagelist imagelist)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.save(trim(image));
+			session.save(imagelist);
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -65,65 +68,43 @@ public class ImageManager {
 		} finally {
 			HibernateUtil.closeSession();
 		}
-		return image;
+		return imagelist;
 	}
-	public static void updateImage(Image image) throws HibernateException {
-		if (image.getId()!=0)
+	public static void updateImagelist(Imagelist imagelist)
+			throws HibernateException {
+		if (imagelist.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
-	
 			Transaction tx = null;
-	
 			try {
-	
 				tx = session.beginTransaction();
-	
-				session.update(trim(image));
-	
+				session.update(imagelist);
 				tx.commit();
-	
 			} catch (HibernateException he) {
-	
 				if (tx != null)
-	
 					tx.rollback();
-	
 				throw he;
-	
 			} finally {
-	
 				HibernateUtil.closeSession();
-	
 			}
 		}
 	}
-	public static void deleteImage(Image image) throws HibernateException {
-		if (image.getId()!=0)
+	public static void deleteImagelist(Imagelist imagelist)
+			throws HibernateException {
+		if (imagelist.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
-	
 			Transaction tx = null;
-	
 			try {
-	
 				tx = session.beginTransaction();
-	
-				session.delete(image);
-	
+				session.delete(imagelist);
 				tx.commit();
-	
 			} catch (HibernateException he) {
-	
 				if (tx != null)
-	
 					tx.rollback();
-	
 				throw he;
-	
 			} finally {
-	
 				HibernateUtil.closeSession();
-	
 			}
 		}
 	}
@@ -134,7 +115,7 @@ public class ImageManager {
 		try {
 			tx = session.beginTransaction();
 			list = session.createQuery(
-					"from org.lnicholls.galleon.database.Image").list();
+					"from org.lnicholls.galleon.database.Imagelist").list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -153,14 +134,14 @@ public class ImageManager {
 		try {
 			tx = session.beginTransaction();
 			Query query = session
-					.createQuery("from org.lnicholls.galleon.database.Image");
+					.createQuery("from org.lnicholls.galleon.database.Imagelist");
 			ScrollableResults items = query.scroll();
 			int counter = start;
 			if (items.first()) {
 				items.scroll(start);
 				while (items.next() && (counter < end)) {
-					Image image = (Image) items.get(0);
-					list.add(image);
+					Imagelist Imagelist = (Imagelist) items.get(0);
+					list.add(Imagelist);
 					counter++;
 				}
 			}
@@ -180,13 +161,13 @@ public class ImageManager {
 		try {
 			tx = session.beginTransaction();
 			Query q = session
-					.createQuery("from org.lnicholls.galleon.database.Image");
+					.createQuery("from org.lnicholls.galleon.database.Imagelist");
 			ScrollableResults items = q.scroll();
 			if (items.first()) {
 				items.beforeFirst();
 				while (items.next()) {
-					Image image = (Image) items.get(0);
-					callback.visit(session, image);
+					Imagelist Imagelist = (Imagelist) items.get(0);
+					callback.visit(session, Imagelist);
 				}
 				;
 			}
@@ -206,7 +187,7 @@ public class ImageManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"from org.lnicholls.galleon.database.Image as Image where Image.path=?")
+							"from org.lnicholls.galleon.database.Imagelist as Imagelist where Imagelist.path=?")
 					.setString(0, path).list();
 			tx.commit();
 			return list;
@@ -218,18 +199,38 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static long countImagesByOrigin(String origin)
-			throws HibernateException {
+	public static List findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"select count(image) from org.lnicholls.galleon.database.Image as image where image.origen=?")
-					.setString(0, origin).list();
+							"from org.lnicholls.galleon.database.Imagelist as Imagelist where Imagelist.origen=?")
+					.setString(0,
+					origen).list();
 			tx.commit();
-			return ((Long) list.iterator().next()).longValue();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+	public static List findByTitle(String title) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Imagelist as Imagelist where Imagelist.title=?")
+					.setString(0,
+					title).list();
+			tx.commit();
+			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
 				tx.rollback();
@@ -245,9 +246,9 @@ public class ImageManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-					"from org.lnicholls.galleon.database.Image as Image where Image.externalId=?")
-					.setString(0, id)
-					.list();
+							"from org.lnicholls.galleon.database.Imagelist as Imagelist where Imagelist.externalId=?")
+					.setString(
+					0, id).list();
 			tx.commit();
 			return list;
 		} catch (HibernateException he) {
@@ -258,16 +259,23 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	private static Image trim(Image image)
-	{
-		if (image != null) {
-			image.setComments(Tools.trim(image.getComments(), 2048));
-			image.setMimeType(Tools.trim(image.getMimeType(), 50));
-			image.setOrigen(Tools.trim(image.getOrigen(), 30));
-			image.setPath(Tools.trim(image.getPath(), 1024));
-			image.setTitle(Tools.trim(image.getTitle(), 255));
-			image.setTone(Tools.trim(image.getTone(), 50));
+	public static List listTitles() throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session
+					.createQuery(
+							"select imagelist.title from org.lnicholls.galleon.database.Imagelist as imagelist")
+					.list();
+			tx.commit();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
 		}
-		return image;
 	}
 }

@@ -1,4 +1,4 @@
-package org.lnicholls.galleon.apps.photos;
+package org.lnicholls.galleon.apps.iPhoto;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.sdk.Resource;
@@ -13,6 +13,7 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 import org.lnicholls.galleon.apps.iPhoto.iPhoto;
+import org.lnicholls.galleon.apps.photos.Photos;
 
 public class SlideshowScreen extends DefaultScreen {
     private Resource mAnim = getResource("*100");
@@ -24,16 +25,16 @@ public class SlideshowScreen extends DefaultScreen {
     private Tracker mTracker;
     private boolean mShowSlideshow;
     
-    public SlideshowScreen(Photos app, Tracker tracker) {
+    public SlideshowScreen(iPhoto app, Tracker tracker) {
         this(app, tracker, true);
     }
-    public SlideshowScreen(Photos app, Tracker tracker,
+    public SlideshowScreen(iPhoto app, Tracker tracker,
             boolean showSlideshow) {
         super(app, null, null, false);
         mTracker = tracker;
         mShowSlideshow = showSlideshow;
         setTitle(" ");
-        PhotosConfiguration imagesConfiguration = getConfiguration();
+        iPhotoConfiguration imagesConfiguration = getConfiguration();
         if (imagesConfiguration.isUseSafe())
             mPhoto = new View(getBelow(), SAFE_ACTION_H, SAFE_ACTION_V,
                     getWidth() - 2 * SAFE_ACTION_H, getHeight()
@@ -42,11 +43,11 @@ public class SlideshowScreen extends DefaultScreen {
             mPhoto = new View(getBelow(), 0, 0, getWidth(), getHeight());
     }
     
-    public Photos getApp() {
-        return (Photos)super.getApp();
+    public iPhoto getApp() {
+        return (iPhoto)super.getApp();
     }
     
-    public PhotosConfiguration getConfiguration() {
+    public iPhotoConfiguration getConfiguration() {
         return getApp().getConfiguration();
     }
     
@@ -94,7 +95,7 @@ public class SlideshowScreen extends DefaultScreen {
                             }
                         } catch (Throwable ex) {
                             Tools.logMemory();
-                            Tools.logException(Photos.class, ex,
+                            Tools.logException(iPhoto.class, ex,
                                     "Could not retrieve image: "
                                     + file.getAbsolutePath());
                         }
@@ -201,7 +202,7 @@ public class SlideshowScreen extends DefaultScreen {
                             .getCanonicalPath());
                 }
             } catch (Exception ex) {
-                Tools.logException(Photos.class, ex);
+                Tools.logException(iPhoto.class, ex);
             }
         }
         return null;

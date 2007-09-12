@@ -110,7 +110,8 @@ public class Photos extends DefaultApplication {
         return (PhotosConfiguration)getFactory().getAppContext().getConfiguration();
     }
     
-    protected static Image getImage(String path) {
+    // XXX was protected...but iPhoto is a different package! 
+    public static Image getImage(String path) {
         Image image = null;
         try {
             List list = ImageManager.findByPath(path);

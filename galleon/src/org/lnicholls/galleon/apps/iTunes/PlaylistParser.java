@@ -1,3 +1,4 @@
+/* -*- tab-width: 4 -*- */
 package org.lnicholls.galleon.apps.iTunes;
 
 /*
@@ -56,14 +57,23 @@ public class PlaylistParser {
     private static String DICT = "dict";
 
     private static String KEY = "key";
-
+    
+    public static void main(String args[]) {
+    	System.out.println("testing playlist parser");
+    	System.out.println("You asked for parsing of: \"" + args[0] + "\".");
+    	PlaylistParser x = new PlaylistParser(args[0], true);
+    }
     public PlaylistParser(String path) {
+        this(path, false);
+    }
+    
+    public PlaylistParser(String path, boolean debugging) {
         try {
         	//path = "D:/galleon/iTunes Music Library.xml";
         	ArrayList currentPlaylists = new ArrayList(); 
         	// Read all tracks
         	XMLReader trackReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-        	TrackParser trackParser = new TrackParser();
+        	TrackParser trackParser = new TrackParser(debugging);
         	trackReader.setContentHandler(trackParser);
         	trackReader.setErrorHandler(trackParser);
         	trackReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -72,11 +82,13 @@ public class PlaylistParser {
                 InputStream inputStream = Tools.getInputStream(file);
                 trackReader.parse(new InputSource(inputStream));
                 inputStream.close();
+                if (debugging)
+                    System.out.println("Found " + trackParser.getTrackCount() + " tracks");
             }
             
             // Read all playlists
             XMLReader listReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-        	ListParser listParser = new ListParser(currentPlaylists);
+        	ListParser listParser = new ListParser(currentPlaylists, debugging);
         	listReader.setContentHandler(listParser);
         	listReader.setErrorHandler(listParser);
         	listReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -85,8 +97,13 @@ public class PlaylistParser {
                 InputStream inputStream = Tools.getInputStream(file);
                 listReader.parse(new InputSource(inputStream));
                 inputStream.close();
+                if (debugging)
+                    System.out.println("Found " + listParser.getPlaylistCount() + " playlists");
             }
-	            
+
+            if (debugging)
+                return;
+
             // Remove old playlists
             List list = PlaylistsManager.listAll();
             if (list!=null && list.size()>0)
@@ -128,12 +145,13 @@ public class PlaylistParser {
     
     class TrackParser extends DefaultHandler
     {
-    	public TrackParser()
+    	public TrackParser(boolean debug)
     	{
     		super();
     		mTracks = new HashMap();
     		mKey = new StringBuffer(100);
     		mValue = new StringBuffer(100);
+            mDebugging = debug;
     	}
     	
 	    /**
@@ -209,9 +227,11 @@ public class PlaylistParser {
 
                 if (++mCounter%100==0)
          		   System.gc();
-                try {
-                    Thread.sleep(50); // give the CPU some breathing time
-                } catch (Exception ex) {
+                if (!mDebugging) {      // if debugging, go full tilt
+                    try {
+                        //Thread.sleep(50); // give the CPU some breathing time
+                    } catch (Exception ex) {
+                    }
                 }
 	        }
 	
@@ -340,8 +360,10 @@ public class PlaylistParser {
 		            }
 		            */
 	        	}
-	        	
-	        	if (!found)
+                if (mDebugging)
+                    System.out.println("processing track ID " + externalId + " at " + location);
+
+	        	if (!found && !mDebugging)
 	        	{
 		        	try {
 		                List list = AudioManager.findByPath(location);
@@ -472,7 +494,7 @@ public class PlaylistParser {
 	            }
 
 	            audio.setOrigen("iTunes");
-	            try {
+                if (!mDebugging) try {
 	                if (audio.getId()==0) {
 	                    AudioManager.createAudio(audio);
 	                } 
@@ -494,6 +516,10 @@ public class PlaylistParser {
 	        return value;
 	    }	    
 	    
+        public int getTrackCount() {
+            return mCounter;
+        }
+
 	    private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
 	    private boolean mFoundTracks;
@@ -517,15 +543,18 @@ public class PlaylistParser {
 	    private HashMap mTracks;
 	    
 	    private int mCounter;
+
+        private boolean mDebugging;
     }
     
     class ListParser extends DefaultHandler
     {
-    	public ListParser(List playlists)
+    	public ListParser(List playlists, boolean debugging)
     	{
     		mCurrentPlaylists = playlists;
     		mKey = new StringBuffer(100);
     		mValue = new StringBuffer(100);
+            mDebugging = debugging;
     	}
     	
 	    /**
@@ -610,6 +639,9 @@ public class PlaylistParser {
                 		
                 		mPlaylistId = value;
                 		mCurrentPlaylists.add(value);
+                        if (mDebugging)
+                            System.out.println("found playlist " + mPlaylist);
+                        mParsedPlaylistCount++;
                 		
                 		try {
                     		boolean found = false;
@@ -623,7 +655,7 @@ public class PlaylistParser {
                     			list.clear();
                     		}
                             
-                            if (!found)
+                            if (!found && !mDebugging)
                             {
                             	try {
                                 	Playlists playlist = new Playlists(mPlaylist, new Date(), new Date(), new Date(), 0, "iTunes",
@@ -642,6 +674,8 @@ public class PlaylistParser {
                 	else 	                	
                 	if (mDictLevel == 3 && mKey != null && same(mKey, "Track ID")) {
                 		try {
+                            if (mDebugging)
+                                System.out.println("\tfound track ID " + mValue.toString());
                 			List list = AudioManager.findByExternalId(mValue.toString());
                             if (list != null && list.size() > 0) {
                                 Audio audio = (Audio) list.get(0);
@@ -663,8 +697,8 @@ public class PlaylistParser {
                             			plist.clear();
                             		}
                                 	
-        	                        try {
-        	                            Thread.sleep(50); // give the CPU some breathing time
+        	                        if (!mDebugging) try { // only pause if not debugging
+        	                            //Thread.sleep(50); // give the CPU some breathing time
         	                        } catch (Exception ex) {
         	                        }
                                 }
@@ -745,6 +779,10 @@ public class PlaylistParser {
 	        throw e;
 	    }
 	    
+        public int getPlaylistCount() {
+            return mParsedPlaylistCount;
+        }
+
 	    private boolean mFoundPlaylists;
 
 	    private int mDictLevel;
@@ -768,6 +806,10 @@ public class PlaylistParser {
 	    private List mCurrentPlaylists;
 	    
 	    private int mCounter;
+
+        private int mParsedPlaylistCount;
+        
+        private boolean mDebugging;
     }
     
     private static boolean same(StringBuffer buffer, String value)

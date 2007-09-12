@@ -18,7 +18,7 @@ import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 public class PhotosMenuScreen extends DefaultMenuScreen {
     public PhotosMenuScreen(Photos app) {
-        super(app, "Photos");
+        super(app, Photos.TITLE);
         setFooter("Press ENTER for options");
         getBelow().setResource(app.getMenuBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
         getBelow().flush();

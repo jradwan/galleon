@@ -3,6 +3,9 @@ Galleon
 
 Version 2.5.0:
 ----------------------
+* Added iPhoto application, refactored from existing Photos application
+  (TBD: need to integrate this with Photos, and/or really refactor instead
+  of copying code; need to fix configuration screen layout)
 * Increased album artwork size in music players (HD)
 * Fixed built-in Photos application to lay out the grid better for HD.
 * Fixed JPG image tag reading for Photos

@@ -23,24 +23,27 @@ import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
-public class ImageManager {
-	private static Logger log = Logger.getLogger(ImageManager.class.getName());
+public class ImagelistsManager {
+	private static Logger log = Logger.getLogger(ImagelistsManager.class
+			.getName());
 	public static interface Callback {
-		public void visit(Session session, Image image);
+		public void visit(Session session, Imagelists Imagelists);
 	}
-	public static Image retrieveImage(Image image) throws HibernateException {
-		return retrieveImage(new Integer(image.getId()));
+	public static Imagelists retrieveImagelists(Imagelists Imagelists)
+			throws HibernateException {
+		return retrieveImagelists(new Integer(Imagelists.getId()));
 	}
-	public static Image retrieveImage(int id) throws HibernateException {
-		return retrieveImage(new Integer(id));
+	public static Imagelists retrieveImagelists(int id) throws HibernateException {
+		return retrieveImagelists(new Integer(id));
 	}
-	public static Image retrieveImage(Integer id) throws HibernateException {
-		Image result = null;
+	public static Imagelists retrieveImagelists(Integer id)
+			throws HibernateException {
+		Imagelists result = null;
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			result = (Image) session.load(Image.class, id);
+			result = (Imagelists) session.load(Imagelists.class, id);
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -51,12 +54,13 @@ public class ImageManager {
 		}
 		return result;
 	}
-	public static Image createImage(Image image) throws HibernateException {
+	public static Imagelists createImagelists(Imagelists Imagelists)
+			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.save(trim(image));
+			session.save(trim(Imagelists));
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -65,10 +69,11 @@ public class ImageManager {
 		} finally {
 			HibernateUtil.closeSession();
 		}
-		return image;
+		return Imagelists;
 	}
-	public static void updateImage(Image image) throws HibernateException {
-		if (image.getId()!=0)
+	public static void updateImagelists(Imagelists Imagelists)
+			throws HibernateException {
+		if (Imagelists.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -78,7 +83,7 @@ public class ImageManager {
 	
 				tx = session.beginTransaction();
 	
-				session.update(trim(image));
+				session.update(trim(Imagelists));
 	
 				tx.commit();
 	
@@ -97,8 +102,9 @@ public class ImageManager {
 			}
 		}
 	}
-	public static void deleteImage(Image image) throws HibernateException {
-		if (image.getId()!=0)
+	public static void deleteImagelists(Imagelists Imagelists)
+			throws HibernateException {
+		if (Imagelists.getId()!=0)
 		{
 			Session session = HibernateUtil.openSession();
 	
@@ -108,7 +114,7 @@ public class ImageManager {
 	
 				tx = session.beginTransaction();
 	
-				session.delete(image);
+				session.delete(Imagelists);
 	
 				tx.commit();
 	
@@ -134,7 +140,7 @@ public class ImageManager {
 		try {
 			tx = session.beginTransaction();
 			list = session.createQuery(
-					"from org.lnicholls.galleon.database.Image").list();
+					"from org.lnicholls.galleon.database.Imagelists").list();
 			tx.commit();
 		} catch (HibernateException he) {
 			if (tx != null)
@@ -153,14 +159,14 @@ public class ImageManager {
 		try {
 			tx = session.beginTransaction();
 			Query query = session
-					.createQuery("from org.lnicholls.galleon.database.Image");
+					.createQuery("from org.lnicholls.galleon.database.Imagelists");
 			ScrollableResults items = query.scroll();
 			int counter = start;
 			if (items.first()) {
 				items.scroll(start);
 				while (items.next() && (counter < end)) {
-					Image image = (Image) items.get(0);
-					list.add(image);
+					Imagelists Imagelists = (Imagelists) items.get(0);
+					list.add(Imagelists);
 					counter++;
 				}
 			}
@@ -180,13 +186,13 @@ public class ImageManager {
 		try {
 			tx = session.beginTransaction();
 			Query q = session
-					.createQuery("from org.lnicholls.galleon.database.Image");
+					.createQuery("from org.lnicholls.galleon.database.Imagelists");
 			ScrollableResults items = q.scroll();
 			if (items.first()) {
 				items.beforeFirst();
 				while (items.next()) {
-					Image image = (Image) items.get(0);
-					callback.visit(session, image);
+					Imagelists Imagelists = (Imagelists) items.get(0);
+					callback.visit(session, Imagelists);
 				}
 				;
 			}
@@ -206,7 +212,7 @@ public class ImageManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"from org.lnicholls.galleon.database.Image as Image where Image.path=?")
+							"from org.lnicholls.galleon.database.Imagelists as Imagelists where Imagelists.path=?")
 					.setString(0, path).list();
 			tx.commit();
 			return list;
@@ -218,18 +224,38 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static long countImagesByOrigin(String origin)
-			throws HibernateException {
+	public static List findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"select count(image) from org.lnicholls.galleon.database.Image as image where image.origen=?")
-					.setString(0, origin).list();
+							"from org.lnicholls.galleon.database.Imagelists as Imagelists where Imagelists.origen=?")
+					.setString(0,
+					origen).list();
 			tx.commit();
-			return ((Long) list.iterator().next()).longValue();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+	public static List findByTitle(String title) throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.Imagelists as Imagelists where Imagelists.title=?")
+					.setString(0,
+					title).list();
+			tx.commit();
+			return list;
 		} catch (HibernateException he) {
 			if (tx != null)
 				tx.rollback();
@@ -245,8 +271,27 @@ public class ImageManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-					"from org.lnicholls.galleon.database.Image as Image where Image.externalId=?")
-					.setString(0, id)
+							"from org.lnicholls.galleon.database.Imagelists as Imagelists where Imagelists.externalId=?")
+					.setString(
+					0, id).list();
+			tx.commit();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+	public static List listTitles() throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session
+					.createQuery(
+							"select Imagelists.title from org.lnicholls.galleon.database.Imagelists as Imagelists")
 					.list();
 			tx.commit();
 			return list;
@@ -258,16 +303,44 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	private static Image trim(Image image)
-	{
-		if (image != null) {
-			image.setComments(Tools.trim(image.getComments(), 2048));
-			image.setMimeType(Tools.trim(image.getMimeType(), 50));
-			image.setOrigen(Tools.trim(image.getOrigen(), 30));
-			image.setPath(Tools.trim(image.getPath(), 1024));
-			image.setTitle(Tools.trim(image.getTitle(), 255));
-			image.setTone(Tools.trim(image.getTone(), 50));
+	public static void deleteImagelistsTracks(Imagelists Imagelists)
+			throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session
+					.createQuery(
+							"from org.lnicholls.galleon.database.ImagelistsTracks as ImagelistsTracks where ImagelistsTracks.id=?")
+					.setInteger(0, Imagelists.getId()).list();
+			if (list != null && list.size() > 0)
+			{
+				for (int i = 0; i < list.size(); i++)
+				{
+					ImagelistsTracks imagelistsTracks = (ImagelistsTracks) list
+							.get(0);
+					session.delete(imagelistsTracks);
+				}
+			}
+			tx.commit();
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
 		}
-		return image;
+	}
+	private static Imagelists trim(Imagelists imagelists)
+	{
+		if (imagelists!=null)
+		{
+			imagelists.setExternalId(Tools.trim(imagelists.getExternalId(), 255));
+	
+			imagelists.setOrigen(Tools.trim(imagelists.getOrigen(), 30));
+	
+			imagelists.setTitle(Tools.trim(imagelists.getTitle(), 255));
+		}
+		return imagelists;
 	}
 }

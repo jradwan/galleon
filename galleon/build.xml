@@ -886,6 +886,7 @@
         <copy file="./media/images/music/background_hd.jpg" tofile="${build}/skins/music/background_hd.jpg" />
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
+        <copy file="./media/images/photos/camera.png" tofile="${build}/skins/photos/camera.png" />        
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
         <copy file="./media/images/photos/background.jpg" tofile="${build}/skins/photos/background.jpg" />
@@ -1039,6 +1040,7 @@
         <copy file="./media/images/tivo/green_hd.mpg" tofile="${build}/skins/music/background_hd.mpg" />
 
         <copy file="./media/images/photos/icon.png" tofile="${build}/skins/photos/icon.png" />        
+        <copy file="./media/images/photos/camera.png" tofile="${build}/skins/photos/camera.png" />
         <copy file="./media/images/photos/folder.png" tofile="${build}/skins/photos/folder.png" />        
         <copy file="./media/images/photos/folder_red_open.png" tofile="${build}/skins/photos/folder_red_open.png" />        
         <copy file="./media/images/tivo/burgundy.mpg" tofile="${build}/skins/photos/background.mpg" />        

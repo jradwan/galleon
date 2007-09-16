@@ -33,10 +33,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.database.ImageManager;
-import org.lnicholls.galleon.database.Imagelists;
-import org.lnicholls.galleon.database.ImagelistsManager;
-import org.lnicholls.galleon.database.ImagelistsTracks;
-import org.lnicholls.galleon.database.ImagelistsTracksManager;
+import org.lnicholls.galleon.database.ImageAlbums;
+import org.lnicholls.galleon.database.ImageAlbumsManager;
+import org.lnicholls.galleon.database.ImageAlbumsPictures;
+import org.lnicholls.galleon.database.ImageAlbumsPicturesManager;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.util.FileFilters;
@@ -58,7 +58,7 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
         getBelow().flush();
         List titles = null;
         try {
-            titles = ImagelistsManager.listTitles();
+            titles = ImageAlbumsManager.listTitles();
         } catch (Exception ex) {
             Tools.logException(Photos.class, ex);
         }
@@ -96,7 +96,7 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
 					{
 						SimpleDateFormat dateFormat = new SimpleDateFormat();
 						dateFormat.applyPattern("M/d/yy hh:mm a");
-						status = status + "   Refreshed: " + dateFormat.format(new Date(refreshed)); // doesn't work ...
+						status = status + "   Refreshed: " + dateFormat.format(new Date(Long.valueOf(refreshed))); // doesn't work ...
 					}
                 catch (Exception ex)
 					{
@@ -120,27 +120,27 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                     public void run() {
                         try {
                             FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            List list = ImagelistsManager.findByTitle((String) nameFile.getValue());
+                            List list = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
                             // XXX common code with size == 1!
                             if (list!=null && list.size()>0)
 								{
-									Imagelists imagelist = (Imagelists) list.get(0);
+									ImageAlbums imageAlbum = (ImageAlbums) list.get(0);
 
-									ArrayList tracks = new ArrayList();
-									List imagelists = ImagelistsTracksManager.findByImagelists(imagelist.getId());
-									if (imagelists!=null && imagelists.size()>0)
+									ArrayList pictures = new ArrayList();
+									List imageAlbums = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
+									if (imageAlbums!=null && imageAlbums.size()>0)
                                         {
-                                            Iterator iterator = imagelists.iterator();
+                                            Iterator iterator = imageAlbums.iterator();
                                             while (iterator.hasNext()) {
-                                                ImagelistsTracks track = (ImagelistsTracks) iterator.next();
-                                                if (track.getTrack()!=0) {
-                                                    Image image = ImageManager.retrieveImage(track.getTrack());
-                                                    tracks.add(new FileItem(image.getTitle(), new File(image.getPath())));
+                                                ImageAlbumsPictures picture = (ImageAlbumsPictures) iterator.next();
+                                                if (picture.getPicture()!=0) {
+                                                    Image image = ImageManager.retrieveImage(picture.getPicture());
+                                                    pictures.add(new FileItem(image.getTitle(), new File(image.getPath())));
                                                 }
                                             }
-                                            imagelists.clear();
+                                            imageAlbums.clear();
                                         }
-									Tracker tracker = new Tracker(tracks, 0);
+									Tracker tracker = new Tracker(pictures, 0);
 									PathScreen pathScreen = new PathScreen((Photos) getBApp(), tracker);
 									getBApp().push(pathScreen, TRANSITION_LEFT);
 									list.clear();
@@ -158,21 +158,21 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                 public void run() {
                     try {
                         FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                        List imagelists = ImagelistsManager.findByTitle((String) nameFile.getValue());
-                        if (imagelists != null && imagelists.size() > 0) {
-                            Imagelists imagelist = (Imagelists) imagelists.get(0);
+                        List imageAlbums = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
+                        if (imageAlbums != null && imageAlbums.size() > 0) {
+                            ImageAlbums imageAlbum = (ImageAlbums) imageAlbums.get(0);
 
-                            List pList = ImagelistsTracksManager.findByImagelists(imagelist.getId());
-                            ArrayList tracks = new ArrayList();
+                            List pList = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
+                            ArrayList pictures = new ArrayList();
                             Iterator iterator = pList.iterator();
                             while (iterator.hasNext()) {
-                                ImagelistsTracks track = (ImagelistsTracks) iterator.next();
-                                if (track.getTrack()!=0) {
-                                    Image image = ImageManager.retrieveImage(track.getTrack());
-                                    tracks.add(new FileItem(image.getTitle(), new File(image.getPath())));
+                                ImageAlbumsPictures picture = (ImageAlbumsPictures) iterator.next();
+                                if (picture.getPicture()!=0) {
+                                    Image image = ImageManager.retrieveImage(picture.getPicture());
+                                    pictures.add(new FileItem(image.getTitle(), new File(image.getPath())));
                                 }
                             }
-                            Tracker tracker = new Tracker(tracks, 0);
+                            Tracker tracker = new Tracker(pictures, 0);
                             PhotosConfiguration imagesConfiguration = getConfiguration();
                             tracker.setRandom(imagesConfiguration
                                               .isRandomPlayFolders());

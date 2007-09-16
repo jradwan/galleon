@@ -214,7 +214,7 @@ public class Photos extends DefaultApplication {
                                     if (!dir.exists()) {
                                         dir.mkdirs();
                                     }
-                                    File copy = new File(dir.getCanonicalPath()  + File.separator + "imagelist.xml");
+                                    File copy = new File(dir.getCanonicalPath()  + File.separator + "imageAlbum.xml");
                                     Tools.copy(file,copy);
                                     if (copy.exists())
                                         location = copy.getCanonicalPath();

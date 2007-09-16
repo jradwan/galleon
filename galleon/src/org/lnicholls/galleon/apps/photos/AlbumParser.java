@@ -34,10 +34,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.database.ImageManager;
-import org.lnicholls.galleon.database.Imagelists;
-import org.lnicholls.galleon.database.ImagelistsManager;
-import org.lnicholls.galleon.database.ImagelistsTracks;
-import org.lnicholls.galleon.database.ImagelistsTracksManager;
+import org.lnicholls.galleon.database.ImageAlbums;
+import org.lnicholls.galleon.database.ImageAlbumsManager;
+import org.lnicholls.galleon.database.ImageAlbumsPictures;
+import org.lnicholls.galleon.database.ImageAlbumsPicturesManager;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.util.Tools;
 import org.xml.sax.Attributes;
@@ -71,7 +71,7 @@ public class AlbumParser {
     public AlbumParser(String path, boolean debugging) {
         try {
         	//path = "D:/galleon/iPhoto Music Library.xml";
-        	ArrayList currentImagelists = new ArrayList<String>(); 
+        	ArrayList currentImageAlbums = new ArrayList<String>(); 
         	File file;
 //        if (!debugging) {	// Read all images
         	XMLReader imageReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
@@ -91,9 +91,9 @@ public class AlbumParser {
                     log.debug(msg);
             }
 //        }
-            // Read all imagelists
+            // Read all imageAlbums
             XMLReader albumReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-        	AlbumListParser albumParser = new AlbumListParser(currentImagelists, debugging);
+        	AlbumListParser albumParser = new AlbumListParser(currentImageAlbums, debugging);
         	albumReader.setContentHandler(albumParser);
         	albumReader.setErrorHandler(albumParser);
         	albumReader.setFeature("http://xml.org/sax/features/validation", false);
@@ -112,20 +112,20 @@ public class AlbumParser {
             if (debugging)
                 return;
 
-            // Remove old imagelists
-            List list = ImagelistsManager.listAll();
+            // Remove old imageAlbums
+            List list = ImageAlbumsManager.listAll();
             if (list!=null && list.size()>0)
             {
-	            Iterator imagelistIterator = list.iterator();
-	        	while (imagelistIterator.hasNext())
+	            Iterator imageAlbumIterator = list.iterator();
+	        	while (imageAlbumIterator.hasNext())
 	            {
-	            	Imagelists imagelist = (Imagelists)imagelistIterator.next();
+	            	ImageAlbums imageAlbum = (ImageAlbums)imageAlbumIterator.next();
 	            	boolean found = false;
-	            	Iterator iterator = currentImagelists.iterator();
+	            	Iterator iterator = currentImageAlbums.iterator();
 	                while (iterator.hasNext())
 	                {
 	                	String externalId = (String)iterator.next();
-	                	if (externalId.equals(imagelist.getExternalId()))
+	                	if (externalId.equals(imageAlbum.getExternalId()))
 	                	{
 	                		found = true;
 	                		break;
@@ -134,14 +134,14 @@ public class AlbumParser {
 	                
 	                if (!found)
 	                {
-	                	ImagelistsManager.deleteImagelistsTracks(imagelist);
-	                	ImagelistsManager.deleteImagelists(imagelist);
-	                	log.debug("Removed imagelist: "+imagelist.getTitle());
+	                	ImageAlbumsManager.deleteImageAlbumsPictures(imageAlbum);
+	                	ImageAlbumsManager.deleteImageAlbums(imageAlbum);
+	                	log.debug("Removed imageAlbum: "+imageAlbum.getTitle());
 	                }
 	            }
 	        	list.clear();
             }
-            currentImagelists.clear();
+            currentImageAlbums.clear();
         } catch (IOException ex) {
             Tools.logException(AlbumParser.class, ex);
         } catch (SAXException ex) {
@@ -443,9 +443,9 @@ public class AlbumParser {
     {
     	private int i;
 
-		public AlbumListParser(List<String> imagelists, boolean debugging)
+		public AlbumListParser(List<String> imageAlbums, boolean debugging)
     	{
-    		mCurrentImagelists = imagelists;
+    		mCurrentImageAlbums = imageAlbums;
     		mKey = new StringBuffer(100);
     		mValue = new StringBuffer(100);
             mDebugging = debugging;
@@ -541,11 +541,11 @@ public class AlbumParser {
                         try {
                             boolean found = false;
                     		
-                            List list = ImagelistsManager.findByExternalId(mAlbumId);
+                            List list = ImageAlbumsManager.findByExternalId(mAlbumId);
                             if (list != null && list.size()>0)
                                 {
-                                    Imagelists imagelists = (Imagelists)list.get(0);
-                                    ImagelistsManager.deleteImagelistsTracks(imagelists);
+                                    ImageAlbums imageAlbums = (ImageAlbums)list.get(0);
+                                    ImageAlbumsManager.deleteImageAlbumsPictures(imageAlbums);
                                     found = true;
                                     list.clear();
                                 }
@@ -553,15 +553,15 @@ public class AlbumParser {
                             if (!found)
                                 {
                                     try {
-                                        Imagelists imagelist = new Imagelists(mAlbum, new Date(), new Date(), new Date(), 0, "iPhoto",
+                                        ImageAlbums imageAlbum = new ImageAlbums(mAlbum, new Date(), new Date(), new Date(), 0, "iPhoto",
                                                                               mAlbumId);
-                                        ImagelistsManager.createImagelists(imagelist);
+                                        ImageAlbumsManager.createImageAlbums(imageAlbum);
                                     } catch (Exception ex) {
                                         Tools.logException(AlbumParser.class, ex);
                                     }
                                 }
                     		
-                            log.info("Processing Imagelist: "+mAlbum);
+                            log.info("Processing ImageAlbum: "+mAlbum);
                         } catch (Exception ex) {
                                 Tools.logException(AlbumParser.class, ex);
                         }
@@ -583,11 +583,11 @@ public class AlbumParser {
                                         continue;
                                     }
                                 	
-                                    List plist = ImagelistsManager.findByExternalId(mAlbumId);
+                                    List plist = ImageAlbumsManager.findByExternalId(mAlbumId);
                                     if (plist != null && plist.size()>0)
                                         {
-                                            Imagelists imagelists = (Imagelists)plist.get(0);
-                                            ImagelistsTracksManager.createImagelistsTracks(new ImagelistsTracks(imagelists.getId(), img.getId()));
+                                            ImageAlbums imageAlbums = (ImageAlbums)plist.get(0);
+                                            ImageAlbumsPicturesManager.createImageAlbumsPictures(new ImageAlbumsPictures(imageAlbums.getId(), img.getId()));
                                             plist.clear();
                                         }
                                 	
@@ -622,7 +622,7 @@ public class AlbumParser {
                 		String value = mValue.toString();
                 		
                 		mAlbumId = value;
-                		mCurrentImagelists.add(value);
+                		mCurrentImageAlbums.add(value);
 
 	                } 
 	            }
@@ -720,7 +720,7 @@ public class AlbumParser {
    	    
    	    private String mAlbumId;
    	    
-	    private List<String> mCurrentImagelists;
+	    private List<String> mCurrentImageAlbums;
 	    
 	    private int mCounter;
 

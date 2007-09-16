@@ -59,6 +59,15 @@ public class PhotosConfiguration implements AppConfiguration {
         mPaths.add(nameValue);
     }
     
+    public String getAlbumDataPath() {
+    	return mAlbumDataPath;
+    }
+    
+    public void setAlbumDataPath(String path) {
+    	mModified = true; // XXX? what does this mean?
+    	mAlbumDataPath = path;
+    }
+    
     public void setDisplayTime(int value) {
         mDisplayTime = value;
     }
@@ -113,6 +122,16 @@ public class PhotosConfiguration implements AppConfiguration {
     	mShared = value;
     }
     
+    public boolean isiPhotoEnabled()
+    {
+    	return miPhotoEnabled;
+    }
+    
+    public void setiPhotoEnabled(boolean value)
+    {
+    	miPhotoEnabled = value;
+    }
+
     private boolean mShared;    
 
     private String mName;
@@ -130,4 +149,8 @@ public class PhotosConfiguration implements AppConfiguration {
     private List mPaths = new ArrayList();
     
     private boolean mRandomPlayFolders = true;
+    
+    private boolean miPhotoEnabled;
+    
+    private String mAlbumDataPath;
 }

@@ -1,10 +1,8 @@
 package org.lnicholls.galleon.apps.photos;
 
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
 import java.io.File;
 import java.util.Iterator;
+
 import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
@@ -15,6 +13,10 @@ import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
+import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.bananas.BText;
+import com.tivo.hme.bananas.BView;
+
 
 public class PhotosMenuScreen extends DefaultMenuScreen {
     public PhotosMenuScreen(Photos app) {
@@ -23,6 +25,11 @@ public class PhotosMenuScreen extends DefaultMenuScreen {
         getBelow().setResource(app.getMenuBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
         getBelow().flush();
         PhotosConfiguration imagesConfiguration = getConfiguration();
+        if (imagesConfiguration.isiPhotoEnabled()) {
+            miPhotoEnabled = true;
+            mMenuList.add(new FolderItem("iPhoto Albums", "iPhoto Albums"/* XXX */));
+        }
+
         for (Iterator i = imagesConfiguration.getPaths().iterator(); i
                 .hasNext(); /* Nothing */) {
             NameValue nameValue = (NameValue) i.next();
@@ -42,6 +49,9 @@ public class PhotosMenuScreen extends DefaultMenuScreen {
         if (action.equals("push")) {
             if (mMenuList.size() > 0) {
                 load();
+                if (miPhotoEnabled && mMenuList.getFocus() == 0) {
+                    getBApp().push(new iPhotoMenuScreen(getApp()), TRANSITION_NONE);
+                } else
                 new Thread() {
                     public void run() {
                         try {
@@ -123,4 +133,5 @@ public class PhotosMenuScreen extends DefaultMenuScreen {
         }
         return super.handleKeyPress(code, rawcode);
     }
+    private boolean miPhotoEnabled;
 }

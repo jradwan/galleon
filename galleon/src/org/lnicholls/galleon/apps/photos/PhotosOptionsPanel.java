@@ -17,17 +17,24 @@ package org.lnicholls.galleon.apps.photos;
  */
 
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
@@ -39,7 +46,7 @@ import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-public class PhotosOptionsPanel extends AppConfigurationPanel {
+public class PhotosOptionsPanel extends AppConfigurationPanel implements ActionListener {
 	private static Logger log = Logger.getLogger(PhotosOptionsPanel.class.getName());
 
 	class ImagesWrapper extends NameValue {
@@ -51,7 +58,6 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 			return getName();
 		}
 	}
-
 	public PhotosOptionsPanel(AppConfiguration appConfiguration) {
 		super(appConfiguration);
 		setLayout(new GridLayout(0, 1));
@@ -128,7 +134,23 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 		mRandomPlayFoldersField.setToolTipText("Check to specify that photos in folders should be played randomly");
 		mRandomPlayFoldersField.setSelected(imagesConfiguration.isRandomPlayFolders());
 
-		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, 9dlu, " + // general
+		miPhotoEnabledField = new JCheckBox("Import iPhoto albums");
+		miPhotoEnabledField.setToolTipText("Check to enable iPhoto album data parsing");
+		miPhotoEnabledField.setSelected(imagesConfiguration.isiPhotoEnabled());
+
+        String albumPath = imagesConfiguration.getAlbumDataPath();
+        if (albumPath == null) {
+            if (SystemUtils.IS_OS_MAC_OSX)
+                albumPath = "/Users/" + System.getProperty("user.name") + "/Pictures/iPhoto Library/AlbumData.xml";
+            else
+                // Is there even an iPhoto for Windows or Linux?
+                albumPath = "C:\\Documents and Settings\\" + System.getProperty("user.name")
+                    + "\\My Documents\\My Pictures\\iPhoto Library\\AlbumData.xml";
+        }
+        mAlbumPathField = new JTextField(albumPath);
+
+		FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow",
+				"pref, 9dlu, " + // general
 				"pref, 3dlu, " + // title
 				"pref, 9dlu, " + // share
 				"pref, 9dlu, " + // options
@@ -138,6 +160,9 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 				"pref, 9dlu, " + // effect
 				"pref, 9dlu, " + // display time
 				"pref, 9dlu, " + // transition time
+				"pref, 9dlu, " + // iPhoto
+				"pref, 9dlu, " + // iPhoto-enabled
+				"pref, 9dlu, " + // iPhoto path
 				"pref, 9dlu, " + // directories
 				"pref"); // table
 
@@ -162,7 +187,17 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 		builder.add(mDisplayTimeField, cc.xy(3, 17));
 		builder.addLabel("Transition Time", cc.xy(1, 19));
 		builder.add(mTransitionTimeField, cc.xy(3, 19));
-		builder.addSeparator("Directories", cc.xyw(1, 21, 4));
+		builder.addSeparator("iPhoto", cc.xyw(1, 21, 4));
+		//builder.addLabel("Enable iPhoto", cc.xy(1, 23));
+		builder.add(miPhotoEnabledField, cc.xy(3, 23));
+		builder.addLabel("iPhoto Album Data file", cc.xy(1, 25));
+		builder.add(mAlbumPathField, cc.xy(3, 25));
+        JButton button = new JButton("...");
+        button.setActionCommand("pick");
+        button.addActionListener(this);
+        builder.add(button, cc.xy(4, 25));
+
+		builder.addSeparator("Directories", cc.xyw(1, 27, 4));
 
 		mColumnValues = new ArrayList();
 		int counter = 0;
@@ -181,7 +216,7 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 		// OptionsTable optionsTable = new OptionsTable(this, columnNames, new
 		// ArrayList(), new JTextField(), new
 		// JTextField());
-		builder.add(mFileOptionsTable, cc.xyw(1, 23, 4));
+		builder.add(mFileOptionsTable, cc.xyw(1, 29, 4));
 
 		JPanel panel = builder.getPanel();
 		// FormDebugUtils.dumpAll(panel);
@@ -196,7 +231,7 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 			JOptionPane.showMessageDialog(this, "Invalid title.", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-		if (mColumnValues.size() == 0) {
+		if (mColumnValues.size() == 0 && !miPhotoEnabledField.isSelected()) {
 			JOptionPane.showMessageDialog(this, "No directories configured.", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -224,6 +259,39 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 		}
 		imagesConfiguration.setPaths(newItems);
 		imagesConfiguration.setShared(mSharedField.isSelected());
+		imagesConfiguration.setiPhotoEnabled(miPhotoEnabledField.isSelected());
+		imagesConfiguration.setAlbumDataPath(mAlbumPathField.getText());
+	}
+
+	public void actionPerformed(ActionEvent e) {
+        if ("pick".equals(e.getActionCommand())) {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            fc.addChoosableFileFilter(new FileFilter() {
+                public boolean accept(File f) {
+                    if (f.isDirectory()) {
+                        return true;
+                    } else if (f.isFile() && f.getName().toLowerCase().endsWith("xml")) {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                //The description of this filter
+                public String getDescription() {
+                    return "Album List";
+                }
+            });
+
+            int returnVal = fc.showOpenDialog(this);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                mAlbumPathField.setText(file.getAbsolutePath());
+            }
+        }
+		
 	}
 
 	private JTextComponent mTitleField;
@@ -243,4 +311,9 @@ public class PhotosOptionsPanel extends AppConfigurationPanel {
 	private ArrayList mColumnValues;
 	
 	private JCheckBox mSharedField;
+
+	private JCheckBox miPhotoEnabledField;
+
+	private JTextField mAlbumPathField;
+
 }

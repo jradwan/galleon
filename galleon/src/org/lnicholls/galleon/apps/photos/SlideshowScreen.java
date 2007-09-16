@@ -12,7 +12,6 @@ import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
-import org.lnicholls.galleon.apps.iPhoto.iPhoto;
 
 public class SlideshowScreen extends DefaultScreen {
     private Resource mAnim = getResource("*100");

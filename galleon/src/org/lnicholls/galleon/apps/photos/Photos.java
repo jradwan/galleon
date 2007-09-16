@@ -21,10 +21,12 @@ import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.Resource;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
@@ -33,9 +35,12 @@ import org.lnicholls.galleon.database.ImageManager;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.media.MediaManager;
+import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
+import org.lnicholls.galleon.util.ReloadCallback;
+import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
@@ -51,6 +56,7 @@ public class Photos extends DefaultApplication {
 	private Resource folderIcon;
 	private Resource largeFolderIcon;
 	private Resource cameraIcon;
+    private static Thread mThread;
 	public void init(IContext context) throws Exception {
 		super.init(context);
 	}
@@ -84,7 +90,7 @@ public class Photos extends DefaultApplication {
 			tracker.setRandom(imagesConfiguration.isRandomPlayFolders());
 			setTracker(tracker);
 		}
-		if (imagesConfiguration.getPaths().size() == 1) {
+		if (imagesConfiguration.getPaths().size() == 1 && !imagesConfiguration.isiPhotoEnabled()) {
 			try {
 				NameValue nameValue = (NameValue) imagesConfiguration
 						.getPaths().get(0);
@@ -101,7 +107,9 @@ public class Photos extends DefaultApplication {
 			} catch (Exception ex) {
 				Tools.logException(Photos.class, ex);
 			}
-		} else
+		} else if (imagesConfiguration.getPaths().size() == 0 && imagesConfiguration.isiPhotoEnabled()) {
+            push(new iPhotoMenuScreen(this), TRANSITION_NONE);
+        } else
 			push(new PhotosMenuScreen(this), TRANSITION_NONE);
 		initialize();
 	}
@@ -110,8 +118,7 @@ public class Photos extends DefaultApplication {
         return (PhotosConfiguration)getFactory().getAppContext().getConfiguration();
     }
     
-    // XXX was protected...but iPhoto is a different package! 
-    public static Image getImage(String path) {
+    protected static Image getImage(String path) {
         Image image = null;
         try {
             List list = ImageManager.findByPath(path);
@@ -139,7 +146,101 @@ public class Photos extends DefaultApplication {
 		public void initialize() {
 			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) getAppContext()
 					.getConfiguration();
+            Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
+                    public void reload() {
+                        try {
+                            log.debug("iPhoto album reload");
+                            reloadiPhotoLibrary(false);
+                        } catch (Exception ex) {
+                            log.error("Could not reload iPhoto albums", ex);
+                        }
+                    }
+                }), 5);
 		}
+
+        public void updateAppContext(AppContext appContext) {
+            super.updateAppContext(appContext);
+
+            reloadiPhotoLibrary(true);
+        }
+
+        private void reloadiPhotoLibrary(boolean interrupt) {
+            final PhotosConfiguration photosConfiguration = (PhotosConfiguration) getAppContext().getConfiguration();
+
+            if (!photosConfiguration.isiPhotoEnabled())
+                return;
+
+            if (mThread != null && mThread.isAlive()) {
+                if (interrupt)
+                    mThread.interrupt();
+                else
+                    return;
+            }
+
+            mThread = new Thread() {
+                    public void run() {
+                        try {
+                            boolean reload = false;
+                            Date fileDate = new Date();
+                            PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(Photos.class.getName()
+                                                                                                         + "." + "refresh3");
+                            if (persistentValue != null) {
+                                try
+                                    {
+                                        Date date = new Date(Long.parseLong(persistentValue.getValue()));
+                                        File file = new File(photosConfiguration.getAlbumDataPath());
+                                        if (file.exists()) {
+                                            fileDate = new Date(file.lastModified());
+                                            if (fileDate.getTime() - date.getTime() > 1000)
+                                                reload = true;
+                                        }
+                                    }
+                                catch (Exception ex)
+                                    {
+                                        log.error("Invalid date: " + persistentValue.getValue(), ex);
+                                        reload = true;
+                                    }
+                            } else
+                                reload = true;
+                            //AlbumParser AlbumParser = new AlbumParser("D:/galleon/Photos Music Library.xml");
+
+                            if (reload) {
+                                log.info("Reloading Photos Library");
+                                String location = photosConfiguration.getAlbumDataPath();
+                                File file = new File(photosConfiguration.getAlbumDataPath());
+                                if (file.exists()) {
+                                    String path = System.getProperty("data") + File.separator + "iphoto";
+                                    File dir = new File(path);
+                                    if (!dir.exists()) {
+                                        dir.mkdirs();
+                                    }
+                                    File copy = new File(dir.getCanonicalPath()  + File.separator + "imagelist.xml");
+                                    Tools.copy(file,copy);
+                                    if (copy.exists())
+                                        location = copy.getCanonicalPath();
+                                }
+
+                                AlbumParser AlbumParser = new AlbumParser(location);
+
+                                synchronized (this) {
+                                    try {
+                                        AudioManager.clean();
+                                    } catch (Exception ex) {
+                                        Tools.logException(Photos.class, ex);
+                                    }
+                                }
+
+                                PersistentValueManager.savePersistentValue(Photos.class.getName() + ".refresh3", String.valueOf(fileDate.getTime()));
+                                log.info("Reloaded Photos Library");
+                            }
+                        } catch (Throwable ex) {
+                            Tools.logException(Photos.class, ex);
+                        }
+                    }
+                };
+            mThread.setPriority(Thread.MIN_PRIORITY);
+            mThread.start();
+        }
 	}
     public Resource getCameraIcon() {
         return cameraIcon;

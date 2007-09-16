@@ -1,5 +1,5 @@
 /* -*- tab-width: 4 -*- */
-package org.lnicholls.galleon.apps.iPhoto;
+package org.lnicholls.galleon.apps.photos;
 
 /*
  * Copyright (C) 2005 Leon Nicholls.

@@ -206,7 +206,7 @@ public class iTunes extends DefaultApplication {
 					{
 						SimpleDateFormat dateFormat = new SimpleDateFormat();
 						dateFormat.applyPattern("M/d/yy hh:mm a");
-						status = status + "   Refreshed: " + dateFormat.format(new Date(refreshed));
+						status = status + "   Refreshed: " + dateFormat.format(new Date(Long.valueOf(refreshed)));
 					}
 					catch (Exception ex)
 					{

@@ -1,19 +1,22 @@
 package org.lnicholls.galleon.apps.photos;
 
+import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BEvent;
+import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import org.lnicholls.galleon.database.Image;
 import org.lnicholls.galleon.media.ImageManipulator;
+import org.lnicholls.galleon.util.ScreenSaver;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultScreen;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
-public class SlideshowScreen extends DefaultScreen {
+public class SlideshowScreen extends DefaultScreen implements ScreenSaver {
     private Resource mAnim = getResource("*100");
     Image mImage;
     View mPhoto;
@@ -205,4 +208,18 @@ public class SlideshowScreen extends DefaultScreen {
         }
         return null;
     }
+    // No screensaving during slide shows, we are changing contents all the time!
+	public void activate() {
+		
+	}
+	public void deactivate() {
+		
+	}
+	public void init(BApplication app) {
+		
+	}
+	public boolean isWakeEvent(HmeEvent event) {
+		// just say everything is a wakeup
+		return true;
+	}
 }

@@ -32,7 +32,7 @@ public class PhotosScreen extends DefaultScreen {
         getBelow().flush();
         setTitle("Photo");
         mDateFormat = new SimpleDateFormat();
-        mDateFormat.applyPattern("EEE MMM d, yyyy hh:mm a");
+        mDateFormat.applyPattern("EEE M/d hh:mm a"); // anything bigger won't fit on SD screens
         int start = BORDER_TOP;
         int thumb_size = isHighDef() ? 400 : 200;
         mThumbnail = new BView(getBelow(), getWidth() - SAFE_TITLE_H - thumb_size - 10,

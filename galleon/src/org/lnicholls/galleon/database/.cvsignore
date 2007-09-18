@@ -1,8 +1,8 @@
 Application.java
 Audio.java
 Image.java
-ImageAlbum.java
 ImageAlbums.java
+ImageAlbumsPictures.java
 ImageAlbumsTracks.java
 Movie.java
 PersistentValue.java
@@ -20,5 +20,3 @@ Version.java
 Video.java
 Videocast.java
 VideocastTrack.java
-ImageAlbumsPictures.java
-ImageAlbumPicture.java

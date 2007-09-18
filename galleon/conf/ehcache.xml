@@ -80,7 +80,7 @@
         overflowToDisk="true"
         />                                 
         
-    <cache name="org.lnicholls.galleon.database.Imagelist"
+    <cache name="org.lnicholls.galleon.database.ImageAlbums"
         maxElementsInMemory="1"
         eternal="false"
         timeToIdleSeconds="300"

@@ -50,23 +50,42 @@ import org.lnicholls.galleon.widget.DefaultMenuScreen;
 import org.lnicholls.galleon.widget.DefaultApplication.Tracker;
 
 public class iPhotoMenuScreen extends DefaultMenuScreen {
-    // XXX can't we share code with PhotosMenuScreen.java ?
     public iPhotoMenuScreen(Photos app) {
-        super(app, "iPhoto");
+        this(app, false, false);
+    }
+    public iPhotoMenuScreen(Photos app, boolean isAlbumScreen, boolean isRollScreen) {
+        super(app, "iPhoto" + (isAlbumScreen ? " Albums" : "") + (isRollScreen ? " Rolls" : ""));
+        misAlbumScreen = isAlbumScreen;
+        misRollScreen = isRollScreen;
         setFooter("Press ENTER for options");
         getBelow().setResource(app.getMenuBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
         getBelow().flush();
-        List titles = null;
-        try {
-            titles = ImageAlbumsManager.listTitles();
-        } catch (Exception ex) {
-            Tools.logException(Photos.class, ex);
+        List albums = null;
+        String title;
+        if (isAlbumScreen) {
+            try {
+                albums = ImageAlbumsManager.listAlbums();
+            } catch (Exception ex) {
+                Tools.logException(Photos.class, ex);
+            }
+            for (Iterator i = albums.iterator(); i.hasNext(); /* Nothing */) {
+                title = (String) i.next();
+                mMenuList.add(new FolderItem(title, title));
+            }
+        } else if (isRollScreen) {
+            try {
+                albums = ImageAlbumsManager.listRolls();
+            } catch (Exception ex) {
+                Tools.logException(Photos.class, ex);
+            }
+            for (Iterator i = albums.iterator(); i.hasNext(); /* Nothing */) {
+                title = (String) i.next();
+                mMenuList.add(new FolderItem(title, title));
+            }
+        } else {
+            mMenuList.add(new FolderItem("Albums", "Albums"));
+            mMenuList.add(new FolderItem("Rolls", "Rolls"));
         }
-        for (Iterator i = titles.iterator(); i.hasNext(); /* Nothing */) {
-            String title = (String) i.next();
-            mMenuList.add(new FolderItem(title, title));
-        }
-
         mCountText = new BText(getNormal(), BORDER_LEFT, TOP - 30, BODY_WIDTH, 20);
         mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
         mCountText.setFont("default-18.font");
@@ -115,6 +134,19 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
         if (action.equals("push")) {
             if (mMenuList.size() > 0) {
                 load();
+                if (!misAlbumScreen && !misRollScreen) {
+                    switch (mMenuList.getFocus()) {
+                    case 0:
+                        getBApp().push(new iPhotoMenuScreen(getApp(), true, false), TRANSITION_NONE);
+                        break;
+                    case 1:
+                        getBApp().push(new iPhotoMenuScreen(getApp(), false, true), TRANSITION_NONE);
+                        break;
+                    default:
+                        break;
+                    }
+                    return true;
+                }
 
                 new Thread() {
                     public void run() {
@@ -154,6 +186,20 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
             }
         } else if (action.equals("play")) {
             load();
+            if (!misAlbumScreen && !misRollScreen) {
+                switch (mMenuList.getFocus()) {
+                case 0:
+                    getBApp().push(new iPhotoMenuScreen(getApp(), true, false), TRANSITION_NONE);
+                    break;
+                case 1:
+                    getBApp().push(new iPhotoMenuScreen(getApp(), false, true), TRANSITION_NONE);
+                    break;
+                default:
+                    break;
+                }
+                return true;
+            }
+
             new Thread() {
                 public void run() {
                     try {
@@ -198,13 +244,13 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
 	protected void createRow(BView parent, int index) {
         BView icon = new BView(parent, 9, 2, 32, 32);
         Item nameFile = (Item) mMenuList.get(index);
-//            if (nameFile.isFolder()) {  // XXX never happens ...
-//                icon.setResource(getApp().getFolderIcon());
-//                icon.flush();
-//            } else {
-        icon.setResource(getApp().getCameraIcon());
-        icon.flush();
-//            }
+        if (!misAlbumScreen && !misRollScreen) {
+            icon.setResource(getApp().getFolderIcon());
+            icon.flush();
+        } else {
+            icon.setResource(getApp().getCameraIcon());
+            icon.flush();
+        }
         BText name = new BText(parent, 50, 4, parent.getWidth() - 40,
                                parent.getHeight() - 4);
         name.setShadow(true);
@@ -226,4 +272,6 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
         return super.handleKeyPress(code, rawcode);
     }
     BText mCountText;
+    private boolean misAlbumScreen;
+    private boolean misRollScreen;
 }

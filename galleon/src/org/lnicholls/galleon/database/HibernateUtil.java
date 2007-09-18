@@ -59,7 +59,6 @@ public class HibernateUtil {
             configuration.addClass(Version.class);
             configuration.addClass(Audio.class);
             configuration.addClass(Image.class);
-            configuration.addClass(ImageAlbum.class);
             configuration.addClass(ImageAlbums.class);
             configuration.addClass(ImageAlbumsPictures.class);
             configuration.addClass(Video.class);

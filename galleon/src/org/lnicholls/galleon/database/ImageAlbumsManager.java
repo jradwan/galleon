@@ -284,14 +284,33 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listTitles() throws HibernateException {
+	public static List listAlbums() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums")
+							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=false")
+					.list();
+			tx.commit();
+			return list;
+		} catch (HibernateException he) {
+			if (tx != null)
+				tx.rollback();
+			throw he;
+		} finally {
+			HibernateUtil.closeSession();
+		}
+	}
+	public static List listRolls() throws HibernateException {
+		Session session = HibernateUtil.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List list = session
+					.createQuery(
+							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=true")
 					.list();
 			tx.commit();
 			return list;

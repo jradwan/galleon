@@ -71,7 +71,7 @@ public class AlbumParser {
     public AlbumParser(String path, boolean debugging) {
         try {
         	//path = "D:/galleon/iPhoto Music Library.xml";
-        	ArrayList currentImageAlbums = new ArrayList<String>(); 
+        	ArrayList<String> currentImageAlbums = new ArrayList<String>(); 
         	File file;
 //        if (!debugging) {	// Read all images
         	XMLReader imageReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
@@ -245,7 +245,7 @@ public class AlbumParser {
          		   System.gc();
                 if (!mDebugging) {      // if debugging, go full tilt
                     try {
-                        Thread.sleep(50); // give the CPU some breathing time
+//                        Thread.sleep(50); // give the CPU some breathing time
                     } catch (Exception ex) {
                     }
                 }
@@ -516,14 +516,10 @@ public class AlbumParser {
 	    	mLastTag = localName;
 	
 	        if (mDictLevel == 1 && localName.equals(KEY)) {
-	            mFoundAlbums = (same(mKey, "List of Albums") // not yet: || same(mKey, "List of Rolls")
-                    );
+	            mFoundAlbums = same(mKey, "List of Albums");
+	            mFoundRolls = same(mKey, "List of Rolls");
 	            // anything else to treat as albums?
-	            // TODO: make top-level folders for rolls, albums?
-	        } else if (mDictLevel == 1 && localName.equals(KEY)) {
-	            mFoundAlbums = true;
 	        }
-	
 	        if (localName.equals(DICT)) {
 	            mDictLevel = mDictLevel - 1;
 	        } else if (localName.equals(KEY)) {
@@ -532,7 +528,7 @@ public class AlbumParser {
 	            mInArray = false;
                 if (mDictLevel == 2 && mArrayKey.equals("KeyList")) {
                     // mArray has list of Image key strings
-                    String msg = "found album " + mAlbum + " ID " + mAlbumId;
+                    String msg = "found " + (mFoundRolls ? "roll " : "album ") + mAlbum + " ID " + mAlbumId;
                     if (mDebugging)
                         System.out.println(msg);
                     else
@@ -546,6 +542,7 @@ public class AlbumParser {
                                 {
                                     ImageAlbums imageAlbums = (ImageAlbums)list.get(0);
                                     ImageAlbumsManager.deleteImageAlbumsPictures(imageAlbums);
+                                    imageAlbums.setIsRoll(mFoundRolls);
                                     found = true;
                                     list.clear();
                                 }
@@ -553,8 +550,8 @@ public class AlbumParser {
                             if (!found)
                                 {
                                     try {
-                                        ImageAlbums imageAlbum = new ImageAlbums(mAlbum, new Date(), new Date(), new Date(), 0, "iPhoto",
-                                                                              mAlbumId);
+                                        ImageAlbums imageAlbum = new ImageAlbums(mAlbum, new Date(), new Date(), new Date(), 0, 
+                                                                                 mFoundRolls, "iPhoto", mAlbumId);
                                         ImageAlbumsManager.createImageAlbums(imageAlbum);
                                     } catch (Exception ex) {
                                         Tools.logException(AlbumParser.class, ex);
@@ -593,7 +590,7 @@ public class AlbumParser {
                                 	
                                     if (!mDebugging)
                                         try { // only pause if not debugging
-                                            Thread.sleep(50); // give the CPU some breathing time
+                                         //   Thread.sleep(50); // give the CPU some breathing time
                                         } catch (Exception ex) {
                                         }
                                 }
@@ -610,7 +607,7 @@ public class AlbumParser {
                 mArray.add(value);
                 mInValue = false;
 	        } else if (mType != null && localName.equals(mType)) {
-	            if (mFoundAlbums) {
+	            if (mFoundAlbums || mFoundRolls) {
 	                if (mDictLevel == 2 && same(mKey, "AlbumName")) {
 	                	if (mValue != null) {
 	                        mAlbum = mValue.toString();
@@ -701,6 +698,8 @@ public class AlbumParser {
         }
 
 	    private boolean mFoundAlbums;
+	    
+	    private boolean mFoundRolls;
 
 	    private int mDictLevel;
 

@@ -48,9 +48,11 @@ See the file "COPYING" for more details.
       <meta attribute="field-description">When the image was last played</meta>
     </property>            
     
-    <property name="playCount" type="int" not-null="true"/>    
+    <property name="playCount" type="int" not-null="true"/>
+
+    <property name="isRoll" type="boolean" not-null="true"/>
     
-    <property name="origen" type="string" length="30"/>        
+    <property name="origen" type="string" length="30"/>
     
     <property name="externalId" type="string">            
           <column name="externalId" index="IMAGEALBUM_EXTERNAL"/>

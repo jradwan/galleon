@@ -291,7 +291,7 @@ public class ImageAlbumsManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=false")
+							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=false order by title ")
 					.list();
 			tx.commit();
 			return list;
@@ -310,7 +310,7 @@ public class ImageAlbumsManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=true")
+							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=true order by title")
 					.list();
 			tx.commit();
 			return list;

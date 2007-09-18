@@ -60,7 +60,7 @@
 			<string>$JAVAROOT/lib/js-1.6R5.jar</string>
 			<string>$JAVAROOT/lib/jshortcut-0.4.jar</string>
 			<string>$JAVAROOT/lib/jta-1.1.jar</string>
-			<string>$JAVAROOT/lib/jtidy-8.0-20060801.131059-3.jar</string>
+			<string>$JAVAROOT/lib/tagsoup-1.1.3.jar</string>
 			<string>$JAVAROOT/lib/log4j-1.2.14.jar</string>
 			<string>$JAVAROOT/lib/activation.jar</string>
 			<string>$JAVAROOT/lib/mail-1.4.jar</string>

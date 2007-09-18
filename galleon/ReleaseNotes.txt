@@ -18,7 +18,7 @@ Version 2.5.0:
 * Fixed screen saver on music app to fill the entire screen
 * Fixed lyrics downloading to grab from a different source since lyrictracker is down
 * Fix MacOS problems (tracker #1760027)
-* Upgraded Movie Rentals app to 0.7
+* Upgraded Movie Rentals app to 0.8
 * Fixed missing jars in windows installer
 * Added service wrapper for unix release and a Makefile to do "make install" or "make uninstall"
 * Added a global screen saver framework for all apps that extend BApplication and AppFactory

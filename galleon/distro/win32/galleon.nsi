@@ -174,6 +174,7 @@ CopyFiles:
   
   SetOutPath "$INSTDIR\conf\templates"
   File "${PRODUCT_BUILD_DIR}\conf\templates\netflix.zip"
+  File "${PRODUCT_BUILD_DIR}\conf\templates\blockbuster.zip"
 
   SetOutPath "$INSTDIR\media\images"
   File "${PRODUCT_BUILD_DIR}\media\images\galleon.ico"
@@ -216,7 +217,7 @@ CopyFiles:
   File /oname=js-1.6R5.jar "${PRODUCT_BUILD_DIR}\lib\js-1.6R5.jar"
   File /oname=jshortcut-0.4.jar "${PRODUCT_BUILD_DIR}\lib\jshortcut-0.4.jar"
   File /oname=jshortcut.dll "${PRODUCT_BUILD_DIR}\lib\jshortcut.dll"
-  File /oname=jtidy-8.0-20060801.131059-3.jar "${PRODUCT_BUILD_DIR}\lib\jtidy-8.0-20060801.131059-3.jar"
+  File /oname=tagsoup-1.1.3.jar "${PRODUCT_BUILD_DIR}\lib\tagsoup-1.1.3.jar"
   File /oname=log4j-1.2.14.jar "${PRODUCT_BUILD_DIR}\lib\log4j-1.2.14.jar"
   File /oname=mail-1.4.jar "${PRODUCT_BUILD_DIR}\lib\mail-1.4.jar"
   File /oname=activation.jar "${PRODUCT_BUILD_DIR}\lib\activation.jar"

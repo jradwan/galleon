@@ -1215,7 +1215,8 @@
         <copy file="./conf/ehcache.xml" tofile="${build}/conf/ehcache.xml" />
 		
 		<mkdir dir="${build}/conf/templates"/>
-        <copy file="./conf/templates/netflix.zip" tofile="${build}/conf/templates/netflix.zip" />                        
+        <copy file="./conf/templates/netflix.zip" tofile="${build}/conf/templates/netflix.zip" />   
+        <copy file="./conf/templates/blockbuster.zip" tofile="${build}/conf/templates/blockbuster.zip" />                        
 
         <antcall target="package-misc-${platform}" />
 

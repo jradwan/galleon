@@ -8,3 +8,6 @@ binary
 *.pkg
 *.zip
 osx-dir
+ext
+logs
+data

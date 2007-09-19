@@ -139,7 +139,8 @@ public class ScreenSaverManager {
         }
         
         protected void sleep() {
-            if (app.getCurrentScreen() == null) {
+            if (app.getCurrentScreen() == null || app.isApplicationClosing()) {
+                log.debug("ignoring exiting application");
                 return;
             }
             log.info("Enabling screen saver");

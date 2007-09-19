@@ -128,7 +128,7 @@ public class TileView extends BView {
             }
         } else if (tiles.size() > cols) {
             //remove the ones off the end
-            for (int i=tiles.size(); i > cols; i--) {
+            for (int i=tiles.size()-1; i > cols; i--) {
                 BView tile = tiles.remove(i);
                 tile.clearResource();
             }

@@ -36,6 +36,7 @@ public class ScreenSaverManager {
     public void removeApplication(BApplication app) {
         ScreenSaverListener listener = listenerMap.remove(app);
         if (listener != null) {
+            listener.stop();
             app.removeHandler(listener);
         }
     }
@@ -51,6 +52,7 @@ public class ScreenSaverManager {
         private long idleStart;
         private boolean timing;
         private boolean sleeping;
+        private boolean disposed;
 
         private ScreenSaver overriddenScreenSaver;
         private ScreenSaver screenSaver;
@@ -63,6 +65,14 @@ public class ScreenSaverManager {
             convertUtils.register(new ColorConverter(), Color.class);
             beanUtils = new BeanUtilsBean(convertUtils, new PropertyUtilsBean());
             resetTimer();
+        }
+        
+        public void stop() {
+            disposed = true;
+            Ticker.master.remove(this, null);
+            if (sleeping) {
+                wakeUp();
+            }
         }
         
         public void postEvent(HmeEvent event) {
@@ -106,8 +116,10 @@ public class ScreenSaverManager {
                 long remaining = getRemainingIdle();
                 if (remaining > 0) {
                     timing = true;
-                    Ticker.master.add(this, remaining, null);
-                } else if (!sleeping) {
+                    if (!disposed) {
+                        Ticker.master.add(this, remaining, null);
+                    }
+                } else if (!sleeping && !disposed) {
                     sleep();
                 }
                 
@@ -139,8 +151,11 @@ public class ScreenSaverManager {
         }
         
         protected void sleep() {
-            if (app.getCurrentScreen() == null || app.isApplicationClosing()) {
-                log.debug("ignoring exiting application");
+            if (app.isApplicationClosing()) {
+                log.debug("ignoring sleep exiting application");
+                return;
+            }
+            if (app.getCurrentScreen() == null) {
                 return;
             }
             log.info("Enabling screen saver");

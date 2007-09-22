@@ -17,22 +17,13 @@
 * Verify all apps still work after hibernate change, etc.
 * upgrade commons-betwixt to 0.8.  Something wrong in Configurator.save(),
   the hack to write the class name doesn't work.
-* Make galleon server exit with command-Q in MacOSX
-* figure out what was going on with skins work (see CVS branch
-  GALLEON_2_4_0_skin_branch), merge it into main trunk branch
 
 * update htmlparser to 1.6
 * update smack toolkit, can't confirm license on old copy
 * license verification on upcoming.jar
 
-* iPhoto integration?
-
 HD stuff:
 
 * Improve layout, backgrounds of HD weather, music, etc.
-* scale music album art to HD resolutions
-* Fix all apps to have HD stylized initApp()/initService() methods
-
-* Talk to s2kdave to figure out good way to handle hme-hd dependency,
-  and galleon-HD local changes.
-
+* Enlarge Fonts by 1.5x on HD screens, put literal font names into
+  resources/class members, etc.

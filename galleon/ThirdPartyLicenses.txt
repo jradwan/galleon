@@ -1456,7 +1456,7 @@ of the United Kingdom of Great Britain & Northern Ireland.
 
 -----------------------------------------------------------------------
 M) The following software is included in this product:
-(activation.jar)
+(activation-1.1.jar)
 http://java.sun.com/products/javabeans/jaf/downloads/index.html
 (mail-1.4.jar)
 https://maven-repository.dev.java.net/nonav/repository/javax.mail/jars/mail-1.4.jar

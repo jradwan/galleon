@@ -8,3 +8,4 @@ Or post them to the HME Developers Corner forum at tivocommunity.com:
 http://www.tivocommunity.com/tivo-vb/forumdisplay.php?f=42
 
 
+Linux install:  use make; see the file "Makefile" in this directory

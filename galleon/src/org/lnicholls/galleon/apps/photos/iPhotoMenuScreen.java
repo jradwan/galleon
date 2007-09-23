@@ -115,7 +115,7 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
 					{
 						SimpleDateFormat dateFormat = new SimpleDateFormat();
 						dateFormat.applyPattern("M/d/yy hh:mm a");
-						status = status + "   Refreshed: " + dateFormat.format(new Date(Long.valueOf(refreshed))); // doesn't work ...
+						status = status + "   Refreshed: " + dateFormat.format(new Date(Long.valueOf(refreshed))); 
 					}
                 catch (Exception ex)
 					{

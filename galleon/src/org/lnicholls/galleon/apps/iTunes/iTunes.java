@@ -198,7 +198,7 @@ public class iTunes extends DefaultApplication {
 
 			String status = "Total tracks: " + String.valueOf(count);
 			PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(iTunes.class.getName()
-					+ ".refresh");
+					+ ".refresh3");
 			if (persistentValue != null) {
 				String refreshed = persistentValue.getValue();
 				if (refreshed != null) {

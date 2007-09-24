@@ -843,10 +843,9 @@
           <attribute name="HME-Arguments" value=""/>
           <attribute name="Title" value="HD Photos"/>
           <attribute name="ReleaseDate" value="08/18/07"/>          
-          <attribute name="Description" value="The hd photos app plugs in the TiVo Desktop HD photos."/>                    
-          <attribute name="Documentation" value="http://galleon.tv/content/view/16/36/"/>                              
+          <attribute name="Description" value="The hd photos app plugs in the TiVo Desktop HD photos."/>                           
           <attribute name="Author" value="David Almilli"/>                                        
-          <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
+          <attribute name="Email" value="s2kdave@users.sourceforge.net"/>                                                  
           <attribute name="Homepage" value="http://galleon.tv"/>                                                            
           <attribute name="Version" value="1.0"/>
           <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.hdphotos.HDPhotosOptionsPanel"/>            

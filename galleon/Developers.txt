@@ -74,6 +74,8 @@ ant source
 To update the version number:
 
 * Edit ReleaseNotes.txt to add a new section
+* edit ./update-vno.sh to change the version numbers (set the old and
+  new appropriately)
 * run ./update-vno.sh (on UNIX, Linux or OSX)
   no args: previews and shows what it would change
   one arg: does the change

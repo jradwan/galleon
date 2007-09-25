@@ -1,6 +1,9 @@
 Galleon
 -------
 
+Version 2.5.1:
+----------------------
+
 Version 2.5.0:
 ----------------------
 * Added iPhoto album display capability into Photos application

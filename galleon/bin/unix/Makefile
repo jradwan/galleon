@@ -27,14 +27,11 @@ a:
 	@echo " Available targets (alphabetically):"
 	@echo "    make install   - Install the software in ${APPDIR}."
 	@echo "    make uninstall - Removes this software completely."
+	@echo "    make upgrade   - Install the software in ${APPDIR} while saving the configure.xml that is currently installed."
 	@echo " "
 	@echo " For more details see:"
 	@echo "    http://galleon.tv/"
 	@echo " "
-
-test:
-	$(shell if [ -d /etc ] then echo exists fi )
-	echo done
 
 install:
 	install -d ${APPDIR}
@@ -44,11 +41,10 @@ install:
 	install -d ${LOGDIR}
 	install -d ${VARDIR}/hme
 	install -d ${VARDIR}/data
-	mv -f ${CONFDIR}/configure.xml ${CONFDIR}/configure.xml.save
 	cp -rf bin media ${APPDIR}
 	cp -f Makefile COPYING *.txt ${APPDIR}
 	cp -f conf/*.* ${CONFDIR}
-	cp -rfT lib ${LIBDIR}
+	cp -rf lib/* ${LIBDIR}
 	cp -rf apps skins ${VARDIR}
 	cp -rf conf/templates ${VARDIR}
 	chmod a+rwx ${APPDIR}/bin/run.sh
@@ -65,7 +61,6 @@ install:
 	ln -sf ${VARDIR}/skins ${APPDIR}/skins
 	ln -sf ${VARDIR}/templates ${CONFDIR}/templates
 	ln -sf ${APPDIR}/bin/galleon /etc/init.d/galleon
-	mv -f ${CONFDIR}/configure.xml.save ${CONFDIR}/configure.xml
 	chkconfig --add galleon
 
 uninstall:
@@ -85,3 +80,11 @@ uninstall:
 	-rm -rf ${LIBDIR}
 	-rm -rf ${VARDIR}
 	-rm -rf ${APPDIR}
+
+backup:
+	cp -f ${CONFDIR}/configure.xml /tmp/configure.xml.save
+	
+restore:
+	mv -f /tmp/configure.xml.save ${CONFDIR}/configure.xml
+	
+upgrade: backup uninstall install restore

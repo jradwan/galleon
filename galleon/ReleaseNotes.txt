@@ -3,6 +3,8 @@ Galleon
 
 Version 2.5.1:
 ----------------------
+* Fixed a screen saver bug--it would consume all your CPU time on the PC
+* Updated Linux install Makefile to work in more cases/on more distributions
 
 Version 2.5.0:
 ----------------------

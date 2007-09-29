@@ -93,6 +93,8 @@ To create a release:
   That news item will trigger existing galleon installations to notify
   the owners that there's a new release.
 
+* Update the top-level page at http://galleon.tv/
+
 Winamp skins (text from ReleaseNotes.txt):
 
        The project has permission from the author of the Metrix Winamp classic

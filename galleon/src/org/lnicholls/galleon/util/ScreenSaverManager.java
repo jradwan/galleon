@@ -106,7 +106,7 @@ public class ScreenSaverManager {
                     sleep();
                 }
             }
-            return millis;
+            return System.currentTimeMillis() + millis;
         }
 
         protected void resetTimer() {

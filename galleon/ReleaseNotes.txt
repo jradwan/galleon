@@ -3,6 +3,7 @@ Galleon
 
 Version 2.5.2:
 ----------------------
+* Fixed bug with GoBack truncating files after 2GB had been transferred.
 
 Version 2.5.1:
 ----------------------

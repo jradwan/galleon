@@ -278,7 +278,8 @@ public class VideoServer extends HttpServer {
 								long startTime = System.currentTimeMillis();
 								long lastTime = startTime;
 								PersistentValueManager.savePersistentValue("VideoServer.lastUpdate", new Date().toString());
-								OutputStream outputstream = httprequest.getOutputStream(inputstream.available());
+								// use File length() method, otherwise files get truncated to Integer.MAX_INT
+								OutputStream outputstream = httprequest.getOutputStream(file.length());
 								byte abyte0[] = new byte[4380];
 								int i;
 								while ((i = inputstream.read(abyte0, 0, abyte0.length)) > 0)

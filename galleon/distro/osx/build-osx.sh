@@ -48,7 +48,7 @@ DMG="tmp-$VOL.dmg"
 SIZE=`du -sk ${FILES} | awk '{print $1}'`
 SIZE=$((${SIZE}/1000+1))
 # default is UDIF
-hdiutil create "$DMG" -megabytes ${SIZE} -ov -fs HFS+  -volname "${VOL}-${VER}"
+hdiutil create "$DMG" -layout SPUD -megabytes ${SIZE} -ov -fs HFS+  -volname "${VOL}-${VER}"
 DISK=`hdid "$DMG" | awk ' /Apple_partition_scheme/ {print $1} ' | awk -F/ '{print $3}'`
 cp -R "${FILES}" "/Volumes/${VOL}-${VER}"
 hdiutil eject $DISK

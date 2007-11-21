@@ -161,6 +161,9 @@ public class ScreenSaverManager {
             log.info("Enabling screen saver");
             sleeping = true;
             
+            // stop ticking
+            Ticker.master.remove(this, null);
+            
             ScreenSaver screenSaver = this.screenSaver;
             BScreen screen = app.getCurrentScreen();
             if (screen instanceof ScreenSaverFactory) {

@@ -57,8 +57,11 @@ public class WeatherData implements Serializable {
     private static String PARTNER_ID = "1007257694";
 
     private static String LICENSE_KEY = "4521b6a53deec6b8";
-
     public WeatherData(String id, String city, String state, String zip, int width, int height) {
+    	   this(id, city, state, zip, width, height, false);
+    }
+    
+    public WeatherData(String id, String city, String state, String zip, int width, int height, boolean debug) {
         mId = id;
         mCity = city;
         mState = state;
@@ -100,7 +103,10 @@ public class WeatherData implements Serializable {
                 log.error("Could not retrieve cached weather data", ex);
             }
         }
-
+        if (debug) {
+        	determineForecast();
+        	return;
+        }
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "city", mCity);
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "state", mState);
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "zip", mZip);
@@ -143,6 +149,7 @@ public class WeatherData implements Serializable {
                 if (mTimeCounter % 6 == 0) // every 30 mins
                 {
                     getCurrentWeather();
+                    determineForecast();
                 }
 
                 if (mTimeCounter % 3 == 0) // every 15 mins
@@ -166,7 +173,6 @@ public class WeatherData implements Serializable {
 
                 if (mTimeCounter % 2 == 0) // every 10 mins
                 {
-                    determineForecast();
                     determineFip();
                     determineAlerts();
                 }
@@ -796,6 +802,14 @@ public class WeatherData implements Serializable {
 		}
 
     }
+    public static void main(String args[]) {
+    	WeatherData wd = new WeatherData("33", 
+    			args[0], // city
+    			args[1], //state
+    			args[2], // zip
+    			512, 384, true);
+    	wd.determineForecast();
+    }
     
     public void determineForecast() {
     	try {
@@ -814,16 +828,30 @@ public class WeatherData implements Serializable {
 
             try {
                 int iGetResultCode = httpclient.executeMethod(get);
-                final String strGetResponseBody = get.getResponseBodyAsString();
+                String strGetResponseBody = get.getResponseBodyAsString();
 				String headline;
 				String forecast;
                 log.debug(strGetResponseBody);
 
                 if (strGetResponseBody != null) {
 					//                    parseLocalForecast(strGetResponseBody);
+					String REGEX_repl = "document.location.replace\\('(.*)'\\)";
+					Pattern p_repl = Pattern.compile(REGEX_repl);
+					Matcher m_repl = p_repl.matcher(strGetResponseBody);
+
+					if (m_repl.find()) {
+						/* try one level down again */
+						get = new GetMethod("http://www.srh.noaa.gov" + m_repl.group(1));
+						get.setFollowRedirects(true);
+						iGetResultCode = httpclient.executeMethod(get);
+						strGetResponseBody = get.getResponseBodyAsString();
+		                log.debug(strGetResponseBody);
+					}
+
 					String REGEX = "Point Forecast:</b> ([^<]+)<br>.*Last Update:[^0-9]*([^<]*)";
 					Pattern p = Pattern.compile(REGEX);
 					Matcher m = p.matcher(strGetResponseBody);
+				
 					if (m.find()) {
 						headline = m.group(1) + " as of " + m.group(2);
 						if (log.isDebugEnabled())

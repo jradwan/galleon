@@ -111,7 +111,7 @@ public class Weather extends DefaultSDOnlyApplication {
             
             mMenuList.add("Current Conditions");
 			mMenuList.add("Forecast Summary");
-			mMenuList.add("Forecast text");
+			mMenuList.add("Forecast as Text");
             mMenuList.add("Local Radar");
             mMenuList.add("National Radar");
             if (weatherData.hasAlerts())

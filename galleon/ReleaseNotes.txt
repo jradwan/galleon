@@ -3,6 +3,9 @@ Galleon
 
 Version 2.5.3:
 ----------------------
+* Update JmDNS package to 1.0 (not using JmDNS from
+  hme-host-sample-1.4.jar anymore); seems to help on Mac OS X 10.5
+* Added TiVo name to detail screen in ToGo app
 
 Version 2.5.2:
 ----------------------

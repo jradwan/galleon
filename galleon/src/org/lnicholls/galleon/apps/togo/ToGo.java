@@ -467,7 +467,14 @@ public class ToGo extends DefaultApplication {
 			sizeText.setFont("default-18-bold.font");
 			sizeText.setShadow(true);
 
-			start += 30;
+			start += 20;
+
+			tivoText = new LabelText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20, true);
+			tivoText.setFlags(IHmeProtocol.RSRC_HALIGN_LEFT);
+			tivoText.setFont("default-18-bold.font");
+			tivoText.setShadow(true);
+
+			start += 10;
 
 			statusText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 30);
 			statusText.setFlags(IHmeProtocol.RSRC_HALIGN_RIGHT);
@@ -597,6 +604,13 @@ public class ToGo extends DefaultApplication {
 
 				sizeText.setLabel("Size:");
 				sizeText.setValue(mNumberFormat.format(video.getSize() / (1024 * 1024)) + " MB");
+
+				tivoText.setLabel("On TiVo:");
+				if (video.getTivo() != null && video.getTivo().length() > 0)
+					value = Tools.trim(video.getTivo(), 40);
+				else
+					value = "Unknown";
+				tivoText.setValue(value);
 
 				if (video.isParentalControls())
 					mLock.setVisible(true);
@@ -829,6 +843,8 @@ public class ToGo extends DefaultApplication {
 		private LabelText genreText;
 
 		private LabelText sizeText;
+		
+		private LabelText tivoText;
 
 		private BView statusBarBg;
 

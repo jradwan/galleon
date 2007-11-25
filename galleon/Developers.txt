@@ -157,6 +157,29 @@ GUI
 The GUI communicates with the server using Java RMI which binds to port 1099. This elliminates the proprietary 
 socket connection that JavaHMO used. This will also allow headless systems to remotely configure the server.
 
+Debugging
+---------
+
+To start the GUI in a debugger, use org.lnicholls.galleon.gui.Galleon.
+Command line args are: [server-hostname [rmi-port]]
+
+To start the server in a debugger, use
+org.lnicholls.galleon.server.Server or org.lnicholls.galleon.server.OSXServer
+Command line args are: [rmi-port]
+
+If you specify a specific rmi-port, you can then run a production
+Galleon and debug Galleon on the same host.  Some things don't work
+quite right, though:
+      * TiVo beacon for HMO/TTCB can't receive broadcast beacon events,
+      it can only send them.  (Only one listener per host can bind the
+      receive port.)  This means you need to add your TiVos manually to
+      the ToGo list.
+
+There are a few other classes that have public static void main()
+routines, feel free to add more for unit testing.
+
+Eclipse makes a nice debug/development environment.
+http://www.eclipse.org/
 
 Weather
 -------

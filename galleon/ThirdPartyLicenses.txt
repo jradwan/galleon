@@ -543,7 +543,7 @@ http://hmehd.sourceforge.net
 http://movierentals.sourceforge.net
 
 JShortcut, jicyshout, JCache, JLayer, Tritonus, MP3SPI, 
-JmDNS, Hibernate3, jd3lib; 
+Hibernate3, jd3lib; 
 Use of any of this software is governed by the terms of the license below:
 
 		  GNU LESSER GENERAL PUBLIC LICENSE
@@ -1932,6 +1932,9 @@ http://www.igniterealtime.org/projects/smack/index.jsp
 
 (jaxme2.jar, jaxmeapi.jar, jaxmexs.jar, combined into jax.jar)
 http://ws.apache.org/jaxme: ws-jaxme-0.3.1
+(jmdns-1.0.jar)
+http://sourceforge.net/projects/jmdns/,
+http://downloads.sourceforge.net/jmdns/jmdns-1.0-Final.zip
 
 Use of any of this software is governed
 by the terms of the license below:     

@@ -18,6 +18,7 @@ set classpath=%classpath%;..\lib\jdai-0.4.jar
 set classpath=%classpath%;..\lib\jdom-1.0.jar
 set classpath=%classpath%;..\lib\javazoom.jar
 set classpath=%classpath%;..\lib\jl1.0.jar
+set classpath=%classpath%;..\lib\jmdns-1.0.jar
 set classpath=%classpath%;..\lib\js-1.6R5.jar
 set classpath=%classpath%;..\lib\jshortcut-0.4.jar
 set classpath=%classpath%;..\lib\log4j-1.2.14.jar

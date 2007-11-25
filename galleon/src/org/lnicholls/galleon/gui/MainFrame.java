@@ -25,16 +25,7 @@ import java.awt.Frame;
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -51,6 +42,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceTypeListener;
@@ -102,7 +94,6 @@ import org.lnicholls.galleon.gui.FileOptionsTable;
 
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.*;
 import com.jgoodies.forms.debug.*;
 import com.jgoodies.looks.BorderStyle;
@@ -1457,8 +1448,12 @@ public class MainFrame extends JFrame {
 					Tools.logException(TiVoListener.class, ex);
 				}
 			}
-
-			public void addService(JmDNS jmdns, String type, String name) {
+			public void serviceAdded(ServiceEvent arg0) {
+				String type = arg0.getType();
+				String name = arg0.getName();
+				//ServiceInfo info = arg0.getInfo();
+				JmDNS jmdns = arg0.getDNS();
+				
 				if (name.endsWith("." + type)) {
 					name = name.substring(0, name.length() - (type.length() + 1));
 				}
@@ -1475,18 +1470,30 @@ public class MainFrame extends JFrame {
 				}
 			}
 
-			public void removeService(JmDNS jmdns, String type, String name) {
+			public void serviceRemoved(ServiceEvent arg0) {
+				String type = arg0.getType();
+				String name = arg0.getName();
+				//ServiceInfo info = arg0.getInfo();
+				//JmDNS jmdns = arg0.getDNS();
 				if (name.endsWith("." + type)) {
 					name = name.substring(0, name.length() - (type.length() + 1));
 				}
 				log.debug("removeService: " + name);
 			}
 
-			public void addServiceType(JmDNS jmdns, String type) {
+			public void serviceTypeAdded(ServiceEvent arg0) {
+				String type = arg0.getType();
+				//String name = arg0.getName();
+				//ServiceInfo info = arg0.getInfo();
+				//JmDNS jmdns = arg0.getDNS();
 				log.debug("addServiceType: " + type);
 			}
 
-			public void resolveService(JmDNS jmdns, String type, String name, ServiceInfo info) {
+			public void serviceResolved(ServiceEvent arg0) {
+				String type = arg0.getType();
+				String name = arg0.getName();
+				ServiceInfo info = arg0.getInfo();
+
 				log.debug("resolveService: " + type + " (" + name + ")");
 
 				if (type.equals(HTTP_SERVICE)) {
@@ -1517,7 +1524,7 @@ public class MainFrame extends JFrame {
 
 			public void stop() {
 				if (mJmDNS!=null)
-					mJmDNS.removeServiceListener(this);
+					mJmDNS.removeServiceListener(HTTP_SERVICE, this);
 			}
 
 			public boolean found() {
@@ -1525,6 +1532,8 @@ public class MainFrame extends JFrame {
 			}
 
 			private JmDNS mJmDNS;
+			private String mType;
+
 		}
 
 		private JProgressBar mProgressBar;

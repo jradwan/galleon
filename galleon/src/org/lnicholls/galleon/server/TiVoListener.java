@@ -23,6 +23,7 @@ import java.util.List;
 import java.net.*;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceTypeListener;
@@ -66,8 +67,14 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
     		mJmDNS.close();
     	}
     }
-    public void addService(JmDNS jmdns, String type, String name) {
-        if (name.endsWith("." + type)) {
+
+	public void serviceAdded(ServiceEvent arg0) {
+		String type = arg0.getType();
+		String name = arg0.getName();
+		//ServiceInfo info = arg0.getInfo();
+		JmDNS jmdns = arg0.getDNS();
+		
+		if (name.endsWith("." + type)) {
             name = name.substring(0, name.length() - (type.length() + 1));
         }
         log.debug("addService: " + name);
@@ -82,19 +89,30 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
             jmdns.requestServiceInfo(type, name);
         }
     }
+	public void serviceRemoved(ServiceEvent arg0) {
+		String type = arg0.getType();
+		String name = arg0.getName();
+		//ServiceInfo info = arg0.getInfo();
+		//JmDNS jmdns = arg0.getDNS();
 
-    public void removeService(JmDNS jmdns, String type, String name) {
-        if (name.endsWith("." + type)) {
+		if (name.endsWith("." + type)) {
             name = name.substring(0, name.length() - (type.length() + 1));
         }
         log.debug("removeService: " + name);
     }
-
-    public void addServiceType(JmDNS jmdns, String type) {
-        log.debug("addServiceType: " + type);
+	public void serviceTypeAdded(ServiceEvent arg0) {
+		String type = arg0.getType();
+		//String name = arg0.getName();
+		//ServiceInfo info = arg0.getInfo();
+		//JmDNS jmdns = arg0.getDNS();
+		log.debug("addServiceType: " + type);
     }
-
-    public void resolveService(JmDNS jmdns, String type, String name, ServiceInfo info) {
+	public void serviceResolved(ServiceEvent arg0) {
+		String type = arg0.getType();
+		String name = arg0.getName();
+		ServiceInfo info = arg0.getInfo();
+		JmDNS jmdns = arg0.getDNS();
+		
         log.debug("resolveService: " + type + " (" + name + ")");
 
         /*
@@ -108,10 +126,10 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
             } else {
                 boolean found = false;
                 TiVo tivo = new TiVo();
-                tivo.setName(name.substring(0, name.length() - (type.length() + 1)));
+                tivo.setName(name);
                 tivo.setServer(info.getServer());
                 tivo.setPort(info.getPort());
-                tivo.setAddress(info.getAddress());
+                tivo.setAddress(info.getHostAddress());
 
                 found = info.getPropertyString(TIVO_PLATFORM)!=null && info.getPropertyString(TIVO_TSN)!=null;
                 for (Enumeration names = info.getPropertyNames(); names.hasMoreElements();) {

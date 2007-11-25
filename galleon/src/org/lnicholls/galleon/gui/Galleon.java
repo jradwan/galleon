@@ -109,6 +109,8 @@ public final class Galleon implements Constants {
 
 	private static SplashWindow splashWindow = new SplashWindow();
 
+	private static int mServerRMIPort = 1099;
+
 	public Galleon() {
 		createAndShowGUI();
 	}
@@ -147,10 +149,10 @@ public final class Galleon implements Constants {
 			log.info("Server address: " + mServerAddress);
 			for (int i = 0; i < 100; i++) {
 				try {
-					mRegistry = LocateRegistry.getRegistry(mServerAddress, 1099 + i);
+					mRegistry = LocateRegistry.getRegistry(mServerAddress, mServerRMIPort + i);
 					String[] names = mRegistry.list();
 					ServerControl serverControl = (ServerControl) mRegistry.lookup("serverControl");
-					log.info("Found server at: " + mServerAddress + " on " + (1099 + i));
+					log.info("Found server at: " + mServerAddress + " on " + (mServerRMIPort + i));
 					break;
 				} catch (Throwable ex) {
 					if (log.isDebugEnabled())
@@ -254,7 +256,9 @@ public final class Galleon implements Constants {
 		if (args.length > 0) {
 			mServerAddress = args[0];
 		}
-
+		if (args.length > 1) {
+			mServerRMIPort = Integer.parseInt(args[1]);
+		}
 		splashWindow.setVisible(true);
 
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -17,7 +17,7 @@
 !define PRODUCT_VERSION "2.5.3"
 !define PRODUCT_PUBLISHER "Galleon"
 !define PRODUCT_WEB_SITE "http://galleon.tv"
-!define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;hme-1.4.jar;hme-host-sample-1.4.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
+!define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;jmdns-1.0.jar;hme-1.4.jar;hme-host-sample-1.4.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
 !define PRODUCT_BUILD_DIR "..\..\build"
 
 !define JRE_VERSION "1.5.0"
@@ -214,6 +214,7 @@ CopyFiles:
   File /oname=jdai-0.4.jar "${PRODUCT_BUILD_DIR}\lib\jdai-0.4.jar"
   File /oname=jdbc2_0-stdext.jar "${PRODUCT_BUILD_DIR}\lib\jdbc2_0-stdext.jar"
   File /oname=jdom-1.0.jar "${PRODUCT_BUILD_DIR}\lib\jdom-1.0.jar"
+  File /oname=jmdns-1.0.jar "${PRODUCT_BUILD_DIR}\lib\jmdns-1.0.jar"
   File /oname=js-1.6R5.jar "${PRODUCT_BUILD_DIR}\lib\js-1.6R5.jar"
   File /oname=jshortcut-0.4.jar "${PRODUCT_BUILD_DIR}\lib\jshortcut-0.4.jar"
   File /oname=jshortcut.dll "${PRODUCT_BUILD_DIR}\lib\jshortcut.dll"
@@ -292,7 +293,7 @@ ClassPath:
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Readme.lnk" "$INSTDIR\Readme.txt"
   SetOutPath "$INSTDIR\lib"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;hme-1.4.jar;hme-host-sample-1.4.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Configure.lnk" "$SYSDIR\javaw.exe" '-classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;jmdns-1.0.jar;hme-1.4.jar;hme-host-sample-1.4.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon' "$INSTDIR\media\images\galleon.ico"
 
 ; TiVo Beacon SDK
 ; Locate The TiVo Beacon Folder (if any).

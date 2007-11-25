@@ -18,7 +18,7 @@ package org.lnicholls.galleon.server;
 
 import com.apple.eawt.*;
 
-public class OSXServer extends ApplicationAdapter {
+public class OSXServer extends ApplicationAdapter  {
 
 	private static Server mServer;
 	private static com.apple.eawt.Application theApplication;
@@ -43,7 +43,7 @@ public class OSXServer extends ApplicationAdapter {
 	public static void main(String args[]) {
 		theApplication = new com.apple.eawt.Application();
 		theApplication.addApplicationListener(new OSXServer());
-		mServer = Server.getServer();
+		mServer = Server.getServer(args);
 		// Set up action event handler
 	}
 }

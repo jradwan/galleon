@@ -349,16 +349,16 @@ public class Server {
 
 			try {
 				// Is there already a RMI server?
-				mRegistry = LocateRegistry.getRegistry(1099);
+				mRegistry = LocateRegistry.getRegistry(mServerRMIPort);
 				String[] names = mRegistry.list();
-				log.info("Using RMI port " + 1099);
+				log.info("Using RMI port " + mServerRMIPort);
 			} catch (Exception ex) {
-				int port = Tools.findAvailablePort(1099);
-				if (port != 1099) {
+				int port = Tools.findAvailablePort(mServerRMIPort);
+				if (port != mServerRMIPort) {
 					log.info("Changed RMI port to " + port);
 				}
 				else
-					log.info("Using RMI port " + 1099);
+					log.info("Using RMI port " + mServerRMIPort);
 
 				mRegistry = LocateRegistry.createRegistry(port);
 			}
@@ -865,7 +865,15 @@ public class Server {
 	}
 
 	// Singleton pattern
+	public static synchronized Server getServer(String args[]) {
+		if (args.length > 0) {
+			mServerRMIPort = Integer.parseInt(args[0]);
+		}
+		return getServer();
+	}
+	
 	public static synchronized Server getServer() {
+	
 		if (mServer == null) {
 			try
 			{
@@ -1500,9 +1508,10 @@ public class Server {
 
 	public static void main(String args[]) {
 		mStartMain = true;
+		
 		try
 		{
-			Server server = getServer();
+			Server server = getServer(args);
 		}
 		catch (Exception ex)
 		{
@@ -1577,4 +1586,6 @@ public class Server {
     //private DataUpdateThread mDataUpdateThread;
 
     private static boolean mDemoMode;
+    
+    protected static int mServerRMIPort = 1099;
 }

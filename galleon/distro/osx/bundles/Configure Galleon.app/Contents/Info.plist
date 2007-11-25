@@ -44,6 +44,7 @@
 			<string>$JAVAROOT/lib/galleon.jar</string>
 			<string>$JAVAROOT/lib/hibernate.jar</string>
 			<string>$JAVAROOT/lib/hme-1.4.jar</string>
+			<string>$JAVAROOT/lib/jmdns-1.0.jar</string>
 			<string>$JAVAROOT/lib/hme-hd-0.4.1.jar</string>
 			<string>$JAVAROOT/lib/hme-host-sample-1.4.jar</string>
 			<string>$JAVAROOT/lib/htmlparser-1.6.jar</string>

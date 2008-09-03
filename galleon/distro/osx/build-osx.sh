@@ -36,10 +36,11 @@ sudo chown -R root:admin osx-dir
 #/Developer/Tools/packagemaker -build -proj distro/osx/Galleon.pmproj -p distro/osx/Galleon.pkg -v
 VER="2.5.3"
 
-/Developer/Tools/packagemaker -build \
+# Backward compat builds on 10.5, may need to update to native commands?
+/Developer/usr/bin/packagemaker -build \
 -f osx-dir/ROOT -ds -v -r osx-dir/MainResources \
 -i distro/osx/Info.plist \
--d distro/osx/Description.plist -p Galleon.pkg -v
+-d distro/osx/Description.plist -p Galleon.pkg -v 
 
 VOL="Galleon"
 FILES="Galleon.pkg"

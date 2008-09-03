@@ -8,6 +8,7 @@ Version 2.5.3:
 * Added TiVo name to detail screen in ToGo app
 * Updated weather forecast parsing to handle more cases
 * Fixed local radar after change on weather source web pages
+* Update help URLs to point at content now on sourceforge.net
 
 Version 2.5.2:
 ----------------------
@@ -957,7 +958,7 @@ configuration changes.
 
 =====================================================
 
-galleon.tv
+galleon.sourceforge.net
 
 javahmo@users.sourceforge.net
 

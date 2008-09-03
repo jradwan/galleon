@@ -83,7 +83,7 @@ public class Menu extends DefaultSDOnlyApplication {
 			super(app, "Menu");
 			
 			if (!Server.getServer().getServerConfiguration().getIPAddress().startsWith("192"))
-				setTitle("galleon.tv");
+				setTitle("galleon.sourceforge.net");
 
 			getBelow().setResource(mMenuBackground);
 

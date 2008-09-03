@@ -89,12 +89,12 @@ To create a release:
   galleon-<release>-linux.zip files
 
 * Create a new news item in galleon.sourceforge.net (admin->news) titled
-  "Galleon <release> for TiVo".
+  "Galleon <release-number> for TiVo".
 
   That news item will trigger existing galleon installations to notify
   the owners that there's a new release.
 
-* Update the top-level page at http://galleon.tv/
+* Update the top-level page at http://galleon.sourceforge.net/
 
 Winamp skins (text from ReleaseNotes.txt):
 

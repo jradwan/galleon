@@ -30,7 +30,7 @@ a:
 	@echo "    make upgrade   - Install the software in ${APPDIR} while saving the configure.xml that is currently installed."
 	@echo " "
 	@echo " For more details see:"
-	@echo "    http://galleon.tv/"
+	@echo "    http://galleon.sourceforge.net/"
 	@echo " "
 
 install:

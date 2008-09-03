@@ -239,7 +239,7 @@ public final class Galleon implements Constants {
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					try {
 						BrowserLauncher
-								.openURL("http://galleon.tv");
+								.openURL("http://galleon.sourceforge.net");
 					} catch (Exception ex) {
 						Tools.logException(Galleon.class, ex);
 					}

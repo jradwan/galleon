@@ -16,7 +16,7 @@
 !define PRODUCT_NAME "Galleon"
 !define PRODUCT_VERSION "2.5.3"
 !define PRODUCT_PUBLISHER "Galleon"
-!define PRODUCT_WEB_SITE "http://galleon.tv"
+!define PRODUCT_WEB_SITE "http://galleon.sourceforge.net"
 !define PRODUCT_CONFIGURE '"$SYSDIR\javaw.exe" -classpath ..\conf\;galleon.jar;log4j-1.2.14.jar;forms.jar;commons.jar;concurrent.jar;hibernate.jar;jdbc2_0-stdext.jar;jmdns-1.0.jar;hme-1.4.jar;hme-host-sample-1.4.jar;dom4j-1.6.1.jar;browserlauncher.jar org.lnicholls.galleon.gui.Galleon'
 !define PRODUCT_BUILD_DIR "..\..\build"
 

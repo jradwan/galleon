@@ -42,7 +42,7 @@ import org.lnicholls.galleon.database.*;
 public class Users {
 
 	private static String HOST = "localhost";
-	//private static String HOST = "galleon.tv";
+	//private static String HOST = "galleon.sourceforge.net";
 	
 	private static Logger log = Logger.getLogger(Users.class.getName());
 

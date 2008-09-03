@@ -187,7 +187,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=88&Itemid=48");
 				} catch (Exception ex) {
 				}
 			}
@@ -197,7 +197,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=88&Itemid=48");
 				} catch (Exception ex) {
 				}
 			}
@@ -208,7 +208,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=88&Itemid=48");
 				} catch (Exception ex) {
 				}
 			}
@@ -218,7 +218,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=88&Itemid=48");
 				} catch (Exception ex) {
 				}
 			}
@@ -228,7 +228,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=88&Itemid=48");
 				} catch (Exception ex) {
 				}
 			}
@@ -238,7 +238,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/88/48/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=88&Itemid=48");
 				} catch (Exception ex) {
 				}
 			}
@@ -254,7 +254,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net");
 				} catch (Exception ex) {
 				}
 			}
@@ -264,7 +264,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/93/52/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=93&Itemid=52");
 				} catch (Exception ex) {
 				}
 			}
@@ -274,7 +274,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/section/3/47/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=section&id=3&Itemid=47");
 				} catch (Exception ex) {
 				}
 			}
@@ -296,7 +296,7 @@ public class MainFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent event) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/component/option,com_joomlaboard/Itemid,26/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_joomlaboard&Itemid=26");
 				} catch (Exception ex) {
 				}
 			}
@@ -337,7 +337,7 @@ public class MainFrame extends JFrame {
 										+ Galleon.getHttpPort()
 										+ "\nApplication Port "
 										+ Galleon.getPort()
-										+ "\nhttp://galleon.tv\njavahmo@users.sourceforge.net\nCopyright \251 2005, 2006 Leon Nicholls. All Rights Reserved.",
+										+ "\nhttp://galleon.sourceforge.net\njavahmo@users.sourceforge.net\nCopyright \251 2005, 2006 Leon Nicholls. All Rights Reserved.",
 								"About", JOptionPane.INFORMATION_MESSAGE);
 			}
 
@@ -657,7 +657,7 @@ public class MainFrame extends JFrame {
 				}
 			} else if ("help".equals(e.getActionCommand())) {
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/98/27/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=98&Itemid=27");
 				} catch (Exception ex) {
 				}
 				return;
@@ -1045,7 +1045,7 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/93/52/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=93&Itemid=52");
 				} catch (Exception ex) {
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1296,7 +1296,7 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/99/37/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=99&Itemid=37");
 				} catch (Exception ex) {
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1410,7 +1410,7 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/100/37/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=100&Itemid=37");
 				} catch (Exception ex) {
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1680,7 +1680,7 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/content/view/89/49/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=89&Itemid=49");
 				} catch (Exception ex) {
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1709,7 +1709,7 @@ public class MainFrame extends JFrame {
 	public class DataDialog extends JDialog implements ActionListener {
 
 		private DataDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
-			super(frame, "Galleon.tv", true);
+			super(frame, "Galleon.sourceforge.net", true);
 			mMainFrame = frame;
 			mServerConfiguration = serverConfiguration;
 			
@@ -1787,7 +1787,7 @@ public class MainFrame extends JFrame {
 			} else if ("help".equals(e.getActionCommand())) {
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
-					BrowserLauncher.openURL("http://galleon.tv/component/option,com_comprofiler/task,registers/");
+					BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_comprofiler&task=registers");
 				} catch (Exception ex) {
 				}
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

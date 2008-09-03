@@ -310,10 +310,10 @@ quiet="no">
       <attribute name="Title" value="ToGo"/>
       <attribute name="ReleaseDate" value="04/03/05"/>          
       <attribute name="Description" value="The ToGo app allows a user to control the ToGo feature directly from the TiVo recorder instead of using the TiVo desktop software on the PC."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/14/29/"/>                              
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=14&amp;Itemid=29"/>                              
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.togo.ToGoOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.togo.ToGoConfiguration"/>                      
@@ -335,10 +335,10 @@ quiet="no">
       <attribute name="Title" value="Weather"/>
       <attribute name="ReleaseDate" value="2007-05-31"/>
       <attribute name="Description" value="The weather app displays the current weather conditions, 5 day forecast, local radar image, national radar image and any weather alerts."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/15/46/"/>                              
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=15&amp;Itemid=46"/>                              
       <attribute name="Author" value="Leon Nicholls, John Kohl"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.1"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.weather.WeatherConfiguration"/>                      
@@ -365,10 +365,10 @@ quiet="no">
       <attribute name="Title" value="Music"/>
       <attribute name="ReleaseDate" value="03/03/05"/>          
       <attribute name="Description" value="The music app allows a user to browse MP3 files using the file system folders."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/16/36/"/>                              
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=16&amp;Itemid=36"/>                              
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.music.MusicOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.music.MusicConfiguration"/>                      
@@ -390,10 +390,10 @@ quiet="no">
       <attribute name="Title" value="Photos"/>
       <attribute name="ReleaseDate" value="09/15/07"/>          
       <attribute name="Description" value="The photos app allows you to browse JPEG, BMP, PNG and GIF files using the file system folders."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/20/38/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=20&amp;Itemid=38"/>
       <attribute name="Author" value="Leon Nicholls, John Kohl"/>
       <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net"/> 
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.2"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.photos.PhotosOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.photos.PhotosConfiguration"/>                      
@@ -414,10 +414,10 @@ quiet="no">
       <attribute name="Title" value="Shoutcast"/>
       <attribute name="ReleaseDate" value="04/16/05"/>          
       <attribute name="Description" value="The Shoutcast app allows you to listen to online radio streams based on your favorite genres."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/18/42/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=18&amp;Itemid=42"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.shoutcast.ShoutcastConfiguration"/>                      
@@ -439,10 +439,10 @@ quiet="no">
       <attribute name="Title" value="Music Organizer"/>
       <attribute name="ReleaseDate" value="04/22/05"/>          
       <attribute name="Description" value="The organizer imports MP3 files from a list of directories, reads their tags and then creates a record for each file in an embedded database. These records are then used to categorize all of the MP3 files based on their tag information."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/17/37/"/>                              
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=17&amp;Itemid=37"/>                              
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.musicOrganizer.MusicOrganizerConfiguration"/>                      
@@ -463,10 +463,10 @@ quiet="no">
       <attribute name="Title" value="RSS"/>
       <attribute name="ReleaseDate" value="04/23/05"/>          
       <attribute name="Description" value="The RSS app allows you to view their favorite RSS feeds."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/21/41/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=21&amp;Itemid=41"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.rss.RSSOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.rss.RSSConfiguration"/>            
@@ -487,10 +487,10 @@ quiet="no">
       <attribute name="Title" value="Desktop"/>
       <attribute name="ReleaseDate" value="2007-05-31"/>          
       <attribute name="Description" value="The Desktop app provides a live view of the desktop of the PC running Galleon."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/26/30/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=26&amp;Itemid=30"/>
       <attribute name="Author" value="Leon Nicholls, John Kohl"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="2.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.desktop.DesktopOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.desktop.DesktopConfiguration"/>                      
@@ -512,10 +512,10 @@ quiet="no">
       <attribute name="Title" value="Email"/>
       <attribute name="ReleaseDate" value="05/09/05"/>          
       <attribute name="Description" value="The Email app allows you to view your new incoming email on your TiVo."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/22/31/"/>                              
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=22&amp;Itemid=31"/>                              
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.email.EmailOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.email.EmailConfiguration"/>                      
@@ -536,10 +536,10 @@ quiet="no">
       <attribute name="Title" value="Internet Images"/>
       <attribute name="ReleaseDate" value="05/14/05"/>          
       <attribute name="Description" value="The Internet app allows you to view Internet images such as webcams."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/23/32/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=23&amp;Itemid=32"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internet.InternetOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.internet.InternetConfiguration"/>                      
@@ -560,10 +560,10 @@ quiet="no">
       <attribute name="Title" value="Playlists"/>
       <attribute name="ReleaseDate" value="05/14/05"/>          
       <attribute name="Description" value="The Playlists app allows you to play your favorite .m3u and .pls playlists."/>                    
-      <attribute name="Documentation" value="http://galleon.tv/content/view/25/39/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=25&amp;Itemid=39"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.playlists.PlaylistsOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.playlists.PlaylistsConfiguration"/>
@@ -588,7 +588,7 @@ quiet="no">
 	 <attribute name="Documentation" value="help.html"/>                              
 	 <attribute name="Author" value="Leon Nicholls"/>                                        
 	 <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-	 <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+	 <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
 	 <attribute name="Version" value="1.0"/>
 	 <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.audioScrobbler.AudioScrobblerOptionsPanel"/>            
 	 <attribute name="Tags" value="Music"/>            
@@ -608,10 +608,10 @@ quiet="no">
       <attribute name="Title" value="Podcasting"/>
       <attribute name="ReleaseDate" value="05/20/05"/>          
       <attribute name="Description" value="The Podcasting app allows you to subscribe and listen to your favorite podcasts."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/19/40/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=19&amp;Itemid=40"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.podcasting.PodcastingOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.podcasting.PodcastingConfiguration"/>                      
@@ -632,10 +632,10 @@ quiet="no">
       <attribute name="Title" value="iTunes"/>
       <attribute name="ReleaseDate" value="06/04/05"/>          
       <attribute name="Description" value="The iTunes app allows you to play your iTunes playlists on your TiVo. Only MP3 files are supported."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/24/34/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=24&amp;Itemid=34"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.iTunes.iTunesOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.iTunes.iTunesConfiguration"/>                      
@@ -656,10 +656,10 @@ quiet="no">
       <attribute name="Title" value="Movies"/>
       <attribute name="ReleaseDate" value="07/09/05"/>          
       <attribute name="Description" value="The Movies app allows you view local movie theater listings."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/13/28/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=13&amp;Itemid=28"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.movies.MoviesOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.movies.MoviesConfiguration"/>                      
@@ -680,10 +680,10 @@ quiet="no">
       <attribute name="Title" value="Videocasting"/>
       <attribute name="ReleaseDate" value="08/28/05"/>          
       <attribute name="Description" value="The Videocasting app allows you to subscribe and listen to your favorite videocasts."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/28/45/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=28&amp;Itemid=45"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.videocasting.VideocastingOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.videocasting.VideocastingConfiguration"/>                      
@@ -704,10 +704,10 @@ quiet="no">
       <attribute name="Title" value="Internet Slideshows"/>
       <attribute name="ReleaseDate" value="09/08/05"/>          
       <attribute name="Description" value="The Internet Slideshows app displays photos from RSS feeds."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/27/33/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=27&amp;Itemid=33"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.internetSlideshows.InternetSlideshowsConfiguration"/>                      
@@ -728,10 +728,10 @@ quiet="no">
       <attribute name="Title" value="Upcoming"/>
       <attribute name="ReleaseDate" value="10/28/05"/>          
       <attribute name="Description" value="The Upcoming app displays upcoming events and venues."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/29/44/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=29&amp;Itemid=44"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.upcoming.UpcomingOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.upcoming.UpcomingConfiguration"/>                      
@@ -752,10 +752,10 @@ quiet="no">
       <attribute name="Title" value="Jukebox"/>
       <attribute name="ReleaseDate" value="10/28/05"/>          
       <attribute name="Description" value="The Jukebox app allows you to create dynamic playlists."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/30/35/"/>                              
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=30&amp;Itemid=35"/>                              
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.jukebox.JukeboxOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.jukebox.JukeboxConfiguration"/>                      
@@ -776,10 +776,10 @@ quiet="no">
       <attribute name="Title" value="Traffic"/>
       <attribute name="ReleaseDate" value="11/09/05"/>          
       <attribute name="Description" value="The Traffic app displays maps of local traffic conditions."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/31/43/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=31&amp;Itemid=43"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.traffic.TrafficOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.traffic.TrafficConfiguration"/>                      
@@ -799,10 +799,10 @@ quiet="no">
       <attribute name="Title" value="Menu"/>
       <attribute name="ReleaseDate" value="12/10/05"/>          
       <attribute name="Description" value="The menu app groups Galleon apps."/>
-      <attribute name="Documentation" value="http://galleon.tv"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.menu.MenuOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.menu.MenuConfiguration"/>                      
@@ -823,10 +823,10 @@ quiet="no">
       <attribute name="Title" value="Jabber"/>
       <attribute name="ReleaseDate" value="01/25/06"/>          
       <attribute name="Description" value="The Jabber app allows you to connect to the Jabber messenger service."/>
-      <attribute name="Documentation" value="http://galleon.tv/content/view/104/43/"/>
+      <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=104&amp;Itemid=65"/>
       <attribute name="Author" value="Leon Nicholls"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.jabber.JabberOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.jabber.JabberConfiguration"/>                      
@@ -848,7 +848,7 @@ quiet="no">
       <attribute name="Description" value="The hd photos app plugs in the TiVo Desktop HD photos."/>                           
       <attribute name="Author" value="David Almilli"/>                                        
       <attribute name="Email" value="s2kdave@users.sourceforge.net"/>                                                  
-      <attribute name="Homepage" value="http://galleon.tv"/>                                                            
+      <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
       <attribute name="Version" value="1.0"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.hdphotos.HDPhotosOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.hdphotos.HDPhotosConfiguration"/>                      

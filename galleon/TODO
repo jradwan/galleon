@@ -13,6 +13,14 @@
 * Scripting of install library list
 * OSX installer
 
+* Do a pyTivo-style automatic subdirectory export for dealing with
+  TiVo-side folder failure bug with TiVoToGoBack
+* Let user specify conversion filters and destination directories in
+  ToGo
+
+* fix up duplicated album entries in Photos (looks like it's not
+  cleaning out old references to photos on a reparse)
+
 * Clean up non-MacOS stuff, confirm paths for Java 5 are set up right in scripts
 * Verify all apps still work after hibernate change, etc.
 * upgrade commons-betwixt to 0.8.  Something wrong in Configurator.save(),

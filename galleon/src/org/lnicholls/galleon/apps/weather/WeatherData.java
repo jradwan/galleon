@@ -436,8 +436,37 @@ public class WeatherData implements Serializable {
         }
     }
 
-    public void determineLocalRadar() {
-        if (mLocalRadar != null)
+	private String radarHelper(GetMethod get, HttpClient httpclient) {
+		String strGetResponseBody = null;
+		try {
+            httpclient.executeMethod(get);
+            strGetResponseBody = get.getResponseBodyAsString();
+            //log.debug(strGetResponseBody);
+
+            if (strGetResponseBody != null) {
+                //<IMG NAME="mapImg" SRC="http://image.weather.com/web/radar/us_bos_closeradar_large_usen.jpg"
+                // WIDTH=600
+                // HEIGHT=405 BORDER=0 ALT="Doppler Radar 600 Mile"></TD>
+                String REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
+                Pattern p = Pattern.compile(REGEX);
+                Matcher m = p.matcher(strGetResponseBody);
+                if (m.find()) {
+                    mLocalRadar = m.group(1);
+                    PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar",
+                            mLocalRadar);
+                    return null;
+                }
+            }
+        } catch (Exception ex) {
+            log.error("Could not determine local radar", ex);
+        } finally {
+            get.releaseConnection();
+        }
+        return strGetResponseBody;
+	}
+
+	public void determineLocalRadar() {
+            if (mLocalRadar != null)
             return;
 
         try {
@@ -453,8 +482,12 @@ public class WeatherData implements Serializable {
             String radarurl = "";
 
             try {
-                int iGetResultCode = httpclient.executeMethod(get);
-                final String strGetResponseBody = get.getResponseBodyAsString();
+            	String strGetResponseBody;
+            	strGetResponseBody = radarHelper(get, httpclient);
+            	if (strGetResponseBody == null)
+            		return;
+                //int iGetResultCode = httpclient.executeMethod(get);
+                //final String strGetResponseBody = get.getResponseBodyAsString();
                 //log.debug(strGetResponseBody);
 
                 if (strGetResponseBody != null) {
@@ -488,31 +521,8 @@ public class WeatherData implements Serializable {
 
             get = new GetMethod("http://www.weather.com" + radarurl);
             get.setFollowRedirects(true);
-
-            try {
-                int iGetResultCode = httpclient.executeMethod(get);
-                final String strGetResponseBody = get.getResponseBodyAsString();
-                //log.debug(strGetResponseBody);
-
-                if (strGetResponseBody != null) {
-                    //<IMG NAME="mapImg" SRC="http://image.weather.com/web/radar/us_bos_closeradar_large_usen.jpg"
-                    // WIDTH=600
-                    // HEIGHT=405 BORDER=0 ALT="Doppler Radar 600 Mile"></TD>
-                    String REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
-                    Pattern p = Pattern.compile(REGEX);
-                    Matcher m = p.matcher(strGetResponseBody);
-                    if (m.find()) {
-                        mLocalRadar = m.group(1);
-                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar",
-                                mLocalRadar);
-                        return;
-                    }
-                }
-            } catch (Exception ex) {
-                log.error("Could not determine local radar", ex);
-            } finally {
-                get.releaseConnection();
-            }
+            if (radarHelper(get, httpclient) == null)
+            	return;
         } catch (Throwable ex) {
             //Tools.logException(WeatherData.class, ex);
             ex.printStackTrace();
@@ -809,6 +819,7 @@ public class WeatherData implements Serializable {
     			args[2], // zip
     			512, 384, true);
     	wd.determineForecast();
+    	wd.determineLocalRadar();
     }
     
     public void determineForecast() {

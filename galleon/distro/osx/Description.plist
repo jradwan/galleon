@@ -3,8 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>IFPkgDescriptionDescription</key>
-	<string>Galleon installer.
-</string>
+	<string>Galleon installer.</string>
 	<key>IFPkgDescriptionTitle</key>
 	<string>Galleon</string>
 </dict>

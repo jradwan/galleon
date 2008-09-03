@@ -7,6 +7,7 @@ Version 2.5.3:
   hme-host-sample-1.4.jar anymore); seems to help on Mac OS X 10.5
 * Added TiVo name to detail screen in ToGo app
 * Updated weather forecast parsing to handle more cases
+* Fixed local radar after change on weather source web pages
 
 Version 2.5.2:
 ----------------------

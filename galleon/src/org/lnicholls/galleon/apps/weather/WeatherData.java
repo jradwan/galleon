@@ -451,6 +451,8 @@ public class WeatherData implements Serializable {
                 Pattern p = Pattern.compile(REGEX);
                 Matcher m = p.matcher(strGetResponseBody);
                 if (m.find()) {
+                    if (log.isDebugEnabled())
+                        log.debug("Local radar URL: " + m.group(1));
                     mLocalRadar = m.group(1);
                     PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar",
                             mLocalRadar);

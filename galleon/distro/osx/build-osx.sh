@@ -29,7 +29,7 @@ mv "osx-dir/Galleon/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/con
 cp ThirdPartyLicenses.txt osx-dir
 cp copying osx-dir/COPYING
 textutil -cat rtf -output osx-dir/MainResources/English.lproj/License.rtf distro/osx/License.fragment.rtf copying ThirdPartyLicenses.txt
-textutil -cat rtf -output osx-dir/MainResources/English.lproj/ReadMe.rtf distro/osx/ReadMe.fragment.rtf build.osx/ReleaseNotes.txt
+textutil -cat rtf -output osx-dir/MainResources/English.lproj/ReadMe.rtf distro/osx/ReadMe.fragment.rtf build.osx/ReleaseNotes.txt distro/osx/ReadMe.lastfragment.rtf 
 cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir/MainResources/English.lproj
 # ln -s /Applications osx-dir/Applications
 sudo chown -R root:admin osx-dir

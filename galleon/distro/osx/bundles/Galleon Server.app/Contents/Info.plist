@@ -91,7 +91,7 @@
 		<array>
 			<string>-server</string>
 			<string>-Xms64m</string>
-			<string>-Xmx64m</string>
+			<string>-Xmx256m</string>
 			<string>-Dcom.apple.mrj.application.apple.menu.about.name=Galleon Server</string>
 			<string>-Djava.net.preferIPv4Stack=true</string>
 			<string>-Djava.io.tmpdir=../data/tmp</string>

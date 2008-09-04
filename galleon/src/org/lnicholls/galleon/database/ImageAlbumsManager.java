@@ -330,14 +330,14 @@ public class ImageAlbumsManager {
 			tx = session.beginTransaction();
 			List list = session
 					.createQuery(
-							"from org.lnicholls.galleon.database.ImageAlbumsPictures as ImageAlbumsPictures where ImageAlbumsPictures.id=?")
+							"from org.lnicholls.galleon.database.ImageAlbumsPictures as ImageAlbumsPictures where ImageAlbumsPictures.imagealbums=?")
 					.setInteger(0, ImageAlbums.getId()).list();
 			if (list != null && list.size() > 0)
 			{
 				for (int i = 0; i < list.size(); i++)
 				{
 					ImageAlbumsPictures imageAlbumsPictures = (ImageAlbumsPictures) list
-							.get(0);
+							.get(i);
 					session.delete(imageAlbumsPictures);
 				}
 			}

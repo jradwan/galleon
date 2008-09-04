@@ -112,7 +112,7 @@ public class AlbumParser {
             if (debugging)
                 return;
 
-            // Remove old imageAlbums
+            // Remove old imageAlbums (no longer in library)
             List list = ImageAlbumsManager.listAll();
             if (list!=null && list.size()>0)
             {

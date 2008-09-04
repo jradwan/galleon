@@ -9,6 +9,7 @@ Version 2.5.3:
 * Updated weather forecast parsing to handle more cases
 * Fixed local radar after change on weather source web pages
 * Update help URLs to point at content now on sourceforge.net
+* Fixed iPhoto album parser to clean out old albums during library update
 
 Version 2.5.2:
 ----------------------

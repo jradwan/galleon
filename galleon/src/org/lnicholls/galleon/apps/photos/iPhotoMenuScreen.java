@@ -157,16 +157,19 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                             if (list!=null && list.size()>0)
 								{
 									ImageAlbums imageAlbum = (ImageAlbums) list.get(0);
-
+									Logger log = Logger.getLogger(Photos.class.getName());
+									
 									ArrayList pictures = new ArrayList();
 									List imageAlbums = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
 									if (imageAlbums!=null && imageAlbums.size()>0)
                                         {
+											log.debug("Album " + (String) nameFile.getValue() + " has " + imageAlbums.size() + " pictures");
                                             Iterator iterator = imageAlbums.iterator();
                                             while (iterator.hasNext()) {
                                                 ImageAlbumsPictures picture = (ImageAlbumsPictures) iterator.next();
                                                 if (picture.getPicture()!=0) {
                                                     Image image = ImageManager.retrieveImage(picture.getPicture());
+                									log.debug("Album " + (String) nameFile.getValue() + "includes " + image.getPath());
                                                     pictures.add(new FileItem(image.getTitle(), new File(image.getPath())));
                                                 }
                                             }
@@ -205,7 +208,9 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                     try {
                         FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
                         List imageAlbums = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
-                        if (imageAlbums != null && imageAlbums.size() > 0) {
+						Logger log = Logger.getLogger(Photos.class.getName());
+
+						if (imageAlbums != null && imageAlbums.size() > 0) {
                             ImageAlbums imageAlbum = (ImageAlbums) imageAlbums.get(0);
 
                             List pList = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
@@ -215,6 +220,7 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                                 ImageAlbumsPictures picture = (ImageAlbumsPictures) iterator.next();
                                 if (picture.getPicture()!=0) {
                                     Image image = ImageManager.retrieveImage(picture.getPicture());
+									log.debug("Album " + (String) nameFile.getValue() + "includes " + image.getPath());
                                     pictures.add(new FileItem(image.getTitle(), new File(image.getPath())));
                                 }
                             }

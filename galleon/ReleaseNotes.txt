@@ -1,6 +1,9 @@
 Galleon
 -------
 
+Version 2.5.4:
+----------------------
+
 Version 2.5.3:
 ----------------------
 * Update JmDNS package to 1.0 (not using JmDNS from

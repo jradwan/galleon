@@ -891,7 +891,16 @@ public class ToGo {
 				public int compare(Object o1, Object o2) {
 					Video contact1 = (Video) o1;
 					Video contact2 = (Video) o2;
-					return contact1.getDateRecorded().compareTo(contact2.getDateRecorded());
+                    Date d1 = contact1.getDateRecorded();
+                    Date d2 = contact2.getDateRecorded();
+                    if ( d1 == null && d2 == null )
+                        return 0;
+                    else if ( d1 == null )
+                        return -1;
+                    else if ( d2 == null )
+                        return 1;
+                    else
+                        return d1.compareTo(d2);
 				}
 			});
 

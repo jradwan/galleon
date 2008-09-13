@@ -34,7 +34,7 @@ cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir/MainResources/Engl
 # ln -s /Applications osx-dir/Applications
 sudo chown -R root:admin osx-dir
 #/Developer/Tools/packagemaker -build -proj distro/osx/Galleon.pmproj -p distro/osx/Galleon.pkg -v
-VER="2.5.3"
+VER="2.5.4"
 
 rm -rf Galleon.pkg
 # Backward compat builds on 10.5, may need to update to native commands?

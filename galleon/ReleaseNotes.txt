@@ -3,6 +3,7 @@ Galleon
 
 Version 2.5.4:
 ----------------------
+* Fix ToGo looping bug on null recording date (1811137)
 
 Version 2.5.3:
 ----------------------

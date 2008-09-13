@@ -88,8 +88,8 @@ public class WeatherData implements Serializable {
                         .getValue();
                 String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip")
                         .getValue();
-                String cachedRange = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "range")
-                        .getValue();
+//                String cachedRange = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "range")
+//                        .getValue();
                 String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip")
                         .getValue();
                 String cachedLocalRadar = PersistentValueManager.loadPersistentValue(

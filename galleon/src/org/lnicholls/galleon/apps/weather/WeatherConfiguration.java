@@ -123,4 +123,9 @@ public class WeatherConfiguration implements AppConfiguration {
 
     private String mRange;
 
+	public WeatherConfiguration() {
+		super();
+		mRange = "600"; // need to set a default in case we're upgrading from an older release config file.
+	}
+
 }

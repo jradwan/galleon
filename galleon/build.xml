@@ -333,13 +333,13 @@ quiet="no">
       <attribute name="Main-Class" value="org.lnicholls.galleon.apps.weather.Weather"/>
       <attribute name="HME-Arguments" value=""/>
       <attribute name="Title" value="Weather"/>
-      <attribute name="ReleaseDate" value="2007-05-31"/>
+      <attribute name="ReleaseDate" value="2008-09-12"/>
       <attribute name="Description" value="The weather app displays the current weather conditions, 5 day forecast, local radar image, national radar image and any weather alerts."/>                    
       <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;task=view&amp;id=15&amp;Itemid=46"/>                              
-      <attribute name="Author" value="Leon Nicholls, John Kohl"/>                                        
-      <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net"/>                                                  
+      <attribute name="Author" value="Leon Nicholls, John Kohl, Jeremy C. Radwan"/>                                        
+      <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net, windracer@sourceforge.net"/>                                                  
       <attribute name="Homepage" value="http://galleon.sourceforge.net"/>                                                            
-      <attribute name="Version" value="1.1"/>
+      <attribute name="Version" value="1.2"/>
       <attribute name="ConfigurationPanel" value="org.lnicholls.galleon.apps.weather.WeatherOptionsPanel"/>            
       <attribute name="Configuration" value="org.lnicholls.galleon.apps.weather.WeatherConfiguration"/>                      
       <attribute name="Tags" value="Weather"/>                        

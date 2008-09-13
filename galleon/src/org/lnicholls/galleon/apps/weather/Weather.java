@@ -920,7 +920,7 @@ public class Weather extends DefaultSDOnlyApplication {
             {
             	WeatherConfiguration weatherConfiguration = (WeatherConfiguration) getAppContext().getConfiguration();
                 weatherData = new WeatherData(weatherConfiguration.getId(), weatherConfiguration.getCity(),
-                        weatherConfiguration.getState(), weatherConfiguration.getZip(), 512, 384); // TODO get real
+                        weatherConfiguration.getState(), weatherConfiguration.getZip(), weatherConfiguration.getRange(), 512, 384); // TODO get real
             }
         	return weatherData;
         }

@@ -110,4 +110,17 @@ public class WeatherConfiguration implements AppConfiguration {
     private String mZip;
     
     private boolean mModified;
+
+    public String getRange() {
+      return mRange;
+    }
+
+    public void setRange(String value) {
+        if (mRange!=null && !mRange.equals(value))
+            mModified = true;
+      mRange = value;
+    }
+
+    private String mRange;
+
 }

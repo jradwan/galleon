@@ -57,17 +57,18 @@ public class WeatherData implements Serializable {
     private static String PARTNER_ID = "1007257694";
 
     private static String LICENSE_KEY = "4521b6a53deec6b8";
-    public WeatherData(String id, String city, String state, String zip, int width, int height) {
-    	   this(id, city, state, zip, width, height, false);
+    public WeatherData(String id, String city, String state, String zip, String range, int width, int height) {
+    	   this(id, city, state, zip, range, width, height, false);
     }
     
-    public WeatherData(String id, String city, String state, String zip, int width, int height, boolean debug) {
+    public WeatherData(String id, String city, String state, String zip, String range, int width, int height, boolean debug) {
         mId = id;
         mCity = city;
         mState = state;
         mZip = zip;
         mWidth = width;
         mHeight = height;
+        mRange = range;   
 
         mTimeDateFormat = new SimpleDateFormat();
         mTimeDateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss"); //2005-03-01T00:54:00
@@ -86,6 +87,8 @@ public class WeatherData implements Serializable {
                 String cachedState = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "state")
                         .getValue();
                 String cachedZip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "zip")
+                        .getValue();
+                String cachedRange = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "range")
                         .getValue();
                 String cachedFip = PersistentValueManager.loadPersistentValue(this.getClass().getName() + "." + "fip")
                         .getValue();
@@ -110,6 +113,7 @@ public class WeatherData implements Serializable {
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "city", mCity);
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "state", mState);
         PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "zip", mZip);
+        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "range", mRange);
 
         new Thread() {
             public void run() {
@@ -444,18 +448,38 @@ public class WeatherData implements Serializable {
             //log.debug(strGetResponseBody);
 
             if (strGetResponseBody != null) {
-                //<IMG NAME="mapImg" SRC="http://image.weather.com/web/radar/us_bos_closeradar_large_usen.jpg"
-                // WIDTH=600
-                // HEIGHT=405 BORDER=0 ALT="Doppler Radar 600 Mile"></TD>
+                // determine URL of page containing the radar image for the user-selected range
+                String Range_REGEX = "value=\"Doppler_Radar_" +mRange + "([^\"]*)\"";
+                Pattern p2 = Pattern.compile(Range_REGEX);
+                Matcher m2 = p2.matcher(strGetResponseBody);
+
+                if (m2.find()) {
+                    mRangeRadar = m2.group(1);
+                    // http://www.weather.com/weather/map/33772?mapdest=Doppler_Radar_300_Mile:TPA
+                    mRangeRadar = mZip + "?mapdest=Doppler_Radar_" + mRange + mRangeRadar; }
+                else {
+                    // if the specified range page couldn't be found, just grab the default
+                    mRangeRadar = mZip;
+                }
+
+                log.debug("Range radar page URL: "+ mRangeRadar);
+                    
+                // retrieve the new page
+                GetMethod get2 = new GetMethod("http://www.weather.com/weather/map/" + mRangeRadar);
+                get2.setFollowRedirects(true);
+                int iGetResultCode2 = httpclient.executeMethod(get2);
+                final String strGetResponseBody2 = get2.getResponseBodyAsString();
+
+                // now grab the URL of the actual radar image
                 String REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
                 Pattern p = Pattern.compile(REGEX);
-                Matcher m = p.matcher(strGetResponseBody);
+                Matcher m = p.matcher(strGetResponseBody2);
                 if (m.find()) {
-                    if (log.isDebugEnabled())
-                        log.debug("Local radar URL: " + m.group(1));
+                    log.debug("Range radar image URL: " + m.group(1));
                     mLocalRadar = m.group(1);
                     PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "localradar",
                             mLocalRadar);
+                    get2.releaseConnection();
                     return null;
                 }
             }
@@ -819,6 +843,7 @@ public class WeatherData implements Serializable {
     			args[0], // city
     			args[1], //state
     			args[2], // zip
+    			args[3], // range
     			512, 384, true);
     	wd.determineForecast();
     	wd.determineLocalRadar();
@@ -1681,6 +1706,8 @@ public class WeatherData implements Serializable {
 
     private String mVersion;
 
+    private String mRange;
+
     // head
     private String mLocale;
 
@@ -1722,6 +1749,8 @@ public class WeatherData implements Serializable {
     private ForecastText mForecastText;
     
     private String mLocalRadar;
+
+    private String mRangeRadar;
 
     private String mNationalRadar = "http://image.weather.com/images/maps/current/curwx_600x405.jpg";
 

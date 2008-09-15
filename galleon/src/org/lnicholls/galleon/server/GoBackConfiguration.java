@@ -47,6 +47,17 @@ public class GoBackConfiguration implements Serializable {
 	public boolean isPublishTiVoRecordings() {
 		return mPublishTiVoRecordings;
 	}
+	
+	public void setAutoSubdirectories(boolean value) {
+		if (mAutoSubdirectories != value)
+			mModified = true;
+		mAutoSubdirectories = value;
+	}
+
+	public boolean isAutoSubdirectories() {
+		return mAutoSubdirectories;
+	}
+	
 	public void setConvertVideo(boolean value) {
 		if (mConvertVideo != value)
 			mModified = true;
@@ -108,6 +119,7 @@ public class GoBackConfiguration implements Serializable {
 	private boolean mPublishTiVoRecordings = true;
 	private boolean mGroupByShow = false;
 	private boolean mConvertVideo = true;
+	private boolean mAutoSubdirectories = false;
 
 	private String mConversionTool;
 

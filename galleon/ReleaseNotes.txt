@@ -4,7 +4,9 @@ Galleon
 Version 2.5.4:
 ----------------------
 * Fix ToGo looping bug on null recording date (1811137)
-* Added user-selectable range for local radar image (100, 300, 600 miles)
+* Added user-selectable range for local radar image (100, 300, 600 miles) in Weather
+* (incomplete) auto-subdirectory publishing for GoBack, avoids the need to do it yourself and
+  also avoids bugs in TiVo folder navigation
 
 
 Version 2.5.3:

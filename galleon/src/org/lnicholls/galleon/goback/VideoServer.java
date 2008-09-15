@@ -52,6 +52,7 @@ import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
 import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.media.*;
 
@@ -392,11 +393,27 @@ public class VideoServer extends HttpServer {
 					}
 					else
 					if (goBackConfiguration.isEnabled()) {
+						
 						int counter = 0;
-						if (goBackConfiguration.isPublishTiVoRecordings())
-							counter++;
-						if (goBackConfiguration.getPaths().size() > 0)
-							counter = counter + goBackConfiguration.getPaths().size();
+						if (goBackConfiguration.isPublishTiVoRecordings()) {
+							counter++; // top-level
+							if (goBackConfiguration.isAutoSubdirectories())
+								counter += countSubdirs(directory);
+						}
+						if (goBackConfiguration.getPaths().size() > 0) {
+							if (goBackConfiguration.isAutoSubdirectories()) {
+								// Count directories underneath for auto-subdir mode
+								List<NameValue> paths = (List<NameValue>) goBackConfiguration.getPaths();
+								Iterator<NameValue> iterator = paths.iterator();
+								while (iterator.hasNext()) {
+									NameValue nameValue = iterator.next();
+									counter++; // directory itself
+									File dir = new File(nameValue.getValue());
+									counter += countSubdirs(dir);
+								}
+							} else
+								counter = counter + goBackConfiguration.getPaths().size();
+						}
 						if (mPublished.size() > 0)
 							counter = counter + mPublished.size();
 
@@ -409,73 +426,35 @@ public class VideoServer extends HttpServer {
 						buffer.append("<TotalItems>" + counter + "</TotalItems>\n");
 						buffer.append("</Details>\n");
 						if (goBackConfiguration.isPublishTiVoRecordings()) {
-							buffer.append("<Item>\n");
-							buffer.append("<Details>\n");
-							buffer.append("<Title>" + Tools.escapeXMLChars(mHost) + "</Title>\n");
-							buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-							buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
-							buffer.append("<LastChangeDate>0x" + Tools.dateToHex(new Date(directory.lastModified()))
-									+ "</LastChangeDate>\n");
-							buffer.append("</Details>\n");
-							buffer.append("<Links>\n");
-							buffer.append("<Content>\n");
-							buffer.append("<Url>http://" + serverConfiguration.getIPAddress() + ":"
-									+ Server.getServer().getHMOPort()
-									+ "/TiVoConnect?Command=QueryContainer&amp;Container=GalleonRecordings</Url>\n");
-							buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-							buffer.append("</Content>\n");
-							buffer.append("</Links>\n");
-							buffer.append("</Item>\n");
+							// TODO unify with doPublish
+							String title = Tools.escapeXMLChars(mHost);
+							doPublish(buffer, title, null, directory, serverConfiguration,
+									"GalleonRecordings", false);
+							if (goBackConfiguration.isAutoSubdirectories()) {
+								publishSubdirs(directory, "", buffer, serverConfiguration,
+										"GalleonRecordings");
+								// TODO: DOS shortcuts vs. direct paths to GalleonRecordings ...
+							}
+
 						}
 						if (goBackConfiguration.getPaths().size() > 0) {
 							List paths = goBackConfiguration.getPaths();
 							Iterator iterator = paths.iterator();
 							while (iterator.hasNext()) {
 								NameValue nameValue = (NameValue) iterator.next();
-								directory = new File(nameValue.getValue());
-								buffer.append("<Item>\n");
-								buffer.append("<Details>\n");
-								buffer.append("<Title>" + Tools.escapeXMLChars(nameValue.getName()) + "</Title>\n");
-								buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-								buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
-								buffer.append("<LastChangeDate>0x"
-										+ Tools.dateToHex(new Date(directory.lastModified())) + "</LastChangeDate>\n");
-								buffer.append("</Details>\n");
-								buffer.append("<Links>\n");
-								buffer.append("<Content>\n");
-								buffer.append("<Url>http://" + serverConfiguration.getIPAddress() + ":"
-										+ Server.getServer().getHMOPort()
-										+ "/TiVoConnect?Command=QueryContainer&amp;Container=GalleonExtra/"
-										+ URLEncoder.encode(nameValue.getName()) + "</Url>\n");
-								buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-								buffer.append("</Content>\n");
-								buffer.append("</Links>\n");
-								buffer.append("</Item>\n");
+								doPublish(buffer, nameValue, serverConfiguration, "GalleonExtra");
+								if (goBackConfiguration.isAutoSubdirectories()) {
+									File dir = new File(nameValue.getValue());
+									publishSubdirs(dir, nameValue, buffer, serverConfiguration,
+											"GalleonDirectFolder");
+								}
 							}
 						}
 						if (mPublished.size() > 0) {
 							Iterator iterator = mPublished.iterator();
 							while (iterator.hasNext()) {
 								NameValue nameValue = (NameValue) iterator.next();
-								directory = new File(nameValue.getValue());
-								buffer.append("<Item>\n");
-								buffer.append("<Details>\n");
-								buffer.append("<Title>" + Tools.escapeXMLChars(nameValue.getName()) + "</Title>\n");
-								buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-								buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
-								buffer.append("<LastChangeDate>0x"
-										+ Tools.dateToHex(new Date(directory.lastModified())) + "</LastChangeDate>\n");
-								buffer.append("</Details>\n");
-								buffer.append("<Links>\n");
-								buffer.append("<Content>\n");
-								buffer.append("<Url>http://" + serverConfiguration.getIPAddress() + ":"
-										+ Server.getServer().getHMOPort()
-										+ "/TiVoConnect?Command=QueryContainer&amp;Container=GalleonExtra/"
-										+ URLEncoder.encode(nameValue.getName()) + "</Url>\n");
-								buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
-								buffer.append("</Content>\n");
-								buffer.append("</Links>\n");
-								buffer.append("</Item>\n");
+								doPublish(buffer, nameValue, serverConfiguration, "GalleonExtra");
 							}
 						}
 
@@ -538,14 +517,16 @@ public class VideoServer extends HttpServer {
 					if (itemURL.getParameter(Constants.PARAMETER_RECURSE) != null)
 					{
 						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
-								true);
+								!goBackConfiguration.isAutoSubdirectories());
 						files = fileSystemContainer.getItemsSorted(FileFilters.videoFilter);
 					}
 					else
 					{
 						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
 								false);
-						files = fileSystemContainer.getItemsSorted(FileFilters.videoDirectoryFilter);
+						
+						files = fileSystemContainer.getItemsSorted(goBackConfiguration.isAutoSubdirectories() ? 
+								FileFilters.videoFilter : FileFilters.videoDirectoryFilter);
 						folders = true;
 					}
 
@@ -714,7 +695,9 @@ public class VideoServer extends HttpServer {
 							String filename = nameFile.getName();
 							File file = (File) nameFile.getValue();
 							String filePath = getFilePath(file, directory);
-							// TODO Hack for skipping folders
+							// TODO Hack for skipping folders at front of list.  Shouldn't match
+							// the suffix filter, though!
+							// XXX need to figure out what goes on here in reality?
 							if (nameFile.isFolder()) {
 								start = start + 1;
 								itemCount = limit - start;
@@ -925,6 +908,88 @@ public class VideoServer extends HttpServer {
 			}
 		}
 		return "";
+	}
+	private void publishSubdirs(File dir, NameValue nameValue, 
+			StringBuffer buffer, ServerConfiguration serverConfiguration, String rootToken) {
+		String name = nameValue.getName();
+		publishSubdirs(dir, name, buffer, serverConfiguration, rootToken);
+	}
+	private void publishSubdirs(File dir, String name, 
+			StringBuffer buffer, ServerConfiguration serverConfiguration, String rootToken) {
+		try {
+			String dstring = dir.getCanonicalPath();
+			FileSystemContainer fileSystemContainer =
+				new FileSystemContainer(dstring, true);
+			List<FolderItem> dirs = (List<FolderItem>)fileSystemContainer.getItemsSorted(FileFilters.directoryFilter);
+			Iterator<FolderItem> fiter = dirs.iterator();
+			while (fiter.hasNext()) {
+				FolderItem fi = fiter.next();
+				File f = (File) fi.getValue();
+				String n = name;
+				String fp = f.getCanonicalPath();
+				if (fp.startsWith(dstring + "/"))
+					// TODO: fix for DOS pname separator
+					n = n + fp.substring(dstring.length() + 1).replaceAll("\\\\", "/");
+				doPublish(buffer, n, f, serverConfiguration,
+						rootToken, false);
+			}
+		} catch (IOException ex) {
+			// don't care, just ignore subdirs
+		}
+	}
+
+	private int countSubdirs(File dir) {
+		int counter = 0;
+		try {
+			FileSystemContainer fileSystemContainer =
+				new FileSystemContainer(dir.getCanonicalPath(), true);
+			List dirs = fileSystemContainer.getItemsSorted(FileFilters.directoryFilter);
+			counter += dirs.size();
+		} catch (IOException ex) {
+			// don't care, just ignore subdirs
+		}
+		return counter;
+	}
+
+	private void doPublish(StringBuffer buffer, NameValue nameValue, ServerConfiguration serverConfiguration,
+			String containerName) {
+		doPublish(buffer, nameValue.getName(), nameValue.getValue(), serverConfiguration, "GalleonExtra");
+	}
+	
+	private void doPublish(StringBuffer buffer, String title, String dirpath, ServerConfiguration serverConfiguration,
+			String containerName) {
+		File directory = new File(dirpath);
+		doPublish(buffer, title, directory, serverConfiguration, containerName, true);
+	}
+	private void doPublish(StringBuffer buffer, String title, File directory, ServerConfiguration serverConfiguration,
+			String containerName, boolean escapeContainer) {
+		doPublish(buffer, Tools.escapeXMLChars(title), title, directory, serverConfiguration,
+			containerName, escapeContainer);
+	}
+	private void doPublish(StringBuffer buffer, String title, String container, File directory, ServerConfiguration serverConfiguration,
+			String containerName, boolean escapeContainer) {
+	
+		buffer.append("<Item>\n");
+		buffer.append("<Details>\n");
+		buffer.append("<Title>" + title + "</Title>\n");
+		buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
+		buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
+		buffer.append("<LastChangeDate>0x"
+				+ Tools.dateToHex(new Date(directory.lastModified())) + "</LastChangeDate>\n");
+		buffer.append("</Details>\n");
+		buffer.append("<Links>\n");
+		buffer.append("<Content>\n");
+		buffer.append("<Url>http://" + serverConfiguration.getIPAddress() + ":"
+				+ Server.getServer().getHMOPort()
+				+ "/TiVoConnect?Command=QueryContainer&amp;Container=" + containerName);
+		if (container != null)
+			buffer.append("/" + (escapeContainer ? URLEncoder.encode(container) : container));
+		buffer.append("</Url>\n");
+		buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
+		buffer.append("</Content>\n");
+		buffer.append("</Links>\n");
+		buffer.append("</Item>\n");
+		
 	}
 
 	private String getVideoDetails(File file) {

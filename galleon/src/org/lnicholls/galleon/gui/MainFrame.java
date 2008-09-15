@@ -103,6 +103,7 @@ import edu.stanford.ejalbert.BrowserLauncher;
 
 public class MainFrame extends JFrame {
 	private static Logger log = Logger.getLogger(MainFrame.class.getName());
+
 	
 
 	public MainFrame(String version) {
@@ -1564,6 +1565,8 @@ public class MainFrame extends JFrame {
 			mEnabled.setSelected(goBackConfiguration.isEnabled());
 			mPublishTiVoRecordings = new JCheckBox("Publish ToGo Recordings");
 			mPublishTiVoRecordings.setSelected(goBackConfiguration.isPublishTiVoRecordings());
+			mAutoSubdirectories = new JCheckBox("Automatically publish sub-folders separately to avoid TiVo bug");
+			mAutoSubdirectories.setSelected(goBackConfiguration.isAutoSubdirectories());
 			mConvertVideo = new JCheckBox("Convert Video");
 			mConvertVideo.setSelected(goBackConfiguration.isConvertVideo());
 			mConvertVideo.addItemListener(new ItemListener() {
@@ -1586,6 +1589,7 @@ public class MainFrame extends JFrame {
 					"pref, " + // general
 					"6dlu, " + "pref, " + // enabled
 					"3dlu, " + "pref, " + // publish
+					"3dlu, " + "pref, " + // autoSubdir
 					"3dlu, " + "pref, " + // convert
 					"3dlu, " + "pref, " + // tool
 					"3dlu, " + "pref, " + // directories
@@ -1601,11 +1605,12 @@ public class MainFrame extends JFrame {
 			builder.addSeparator("General", cc.xyw(1, 1, 5));
 			builder.add(mEnabled, cc.xyw(3, 3, 3));
 			builder.add(mPublishTiVoRecordings, cc.xyw(3, 5, 3));
-			builder.add(mConvertVideo, cc.xyw(3, 7, 3));
-			builder.addLabel("Conversion Tool", cc.xy(1, 9));
-			builder.add(mConversionTool, cc.xy(3, 9));
+			builder.add(mAutoSubdirectories, cc.xyw(3, 7, 3));
+			builder.add(mConvertVideo, cc.xyw(3, 9, 3));
+			builder.addLabel("Conversion Tool", cc.xy(1, 11));
+			builder.add(mConversionTool, cc.xy(3, 11));
 			
-			builder.addSeparator("Directories", cc.xyw(1, 11, 5));
+			builder.addSeparator("Directories", cc.xyw(1, 13, 5));
 
 	        mColumnValues = new ArrayList();
 	        int counter = 0;
@@ -1622,7 +1627,7 @@ public class MainFrame extends JFrame {
 	        ArrayList columnNames = new ArrayList();
 	        columnNames.add(0, "Name");
 	        columnNames.add(1, "Path");
-	        builder.add(mFileOptionsTable, cc.xyw(3, 13, 3));			
+	        builder.add(mFileOptionsTable, cc.xyw(3, 15, 3));			
 
 			getContentPane().add(panel, "Center");
 
@@ -1651,6 +1656,7 @@ public class MainFrame extends JFrame {
 				try {
 					goBackConfiguration.setEnabled(mEnabled.isSelected());
 					goBackConfiguration.setPublishTiVoRecordings(mPublishTiVoRecordings.isSelected());
+					goBackConfiguration.setAutoSubdirectories(mAutoSubdirectories.isSelected());
 					goBackConfiguration.setConvertVideo(mConvertVideo.isSelected());
 					goBackConfiguration.setConversionTool(mConversionTool.getText());
 					
@@ -1690,6 +1696,8 @@ public class MainFrame extends JFrame {
 		}
 		
 		private JCheckBox mEnabled;
+
+		private JCheckBox mAutoSubdirectories;
 
 		private JCheckBox mPublishTiVoRecordings;
 		

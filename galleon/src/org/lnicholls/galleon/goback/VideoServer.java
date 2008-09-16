@@ -446,7 +446,7 @@ public class VideoServer extends HttpServer {
 								if (goBackConfiguration.isAutoSubdirectories()) {
 									File dir = new File(nameValue.getValue());
 									publishSubdirs(dir, nameValue, buffer, serverConfiguration,
-											"GalleonDirectFolder");
+											"GalleonExtra");
 								}
 							}
 						}
@@ -926,6 +926,8 @@ public class VideoServer extends HttpServer {
 				FolderItem fi = fiter.next();
 				File f = (File) fi.getValue();
 				String n = name;
+				if (n.length() != 0)
+					n = n + "/";
 				String fp = f.getCanonicalPath();
 				if (fp.startsWith(dstring + "/"))
 					// TODO: fix for DOS pname separator

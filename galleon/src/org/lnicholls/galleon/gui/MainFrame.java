@@ -1554,6 +1554,7 @@ public class MainFrame extends JFrame {
 	
 	public class GoBackDialog extends JDialog implements ActionListener {
 
+
 		private GoBackDialog(MainFrame frame, ServerConfiguration serverConfiguration) {
 			super(frame, "GoBack", true);
 			mMainFrame = frame;
@@ -1563,6 +1564,8 @@ public class MainFrame extends JFrame {
 			
 			mEnabled = new JCheckBox("Enabled");
 			mEnabled.setSelected(goBackConfiguration.isEnabled());
+			mGroupByShow = new JCheckBox("Group ToGo Recordings in folders by show");
+			mGroupByShow.setSelected(goBackConfiguration.isGroupByShow());
 			mPublishTiVoRecordings = new JCheckBox("Publish ToGo Recordings");
 			mPublishTiVoRecordings.setSelected(goBackConfiguration.isPublishTiVoRecordings());
 			mAutoSubdirectories = new JCheckBox("Automatically publish sub-folders separately to avoid TiVo bug");
@@ -1588,6 +1591,7 @@ public class MainFrame extends JFrame {
 			FormLayout layout = new FormLayout("right:pref, 3dlu, left:pref, 3dlu, left:pref:grow", 
 					"pref, " + // general
 					"6dlu, " + "pref, " + // enabled
+					"3dlu, " + "pref, " + // group by show
 					"3dlu, " + "pref, " + // publish
 					"3dlu, " + "pref, " + // autoSubdir
 					"3dlu, " + "pref, " + // convert
@@ -1604,13 +1608,14 @@ public class MainFrame extends JFrame {
 
 			builder.addSeparator("General", cc.xyw(1, 1, 5));
 			builder.add(mEnabled, cc.xyw(3, 3, 3));
-			builder.add(mPublishTiVoRecordings, cc.xyw(3, 5, 3));
-			builder.add(mAutoSubdirectories, cc.xyw(3, 7, 3));
-			builder.add(mConvertVideo, cc.xyw(3, 9, 3));
-			builder.addLabel("Conversion Tool", cc.xy(1, 11));
-			builder.add(mConversionTool, cc.xy(3, 11));
+			builder.add(mGroupByShow, cc.xyw(3, 5, 3));
+			builder.add(mPublishTiVoRecordings, cc.xyw(3, 7, 3));
+			builder.add(mAutoSubdirectories, cc.xyw(3, 9, 3));
+			builder.add(mConvertVideo, cc.xyw(3, 11, 3));
+			builder.addLabel("Conversion Tool", cc.xy(1, 13));
+			builder.add(mConversionTool, cc.xy(3, 13));
 			
-			builder.addSeparator("Directories", cc.xyw(1, 13, 5));
+			builder.addSeparator("Directories", cc.xyw(1, 15, 5));
 
 	        mColumnValues = new ArrayList();
 	        int counter = 0;
@@ -1627,7 +1632,7 @@ public class MainFrame extends JFrame {
 	        ArrayList columnNames = new ArrayList();
 	        columnNames.add(0, "Name");
 	        columnNames.add(1, "Path");
-	        builder.add(mFileOptionsTable, cc.xyw(3, 15, 3));			
+	        builder.add(mFileOptionsTable, cc.xyw(3, 17, 3));			
 
 			getContentPane().add(panel, "Center");
 
@@ -1655,6 +1660,7 @@ public class MainFrame extends JFrame {
 				GoBackConfiguration goBackConfiguration = new GoBackConfiguration();
 				try {
 					goBackConfiguration.setEnabled(mEnabled.isSelected());
+					goBackConfiguration.setGroupByShow(mGroupByShow.isSelected());
 					goBackConfiguration.setPublishTiVoRecordings(mPublishTiVoRecordings.isSelected());
 					goBackConfiguration.setAutoSubdirectories(mAutoSubdirectories.isSelected());
 					goBackConfiguration.setConvertVideo(mConvertVideo.isSelected());
@@ -1697,6 +1703,8 @@ public class MainFrame extends JFrame {
 		
 		private JCheckBox mEnabled;
 
+		private JCheckBox mGroupByShow;
+		
 		private JCheckBox mAutoSubdirectories;
 
 		private JCheckBox mPublishTiVoRecordings;

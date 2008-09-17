@@ -5,9 +5,16 @@ Version 2.5.4:
 ----------------------
 * Fix ToGo looping bug on null recording date (1811137)
 * Added user-selectable range for local radar image (100, 300, 600 miles) in Weather
-* (incomplete) auto-subdirectory publishing for GoBack, avoids the need to do it yourself and
-  also avoids bugs in TiVo folder navigation
+* auto-subdirectory publishing for GoBack, avoids the need to do it yourself
+  and also avoids bugs in TiVo folder navigation.
+  (XXX need to clean up, File.separator and DOS shortcuts)
 
+* XML parsing of recording meta-data for non-Galleon-created video
+  files in GoBack areas.  e.g. if you post-process .TiVo files into
+  .mpg, just put the XML output containing the show details, in the same
+  format as it comes from the TiVo, into a .xml file with the same prefix) 
+* Enabled latent store-by-show handling in GoBack server (available on
+  GoBack preferences pane)
 
 Version 2.5.3:
 ----------------------

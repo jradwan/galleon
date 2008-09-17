@@ -18,6 +18,7 @@ package org.lnicholls.galleon.media;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
@@ -29,6 +30,7 @@ import mediaManager.video.FilePropertiesMovie;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.Video;
+import org.lnicholls.galleon.togo.ToGo;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.server.*;
 
@@ -102,15 +104,19 @@ public final class VideoFile {
 		} catch (Exception ex) {
 			Tools.logException(VideoFile.class, ex, filename);
 		}
-
+	
 		video.setSize(file.length());
 		video.setDateModified(new Date(file.lastModified()));
 		video.setDateRecorded(new Date(file.lastModified()));
 		video.setOriginalAirDate(new Date(file.lastModified()));
 		try {
-			pass(file, video);
-		} catch (Throwable ex) {
-			Tools.logException(VideoFile.class, ex, filename);
+			ToGo.getvideoDetails(Tools.trimSuffix(video.getPath()) + ".xml", video);
+		} catch (FileNotFoundException e) {
+			try {
+				pass(file, video);
+			} catch (Throwable ex) {
+				Tools.logException(VideoFile.class, ex, filename);
+			}
 		}
 
 		if (video.getTitle().equals(DEFAULT_TITLE)) {

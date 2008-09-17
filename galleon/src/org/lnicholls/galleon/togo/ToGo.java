@@ -17,6 +17,8 @@ package org.lnicholls.galleon.togo;
  */
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -33,6 +35,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hibernate.HibernateException;
 
@@ -43,6 +47,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.lnicholls.galleon.database.PersistentValue;
@@ -79,12 +84,12 @@ public class ToGo {
 	private static int MAX = 20;
 
 	private static Logger log = Logger.getLogger(ToGo.class.getName());
-
+	private static SimpleDateFormat smTimeDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	
 	public ToGo() {
 		mFileDateFormat = new SimpleDateFormat();
 		mFileDateFormat.applyPattern("EEE MMM d yyyy hh mma");
-		mTimeDateFormat = new SimpleDateFormat();
-		mTimeDateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"); // 2005-02-23T11:59:58Z
+		
 		mCalendar = new GregorianCalendar();
 	}
 
@@ -320,7 +325,7 @@ public class ToGo {
 		return videos;
 	}
 
-	public void getvideoDetails(HttpClient client, Video video, String url) {
+	public static void getvideoDetails(HttpClient client, Video video, String url) {
 		GetMethod get = null;
 		try {
 			// System.out.println(httpget.getResponseBodyAsString());
@@ -329,7 +334,50 @@ public class ToGo {
 
 			SAXReader saxReader = new SAXReader();
 			Document document = saxReader.read(get.getResponseBodyAsStream());
-
+			parseVideoDetails(video, document);
+		} catch (Exception ex) {
+			Tools.logException(ToGo.class, ex);
+		} finally {
+			if (get != null) {
+				get.releaseConnection();
+				get = null;
+			}
+		}
+	}
+	
+	public static void getvideoDetails(String filename, Video video) throws FileNotFoundException {
+		SAXReader saxReader = new SAXReader();
+		Document document;
+		
+			try {
+				document = saxReader.read(new FileInputStream(filename));
+				parseVideoDetails(video, document);
+				// TiVodecode contents don't include call-sign, so parse it from filename
+				// Battlestar Galactica - Resurrection Ship (Recorded Fri Jan 13 2006 10 00PM SCIFI).TiVo
+				File file = new File(filename);
+				String value = Tools.trimSuffix(file.getName());
+				Pattern pattern = Pattern.compile("^(.*) - (.*) \\(Recorded ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*)\\)$");
+			    Matcher matcher = pattern.matcher(value);
+			    if (matcher.find()) {
+			    	video.setCallsign(matcher.group(9));
+			    }
+			} catch (DocumentException e) {
+				// ignore
+			}
+	}
+	public static void main(String args[]) {
+		Video v = new Video();
+		
+		try {
+			ToGo.getvideoDetails(args[0], v);
+			System.out.println("video file" + args[0] + ": " + v.getDescription());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void parseVideoDetails(Video video, Document document) {
 			// Get the root element
 			Element root = document.getRootElement(); // <TiVoContainer>
 
@@ -408,7 +456,7 @@ public class ToGo {
 						node = program.element("originalAirDate");
 						if (node != null) {
 							ParsePosition pos = new ParsePosition(0);
-							Date date = mTimeDateFormat.parse(node.getTextTrim(), pos);
+							Date date = smTimeDateFormat.parse(node.getTextTrim(), pos);
 							if (date == null)
 								date = new Date(0);
 							video.setOriginalAirDate(date); // 2000-03-25T00:00:00Z
@@ -577,7 +625,7 @@ public class ToGo {
 						node = program.element("originalAirDate");
 						if (node != null && video.getOriginalAirDate()==null) {
 							ParsePosition pos = new ParsePosition(0);
-							Date date = mTimeDateFormat.parse(node.getTextTrim(), pos);
+							Date date = smTimeDateFormat.parse(node.getTextTrim(), pos);
 							if (date == null)
 								date = new Date(0);
 							video.setOriginalAirDate(date); // 2000-03-25T00:00:00Z
@@ -653,7 +701,7 @@ public class ToGo {
 			Element time = root.element("startTime");
 			if (time != null) {
 				ParsePosition pos = new ParsePosition(0);
-				Date date = mTimeDateFormat.parse(time.getTextTrim(), pos);
+				Date date = smTimeDateFormat.parse(time.getTextTrim(), pos);
 				if (date == null)
 					date = new Date(0);
 				video.setStartTime(date); // 2005-02-23T11:59:58Z
@@ -661,7 +709,7 @@ public class ToGo {
 			time = root.element("stopTime");
 			if (time != null) {
 				ParsePosition pos = new ParsePosition(0);
-				Date date = mTimeDateFormat.parse(time.getTextTrim(), pos);
+				Date date = smTimeDateFormat.parse(time.getTextTrim(), pos);
 				if (date == null)
 					date = new Date(0);
 				video.setStopTime(date); // 2005-02-23T11:59:58Z
@@ -669,22 +717,14 @@ public class ToGo {
 			time = root.element("expirationTime");
 			if (time != null) {
 				ParsePosition pos = new ParsePosition(0);
-				Date date = mTimeDateFormat.parse(time.getTextTrim(), pos);
+				Date date = smTimeDateFormat.parse(time.getTextTrim(), pos);
 				if (date == null)
 					date = new Date(0);
 				video.setExpirationTime(date); // 2005-02-23T11:59:58Z
 			}
-		} catch (Exception ex) {
-			Tools.logException(ToGo.class, ex);
-		} finally {
-			if (get != null) {
-				get.releaseConnection();
-				get = null;
-			}
-		}
 	}
 
-	private String getElements(Element node) {
+	private static String getElements(Element node) {
 		StringBuffer buffer = new StringBuffer();
 		int counter = 0;
 		for (Iterator iterator = node.elementIterator("element"); iterator.hasNext();) {
@@ -1003,8 +1043,6 @@ public class ToGo {
 	}
 
 	protected SimpleDateFormat mFileDateFormat;
-
-	protected SimpleDateFormat mTimeDateFormat;
 
 	protected GregorianCalendar mCalendar;
 }

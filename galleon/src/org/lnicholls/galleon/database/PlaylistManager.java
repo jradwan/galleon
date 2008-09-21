@@ -21,10 +21,10 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 public class PlaylistManager {
-	private static Logger log = Logger.getLogger(PlaylistManager.class
-			.getName());
+//	private static Logger log = Logger.getLogger(PlaylistManager.class
+//			.getName());
 	public static interface Callback {
 		public void visit(Session session, Playlist playlist);
 	}
@@ -132,8 +132,9 @@ public static Playlist retrievePlaylist(Integer id)
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Playlist> listAll() throws HibernateException {
+		List<Playlist> list = new ArrayList<Playlist>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -150,9 +151,9 @@ public static Playlist retrievePlaylist(Integer id)
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Playlist> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Playlist> list = new ArrayList<Playlist>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -204,12 +205,13 @@ public static Playlist retrievePlaylist(Integer id)
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Playlist> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Playlist> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Playlist as Playlist where Playlist.path=?")
 					.setString(0, path).list();
@@ -223,12 +225,13 @@ public static Playlist retrievePlaylist(Integer id)
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigen(String origen) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Playlist> findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Playlist> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Playlist as Playlist where Playlist.origen=?")
 					.setString(0,
@@ -243,12 +246,13 @@ public static Playlist retrievePlaylist(Integer id)
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitle(String title) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Playlist> findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Playlist> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Playlist as Playlist where Playlist.title=?")
 					.setString(0,
@@ -263,12 +267,13 @@ public static Playlist retrievePlaylist(Integer id)
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Playlist> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Playlist> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Playlist as Playlist where Playlist.externalId=?")
 					.setString(
@@ -283,12 +288,13 @@ public static Playlist retrievePlaylist(Integer id)
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listTitles() throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<String> listTitles() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<String> list = session
 					.createQuery(
 							"select playlist.title from org.lnicholls.galleon.database.Playlist as playlist")
 					.list();

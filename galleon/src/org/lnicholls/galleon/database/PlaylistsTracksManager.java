@@ -21,10 +21,10 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 public class PlaylistsTracksManager {
-	private static Logger log = Logger.getLogger(PlaylistsTracksManager.class
-			.getName());
+//	private static Logger log = Logger.getLogger(PlaylistsTracksManager.class
+//			.getName());
 	public static interface Callback {
 		public void visit(Session session, PlaylistsTracks PlaylistsTracks);
 	}
@@ -132,8 +132,9 @@ public class PlaylistsTracksManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<PlaylistsTracks> listAll() throws HibernateException {
+		List<PlaylistsTracks> list = new ArrayList<PlaylistsTracks>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -151,9 +152,9 @@ public class PlaylistsTracksManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<PlaylistsTracks> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<PlaylistsTracks> list = new ArrayList<PlaylistsTracks>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -165,9 +166,8 @@ public class PlaylistsTracksManager {
 			if (items.first()) {
 				items.scroll(start);
 				while (items.next() && (counter < end)) {
-					PlaylistsTracks PlaylistsTracks = (PlaylistsTracks) items
-							.get(0);
-					list.add(PlaylistsTracks);
+					PlaylistsTracks playlistsTracks = (PlaylistsTracks) items.get(0);
+					list.add(playlistsTracks);
 					counter++;
 				}
 			}
@@ -207,12 +207,13 @@ public class PlaylistsTracksManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPlaylists(int id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<PlaylistsTracks> findByPlaylists(int id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<PlaylistsTracks> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.PlaylistsTracks as PlaylistsTracks where PlaylistsTracks.playlists=?")
 					.setInteger(0, id).list();

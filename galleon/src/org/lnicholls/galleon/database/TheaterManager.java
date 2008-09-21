@@ -21,11 +21,11 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class TheaterManager {
-	private static Logger log = Logger
-			.getLogger(TheaterManager.class.getName());
+//	private static Logger log = Logger
+//			.getLogger(TheaterManager.class.getName());
 	public static interface Callback {
 		public void visit(Session session, Theater Theater);
 	}
@@ -130,8 +130,9 @@ public class TheaterManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Theater> listAll() throws HibernateException {
+		List<Theater> list = new ArrayList<Theater>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -148,9 +149,9 @@ public class TheaterManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Theater> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Theater> list = new ArrayList<Theater>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -202,12 +203,13 @@ public class TheaterManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Theater> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Theater> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Theater as Theater where Theater.path=?")
 					.setString(0, path).list();
@@ -221,12 +223,13 @@ public class TheaterManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigen(String origen) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Theater> findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Theater> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Theater as Theater where Theater.origen=?")
 					.setString(0,
@@ -241,12 +244,13 @@ public class TheaterManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByName(String name) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Theater> findByName(String name) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Theater> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Theater as Theater where Theater.name=?")
 					.setString(0,
@@ -261,12 +265,13 @@ public class TheaterManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Theater> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Theater> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Theater as Theater where Theater.externalId=?")
 					.setString(
@@ -281,12 +286,13 @@ public class TheaterManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listTitles() throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Theater> listTitles() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Theater> list = session
 					.createQuery(
 					"select Theater.title from org.lnicholls.galleon.database.Theater as Theater")
 					.list();

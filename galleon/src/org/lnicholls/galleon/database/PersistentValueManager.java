@@ -134,8 +134,9 @@ public class PersistentValueManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<PersistentValue> listAll() throws HibernateException {
+		List<PersistentValue> list = new ArrayList<PersistentValue>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -153,9 +154,9 @@ public class PersistentValueManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<PersistentValue> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<PersistentValue> list = new ArrayList<PersistentValue>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -209,12 +210,13 @@ public class PersistentValueManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static String findValueByName(String name) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<PersistentValue> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
 					.setString(0, name).list();
@@ -232,13 +234,14 @@ public class PersistentValueManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static PersistentValue findByName(String name)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<PersistentValue> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.PersistentValue as PersistentValue where PersistentValue.name=?")
 					.setString(0, name).list();

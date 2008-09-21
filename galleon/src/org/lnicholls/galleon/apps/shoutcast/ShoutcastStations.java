@@ -30,13 +30,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
+import org.lnicholls.galleon.apps.shoutcast.ShoutcastConfiguration.LimitedGenre;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.database.ShoutcastStationManager;
 import org.lnicholls.galleon.database.ShoutcastStation;
 import org.lnicholls.galleon.media.MediaManager;
 import org.lnicholls.galleon.server.Server;
-import org.lnicholls.galleon.util.NameValue;
+//import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
@@ -71,7 +72,7 @@ public class ShoutcastStations {
 	        httpclient.getParams().setParameter("http.socket.timeout", new Integer(30000));
 	        httpclient.getParams().setParameter("http.useragent", System.getProperty("http.agent"));
 
-	        ArrayList stations = new ArrayList();
+	        ArrayList<String> stations = new ArrayList<String>();
 	        int total = 1;
 	        for (int i=0;i<total;i++)
 	        {
@@ -83,7 +84,7 @@ public class ShoutcastStations {
 	            get.setFollowRedirects(true);
 
 	            try {
-	                int iGetResultCode = httpclient.executeMethod(get);
+	                httpclient.executeMethod(get);
 	                final String strGetResponseBody = get.getResponseBodyAsString();
 	                //log.debug(strGetResponseBody);
 
@@ -111,7 +112,6 @@ public class ShoutcastStations {
 	                    String REGEX = "=\"/sbin/shoutcast-playlist.pls([^<]*)\">";
 	                    Pattern p = Pattern.compile(REGEX);
 	                    Matcher m = p.matcher(strGetResponseBody);
-	                    boolean found = false;
 	                    while (m.find()) {
 	                        if (log.isDebugEnabled())
 	                            log.debug("Parameters: " + m.group(1));
@@ -126,11 +126,11 @@ public class ShoutcastStations {
 	                get.releaseConnection();
 	            }
 	        }
-	        List current = ShoutcastStationManager.findByGenre(genre);
-	        Iterator iterator = current.iterator();
+	        List<ShoutcastStation> current = ShoutcastStationManager.findByGenre(genre);
+	        Iterator<ShoutcastStation> iterator = current.iterator();
 	        while (iterator.hasNext())
 	        {
-	        	ShoutcastStation station = (ShoutcastStation)iterator.next();
+	        	ShoutcastStation station = iterator.next();
 	        	try
                 {
         			// TODO delete audio
@@ -140,13 +140,13 @@ public class ShoutcastStations {
         	    }
 	        }
 	        int pos = 0;
-	        iterator = stations.iterator();
-	        while (iterator.hasNext())
+	        Iterator<String> si = stations.iterator();
+	        while (si.hasNext())
 	        {
-	        	String link = (String)iterator.next();
+	        	String link = si.next();
 	        	try
                 {
-                	List list = ShoutcastStationManager.findByUrl(link);
+                	List<ShoutcastStation> list = ShoutcastStationManager.findByUrl(link);
                 	if (list==null || list.size()==0)
                 	{
                     	ShoutcastStation station = new ShoutcastStation(genre, link, ++pos, ShoutcastStation.STATUS_PENDING);
@@ -162,14 +162,14 @@ public class ShoutcastStations {
     }
 
 	public void getPlaylists() {
-		List list = mConfiguration.getLimitedGenres();
+		List<LimitedGenre> list = mConfiguration.getLimitedGenres();
 	    if (list!=null && list.size()>0)
 	    {
 			int limit = MAX_REQUESTS_PER_DAY / list.size();
-		    Iterator iterator = list.iterator();
+		    Iterator<LimitedGenre> iterator = list.iterator();
 		    while (iterator.hasNext())
 		    {
-		    	ShoutcastConfiguration.LimitedGenre limitedGenre = (ShoutcastConfiguration.LimitedGenre)iterator.next();
+		    	LimitedGenre limitedGenre = iterator.next();
 		    	PersistentValue persistentValue = PersistentValueManager.loadPersistentValue(ShoutcastStations.this.getClass().getName() + "." + limitedGenre.getGenre());
 			    int start = 0;
 			    if (persistentValue != null) {
@@ -181,7 +181,7 @@ public class ShoutcastStations {
 
 			    try
 	            {
-			    	List stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
+			    	List<ShoutcastStation> stations = ShoutcastStationManager.findByGenre(limitedGenre.getGenre());
 	            	if (stations==null || stations.size()==0)
 	            	{
 	            		getStations(limitedGenre.getGenre());
@@ -195,7 +195,7 @@ public class ShoutcastStations {
 	            			// reset every station to pending to get latest info again
 	            			for (int i=0; i < stations.size(); i++)
 	            	    	{
-	            	    		ShoutcastStation station = (ShoutcastStation)stations.get(i);
+	            	    		ShoutcastStation station = stations.get(i);
 	            	    		try
 	            	    		{
 	            	    			station.setStatus(ShoutcastStation.STATUS_PENDING);
@@ -240,9 +240,9 @@ public class ShoutcastStations {
 
 	                                        try {
 	                                            // Remove duplicates
-	                                            List all = AudioManager.findByOrigenGenre(SHOUTCAST, limitedGenre.getGenre());
+	                                            List<Audio> all = AudioManager.findByOrigenGenre(SHOUTCAST, limitedGenre.getGenre());
 	                                            for (int j = 0; j < all.size(); j++) {
-	                                                Audio audio = (Audio) all.get(j);
+	                                                Audio audio = all.get(j);
 	                                                for (int k = j; k < all.size(); k++) {
 	                                                    Audio other = (Audio) all.get(k);
 	                                                    if (audio.getId() != other.getId()) {
@@ -315,16 +315,16 @@ public class ShoutcastStations {
     public void remove(String genre)
     {
     	try {
-    		List current = ShoutcastStationManager.findByGenre(genre);
-	        Iterator iterator = current.iterator();
+    		List<ShoutcastStation> current = ShoutcastStationManager.findByGenre(genre);
+	        Iterator<ShoutcastStation> iterator = current.iterator();
 	        while (iterator.hasNext())
 	        {
-	        	ShoutcastStation station = (ShoutcastStation)iterator.next();
+	        	ShoutcastStation station = iterator.next();
 	        	ShoutcastStationManager.deleteShoutcastStation(station);
 	        }
-    		List all = AudioManager.findByOrigenGenre(SHOUTCAST, genre);
+    		List<Audio> all = AudioManager.findByOrigenGenre(SHOUTCAST, genre);
             for (int j = 0; j < all.size(); j++) {
-                Audio audio = (Audio) all.get(j);
+                Audio audio = all.get(j);
                 AudioManager.deleteAudio(audio);
             }
     	} catch (Exception ex) {
@@ -349,7 +349,7 @@ public class ShoutcastStations {
 
     private ShoutcastConfiguration mConfiguration;
 
-    private static long mTime = System.currentTimeMillis();
-
-    private static int mCounter = MAX_REQUESTS_PER_DAY;
+//    private static long mTime = System.currentTimeMillis();
+//
+//    private static int mCounter = MAX_REQUESTS_PER_DAY;
 }

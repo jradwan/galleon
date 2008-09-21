@@ -128,10 +128,10 @@ public class Movies extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
-					.getAppContext().getConfiguration();
+//			MoviesConfiguration moviesConfiguration = (MoviesConfiguration) ((MoviesFactory) getFactory())
+//					.getAppContext().getConfiguration();
 
-			List list = null;
+			List<Theater> list = null;
 			try {
 				list = TheaterManager.listAll();
 			} catch (Exception ex) {
@@ -139,13 +139,13 @@ public class Movies extends DefaultApplication {
 			}
 
 			if (list != null && list.size() > 0) {
-				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-					Theater theater = (Theater) i.next();
+				for (Iterator<Theater> i = list.iterator(); i.hasNext(); /* Nothing */) {
+					Theater theater = i.next();
 					if (theater.getFavorite()>0)
 						mMenuList.add(theater);
 				}
-				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-					Theater theater = (Theater) i.next();
+				for (Iterator<Theater> i = list.iterator(); i.hasNext(); /* Nothing */) {
+					Theater theater = i.next();
 					if (theater.getFavorite()==0)
 						mMenuList.add(theater);
 				}
@@ -1330,11 +1330,11 @@ public class Movies extends DefaultApplication {
 						if (currentTheaters.size() > 0 && currentMovies.size() > 0) {
 							// remove theaters not referenced anymore
 							try {
-								List theaters = TheaterManager.listAll();
+								List<Theater> theaters = TheaterManager.listAll();
 
 								if (theaters != null && theaters.size() > 0) {
-									for (Iterator i = theaters.iterator(); i.hasNext(); /* Nothing */) {
-										Theater theater = (Theater) i.next();
+									for (Iterator<Theater> i = theaters.iterator(); i.hasNext(); /* Nothing */) {
+										Theater theater = i.next();
 
 										if (!currentTheaters.containsKey(theater.getName()))
 											TheaterManager.deleteTheater(theater);
@@ -1398,10 +1398,10 @@ public class Movies extends DefaultApplication {
 
 		private Theater createTheater(Theater theater) {
 			try {
-				List theatres = TheaterManager.findByName(theater.getName());
+				List<Theater> theatres = TheaterManager.findByName(theater.getName());
 
 				if (theatres.size() > 0) {
-					Theater existing = (Theater) theatres.get(0);
+					Theater existing = theatres.get(0);
 					Date date = new Date();
 					if (date.getTime() > existing.getDateModified().getTime()) {
 						existing.setAddress(theater.getAddress());

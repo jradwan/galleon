@@ -113,7 +113,7 @@ public class iTunes extends DefaultApplication {
 		iTunesConfiguration musicConfiguration = (iTunesConfiguration) ((iTunesFactory) getFactory())
 				.getAppContext().getConfiguration();
 
-		List titles = null;
+		List<String> titles = null;
 		try {
 			titles = PlaylistsManager.listTitles();
 		} catch (Exception ex) {
@@ -121,20 +121,20 @@ public class iTunes extends DefaultApplication {
 		}
 		if (titles.size() == 1) {
 			try {
-				String title = (String) titles.get(0);
+				String title = titles.get(0);
 
-				List list = PlaylistsManager.findByTitle(title);
+				List<Playlists> list = PlaylistsManager.findByTitle(title);
 				if (list!=null && list.size()>0)
 				{
-					Playlists playlist = (Playlists) list.get(0);
+					Playlists playlist = list.get(0);
 
-					ArrayList tracks = new ArrayList();
-					List playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
+					ArrayList<FileItem> tracks = new ArrayList<FileItem>();
+					List<PlaylistsTracks> playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
 					if (playlists!=null && playlists.size()>0)
 					{
-						Iterator iterator = playlists.iterator();
+						Iterator<PlaylistsTracks> iterator = playlists.iterator();
 						while (iterator.hasNext()) {
-							PlaylistsTracks track = (PlaylistsTracks) iterator.next();
+							PlaylistsTracks track = iterator.next();
 							if (track.getTrack()!=0)
 							{
 								Audio audio = AudioManager.retrieveAudio(track.getTrack());
@@ -174,16 +174,16 @@ public class iTunes extends DefaultApplication {
 			mCountText.setColor(Color.GREEN);
 			mCountText.setShadow(true);
 
-			List titles = null;
+			List<String> titles = null;
 			try {
 				titles = PlaylistsManager.listTitles();
 			} catch (Exception ex) {
 				Tools.logException(PlaylistParser.class, ex);
 			}
 
-			Iterator iterator = titles.iterator();
+			Iterator<String> iterator = titles.iterator();
 			while (iterator.hasNext()) {
-				String title = (String) iterator.next();
+				String title = iterator.next();
 				mMenuList.add(new FolderItem(title, title));
 			}
 		}
@@ -229,18 +229,18 @@ public class iTunes extends DefaultApplication {
 						public void run() {
 							try {
 								FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-								List list = PlaylistsManager.findByTitle((String) nameFile.getValue());
+								List<Playlists> list = PlaylistsManager.findByTitle((String) nameFile.getValue());
 								if (list!=null && list.size()>0)
 								{
-									Playlists playlist = (Playlists) list.get(0);
+									Playlists playlist = list.get(0);
 
-									ArrayList tracks = new ArrayList();
-									List playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
+									ArrayList<FileItem> tracks = new ArrayList<FileItem>();
+									List<PlaylistsTracks> playlists = PlaylistsTracksManager.findByPlaylists(playlist.getId());
 									if (playlists!=null && playlists.size()>0)
 									{
-										Iterator iterator = playlists.iterator();
+										Iterator<PlaylistsTracks> iterator = playlists.iterator();
 										while (iterator.hasNext()) {
-											PlaylistsTracks track = (PlaylistsTracks) iterator.next();
+											PlaylistsTracks track = iterator.next();
 											if (track.getTrack()!=0)
 											{
 												Audio audio = AudioManager.retrieveAudio(track.getTrack());
@@ -267,15 +267,15 @@ public class iTunes extends DefaultApplication {
 					public void run() {
 						try {
 							FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-							List playlists = PlaylistsManager.findByTitle((String) nameFile.getValue());
+							List<Playlists> playlists = PlaylistsManager.findByTitle((String) nameFile.getValue());
 							if (playlists != null && playlists.size() > 0) {
-								Playlists playlist = (Playlists) playlists.get(0);
+								Playlists playlist = playlists.get(0);
 
-								List pList = PlaylistsTracksManager.findByPlaylists(playlist.getId());
-								ArrayList tracks = new ArrayList();
-								Iterator iterator = pList.iterator();
+								List<PlaylistsTracks> pList = PlaylistsTracksManager.findByPlaylists(playlist.getId());
+								ArrayList<FileItem> tracks = new ArrayList<FileItem>();
+								Iterator<PlaylistsTracks> iterator = pList.iterator();
 								while (iterator.hasNext()) {
-									PlaylistsTracks track = (PlaylistsTracks) iterator.next();
+									PlaylistsTracks track = iterator.next();
 									if (track.getTrack()!=0)
 									{
 										Audio audio = AudioManager.retrieveAudio(track.getTrack());

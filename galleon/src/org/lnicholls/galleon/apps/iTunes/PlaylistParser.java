@@ -18,8 +18,6 @@ package org.lnicholls.galleon.apps.iTunes;
  */
 
 import java.io.*;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,7 +68,7 @@ public class PlaylistParser {
     public PlaylistParser(String path, boolean debugging) {
         try {
         	//path = "D:/galleon/iTunes Music Library.xml";
-        	ArrayList currentPlaylists = new ArrayList(); 
+        	ArrayList<String> currentPlaylists = new ArrayList<String>(); 
         	// Read all tracks
         	XMLReader trackReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
         	TrackParser trackParser = new TrackParser(debugging);
@@ -105,18 +103,18 @@ public class PlaylistParser {
                 return;
 
             // Remove old playlists
-            List list = PlaylistsManager.listAll();
+            List<Playlists> list = PlaylistsManager.listAll();
             if (list!=null && list.size()>0)
             {
-	            Iterator playlistIterator = list.iterator();
+	            Iterator<Playlists> playlistIterator = list.iterator();
 	        	while (playlistIterator.hasNext())
 	            {
-	            	Playlists playlist = (Playlists)playlistIterator.next();
+	            	Playlists playlist = playlistIterator.next();
 	            	boolean found = false;
-	            	Iterator iterator = currentPlaylists.iterator();
+	            	Iterator<String> iterator = currentPlaylists.iterator();
 	                while (iterator.hasNext())
 	                {
-	                	String externalId = (String)iterator.next();
+	                	String externalId = iterator.next();
 	                	if (externalId.equals(playlist.getExternalId()))
 	                	{
 	                		found = true;
@@ -646,10 +644,10 @@ public class PlaylistParser {
                 		try {
                     		boolean found = false;
                     		
-                    		List list = PlaylistsManager.findByExternalId(mPlaylistId);
+                    		List<Playlists> list = PlaylistsManager.findByExternalId(mPlaylistId);
                     		if (list != null && list.size()>0)
                     		{
-                    			Playlists playlists = (Playlists)list.get(0);
+                    			Playlists playlists = list.get(0);
                     			PlaylistsManager.deletePlaylistsTracks(playlists);
                     			found = true;
                     			list.clear();

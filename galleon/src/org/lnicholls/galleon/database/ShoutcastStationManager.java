@@ -19,11 +19,11 @@ import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class ShoutcastStationManager {
-	private static Logger log = Logger.getLogger(ShoutcastStationManager.class
-			.getName());
+//	private static Logger log = Logger.getLogger(ShoutcastStationManager.class
+//			.getName());
 	public static interface Callback {
 		public void visit(Session session, ShoutcastStation ShoutcastStation);
 	}
@@ -133,8 +133,9 @@ public class ShoutcastStationManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<ShoutcastStation> listAll() throws HibernateException {
+		List<ShoutcastStation> list = new ArrayList<ShoutcastStation>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -152,12 +153,13 @@ public class ShoutcastStationManager {
 		}
 		return list;
 	}
-	public static List findByGenre(String genre) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ShoutcastStation> findByGenre(String genre) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ShoutcastStation> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ShoutcastStation as ShoutcastStation where ShoutcastStation.genre=?")
 					.setString(0, genre).list();
@@ -171,12 +173,13 @@ public class ShoutcastStationManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByUrl(String url) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ShoutcastStation> findByUrl(String url) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ShoutcastStation> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ShoutcastStation as ShoutcastStation where ShoutcastStation.url=?")
 					.setString(0, url).list();

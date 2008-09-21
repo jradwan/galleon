@@ -14,15 +14,15 @@ package org.lnicholls.galleon.apps.photos;
  *
  * See the file "COPYING" for more details.
  */
-import com.tivo.hme.bananas.BEvent;
-import com.tivo.hme.bananas.BText;
-import com.tivo.hme.bananas.BView;
+//import com.tivo.hme.bananas.BEvent;
+//import com.tivo.hme.bananas.BText;
+//import com.tivo.hme.bananas.BView;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+//import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
@@ -43,10 +43,10 @@ import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
-import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
-import org.lnicholls.galleon.util.FileSystemContainer.Item;
+//import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
+//import org.lnicholls.galleon.util.FileSystemContainer.Item;
 import org.lnicholls.galleon.widget.DefaultApplication;
-import org.lnicholls.galleon.widget.DefaultMenuScreen;
+//import org.lnicholls.galleon.widget.DefaultMenuScreen;
 
 public class Photos extends DefaultApplication {
 	private static Logger log = Logger.getLogger(Photos.class.getName());
@@ -73,7 +73,7 @@ public class Photos extends DefaultApplication {
 		PersistentValue persistentValue = PersistentValueManager
 				.loadPersistentValue(DefaultApplication.TRACKER);
 		if (persistentValue != null) {
-			List files = new ArrayList();
+			List<FileItem> files = new ArrayList<FileItem>();
 			StringTokenizer tokenizer = new StringTokenizer(persistentValue
 					.getValue(), DefaultApplication.SEPARATOR);
 			while (tokenizer.hasMoreTokens())
@@ -95,7 +95,7 @@ public class Photos extends DefaultApplication {
 				NameValue nameValue = (NameValue) imagesConfiguration
 						.getPaths().get(0);
 				File file = new File(nameValue.getValue());
-				FileItem nameFile = new FileItem(nameValue.getName(), file);
+//				FileItem nameFile = new FileItem(nameValue.getName(), file);
 				FileSystemContainer fileSystemContainer = new FileSystemContainer(
 						file.getCanonicalPath());
 				setCurrentTrackerContext(file.getCanonicalPath());
@@ -144,8 +144,8 @@ public class Photos extends DefaultApplication {
     }
 	public static class PhotosFactory extends AppFactory {
 		public void initialize() {
-			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) getAppContext()
-					.getConfiguration();
+//			PhotosConfiguration imagesConfiguration = (PhotosConfiguration) getAppContext()
+//					.getConfiguration();
             Server.getServer().scheduleLongTerm(new ReloadTask(new ReloadCallback() {
                     public void reload() {
                         try {
@@ -220,7 +220,7 @@ public class Photos extends DefaultApplication {
                                         location = copy.getCanonicalPath();
                                 }
 
-                                AlbumParser AlbumParser = new AlbumParser(location);
+                               new AlbumParser(location); // side effects load the library
 
                                 synchronized (this) {
                                     try {

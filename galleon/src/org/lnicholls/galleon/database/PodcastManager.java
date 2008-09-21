@@ -414,6 +414,7 @@ public class PodcastManager {
 			Tools.logException(PodcastManager.class, ex);
 		}
 	}
+	@SuppressWarnings("unchecked")
 	private static Podcast trim(Podcast podcast)
 	{
 		if (podcast!=null)

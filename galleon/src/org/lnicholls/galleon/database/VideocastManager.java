@@ -156,8 +156,9 @@ public class VideocastManager {
 		}
 		return list;
 	}
-	public static List listAllSubscribed() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> listAllSubscribed() throws HibernateException {
+		List<Videocast> list = new ArrayList<Videocast>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -177,9 +178,9 @@ public class VideocastManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Videocast> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Videocast> list = new ArrayList<Videocast>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -231,12 +232,13 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Videocast> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.path=?")
 					.setString(0,
@@ -251,12 +253,13 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigen(String origen) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Videocast> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.origen=?")
 					.setString(0,
@@ -271,12 +274,13 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitle(String title) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Videocast> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.title=?")
 					.setString(0,
@@ -291,12 +295,13 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Videocast> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Videocast as Videocast where Videocast.externalId=?")
 					.setString(0, id).list();
@@ -310,12 +315,13 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listTitles() throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> listTitles() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Videocast> list = session
 					.createQuery(
 							"select Videocast.title from org.lnicholls.galleon.database.Videocast as Videocast")
 					.list();
@@ -329,13 +335,13 @@ public class VideocastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List getVideocasts() throws HibernateException {
-		List names = new ArrayList();
+	public static List<NameValue> getVideocasts() throws HibernateException {
+		List<NameValue> names = new ArrayList<NameValue>();
 		try {
-			List videocasts = listAllSubscribed();
+			List<Videocast> videocasts = listAllSubscribed();
 			if (videocasts != null && videocasts.size() > 0) {
-				for (Iterator i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
-					Videocast videocast = (Videocast) i.next();
+				for (Iterator<Videocast> i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
+					Videocast videocast = i.next();
 					names.add(new NameValue(videocast.getTitle(), videocast
 							.getPath()));
 				}
@@ -345,16 +351,16 @@ public class VideocastManager {
 		}
 		return names;
 	}
-	public static void setVideocasts(List list) throws HibernateException {
+	public static void setVideocasts(List<NameValue> list) throws HibernateException {
 		try {
-			List videocasts = listAllSubscribed();
+			List<Videocast> videocasts = listAllSubscribed();
 			if (videocasts != null && videocasts.size() > 0) {
-				Iterator iterator = list.iterator();
+				Iterator<NameValue> iterator = list.iterator();
 				while (iterator.hasNext()) {
 					NameValue nameValue = (NameValue) iterator.next();
 					boolean found = false;
-					for (Iterator i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
-						Videocast videocast = (Videocast) i.next();
+					for (Iterator<Videocast> i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
+						Videocast videocast = i.next();
 						if (videocast.getPath().equals(nameValue.getValue())) {
 							videocast.setTitle(nameValue.getName());
 							updateVideocast(videocast);
@@ -366,12 +372,12 @@ public class VideocastManager {
 						Videocast videocast = new Videocast(
 								nameValue.getName(),
 								Videocast.STATUS_SUBSCRIBED, nameValue
-								.getValue(), 0, new ArrayList());
+								.getValue(), 0, new ArrayList<VideocastTrack>());
 						createVideocast(videocast);
 					}
 				}
 				// Remove videocasts no longer on list
-				for (Iterator i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
+				for (Iterator<Videocast> i = videocasts.iterator(); i.hasNext(); /* Nothing */) {
 					Videocast videocast = (Videocast) i.next();
 					boolean found = false;
 					iterator = list.iterator();
@@ -388,12 +394,12 @@ public class VideocastManager {
 					}
 				}
 			} else {
-				Iterator iterator = list.iterator();
+				Iterator<NameValue> iterator = list.iterator();
 				while (iterator.hasNext()) {
 					NameValue nameValue = (NameValue) iterator.next();
 					Videocast videocast = new Videocast(nameValue.getName(),
 							Videocast.STATUS_SUBSCRIBED, nameValue
-							.getValue(), 0, new ArrayList());
+							.getValue(), 0, new ArrayList<VideocastTrack>());
 					createVideocast(videocast);
 				}
 			}
@@ -401,6 +407,7 @@ public class VideocastManager {
 			Tools.logException(VideocastManager.class, ex);
 		}
 	}
+	@SuppressWarnings("unchecked")
 	private static Videocast trim(Videocast videocast) {
 		if (videocast != null) {
 			videocast.setAuthor(Tools.trim(videocast.getAuthor(), 255));
@@ -416,10 +423,10 @@ public class VideocastManager {
 			videocast.setSubtitle(Tools.trim(videocast.getSubtitle(), 4096));
 			videocast.setSummary(Tools.trim(videocast.getSummary(), 4096));
 			videocast.setTitle(Tools.trim(videocast.getTitle(), 255));
-			List list = videocast.getTracks();
-			Iterator iterator = list.iterator();
+			List<VideocastTrack> list = (List<VideocastTrack>)videocast.getTracks();
+			Iterator<VideocastTrack> iterator = list.iterator();
 			while (iterator.hasNext()) {
-				VideocastTrack track = (VideocastTrack) iterator.next();
+				VideocastTrack track = iterator.next();
 				track.setAuthor(Tools.trim(track.getAuthor(), 255));
 				track.setCategory(Tools.trim(track.getCategory(), 255));
 				track.setDescription(Tools.trim(track.getDescription(), 4096));

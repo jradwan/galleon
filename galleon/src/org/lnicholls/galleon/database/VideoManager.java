@@ -23,10 +23,10 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class VideoManager {
-	private static Logger log = Logger.getLogger(VideoManager.class.getName());
+	//private static Logger log = Logger.getLogger(VideoManager.class.getName());
 	public static interface Callback {
 		public void visit(Session session, Video video);
 	}
@@ -107,8 +107,9 @@ public class VideoManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Video> listAll() throws HibernateException {
+		List<Video> list = new ArrayList<Video>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -125,13 +126,13 @@ public class VideoManager {
 		}
 		return list;
 	}
-	public static List listAllTiVo() throws HibernateException {
-		List list = new ArrayList();
-		List all = listAll();
-		Iterator iterator = all.iterator();
+	public static List<Video> listAllTiVo() throws HibernateException {
+		List<Video> list = new ArrayList<Video>();
+		List<Video> all = listAll();
+		Iterator<Video> iterator = all.iterator();
 		while (iterator.hasNext())
 		{
-			Video video = (Video) iterator.next();
+			Video video = iterator.next();
 			if (video.getOrigen() == null)
 				list.add(video);
 		}
@@ -165,9 +166,9 @@ public class VideoManager {
 		 */
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Video> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Video> list = new ArrayList<Video>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -220,12 +221,13 @@ public class VideoManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Video> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Video> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Video as video where video.path=?")
 					.setString(0, path).list();
@@ -239,12 +241,13 @@ public class VideoManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByFilename(String filename) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Video> findByFilename(String filename) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session.createCriteria(Video.class).add( Expression.like("path", "%"+filename) ).list();
+			List<Video> list = session.createCriteria(Video.class).add( Expression.like("path", "%"+filename) ).list();
 			tx.commit();
 			return list;
 		} catch (HibernateException he) {

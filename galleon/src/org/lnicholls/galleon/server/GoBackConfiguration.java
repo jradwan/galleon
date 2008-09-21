@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.util.NameValue;
 
+@SuppressWarnings("serial")
 public class GoBackConfiguration implements Serializable {
 
 	public GoBackConfiguration() {
@@ -80,11 +81,11 @@ public class GoBackConfiguration implements Serializable {
 		mConversionTool = value;
 	}
 
-	public List getPaths() {
+	public List<NameValue> getPaths() {
 		return mPaths;
 	}
 
-	public void setPaths(List value) {
+	public void setPaths(List<NameValue> value) {
 		mModified = true;
 		mPaths = value;
 	}
@@ -123,7 +124,7 @@ public class GoBackConfiguration implements Serializable {
 
 	private String mConversionTool;
 
-	private List mPaths = new ArrayList();
+	private List<NameValue> mPaths = new ArrayList<NameValue>();
 
 	private boolean mModified;
 }

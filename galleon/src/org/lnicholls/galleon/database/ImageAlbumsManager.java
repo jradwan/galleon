@@ -21,11 +21,11 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class ImageAlbumsManager {
-	private static Logger log = Logger.getLogger(ImageAlbumsManager.class
-			.getName());
+//	private static Logger log = Logger.getLogger(ImageAlbumsManager.class
+//			.getName());
 	public static interface Callback {
 		public void visit(Session session, ImageAlbums ImageAlbums);
 	}
@@ -133,8 +133,9 @@ public class ImageAlbumsManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbums> listAll() throws HibernateException {
+		List<ImageAlbums> list = new ArrayList<ImageAlbums>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -151,9 +152,9 @@ public class ImageAlbumsManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<ImageAlbums> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<ImageAlbums> list = new ArrayList<ImageAlbums>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -205,12 +206,13 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbums> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ImageAlbums> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.path=?")
 					.setString(0, path).list();
@@ -224,12 +226,13 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigen(String origen) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbums> findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ImageAlbums> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.origen=?")
 					.setString(0,
@@ -244,12 +247,13 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitle(String title) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbums> findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ImageAlbums> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.title=?")
 					.setString(0,
@@ -264,12 +268,13 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbums> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ImageAlbums> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.externalId=?")
 					.setString(
@@ -284,12 +289,13 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listAlbums() throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<String> listAlbums() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<String> list = session
 					.createQuery(
 							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=false order by title ")
 					.list();
@@ -303,12 +309,13 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listRolls() throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<String> listRolls() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<String> list = session
 					.createQuery(
 							"select ImageAlbums.title from org.lnicholls.galleon.database.ImageAlbums as ImageAlbums where ImageAlbums.isRoll=true order by title")
 					.list();
@@ -322,13 +329,14 @@ public class ImageAlbumsManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static void deleteImageAlbumsPictures(ImageAlbums ImageAlbums)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ImageAlbumsPictures> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ImageAlbumsPictures as ImageAlbumsPictures where ImageAlbumsPictures.imagealbums=?")
 					.setInteger(0, ImageAlbums.getId()).list();
@@ -336,8 +344,7 @@ public class ImageAlbumsManager {
 			{
 				for (int i = 0; i < list.size(); i++)
 				{
-					ImageAlbumsPictures imageAlbumsPictures = (ImageAlbumsPictures) list
-							.get(i);
+					ImageAlbumsPictures imageAlbumsPictures = list.get(i);
 					session.delete(imageAlbumsPictures);
 				}
 			}

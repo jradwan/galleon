@@ -21,10 +21,10 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class ImageManager {
-	private static Logger log = Logger.getLogger(ImageManager.class.getName());
+//	private static Logger log = Logger.getLogger(ImageManager.class.getName());
 	public static interface Callback {
 		public void visit(Session session, Image image);
 	}
@@ -127,8 +127,9 @@ public class ImageManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Image> listAll() throws HibernateException {
+		List<Image> list = new ArrayList<Image>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -145,9 +146,9 @@ public class ImageManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Image> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Image> list = new ArrayList<Image>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -199,12 +200,13 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Image> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Image> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Image as Image where Image.path=?")
 					.setString(0, path).list();
@@ -218,13 +220,14 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static long countImagesByOrigin(String origin)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Long> list = session
 					.createQuery(
 							"select count(image) from org.lnicholls.galleon.database.Image as image where image.origen=?")
 					.setString(0, origin).list();
@@ -238,12 +241,13 @@ public class ImageManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Image> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Image> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Image as Image where Image.externalId=?")
 					.setString(0, id)

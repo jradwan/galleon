@@ -20,6 +20,7 @@ import org.lnicholls.galleon.app.*;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+@SuppressWarnings("serial")
 public class WeatherConfiguration implements AppConfiguration {
     
     public String getId() {

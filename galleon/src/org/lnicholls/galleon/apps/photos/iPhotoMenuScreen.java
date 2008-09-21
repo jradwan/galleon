@@ -39,9 +39,9 @@ import org.lnicholls.galleon.database.ImageAlbumsPictures;
 import org.lnicholls.galleon.database.ImageAlbumsPicturesManager;
 import org.lnicholls.galleon.database.PersistentValue;
 import org.lnicholls.galleon.database.PersistentValueManager;
-import org.lnicholls.galleon.util.FileFilters;
-import org.lnicholls.galleon.util.FileSystemContainer;
-import org.lnicholls.galleon.util.NameValue;
+//import org.lnicholls.galleon.util.FileFilters;
+//import org.lnicholls.galleon.util.FileSystemContainer;
+//import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.util.FileSystemContainer.FileItem;
 import org.lnicholls.galleon.util.FileSystemContainer.FolderItem;
@@ -60,7 +60,7 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
         setFooter("Press ENTER for options");
         getBelow().setResource(app.getMenuBackground(), RSRC_HALIGN_LEFT | RSRC_IMAGE_VFIT);
         getBelow().flush();
-        List albums = null;
+        List<String> albums = null;
         String title;
         if (isAlbumScreen) {
             try {
@@ -68,8 +68,8 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
             } catch (Exception ex) {
                 Tools.logException(Photos.class, ex);
             }
-            for (Iterator i = albums.iterator(); i.hasNext(); /* Nothing */) {
-                title = (String) i.next();
+            for (Iterator<String> i = albums.iterator(); i.hasNext(); /* Nothing */) {
+                title = i.next();
                 mMenuList.add(new FolderItem(title, title));
             }
         } else if (isRollScreen) {
@@ -78,8 +78,8 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
             } catch (Exception ex) {
                 Tools.logException(Photos.class, ex);
             }
-            for (Iterator i = albums.iterator(); i.hasNext(); /* Nothing */) {
-                title = (String) i.next();
+            for (Iterator<String> i = albums.iterator(); i.hasNext(); /* Nothing */) {
+                title = i.next();
                 mMenuList.add(new FolderItem(title, title));
             }
         } else {
@@ -152,21 +152,21 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                     public void run() {
                         try {
                             FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                            List list = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
+                            List<ImageAlbums> list = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
                             // XXX common code with size == 1!
                             if (list!=null && list.size()>0)
 								{
-									ImageAlbums imageAlbum = (ImageAlbums) list.get(0);
+									ImageAlbums imageAlbum = list.get(0);
 									Logger log = Logger.getLogger(Photos.class.getName());
 									
-									ArrayList pictures = new ArrayList();
-									List imageAlbums = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
+									ArrayList<FileItem> pictures = new ArrayList<FileItem>();
+									List<ImageAlbumsPictures> imageAlbums = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
 									if (imageAlbums!=null && imageAlbums.size()>0)
                                         {
 											log.debug("Album " + (String) nameFile.getValue() + " has " + imageAlbums.size() + " pictures");
-                                            Iterator iterator = imageAlbums.iterator();
+                                            Iterator<ImageAlbumsPictures> iterator = imageAlbums.iterator();
                                             while (iterator.hasNext()) {
-                                                ImageAlbumsPictures picture = (ImageAlbumsPictures) iterator.next();
+                                                ImageAlbumsPictures picture = iterator.next();
                                                 if (picture.getPicture()!=0) {
                                                     Image image = ImageManager.retrieveImage(picture.getPicture());
                 									log.debug("Album " + (String) nameFile.getValue() + "includes " + image.getPath());
@@ -207,17 +207,17 @@ public class iPhotoMenuScreen extends DefaultMenuScreen {
                 public void run() {
                     try {
                         FileItem nameFile = (FileItem) (mMenuList.get(mMenuList.getFocus()));
-                        List imageAlbums = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
+                        List<ImageAlbums> imageAlbums = ImageAlbumsManager.findByTitle((String) nameFile.getValue());
 						Logger log = Logger.getLogger(Photos.class.getName());
 
 						if (imageAlbums != null && imageAlbums.size() > 0) {
-                            ImageAlbums imageAlbum = (ImageAlbums) imageAlbums.get(0);
+                            ImageAlbums imageAlbum = imageAlbums.get(0);
 
-                            List pList = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
-                            ArrayList pictures = new ArrayList();
-                            Iterator iterator = pList.iterator();
+                            List<ImageAlbumsPictures> pList = ImageAlbumsPicturesManager.findByImageAlbums(imageAlbum.getId());
+                            ArrayList<FileItem> pictures = new ArrayList<FileItem>();
+                            Iterator<ImageAlbumsPictures> iterator = pList.iterator();
                             while (iterator.hasNext()) {
-                                ImageAlbumsPictures picture = (ImageAlbumsPictures) iterator.next();
+                                ImageAlbumsPictures picture = iterator.next();
                                 if (picture.getPicture()!=0) {
                                     Image image = ImageManager.retrieveImage(picture.getPicture());
 									log.debug("Album " + (String) nameFile.getValue() + "includes " + image.getPath());

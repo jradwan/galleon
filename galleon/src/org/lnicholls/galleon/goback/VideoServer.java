@@ -18,7 +18,6 @@ package org.lnicholls.galleon.goback;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -84,7 +83,7 @@ public class VideoServer extends HttpServer {
 		mDurationFormat = new SimpleDateFormat();
 		mDurationFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		mDurationFormat.applyPattern("'PT'HH'H'mm'M'"); // PT1H30M
-		mCalendar = new GregorianCalendar();
+		//mCalendar = new GregorianCalendar();
 
 		start();
 	}
@@ -143,14 +142,14 @@ public class VideoServer extends HttpServer {
 					StringTokenizer tokenizer = new StringTokenizer(container, "/");
 					if (tokenizer.hasMoreTokens()) {
 						String name = tokenizer.nextToken();
-						List paths = goBackConfiguration.getPaths();
-						List published = new ArrayList();
+						List<NameValue> paths = goBackConfiguration.getPaths();
+						List<NameValue> published = new ArrayList<NameValue>();
 						published.addAll(mPublished);
 						published.addAll(paths);
 
-						Iterator iterator = published.iterator();
+						Iterator<NameValue> iterator = published.iterator();
 						while (iterator.hasNext()) {
-							NameValue nameValue = (NameValue) iterator.next();
+							NameValue nameValue = iterator.next();
 							if (nameValue.getName().equals(name)) {
 								path = nameValue.getValue();
 								while (tokenizer.hasMoreTokens())
@@ -200,13 +199,13 @@ public class VideoServer extends HttpServer {
 					if (tokenizer.hasMoreTokens()) {
 						String name = tokenizer.nextToken();
 
-						List paths = goBackConfiguration.getPaths();
-						List published = new ArrayList();
+						List<NameValue> paths = goBackConfiguration.getPaths();
+						List<NameValue> published = new ArrayList<NameValue>();
 						published.addAll(mPublished);
 						published.addAll(paths);
-						Iterator iterator = published.iterator();
+						Iterator<NameValue> iterator = published.iterator();
 						while (iterator.hasNext()) {
-							NameValue nameValue = (NameValue) iterator.next();
+							NameValue nameValue = iterator.next();
 							if (nameValue.getName().equals(name)) {
 								path = nameValue.getValue();
 								while (tokenizer.hasMoreTokens())
@@ -224,9 +223,9 @@ public class VideoServer extends HttpServer {
 						File directory = new File(serverConfiguration.getRecordingsPath());
 						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
 								true);
-						List files = fileSystemContainer.getItems(FileFilters.videoFilter);
+						List<Item> files = fileSystemContainer.getItems(FileFilters.videoFilter);
 						for (int i = 0; i < files.size(); i++) {
-							Item nameFile = (Item) files.get(i);
+							Item nameFile = files.get(i);
 							File match = (File) nameFile.getValue();
 							if (match.getName().equals(path)) {
 								file = match;
@@ -298,15 +297,15 @@ public class VideoServer extends HttpServer {
 
 								Video video = null;
 								try {
-									List list = VideoManager.findByPath(file.getCanonicalPath());
+									List<Video> list = VideoManager.findByPath(file.getCanonicalPath());
 									if (list != null && list.size() > 0) {
-										video = (Video) list.get(0);
+										video = list.get(0);
 									} else {
 										path = file.getAbsolutePath();
 										path = path.substring(0, 1).toLowerCase() + path.substring(1);
 										list = VideoManager.findByPath(path);
 										if (list != null && list.size() > 0) {
-											video = (Video) list.get(0);
+											video = list.get(0);
 										}
 									}
 									if (video!=null)
@@ -350,7 +349,7 @@ public class VideoServer extends HttpServer {
 					if (!Tools.isLocal(address) && serverConfiguration.canShare())
 					{
 						log.info("Remote connection: "+address);
-						List apps = Server.getServer().getAppUrls(true);
+						List<NameValue> apps = Server.getServer().getAppUrls(true);
 						int counter = apps.size();
 
 						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
@@ -426,7 +425,6 @@ public class VideoServer extends HttpServer {
 						buffer.append("<TotalItems>" + counter + "</TotalItems>\n");
 						buffer.append("</Details>\n");
 						if (goBackConfiguration.isPublishTiVoRecordings()) {
-							// TODO unify with doPublish
 							String title = Tools.escapeXMLChars(mHost);
 							doPublish(buffer, title, null, directory, serverConfiguration,
 									"GalleonRecordings", false);
@@ -920,10 +918,10 @@ public class VideoServer extends HttpServer {
 			String dstring = dir.getCanonicalPath();
 			FileSystemContainer fileSystemContainer =
 				new FileSystemContainer(dstring, true);
-			List<FolderItem> dirs = (List<FolderItem>)fileSystemContainer.getItemsSorted(FileFilters.directoryFilter);
-			Iterator<FolderItem> fiter = dirs.iterator();
+			List<Item> dirs = (List<Item>)fileSystemContainer.getItemsSorted(FileFilters.directoryFilter);
+			Iterator<Item> fiter = dirs.iterator();
 			while (fiter.hasNext()) {
-				FolderItem fi = fiter.next();
+				FolderItem fi = (FolderItem) fiter.next();
 				File f = (File) fi.getValue();
 				String n = name;
 				if (n.length() != 0)
@@ -1343,7 +1341,7 @@ public class VideoServer extends HttpServer {
 
 	private SimpleDateFormat mDurationFormat;
 
-	private GregorianCalendar mCalendar;
+	//private GregorianCalendar mCalendar;
 
-	private List mPublished = new ArrayList();
+	private List<NameValue> mPublished = new ArrayList<NameValue>();
 }

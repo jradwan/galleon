@@ -13,17 +13,19 @@ import org.lnicholls.galleon.server.DownloadConfiguration;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Tools;
 
+@SuppressWarnings("serial")
 public class DownloadManager implements Serializable {
 
 	private static Logger log = Logger.getLogger(DownloadManager.class.getName());
 
+	@SuppressWarnings("serial")
 	private class SL implements StatusListener, Serializable {
 		public void statusChanged(StatusEvent se) {
 			Downloader dt = (Downloader) se.getSource();
 
 			if (da.length > 0)
 			{
-				if (se.getNewStatus() == se.STOPPED || se.getNewStatus() == se.COMPLETED) {
+				if (se.getNewStatus() == StatusEvent.STOPPED || se.getNewStatus() == StatusEvent.COMPLETED) {
 					Downloader[] dab = new Downloader[da.length - 1];
 					int counter = 0;
 					for (int i = 0; i < da.length; i++) {
@@ -34,7 +36,7 @@ public class DownloadManager implements Serializable {
 					--running;
 				}
 				else
-				if (se.getNewStatus() == se.ERROR) {
+				if (se.getNewStatus() == StatusEvent.ERROR) {
 					Downloader[] dab = new Downloader[da.length - 1];
 					int counter = 0;
 					for (int i = 0; i < da.length; i++) {
@@ -45,7 +47,7 @@ public class DownloadManager implements Serializable {
 					--running;
 				}
 	
-				if (se.getNewStatus() == se.COMPLETED) {
+				if (se.getNewStatus() == StatusEvent.COMPLETED) {
 					// pauseMenuItem.setEnabled( false );
 				}
 			}
@@ -55,11 +57,12 @@ public class DownloadManager implements Serializable {
 	/**
 	 * Thread status listener. It updates thread progress and status in screen.
 	 */
+	@SuppressWarnings("serial")
 	private class TSL implements StatusListener, Serializable {
 		public void statusChanged(StatusEvent se) {
 			DownloadThread dt = (DownloadThread) se.getSource();
 
-			if (se.getNewStatus() == se.ERROR) {
+			if (se.getNewStatus() == StatusEvent.ERROR) {
 				log.info("Restarting... " + dt.getName());
 				try {
 					dt.getParentDownload().resumeThread(dt.getID());
@@ -70,51 +73,53 @@ public class DownloadManager implements Serializable {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	private class DWL implements DataWritingListener, Serializable {
 		public void dataWritten(DataWritingEvent dwe) {
 
 			Downloader d = (Downloader) dwe.getSource();
-			long b = d.getBytesCompleted();
-			long s = d.getSize();
+			d.getBytesCompleted();
+			d.getSize();
 
 			// log.debug((int) (b*100/s));
 		}
 	}
 
+	@SuppressWarnings("serial")
 	private class TDWL implements DataWritingListener, Serializable {
 		public void dataWritten(DataWritingEvent dwe) {
 
 			DownloadThread dt = (DownloadThread) dwe.getSource();
 
-			long tb = dt.getBytesCompleted();
-			long ts = dt.getSize();
+			dt.getBytesCompleted();
+			dt.getSize();
 		}
 	}
 
 	public DownloadManager() {
 	}
 
-	private void startMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-		int idx = 0;
-
-		try {
-			if (da[idx].getStatus() == ThreadStatus.STOPPED.getID()) {
-				da[idx].start();
-
-				++running;
-
-				if (running == 1) {
-					// t.scheduleAtFixedRate( new DownloadMonitor(), 0, 1000);
-				}
-			}
-
-			if (da[idx].getStatus() == ThreadStatus.PAUSED.getID()) {
-				da[idx].resumeDownload();
-			}
-		} catch (Exception ex) {
-			Tools.logException(DownloadManager.class, ex);
-		}
-	}
+//	private void startMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+//		int idx = 0;
+//
+//		try {
+//			if (da[idx].getStatus() == ThreadStatus.STOPPED.getID()) {
+//				da[idx].start();
+//
+//				++running;
+//
+//				if (running == 1) {
+//					// t.scheduleAtFixedRate( new DownloadMonitor(), 0, 1000);
+//				}
+//			}
+//
+//			if (da[idx].getStatus() == ThreadStatus.PAUSED.getID()) {
+//				da[idx].resumeDownload();
+//			}
+//		} catch (Exception ex) {
+//			Tools.logException(DownloadManager.class, ex);
+//		}
+//	}
 
 	public void start(int idx) {
 
@@ -178,26 +183,26 @@ public class DownloadManager implements Serializable {
 		}
 	}
 
-	private void loadDownloadThreads(DownloadThread[] dt) {
+//	private void loadDownloadThreads(DownloadThread[] dt) {
+//
+//		for (int y = 0; y < dt.length; ++y) {
+//			dt[y].addStatusListener(tsl);
+//			dt[y].addDataWritingListener(tdwl);
+//		}
+//	}
 
-		for (int y = 0; y < dt.length; ++y) {
-			dt[y].addStatusListener(tsl);
-			dt[y].addDataWritingListener(tdwl);
-		}
-	}
+//	private Downloader findDownload(int id) {
+//		for (int y = 0; y < da.length; ++y)
+//			if (da[y].getID() == id)
+//				return da[y];
+//
+//		return null;
+//	}
 
-	private Downloader findDownload(int id) {
-		for (int y = 0; y < da.length; ++y)
-			if (da[y].getID() == id)
-				return da[y];
-
-		return null;
-	}
-
-	public List getDownloads() {
+	public List<Download> getDownloads() {
 		Downloader[] dab = new Downloader[da.length];
 		System.arraycopy(da, 0, dab, 0, da.length);
-		List downloads = new ArrayList();
+		List<Download> downloads = new ArrayList<Download>();
 		for (int i = 0; i < dab.length; i++)
 			downloads.add(dab[i].getDownload());
 		return downloads;

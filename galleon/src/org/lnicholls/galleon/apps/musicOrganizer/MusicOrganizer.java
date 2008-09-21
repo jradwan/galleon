@@ -940,14 +940,7 @@ public class MusicOrganizer extends DefaultApplication {
 			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 			Audio audio = null;
 			try {
-				List list = null;
-				if (nameFile.isFile())
-					list = AudioManager.findByPath(((File) nameFile.getValue()).getCanonicalPath());
-				else
-					list = AudioManager.findByPath((String) nameFile.getValue());
-				if (list != null && list.size() > 0) {
-					audio = (Audio) list.get(0);
-				}
+				audio = AudioManager.findByItem(nameFile);
 			} catch (Exception ex) {
 				Tools.logException(MusicOrganizer.class, ex);
 			}
@@ -1098,14 +1091,7 @@ public class MusicOrganizer extends DefaultApplication {
 			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 			Audio audio = null;
 			try {
-				List list = null;
-				if (nameFile.isFile())
-					list = AudioManager.findByPath(((File) nameFile.getValue()).getCanonicalPath());
-				else
-					list = AudioManager.findByPath((String) nameFile.getValue());
-				if (list != null && list.size() > 0) {
-					audio = (Audio) list.get(0);
-				}
+				audio = AudioManager.findByItem(nameFile);
 			} catch (Exception ex) {
 				Tools.logException(MusicOrganizer.class, ex);
 			}
@@ -2082,9 +2068,9 @@ public class MusicOrganizer extends DefaultApplication {
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {
-			List list = AudioManager.findByPath(path);
+			List<Audio> list = AudioManager.findByPath(path);
 			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
+				audio = list.get(0);
 			}
 		} catch (Exception ex) {
 			Tools.logException(MusicOrganizer.class, ex);

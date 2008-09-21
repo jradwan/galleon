@@ -134,8 +134,9 @@ public class PodcastManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> listAll() throws HibernateException {
+		List<Podcast> list = new ArrayList<Podcast>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -152,8 +153,9 @@ public class PodcastManager {
 		}
 		return list;
 	}
-	public static List listAllSubscribed() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> listAllSubscribed() throws HibernateException {
+		List<Podcast> list = new ArrayList<Podcast>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -173,9 +175,9 @@ public class PodcastManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Podcast> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Podcast> list = new ArrayList<Podcast>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -227,12 +229,13 @@ public class PodcastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Podcast> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Podcast as Podcast where Podcast.path=?")
 					.setString(0, path).list();
@@ -246,12 +249,13 @@ public class PodcastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigen(String origen) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Podcast> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Podcast as Podcast where Podcast.origen=?")
 					.setString(0,
@@ -266,12 +270,13 @@ public class PodcastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitle(String title) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Podcast> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Podcast as Podcast where Podcast.title=?")
 					.setString(0,
@@ -286,12 +291,13 @@ public class PodcastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Podcast> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Podcast as Podcast where Podcast.externalId=?")
 					.setString(
@@ -306,12 +312,13 @@ public class PodcastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listTitles() throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Podcast> listTitles() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Podcast> list = session
 					.createQuery(
 					"select Podcast.title from org.lnicholls.galleon.database.Podcast as Podcast")
 					.list();
@@ -325,14 +332,14 @@ public class PodcastManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List getPodcasts() throws HibernateException
+	public static List<NameValue> getPodcasts() throws HibernateException
 	{
-		List names = new ArrayList();
+		List<NameValue> names = new ArrayList<NameValue>();
 		try {
-			List podcasts = listAllSubscribed();
+			List<Podcast> podcasts = listAllSubscribed();
 			if (podcasts != null && podcasts.size() > 0) {
-				for (Iterator i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
-					Podcast podcast = (Podcast) i.next();
+				for (Iterator<Podcast> i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
+					Podcast podcast = i.next();
 					names.add(new NameValue(podcast.getTitle(), podcast
 							.getPath()));
 				}
@@ -342,17 +349,17 @@ public class PodcastManager {
 		}
 		return names;
 	}
-	public static void setPodcasts(List list) throws HibernateException
+	public static void setPodcasts(List<NameValue> list) throws HibernateException
 	{
 		try {
-			List podcasts = listAllSubscribed();
+			List<Podcast> podcasts = listAllSubscribed();
 			if (podcasts != null && podcasts.size() > 0) {
-				Iterator iterator = list.iterator();
+				Iterator<NameValue> iterator = list.iterator();
 				while (iterator.hasNext())
 				{
 					NameValue nameValue = (NameValue) iterator.next();
 					boolean found = false;
-					for (Iterator i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
+					for (Iterator<Podcast> i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
 						Podcast podcast = (Podcast) i.next();
 						if (podcast.getPath().equals(nameValue.getValue()))
 						{
@@ -366,13 +373,13 @@ public class PodcastManager {
 					{
 						Podcast podcast = new Podcast(nameValue.getName(),
 								Podcast.STATUS_SUBSCRIBED,
-								nameValue.getValue(), 0, new ArrayList());
+								nameValue.getValue(), 0, new ArrayList<PodcastTrack>());
 						createPodcast(podcast);
 					}
 				}
 				// Remove podcasts no longer on list
-				for (Iterator i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
-					Podcast podcast = (Podcast) i.next();
+				for (Iterator<Podcast> i = podcasts.iterator(); i.hasNext(); /* Nothing */) {
+					Podcast podcast = i.next();
 					boolean found = false;
 					iterator = list.iterator();
 					while (iterator.hasNext())
@@ -393,13 +400,13 @@ public class PodcastManager {
 			}
 			else
 			{
-				Iterator iterator = list.iterator();
+				Iterator<NameValue> iterator = list.iterator();
 				while (iterator.hasNext())
 				{
-					NameValue nameValue = (NameValue) iterator.next();
+					NameValue nameValue = iterator.next();
 					Podcast podcast = new Podcast(nameValue.getName(),
 							Podcast.STATUS_SUBSCRIBED, nameValue.getValue(), 0,
-							new ArrayList());
+							new ArrayList<PodcastTrack>());
 					createPodcast(podcast);
 				}
 			}
@@ -422,8 +429,8 @@ public class PodcastManager {
 			podcast.setSubtitle(Tools.trim(podcast.getSubtitle(), 4096));
 			podcast.setSummary(Tools.trim(podcast.getSummary(), 4096));
 			podcast.setTitle(Tools.trim(podcast.getTitle(), 255));
-			List list = podcast.getTracks();
-			Iterator iterator = list.iterator();
+			List<PodcastTrack> list = (List<PodcastTrack>)podcast.getTracks();
+			Iterator<PodcastTrack> iterator = list.iterator();
 			while (iterator.hasNext())
 			{
 				PodcastTrack track = (PodcastTrack) iterator.next();

@@ -434,9 +434,9 @@ public class PodcastingThread extends Thread implements Constants, ProgressListe
 				synchronized (this) {
 					try {
 						Audio audio = null;
-						List audios = AudioManager.findByPath(mDownload.getLocalFile().getCanonicalPath());
+						List<Audio> audios = AudioManager.findByPath(mDownload.getLocalFile().getCanonicalPath());
 						if (audios != null && audios.size() > 0) {
-							audio = (Audio) audios.get(0);
+							audio = audios.get(0);
 							if (audio != null) {
 								audio.setOrigen("Podcast");
 								// if (mTrack.getDuration()!=null)

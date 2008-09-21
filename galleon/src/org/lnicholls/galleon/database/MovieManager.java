@@ -21,10 +21,10 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.util.Tools;
 public class MovieManager {
-	private static Logger log = Logger.getLogger(MovieManager.class.getName());
+//	private static Logger log = Logger.getLogger(MovieManager.class.getName());
 	public static interface Callback {
 		public void visit(Session session, Movie movide);
 	}
@@ -127,8 +127,9 @@ public class MovieManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Movie> listAll() throws HibernateException {
+		List<Movie> list = new ArrayList<Movie>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -145,9 +146,9 @@ public class MovieManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Movie> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Movie> list = new ArrayList<Movie>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -200,12 +201,13 @@ public class MovieManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Movie> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Movie> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Movie as Movie where Movie.path=?")
 					.setString(0, path).list();
@@ -219,12 +221,13 @@ public class MovieManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitle(String title) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Movie> findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Movie> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Movie as Movie where Movie.title=?")
 					.setString(0, title).list();
@@ -238,12 +241,13 @@ public class MovieManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByIMDB(String imdb) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Movie> findByIMDB(String imdb) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Movie> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Movie as Movie where Movie.imdb=?")
 					.setString(0, imdb).list();

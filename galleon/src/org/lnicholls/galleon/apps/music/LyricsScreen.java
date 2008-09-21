@@ -75,14 +75,7 @@ public class LyricsScreen extends DefaultScreen {
         Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
         Audio audio = null;
         try {
-            List list = null;
-            if (nameFile.isFile())
-                list = AudioManager.findByPath(((File) nameFile.getValue()).getCanonicalPath());
-            else
-                list = AudioManager.findByPath((String) nameFile.getValue());
-            if (list != null && list.size() > 0) {
-                audio = (Audio) list.get(0);
-            }
+			audio = AudioManager.findByItem(nameFile);
         } catch (Exception ex) {
             Tools.logException(Music.class, ex);
         }

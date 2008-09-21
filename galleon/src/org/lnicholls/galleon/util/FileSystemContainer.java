@@ -38,16 +38,16 @@ public class FileSystemContainer {
         mRecursive = recursive;
     }
     
-    public List getItemsSorted(FileFilter fileFilter) {
-        List list = getItems(fileFilter);
+    public List<Item> getItemsSorted(FileFilter fileFilter) {
+        List<Item> list = getItems(fileFilter);
         return sort(list);
     }
 
-    public List getItems(FileFilter fileFilter) {
+    public List<Item> getItems(FileFilter fileFilter) {
         if (log.isDebugEnabled())
             log.debug("getItems:");
 
-        final ArrayList items = new ArrayList();
+        final ArrayList<Item> items = new ArrayList<Item>();
 
         try
         {
@@ -210,10 +210,10 @@ public class FileSystemContainer {
         return s.substring(0, i);
     }    
     
-    public final static List sort(List list)
+    public final static List<Item> sort(List<Item> list)
     {
         Item[] items = (Item[]) list.toArray(new Item[0]);
-        Arrays.sort(items, new Comparator() {
+        Arrays.sort(items, new Comparator<Object>() {
             
             public final int compare(Object o1, Object o2) {
                 Item item1 = (Item) o1;

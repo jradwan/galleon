@@ -23,7 +23,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
+//import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -52,12 +52,12 @@ public final class AppManager {
 	public AppManager(URLClassLoader appClassLoader) throws Exception {
 		mAppClassLoader = appClassLoader;
 
-		mJars = new ArrayList();
-		mApps = new ArrayList();
-		mAppContexts = new ArrayList();
-		mAppDescriptors = new ArrayList();
+		mJars = new ArrayList<File>();
+		mApps = new ArrayList<Factory>();
+		mAppContexts = new ArrayList<AppContext>();
+		mAppDescriptors = new ArrayList<AppDescriptor>();
 		getJars();
-		mHMEApps = new ArrayList();
+		mHMEApps = new ArrayList<String>();
 		// mAppFactory = new AppFactory(this);
 		// loadAppDescriptors();
 
@@ -85,14 +85,14 @@ public final class AppManager {
 
 		try {
 			if (Server.getServer().getServerConfiguration().isMenu()) {
-				Iterator iterator = mAppDescriptors.iterator();
+				Iterator<AppDescriptor> iterator = mAppDescriptors.iterator();
 				while (iterator.hasNext()) {
-					AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
+					AppDescriptor appDescriptor = iterator.next();
 					if (appDescriptor.getClassName().equals("org.lnicholls.galleon.apps.menu.Menu")) {
 						AppContext appContext = new AppContext(appDescriptor);
 						ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
 						appContext.setTitle(serverConfiguration.getName());
-						IFactory factory = createApp(appContext);
+						createApp(appContext);
 						break;
 					}
 				}
@@ -105,13 +105,13 @@ public final class AppManager {
 		}
 	}
 
-	public List getAppUrls(boolean shared) {
-		ArrayList list = new ArrayList();
+	public List<NameValue> getAppUrls(boolean shared) {
+		ArrayList<NameValue> list = new ArrayList<NameValue>();
 		try {
-			Iterator iterator = getAppHost().getAppUrls().iterator();
+			Iterator<NameValue> iterator = getAppHost().getAppUrls().iterator();
 			while (iterator.hasNext()) {
-				NameValue nameValue = (NameValue) iterator.next();
-				Iterator appsIterator = mApps.iterator();
+				NameValue nameValue = iterator.next();
+				Iterator<Factory> appsIterator = mApps.iterator();
 				while (appsIterator.hasNext()) {
 					Factory app = (Factory) appsIterator.next();
 					if (app instanceof AppFactory) {
@@ -185,9 +185,9 @@ public final class AppManager {
 	public void addApp(Factory app) {
 		mApps.add(app);
 		if (app instanceof AppFactory) {
-			Iterator iterator = mAppDescriptors.iterator();
+			Iterator<AppDescriptor> iterator = mAppDescriptors.iterator();
 			while (iterator.hasNext()) {
-				AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
+				AppDescriptor appDescriptor = iterator.next();
 				if (app.getClass().getName().startsWith(appDescriptor.getClassName())) {
 					((AppFactory) app).getAppContext().setDescriptor(appDescriptor);
 					break;
@@ -211,11 +211,11 @@ public final class AppManager {
 	 * app.setConfiguration(appConfiguration); } } }
 	 */
 
-	public List getAppDescriptors() {
-		ArrayList list = new ArrayList();
-		Iterator iterator = mAppDescriptors.iterator();
+	public List<AppDescriptor> getAppDescriptors() {
+		ArrayList<AppDescriptor> list = new ArrayList<AppDescriptor>();
+		Iterator<AppDescriptor> iterator = mAppDescriptors.iterator();
 		while (iterator.hasNext()) {
-			AppDescriptor appDescriptor = (AppDescriptor) iterator.next();
+			AppDescriptor appDescriptor = iterator.next();
 			if (!appDescriptor.getClassName().equals("org.lnicholls.galleon.apps.menu.Menu"))
 				list.add(appDescriptor);
 		}
@@ -223,24 +223,25 @@ public final class AppManager {
 		return list;
 	}
 
-	public List getApps() {
-		List appContexts = new ArrayList();
-		Iterator iterator = mApps.iterator();
+	public List<AppContext> getApps() {
+		List<AppContext> appContexts = new ArrayList<AppContext>();
+		Iterator<Factory> iterator = mApps.iterator();
 		while (iterator.hasNext()) {
-			Factory app = (Factory) iterator.next();
+			Factory app = iterator.next();
 			if (app instanceof AppFactory) {
 				AppFactory factory = (AppFactory) app;
 				if (!factory.getClass().getName().endsWith("MenuFactory"))
 					appContexts.add(factory.getAppContext());
 			}
 		}
-		iterator = mAppContexts.iterator();
-		while (iterator.hasNext()) {
-			appContexts.add(iterator.next());
+		Iterator<AppContext> fiterator = mAppContexts.iterator();
+		while (fiterator.hasNext()) {
+			appContexts.add(fiterator.next());
 		}
 		return appContexts;
 	}
 
+	@SuppressWarnings("unchecked")
 	public IFactory createApp(AppContext appContext) {
 		IFactory appFactory = null;
 		try {
@@ -291,9 +292,9 @@ public final class AppManager {
 
 	public void removeApp(AppContext appContext) {
 		try {
-			Iterator iterator = mApps.iterator();
+			Iterator<Factory> iterator = mApps.iterator();
 			while (iterator.hasNext()) {
-				Factory app = (Factory) iterator.next();
+				Factory app = iterator.next();
 				if (app instanceof AppFactory) {
 					AppFactory appFactory = (AppFactory) app;
 					if (appContext.getId() == appFactory.getAppContext().getId()) {
@@ -302,9 +303,9 @@ public final class AppManager {
 						mApps.remove(app);
 
 						try {
-							List list = ApplicationManager.findByClazz(appContext.getDescriptor().getClassName());
+							List<Application> list = ApplicationManager.findByClazz(appContext.getDescriptor().getClassName());
 							if (list != null && list.size() > 0) {
-								Application application = (Application) list.get(0);
+								Application application = list.get(0);
 								application.setDateRemoved(new Date());
 								ApplicationManager.updateApplication(application);
 							}
@@ -333,8 +334,9 @@ public final class AppManager {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void updateApp(AppContext appContext) {
-		Iterator iterator = mApps.iterator();
+		Iterator<Factory> iterator = mApps.iterator();
 		while (iterator.hasNext()) {
 			Factory app = (Factory) iterator.next();
 			if (app instanceof AppFactory) {
@@ -413,23 +415,23 @@ public final class AppManager {
 		return mAppHost;
 	}
 
-	private LinkedList mPluginListeners = new LinkedList();
+	//private LinkedList mPluginListeners = new LinkedList();
 
-	private LinkedList mPluginDescriptors = new LinkedList();
+	//private LinkedList mPluginDescriptors = new LinkedList();
 
-	private LinkedList mPlugins = new LinkedList();
+	//private LinkedList mPlugins = new LinkedList();
 
-	private ArrayList mJars;
+	private ArrayList<File> mJars;
 
-	private ArrayList mApps;
+	private ArrayList<Factory> mApps;
 
-	private ArrayList mAppContexts;
+	private ArrayList<AppContext> mAppContexts;
 
-	private ArrayList mAppDescriptors;
+	private ArrayList<AppDescriptor> mAppDescriptors;
 
 	// private AppFactory mAppFactory;
 
-	private ArrayList mHMEApps;
+	private ArrayList<String> mHMEApps;
 
 	private URLClassLoader mAppClassLoader;
 

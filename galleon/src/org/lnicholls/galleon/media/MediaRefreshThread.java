@@ -77,18 +77,18 @@ public class MediaRefreshThread extends Thread {
                                 {
                                 	if (!file.getAbsolutePath().equals(file.getCanonicalPath()))
                                 	{
-	                                	List list = AudioManager.findByPath(file.getAbsolutePath());
+	                                	List<Audio> list = AudioManager.findByPath(file.getAbsolutePath());
 	                                	if (list.size() > 0) {
-	                                		Audio audio = (Audio) list.get(0);
+	                                		Audio audio = list.get(0);
 	                                		AudioManager.deleteAudio(audio);
 	                                	}
                                 	}
                                 	
-                                	List list = AudioManager.findByPath(file.getCanonicalPath());
+                                	List<Audio> list = AudioManager.findByPath(file.getCanonicalPath());
                                 	Thread.yield();
                                     
                                     if (list.size() > 0) {
-                                        Audio audio = (Audio) list.get(0);
+                                        Audio audio = list.get(0);
                                         audio.setPath(file.getCanonicalPath());
                                         Date date = new Date(file.lastModified());
                                         if (date.getTime() > audio.getDateModified().getTime() || audio.getOrigen()==null) {

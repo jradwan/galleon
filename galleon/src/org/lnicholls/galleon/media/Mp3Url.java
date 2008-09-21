@@ -117,10 +117,10 @@ public final class Mp3Url {
 			                try
 			                {
 			                	// Hack to support Shoutcast backup servers
-			                	List list = AudioManager.findByTitleOrigenGenreExternalId(audio.getTitle(), audio.getOrigen(), audio.getGenre(), String.valueOf(++counter));
+			                	List<Audio> list = AudioManager.findByTitleOrigenGenreExternalId(audio.getTitle(), audio.getOrigen(), audio.getGenre(), String.valueOf(++counter));
 			                	if (list!=null && list.size()>0)
 			                	{
-			                		audio = (Audio)list.get(0);
+			                		audio = list.get(0);
 			                		log.debug("Trying alternate: " + audio.getPath());
 			                		hasmore = true;
 			                	}

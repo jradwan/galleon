@@ -20,7 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
-import org.lnicholls.galleon.util.NameValue;
+//import org.lnicholls.galleon.util.NameValue;
+@SuppressWarnings("serial")
 public class ShoutcastConfiguration implements AppConfiguration {
 	public static int DEFAULT_LIMIT = 40;
 	public String getName() {
@@ -31,26 +32,26 @@ public class ShoutcastConfiguration implements AppConfiguration {
 			mModified = true;
 		mName = value;
 	}
-	public void setGenres(List value) {
+	public void setGenres(List<String> value) {
 		mLimitedGenres.clear();
-		Iterator iterator = value.iterator();
+		Iterator<String> iterator = value.iterator();
 		while (iterator.hasNext()) {
-			String genre = (String) iterator.next();
+			String genre = iterator.next();
 			LimitedGenre limitedGenre = new LimitedGenre(genre, DEFAULT_LIMIT);
 			mLimitedGenres.add(limitedGenre);
 		}
 	}
-	public List getGenres() {
+	public List<String> getGenres() {
 		return null;
 	}
 	public void addGenre(String value) {
 		LimitedGenre limitedGenre = new LimitedGenre(value, DEFAULT_LIMIT);
 		mLimitedGenres.add(limitedGenre);
 	}
-	public List getLimitedGenres() {
+	public List<LimitedGenre> getLimitedGenres() {
 		return mLimitedGenres;
 	}
-	public void setLimitedGenres(List value) {
+	public void setLimitedGenres(List<LimitedGenre> value) {
 		mLimitedGenres = value;
 	}
 	public void addLimitedGenre(LimitedGenre value) {
@@ -71,6 +72,7 @@ public class ShoutcastConfiguration implements AppConfiguration {
 	public void setShared(boolean value) {
 		mShared = value;
 	}
+	@SuppressWarnings("serial")
 	public static class LimitedGenre implements Serializable {
 		public LimitedGenre() {
 		}
@@ -96,5 +98,5 @@ public class ShoutcastConfiguration implements AppConfiguration {
 	private boolean mShared;
 	private String mName;
 	private boolean mModified;
-	private List mLimitedGenres = new ArrayList();
+	private List<LimitedGenre> mLimitedGenres = new ArrayList<LimitedGenre>();
 }

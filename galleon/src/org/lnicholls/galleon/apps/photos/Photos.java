@@ -121,9 +121,9 @@ public class Photos extends DefaultApplication {
     protected static Image getImage(String path) {
         Image image = null;
         try {
-            List list = ImageManager.findByPath(path);
+            List<Image> list = ImageManager.findByPath(path);
             if (list != null && list.size() > 0) {
-                image = (Image) list.get(0);
+                image = list.get(0);
             }
         } catch (Exception ex) {
             Tools.logException(Photos.class, ex);

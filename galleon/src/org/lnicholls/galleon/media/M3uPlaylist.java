@@ -112,10 +112,10 @@ public class M3uPlaylist extends Playlist {
                     // Handle urls
                     if (inputLine.startsWith("http")) {
                         try {
-                            List list = AudioManager.findByPath(inputLine);
+                            List<Audio> list = AudioManager.findByPath(inputLine);
                             if (list!=null && list.size()>0)
                             {
-                                audio = (Audio)list.get(0);
+                                audio = list.get(0);
                             }
                         } catch (Exception ex) {
                         }

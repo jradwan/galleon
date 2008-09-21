@@ -254,9 +254,9 @@ public class ShoutcastStations {
 	                                            }
 
 	                                            Audio current = null;
-	                                            List same = AudioManager.findByPath(u);
+	                                            List<Audio> same = AudioManager.findByPath(u);
 	                                            if (same.size() > 0)
-	                                                current = (Audio) same.get(0);
+	                                                current = same.get(0);
 
 	                                            if (current != null) {
 	                                            	current.setTitle(t);
@@ -301,9 +301,9 @@ public class ShoutcastStations {
     public void remove()
     {
     	try {
-    		List list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
-			for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-				String genre = (String) i.next();
+    		List<String> list = AudioManager.listGenres(ShoutcastStations.SHOUTCAST);
+			for (Iterator<String> i = list.iterator(); i.hasNext(); /* Nothing */) {
+				String genre = i.next();
 	    		remove(genre);
 			}
 

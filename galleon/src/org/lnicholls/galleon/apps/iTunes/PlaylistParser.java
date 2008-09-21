@@ -366,9 +366,9 @@ public class PlaylistParser {
 	        	if (!found && !mDebugging)
 	        	{
 		        	try {
-		                List list = AudioManager.findByPath(location);
+		                List<Audio> list = AudioManager.findByPath(location);
 		                if (list != null && list.size() > 0) {
-		                	audio = (Audio) list.get(0);
+		                	audio = list.get(0);
 		                    list.clear();
 		                }
 		            } catch (Exception ex) {
@@ -676,9 +676,9 @@ public class PlaylistParser {
                 		try {
                             if (mDebugging)
                                 System.out.println("\tfound track ID " + mValue.toString());
-                			List list = AudioManager.findByExternalId(mValue.toString());
+                			List<Audio> list = AudioManager.findByExternalId(mValue.toString());
                             if (list != null && list.size() > 0) {
-                                Audio audio = (Audio) list.get(0);
+                                Audio audio = list.get(0);
                                 if (audio != null && mPlaylist != null) {
                                 	if (!audio.getPath().startsWith("http"))
                                     {

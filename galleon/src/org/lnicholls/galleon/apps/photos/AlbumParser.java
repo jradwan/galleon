@@ -62,7 +62,7 @@ public class AlbumParser {
     public static void main(String args[]) {
     	System.out.println("testing AlbumData parser");
     	System.out.println("You asked for parsing of: \"" + args[0] + "\".");
-    	AlbumParser x = new AlbumParser(args[0], true);
+    	new AlbumParser(args[0], true);
     }
     public AlbumParser(String path) {
         this(path, false);
@@ -113,18 +113,18 @@ public class AlbumParser {
                 return;
 
             // Remove old imageAlbums (no longer in library)
-            List list = ImageAlbumsManager.listAll();
+            List<ImageAlbums> list = ImageAlbumsManager.listAll();
             if (list!=null && list.size()>0)
             {
-	            Iterator imageAlbumIterator = list.iterator();
+	            Iterator<ImageAlbums> imageAlbumIterator = list.iterator();
 	        	while (imageAlbumIterator.hasNext())
 	            {
-	            	ImageAlbums imageAlbum = (ImageAlbums)imageAlbumIterator.next();
+	            	ImageAlbums imageAlbum = imageAlbumIterator.next();
 	            	boolean found = false;
-	            	Iterator iterator = currentImageAlbums.iterator();
+	            	Iterator<String> iterator = currentImageAlbums.iterator();
 	                while (iterator.hasNext())
 	                {
-	                	String externalId = (String)iterator.next();
+	                	String externalId = iterator.next();
 	                	if (externalId.equals(imageAlbum.getExternalId()))
 	                	{
 	                		found = true;
@@ -160,7 +160,7 @@ public class AlbumParser {
  		public ImageParser(boolean debug)
     	{
     		super();
-    		mImages = new HashMap();
+    		mImages = new HashMap<String, String>();
     		mKey = new StringBuffer(100);
     		mValue = new StringBuffer(100);
             mDebugging = debug;
@@ -333,7 +333,7 @@ public class AlbumParser {
         	Date foo = new Date(mEpochDate.getTime() + f.longValue());
         	return foo;
 	    }
-	    private void processImage(HashMap imagemap, String externalId) {
+	    private void processImage(HashMap<String, String> imagemap, String externalId) {
         	if (imagemap.containsKey("MediaType")) {
         		String mediatype = decode((String)imagemap.get("MediaType"));
         		if (!mediatype.equals("Image"))
@@ -365,9 +365,9 @@ public class AlbumParser {
 
             if (!mDebugging) {
                 try {
-                    List list = ImageManager.findByPath(location);
+                    List<Image> list = ImageManager.findByPath(location);
                     if (list != null && list.size() > 0) {
-                        image = (Image) list.get(0);
+                        image = list.get(0);
                         list.clear();
                     }
                 } catch (Exception ex) {
@@ -428,9 +428,9 @@ public class AlbumParser {
 
 	    private StringBuffer mValue;
 
-	    private boolean mInArray;
+//	    private boolean mInArray;
 
-	    private HashMap mImages;
+	    private HashMap<String, String> mImages;
 	    
 	    private int mCounter;
 
@@ -441,7 +441,7 @@ public class AlbumParser {
     
     class AlbumListParser extends DefaultHandler
     {
-    	private int i;
+//    	private int i;
 
 		public AlbumListParser(List<String> imageAlbums, boolean debugging)
     	{
@@ -537,10 +537,10 @@ public class AlbumParser {
                         try {
                             boolean found = false;
                     		
-                            List list = ImageAlbumsManager.findByExternalId(mAlbumId);
+                            List<ImageAlbums> list = ImageAlbumsManager.findByExternalId(mAlbumId);
                             if (list != null && list.size()>0)
                                 {
-                                    ImageAlbums imageAlbums = (ImageAlbums)list.get(0);
+                                    ImageAlbums imageAlbums = list.get(0);
                                     ImageAlbumsManager.deleteImageAlbumsPictures(imageAlbums);
                                     imageAlbums.setIsRoll(mFoundRolls);
                                     found = true;
@@ -562,7 +562,7 @@ public class AlbumParser {
                         } catch (Exception ex) {
                                 Tools.logException(AlbumParser.class, ex);
                         }
-                    Iterator arrayIter = mArray.iterator();
+                    Iterator<String> arrayIter = mArray.iterator();
                     while (arrayIter.hasNext()) {
                         String imgnumber = (String) arrayIter.next();
                         try {
@@ -571,19 +571,19 @@ public class AlbumParser {
                                 System.out.println(msg);
                             else
                                 log.debug(msg);
-                            List list = ImageManager.findByExternalId(imgnumber);
+                            List<Image> list = ImageManager.findByExternalId(imgnumber);
                             if (list != null && list.size() > 0) {
-                                Image img = (Image) list.get(0);
+                                Image img = list.get(0);
                                 if (img != null && mAlbum != null) {
                                     File file = new File(img.getPath());
                                     if (!file.exists()) {
                                         continue;
                                     }
                                 	
-                                    List plist = ImageAlbumsManager.findByExternalId(mAlbumId);
+                                    List<ImageAlbums> plist = ImageAlbumsManager.findByExternalId(mAlbumId);
                                     if (plist != null && plist.size()>0)
                                         {
-                                            ImageAlbums imageAlbums = (ImageAlbums)plist.get(0);
+                                            ImageAlbums imageAlbums = plist.get(0);
                                             ImageAlbumsPicturesManager.createImageAlbumsPictures(new ImageAlbumsPictures(imageAlbums.getId(), img.getId()));
                                             plist.clear();
                                         }
@@ -721,7 +721,7 @@ public class AlbumParser {
    	    
 	    private List<String> mCurrentImageAlbums;
 	    
-	    private int mCounter;
+//	    private int mCounter;
 
         private int mParsedAlbumCount;
         

@@ -17,11 +17,11 @@ package org.lnicholls.galleon.server;
  */
 
 import java.awt.Font;
-import java.awt.Image;
+//import java.awt.Image;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.BindException;
+//import java.net.BindException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.StringTokenizer;
+//import java.util.StringTokenizer;
 import java.rmi.RMISecurityManager;
 
 import org.apache.commons.lang.SystemUtils;
@@ -49,16 +49,18 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
-import org.lnicholls.galleon.app.AppHost;
+//import org.lnicholls.galleon.app.AppHost;
 import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
+//import org.lnicholls.galleon.database.Podcast;
 import org.lnicholls.galleon.database.PodcastManager;
 import org.lnicholls.galleon.database.VideocastManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.skins.Skin;
 import org.lnicholls.galleon.togo.DownloadThread;
+import org.lnicholls.galleon.togo.Rule;
 import org.lnicholls.galleon.togo.ToGoThread;
 import org.lnicholls.galleon.util.*;
 import org.lnicholls.galleon.data.*;
@@ -83,14 +85,14 @@ public class Server {
 
 		//System.setSecurityManager(new CustomSecurityManager());
 
-		mShortTermTasks = new ArrayList();
-		mLongTermTasks = new ArrayList();
-		mDataTasks = new ArrayList();
+		mShortTermTasks = new ArrayList<TaskInfo>();
+		mLongTermTasks = new ArrayList<TaskInfo>();
+		mDataTasks = new ArrayList<TaskInfo>();
 
 		try {
 			System.out.println("Galleon " + Tools.getVersion() + " is starting...");
 
-			ArrayList errors = new ArrayList();
+			ArrayList<String> errors = new ArrayList<String>();
 			setup(errors);
 
 			log = setupLog(Server.class.getName());
@@ -120,7 +122,7 @@ public class Server {
 		}
 	}
 
-	public static void setup(ArrayList errors) {
+	public static void setup(ArrayList<String> errors) {
 		System.setProperty("os.user.home", System.getProperty("user.home"));
 
 		System.setProperty("http.agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
@@ -350,7 +352,7 @@ public class Server {
 			try {
 				// Is there already a RMI server?
 				mRegistry = LocateRegistry.getRegistry(mServerRMIPort);
-				String[] names = mRegistry.list();
+				mRegistry.list();
 				log.info("Using RMI port " + mServerRMIPort);
 			} catch (Exception ex) {
 				int port = Tools.findAvailablePort(mServerRMIPort);
@@ -365,7 +367,7 @@ public class Server {
 
 			mRegistry.bind("serverControl", new ServerControlImpl());
 
-			mTCMs = new LinkedList();
+			mTCMs = new LinkedList<TCM>();
 			int port = mServerConfiguration.getHttpPort();
 			mHMOPort = Tools.findAvailablePort(port);
 			if (mHMOPort != port) {
@@ -431,28 +433,28 @@ public class Server {
 			System.out.println("Galleon is ready.");
 			mReady = true;
 
-			Iterator iterator = mShortTermTasks.iterator();
+			Iterator<TaskInfo> iterator = mShortTermTasks.iterator();
 			while (iterator.hasNext()) {
-				TaskInfo taskInfo = (TaskInfo) iterator.next();
+				TaskInfo taskInfo = iterator.next();
 				scheduleShortTerm(taskInfo.task, 0, taskInfo.time);
 			}
 			mShortTermTasks.clear();
 			iterator = mLongTermTasks.iterator();
 			while (iterator.hasNext()) {
-				TaskInfo taskInfo = (TaskInfo) iterator.next();
+				TaskInfo taskInfo = iterator.next();
 				scheduleLongTerm(taskInfo.task, 30, taskInfo.time);
 			}
 			mLongTermTasks.clear();
 			iterator = mDataTasks.iterator();
 			while (iterator.hasNext()) {
-				TaskInfo taskInfo = (TaskInfo) iterator.next();
+				TaskInfo taskInfo = iterator.next();
 				scheduleData(taskInfo.task, 0, taskInfo.time);
 			}
 			mDataTasks.clear();
 
-			iterator = mPublishedVideos.iterator();
-			while (iterator.hasNext()) {
-				publishVideo((NameValue)iterator.next());
+			Iterator<NameValue> viterator = mPublishedVideos.iterator();
+			while (viterator.hasNext()) {
+				publishVideo(viterator.next());
 			}
 			mPublishedVideos.clear();
 		} catch (Exception ex) {
@@ -480,9 +482,9 @@ public class Server {
 			if (mDownloadManager != null) {
                 try
                 {
-                	for (Iterator iterator = mDownloadManager.getDownloads().iterator();iterator.hasNext();)
+                	for (Iterator<Download> iterator = mDownloadManager.getDownloads().iterator();iterator.hasNext();)
                 	{
-                		Download download = (Download)iterator.next();
+                		Download download = iterator.next();
                 		mDownloadManager.stopDownload(download);
                 	}
                 }
@@ -495,9 +497,9 @@ public class Server {
 			if (mAppManager != null) {
                 try
                 {
-                	for (Iterator iterator = mAppManager.getApps().iterator();iterator.hasNext();)
+                	for (Iterator<AppContext> iterator = mAppManager.getApps().iterator();iterator.hasNext();)
                 	{
-                		AppContext appContext = (AppContext)iterator.next();
+                		AppContext appContext = iterator.next();
                 		mAppManager.removeApp(appContext);
                 	}
                 }
@@ -710,9 +712,9 @@ public class Server {
 		return mServerConfiguration.getGenerateThumbnails();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void printSystemProperties() {
 		Properties properties = System.getProperties();
-		Enumeration Enumeration = properties.propertyNames();
 		for (Enumeration e = properties.propertyNames(); e.hasMoreElements();) {
 			String propertyName = (String) e.nextElement();
 			log.info(propertyName + "=" + System.getProperty(propertyName));
@@ -1157,20 +1159,20 @@ public class Server {
 		}
 	}
 
-	public List getAppDescriptors() {
+	public List<AppDescriptor> getAppDescriptors() {
 		return mAppManager.getAppDescriptors();
 	}
 
-	public List getApps() {
+	public List<AppContext> getApps() {
 		return mAppManager.getApps();
 	}
 
-	public List getTiVos() {
+	public List<TiVo> getTiVos() {
 		// return mTiVoListener.getTiVos();
 		return mServerConfiguration.getTiVos();
 	}
 
-	public void updateTiVos(List tivos) {
+	public void updateTiVos(List<TiVo> tivos) {
 		mServerConfiguration.setTiVos(tivos);
 		save();
 		// mToGoThread.interrupt();
@@ -1216,17 +1218,17 @@ public class Server {
 		return new AppContext(appDescriptor);
 	}
 
-	public List getRules() {
+	public List<Rule> getRules() {
 		return mServerConfiguration.getRules();
 	}
 
-	public void updateRules(List rules) {
+	public void updateRules(List<Rule> rules) {
 		mServerConfiguration.setRules(rules);
 		save();
 		// mToGoThread.interrupt();
 	}
 
-	public List getWinampSkins() {
+	public List<File> getWinampSkins() {
 		File skinsDirectory = new File(System.getProperty("root") + "/media/winamp");
 		if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden()) {
 			File[] files = skinsDirectory.listFiles(new FileFilter() {
@@ -1237,10 +1239,10 @@ public class Server {
 			return Arrays.asList(files);
 		}
 
-		return new ArrayList();
+		return new ArrayList<File>();
 	}
 
-	public List getSkins() {
+	public List<File> getSkins() {
 		File skinsDirectory = new File(System.getProperty("skins"));
 		if (skinsDirectory.isDirectory() && !skinsDirectory.isHidden()) {
 			File[] files = skinsDirectory.listFiles(new FileFilter() {
@@ -1251,10 +1253,10 @@ public class Server {
 			return Arrays.asList(files);
 		}
 
-		return new ArrayList();
+		return new ArrayList<File>();
 	}
 
-	public List getPodcasts() throws RemoteException {
+	public List<NameValue> getPodcasts() throws RemoteException {
 		try {
 			return PodcastManager.getPodcasts();
 		} catch (Exception ex) {
@@ -1263,7 +1265,7 @@ public class Server {
 		return null;
 	}
 
-	public void setPodcasts(List list) throws RemoteException {
+	public void setPodcasts(List<NameValue> list) throws RemoteException {
 		try {
 			PodcastManager.setPodcasts(list);
 		} catch (Exception ex) {
@@ -1271,7 +1273,7 @@ public class Server {
 		}
 	}
 
-	public List getVideocasts() throws RemoteException {
+	public List<NameValue> getVideocasts() throws RemoteException {
 		try {
 			return VideocastManager.getVideocasts();
 		} catch (Exception ex) {
@@ -1280,7 +1282,7 @@ public class Server {
 		return null;
 	}
 
-	public void setVideocasts(List list) throws RemoteException {
+	public void setVideocasts(List<NameValue> list) throws RemoteException {
 		try {
 			VideocastManager.setVideocasts(list);
 		} catch (Exception ex) {
@@ -1294,7 +1296,7 @@ public class Server {
 	}
 
 	private void createAppClassLoader() {
-		ArrayList urls = new ArrayList();
+		ArrayList<URL> urls = new ArrayList<URL>();
 		File directory = new File(System.getProperty("apps"));
 		if (directory.exists())
 		{
@@ -1369,7 +1371,7 @@ public class Server {
     }
 
     public TCM getTCM(Beacon beacon) {
-        Iterator iterator = mTCMs.iterator();
+        Iterator<TCM> iterator = mTCMs.iterator();
         while (iterator.hasNext()) {
             TCM tcm = (TCM) iterator.next();
             try {
@@ -1383,7 +1385,7 @@ public class Server {
     }
 
     public TCM getTCM(InetAddress address) {
-        Iterator iterator = mTCMs.iterator();
+        Iterator<TCM> iterator = mTCMs.iterator();
         while (iterator.hasNext()) {
             TCM tcm = (TCM) iterator.next();
             if (tcm.getAddress().equals(address))
@@ -1392,7 +1394,7 @@ public class Server {
         return null;
     }
 
-    public Iterator getTCMIterator() {
+    public Iterator<TCM> getTCMIterator() {
         return mTCMs.iterator();
     }
 
@@ -1433,7 +1435,7 @@ public class Server {
     	mDownloadManager.addDownload(download, statusListener);
     }
 
-    public List getDownloads() throws RemoteException {
+    public List<Download> getDownloads() throws RemoteException {
 		try {
 			return mDownloadManager.getDownloads();
 		} catch (Exception ex) {
@@ -1470,13 +1472,13 @@ public class Server {
 		// Try to resync video file with database if moved
 		try {
 
-			List list = VideoManager.findByFilename(file.getName());
+			List<Video> list = VideoManager.findByFilename(file.getName());
 
 			if (list != null && list.size() == 1) {
 
 				for (int j=0;j<list.size();j++)
 				{
-					Video video = (Video) list.get(j);
+					Video video = list.get(j);
 					if (!video.getPath().equals(file.getCanonicalPath()))
 					{
 						video.setPath(file.getCanonicalPath());
@@ -1496,7 +1498,7 @@ public class Server {
 			file.delete();
 	}
 
-	public List getAppUrls(boolean shared)
+	public List<NameValue> getAppUrls(boolean shared)
 	{
 		return mAppManager.getAppUrls(shared);
 	}
@@ -1511,7 +1513,7 @@ public class Server {
 		
 		try
 		{
-			Server server = getServer(args);
+			getServer(args);
 		}
 		catch (Exception ex)
 		{
@@ -1559,11 +1561,11 @@ public class Server {
 
 	private int mBeaconPort = -1;
 
-	private ArrayList mShortTermTasks;
+	private ArrayList<TaskInfo> mShortTermTasks;
 
-	private ArrayList mLongTermTasks;
+	private ArrayList<TaskInfo> mLongTermTasks;
 
-	private ArrayList mDataTasks;
+	private ArrayList<TaskInfo> mDataTasks;
 
 	private BroadcastThread mBroadcastThread;
 
@@ -1573,13 +1575,13 @@ public class Server {
 
     private ConnectionThread mConnectionThread;
 
-    private LinkedList mTCMs;
+    private LinkedList<TCM> mTCMs;
 
     private boolean mPublished;
 
     private VideoServer mVideoServer;
 
-    private List mPublishedVideos = new ArrayList();
+    private List<NameValue> mPublishedVideos = new ArrayList<NameValue>();
 
     private DownloadManager mDownloadManager;
 

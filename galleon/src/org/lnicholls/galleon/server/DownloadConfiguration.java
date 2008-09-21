@@ -20,6 +20,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * See the file "COPYING" for more details.
  */
 
+@SuppressWarnings("serial")
 public class DownloadConfiguration implements Serializable {
 
 	public DownloadConfiguration() {

@@ -15,6 +15,7 @@ package org.lnicholls.galleon.database;
  * See the file "COPYING" for more details.
  */
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.HibernateException;
@@ -25,6 +26,7 @@ import org.hibernate.Transaction;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.media.MediaRefreshThread;
 import org.lnicholls.galleon.util.Tools;
+import org.lnicholls.galleon.util.FileSystemContainer.Item;
 public class AudioManager {
 	private static Logger log = Logger.getLogger(AudioManager.class.getName());
 	public static interface Callback {
@@ -129,8 +131,9 @@ public class AudioManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Audio> listAll() throws HibernateException {
+		List<Audio> list = new ArrayList<Audio>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -147,9 +150,9 @@ public class AudioManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Audio> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Audio> list = new ArrayList<Audio>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -201,12 +204,13 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByPath(String path) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByPath(String path) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Audio> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Audio as Audio where Audio.path=?")
 					.setString(0, path).list();
@@ -220,12 +224,25 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigen(String origen) throws HibernateException {
+	public static Audio findByItem(Item nameFile) throws HibernateException, IOException {
+		List<Audio> list = null;
+		Audio audio = null;
+		if (nameFile.isFile())
+			list = findByPath(((File) nameFile.getValue()).getCanonicalPath());
+		else
+			list = findByPath((String) nameFile.getValue());
+		if (list != null && list.size() > 0) {
+			audio = list.get(0);
+		}
+		return audio;
+	}
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByOrigen(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Audio> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Audio as Audio where Audio.origen=?")
 					.setString(0, origen).list();
@@ -239,12 +256,13 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List listGenres(String origen) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<String> listGenres(String origen) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = new ArrayList();
+			List<String> list = new ArrayList<String>();
 			if (origen != null) {
 				list = session
 						.createQuery(
@@ -265,13 +283,14 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigenGenre(String origen, String genre)
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByOrigenGenre(String origen, String genre)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = new ArrayList();
+			List<Audio> list = new ArrayList<Audio>();
 			if (origen != null)
 				list = session
 						.createQuery(
@@ -292,13 +311,14 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigenRated(String origen)
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByOrigenRated(String origen)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = new ArrayList();
+			List<Audio> list = new ArrayList<Audio>();
 			if (origen != null)
 				list = session
 						.createQuery(
@@ -319,13 +339,14 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByOrigenGenreOrdered(String origen, String genre)
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByOrigenGenreOrdered(String origen, String genre)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = new ArrayList();
+			List<Audio> list = new ArrayList<Audio>();
 			if (origen != null)
 				list = session
 						.createQuery(
@@ -346,12 +367,13 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitle(String title) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByTitle(String title) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Audio> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Audio as audio where audio.title=?")
 					.setString(0, title).list();
@@ -365,12 +387,13 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static long countMP3s() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Long> list = session
 					.createQuery(
 							"select count(audio) from org.lnicholls.galleon.database.Audio as audio where substr(audio.path,1,4)<>'http'")
 					.list();
@@ -384,13 +407,14 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static long countMP3sByOrigen(String origen)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Long> list = session
 					.createQuery(
 							"select count(audio) from org.lnicholls.galleon.database.Audio as audio where audio.origen=?")
 					.setString(0, origen).list();
@@ -404,12 +428,13 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByExternalId(String id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByExternalId(String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Audio> list = session
 					.createQuery(
 					"from org.lnicholls.galleon.database.Audio as audio where audio.externalId=?")
 					.setString(0, id)
@@ -424,13 +449,14 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByTitleOrigenGenreExternalId(String title,
+	@SuppressWarnings("unchecked")
+	public static List<Audio> findByTitleOrigenGenreExternalId(String title,
 			String origen, String genre, String id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Audio> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Audio as audio where audio.title=? audio.origen=? and audio.genre=? and audio.externalId=?")
 					.setString(0, title).setString(1, origen).setString(2,
@@ -445,17 +471,18 @@ public class AudioManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static void clean() throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			java.util.List list = session.createQuery(
+			java.util.List<Audio> list = session.createQuery(
 					"from org.lnicholls.galleon.database.Audio").list();
 			if (list != null && list.size() > 0) {
 				int counter = 0;
 				for (int i = 0; i < list.size(); i++) {
-					Audio audio = (Audio) list.get(i);
+					Audio audio = list.get(i);
 					if (!audio.getPath().startsWith("http")
 							&& !(audio.getOrigen() != null && !audio
 									.getOrigen().equals("Podcast"))) {

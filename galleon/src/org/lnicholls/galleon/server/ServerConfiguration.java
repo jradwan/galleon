@@ -23,14 +23,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.togo.Rule;
 import org.lnicholls.galleon.util.ScreenSaverConfiguration;
 import org.lnicholls.galleon.util.Tools;
 
+@SuppressWarnings("serial")
 public class ServerConfiguration implements Serializable {
 
-    private static Logger log = Logger.getLogger(ServerConfiguration.class.getName());
+//    private static Logger log = Logger.getLogger(ServerConfiguration.class.getName());
 
     public ServerConfiguration() {
         try {
@@ -38,8 +39,8 @@ public class ServerConfiguration implements Serializable {
         } catch (Exception ex) {
             Tools.logException(Server.class, ex);
         }
-        mTiVos = new ArrayList();
-        mRules = new ArrayList();
+        mTiVos = new ArrayList<TiVo>();
+        mRules = new ArrayList<Rule>();
     }
 
     public void setVersion(String version) {
@@ -85,7 +86,7 @@ public class ServerConfiguration implements Serializable {
     public void setIPAddress(String ipaddress) {
         if (ipaddress.length() > 0) {
             try {
-                InetAddress address = InetAddress.getByName(ipaddress);
+                InetAddress.getByName(ipaddress);
                 mIPAddress = ipaddress;
                 return;
             } catch (UnknownHostException ex) {
@@ -103,7 +104,7 @@ public class ServerConfiguration implements Serializable {
     public void setPublicIPAddress(String ipaddress) {
         if (ipaddress.length() > 0) {
             try {
-                InetAddress address = InetAddress.getByName(ipaddress);
+                InetAddress.getByName(ipaddress);
                 mPublicIPAddress = ipaddress;
                 return;
             } catch (UnknownHostException ex) {
@@ -167,18 +168,18 @@ public class ServerConfiguration implements Serializable {
         return mMediaAccessKey;
     }
 
-    public List getTiVos() {
+    public List<TiVo> getTiVos() {
         return mTiVos;
     }
 
-    public void setTiVos(List tivos) {
+    public void setTiVos(List<TiVo> tivos) {
         mTiVos = tivos;
     }
 
     public boolean addTiVo(TiVo tivo) {
-        Iterator iterator = mTiVos.iterator();
+        Iterator<TiVo> iterator = mTiVos.iterator();
         while (iterator.hasNext()) {
-            TiVo known = (TiVo) iterator.next();
+            TiVo known = iterator.next();
             if (known.getAddress().equals(tivo.getAddress()))
                 return false;
         }
@@ -187,11 +188,11 @@ public class ServerConfiguration implements Serializable {
         return true;
     }
 
-    public List getRules() {
+    public List<Rule> getRules() {
         return mRules;
     }
 
-    public void setRules(List rules) {
+    public void setRules(List<Rule> rules) {
         mRules = rules;
     }
 
@@ -303,9 +304,9 @@ public class ServerConfiguration implements Serializable {
 
     private String mMediaAccessKey = "";
 
-    private List mTiVos;
+    private List<TiVo> mTiVos;
 
-    private List mRules;
+    private List<Rule> mRules;
     
     private String mSkin = "";
     

@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.apps.shoutcast.ShoutcastConfiguration.LimitedGenre;
 import org.lnicholls.galleon.database.Audio;
 import org.lnicholls.galleon.database.AudioManager;
 import org.lnicholls.galleon.media.MediaManager;
@@ -109,10 +110,10 @@ public class Shoutcast extends DefaultApplication {
 			ShoutcastConfiguration musicConfiguration = (ShoutcastConfiguration) ((ShoutcastFactory) getFactory())
 					.getAppContext().getConfiguration();
 			try {
-				List list = AudioManager
+				List<String> list = AudioManager
 						.listGenres(ShoutcastStations.SHOUTCAST);
-				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-					String genre = (String) i.next();
+				for (Iterator<String> i = list.iterator(); i.hasNext(); /* Nothing */) {
+					String genre = i.next();
 					mMenuList.add(new NameValue(genre, genre));
 				}
 			} catch (Exception ex) {
@@ -130,10 +131,10 @@ public class Shoutcast extends DefaultApplication {
 							List nameFiles = new ArrayList();
 							if (mMenuList.getFocus() == 0)
 							{
-								List list = AudioManager
+								List<Audio> list = AudioManager
 										.findByOrigenRated(ShoutcastStations.SHOUTCAST);
-								for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-									Audio audio = (Audio) i.next();
+								for (Iterator<Audio> i = list.iterator(); i.hasNext(); /* Nothing */) {
+									Audio audio = i.next();
 									if (audio.getExternalId() == null
 											|| audio.getExternalId()
 													.equals("1"))
@@ -144,13 +145,13 @@ public class Shoutcast extends DefaultApplication {
 							}
 							else
 							{
-								List list = AudioManager
+								List<Audio> list = AudioManager
 										.findByOrigenGenreOrdered(
 												ShoutcastStations.SHOUTCAST,
 												nameValue
 												.getValue());
-								for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-									Audio audio = (Audio) i.next();
+								for (Iterator<Audio> i = list.iterator(); i.hasNext(); /* Nothing */) {
+									Audio audio = i.next();
 									if (audio.getExternalId() == null
 											|| audio.getExternalId()
 													.equals("1"))
@@ -687,16 +688,7 @@ public class Shoutcast extends DefaultApplication {
 			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 			Audio audio = null;
 			try {
-				List list = null;
-				if (nameFile.isFile())
-					list = AudioManager.findByPath(((File) nameFile.getValue())
-							.getCanonicalPath());
-				else
-					list = AudioManager
-							.findByPath((String) nameFile.getValue());
-				if (list != null && list.size() > 0) {
-					audio = (Audio) list.get(0);
-				}
+				audio = AudioManager.findByItem(nameFile);
 			} catch (Exception ex) {
 				Tools.logException(Shoutcast.class, ex);
 			}
@@ -831,16 +823,7 @@ public class Shoutcast extends DefaultApplication {
 			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
 			Audio audio = null;
 			try {
-				List list = null;
-				if (nameFile.isFile())
-					list = AudioManager.findByPath(((File) nameFile.getValue())
-							.getCanonicalPath());
-				else
-					list = AudioManager
-							.findByPath((String) nameFile.getValue());
-				if (list != null && list.size() > 0) {
-					audio = (Audio) list.get(0);
-				}
+				audio = AudioManager.findByItem(nameFile);
 			} catch (Exception ex) {
 				Tools.logException(Shoutcast.class, ex);
 			}
@@ -990,9 +973,9 @@ public class Shoutcast extends DefaultApplication {
 	private static Audio getAudio(String path) {
 		Audio audio = null;
 		try {
-			List list = AudioManager.findByPath(path);
+			List<Audio> list = AudioManager.findByPath(path);
 			if (list != null && list.size() > 0) {
-				audio = (Audio) list.get(0);
+				audio = list.get(0);
 			}
 		} catch (Exception ex) {
 			Tools.logException(Shoutcast.class, ex);
@@ -1026,13 +1009,13 @@ public class Shoutcast extends DefaultApplication {
 			ShoutcastConfiguration shoutcastConfiguration = (ShoutcastConfiguration) appContext
 					.getConfiguration();
 			try {
-				List list = AudioManager
+				List<String> list = AudioManager
 						.listGenres(ShoutcastStations.SHOUTCAST);
-				for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-					String current = (String) i.next();
+				for (Iterator<String> i = list.iterator(); i.hasNext(); /* Nothing */) {
+					String current = i.next();
 					boolean found = false;
-					List genres = shoutcastConfiguration.getLimitedGenres();
-					for (Iterator j = genres.iterator(); j.hasNext(); /* Nothing */) {
+					List<ShoutcastConfiguration.LimitedGenre> genres = shoutcastConfiguration.getLimitedGenres();
+					for (Iterator<LimitedGenre> j = genres.iterator(); j.hasNext(); /* Nothing */) {
 						ShoutcastConfiguration.LimitedGenre limitedGenre = (ShoutcastConfiguration.LimitedGenre) j
 								.next();
 						if (limitedGenre.getGenre().equals(current))

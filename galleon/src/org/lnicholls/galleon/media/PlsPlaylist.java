@@ -140,10 +140,10 @@ public class PlsPlaylist extends Playlist {
             Audio audio = null;
             if (plsEntry.file.startsWith("http")) {
                 try {
-                    List list = AudioManager.findByPath(plsEntry.file);
+                    List<Audio> list = AudioManager.findByPath(plsEntry.file);
                     if (list!=null && list.size()>0)
                     {
-                        audio = (Audio)list.get(0);
+                        audio = list.get(0);
                     }
                 } catch (Exception ex) {
                 }

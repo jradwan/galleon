@@ -56,7 +56,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                 List tivos = (List) serverConfiguration.getTiVos();
                 log.debug("tivos=" + tivos.size());
 
-                ArrayList downloaded = null;
+                ArrayList<Video> downloaded = null;
                 synchronized(mToGo)
                 {
                     downloaded = mToGo.getRecordings(tivos, this);
@@ -72,15 +72,15 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                     }
 
                     // Remove recordings that dont exist on TiVo anymore
-                    Iterator iterator = recordings.listIterator();
+                    Iterator<Video> iterator = (Iterator<Video>)recordings.listIterator();
                     while (iterator.hasNext()) {
                         Video next = (Video) iterator.next();
 
                         if (next.getStatus() == Video.STATUS_DOWNLOADED || next.getStatus() == Video.STATUS_DELETED) {
                         	boolean found = false;
-                            Iterator downloadedIterator = downloaded.iterator();
+                            Iterator<Video> downloadedIterator = downloaded.iterator();
                             while (downloadedIterator.hasNext()) {
-                                Video video = (Video) downloadedIterator.next();
+                                Video video = downloadedIterator.next();
                                 if (video.equals(next)) {
                                     found = true;
                                     break;
@@ -108,9 +108,9 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                         else
                         if (next.getStatus() != Video.STATUS_DOWNLOADED && next.getStatus() != Video.STATUS_DELETED) {
                             boolean found = false;
-                            Iterator downloadedIterator = downloaded.iterator();
+                            Iterator<Video> downloadedIterator = downloaded.iterator();
                             while (downloadedIterator.hasNext()) {
-                                Video video = (Video) downloadedIterator.next();
+                                Video video = downloadedIterator.next();
                                 if (video.equals(next)) {
                                     found = true;
                                     break;
@@ -137,12 +137,12 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                     // Update status of recordings
                     iterator = downloaded.iterator();
                     while (iterator.hasNext()) {
-                        Video next = (Video) iterator.next();
+                        Video next = iterator.next();
 
                         boolean found = false;
-                        Iterator recordingsIterator = recordings.iterator();
+                        Iterator<Video> recordingsIterator = recordings.iterator();
                         while (recordingsIterator.hasNext()) {
-                            Video video = (Video) recordingsIterator.next();
+                            Video video = recordingsIterator.next();
                             if (video.equals(next)) {
                                 synchronized(mToGo)
                                 {
@@ -236,10 +236,10 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
 			List files = fileSystemContainer.getItems(FileFilters.videoFilter);
 
             // Try to resync video file with database if moved
-            Iterator iterator = recordings.iterator();
+            Iterator<Video> iterator = recordings.iterator();
             while (iterator.hasNext())
             {
-            	Video video = (Video)iterator.next();
+            	Video video = iterator.next();
             	if (video.getPath()!=null)
             	{
 	            	File file = new File(video.getPath());

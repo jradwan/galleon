@@ -19,12 +19,12 @@ import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.util.Tools;
 public class ApplicationManager {
-	private static Logger log = Logger.getLogger(ApplicationManager.class
-			.getName());
+	//private static Logger log = Logger.getLogger(ApplicationManager.class
+	//		.getName());
 	public static interface Callback {
 		public void visit(Session session, Application Application);
 	}
@@ -129,8 +129,9 @@ public class ApplicationManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Application> listAll() throws HibernateException {
+		List<Application> list = new ArrayList<Application>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -147,12 +148,13 @@ public class ApplicationManager {
 		}
 		return list;
 	}
-	public static List findByClazz(String clazz) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Application> findByClazz(String clazz) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Application> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Application as Application where Application.clazz=?")
 					.setString(0, clazz).list();
@@ -168,7 +170,7 @@ public class ApplicationManager {
 	}
 	public static void trackApplication(AppContext appContext)
 			throws HibernateException {
-		List list = findByClazz(appContext.getDescriptor().getClassName());
+		List<Application> list = findByClazz(appContext.getDescriptor().getClassName());
 		if (list == null || list.size() == 0)
 		{
 			Application application = new Application(appContext

@@ -423,9 +423,9 @@ public class WinampPlayer extends DefaultPlayer {
     private static Audio getAudio(String path) {
         Audio audio = null;
         try {
-            List list = AudioManager.findByPath(path);
+            List<Audio> list = AudioManager.findByPath(path);
             if (list != null && list.size() > 0) {
-                audio = (Audio) list.get(0);
+                audio = list.get(0);
             }
         } catch (Exception ex) {
             Tools.logException(WinampPlayer.class, ex);

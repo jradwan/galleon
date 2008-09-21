@@ -21,10 +21,10 @@ import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 public class ImageAlbumsPicturesManager {
-	private static Logger log = Logger.getLogger(ImageAlbumsPicturesManager.class
-			.getName());
+//	private static Logger log = Logger.getLogger(ImageAlbumsPicturesManager.class
+//			.getName());
 	public static interface Callback {
 		public void visit(Session session, ImageAlbumsPictures ImageAlbumsPictures);
 	}
@@ -132,8 +132,9 @@ public class ImageAlbumsPicturesManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbumsPictures> listAll() throws HibernateException {
+		List<ImageAlbumsPictures> list = new ArrayList<ImageAlbumsPictures>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -151,9 +152,9 @@ public class ImageAlbumsPicturesManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<ImageAlbumsPictures> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<ImageAlbumsPictures> list = new ArrayList<ImageAlbumsPictures>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -207,12 +208,13 @@ public class ImageAlbumsPicturesManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByImageAlbums(int id) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<ImageAlbumsPictures> findByImageAlbums(int id) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<ImageAlbumsPictures> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.ImageAlbumsPictures as ImageAlbumsPictures where ImageAlbumsPictures.imagealbums=?")
 					.setInteger(0, id).list();

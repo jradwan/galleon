@@ -16,7 +16,7 @@
 
 package org.lnicholls.galleon.app;
 
-import java.io.File;
+//import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,9 +32,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+//import java.util.jar.Attributes;
+//import java.util.jar.JarFile;
+//import java.util.jar.Manifest;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -46,7 +46,7 @@ import org.lnicholls.galleon.util.Tools;
 import com.tivo.hme.host.io.FastInputStream;
 import com.tivo.hme.host.sample.DNSSDRequest;
 import com.tivo.hme.host.sample.HostingVersion;
-import com.tivo.hme.host.sample.JarClassLoader;
+//import com.tivo.hme.host.sample.JarClassLoader;
 import com.tivo.hme.host.sample.Listener;
 import com.tivo.hme.host.sample.Main;
 import com.tivo.hme.host.util.ArgumentList;
@@ -89,7 +89,7 @@ public class AppHost implements ILogger {
 							printNetworkInterfaces();
 							throw new IOException("network interface not found: " + s2);
 						}
-						for (Enumeration enumeration = networkinterface.getInetAddresses(); enumeration
+						for (Enumeration<InetAddress> enumeration = networkinterface.getInetAddresses(); enumeration
 								.hasMoreElements();) {
 							InetAddress inetaddress = (InetAddress) enumeration.nextElement();
 							s = s + "," + inetaddress.getHostAddress();
@@ -122,10 +122,10 @@ public class AppHost implements ILogger {
 		if ("true".equals(System.getProperty("hme.loopback")))
 			s = s + ",127.0.0.1";
 		config.put("http.interfaces", s);
-		String s3 = argumentlist.getValue("--launcher", null);
+/*		String s3 = argumentlist.getValue("--launcher", null);
 		String s4 = argumentlist.getValue("--jars", null);
 		String s5 = argumentlist.getValue("--jar", null);
-		/*
+*/		/*
 		 * try { if(s3 != null) loadLaunchFile(s3); else if(s4 != null)
 		 * loadJarFiles(s4); else if(s5 != null) loadJarFile(new File(s5)); else
 		 * if(flag) createFactory(argumentlist,
@@ -177,8 +177,8 @@ public class AppHost implements ILogger {
             }
 			listener.setFactories(factories);
 			IFactory ifactory;
-			for (Iterator iterator = factories.iterator(); iterator.hasNext();) {
-				ifactory = (IFactory) iterator.next();
+			for (Iterator<IFactory> iterator = factories.iterator(); iterator.hasNext();) {
+				ifactory = iterator.next();
 				if (!activate) {
 					if (ifactory.getClass().getName().endsWith("MenuFactory"))
 						register(ifactory);
@@ -190,14 +190,14 @@ public class AppHost implements ILogger {
 		}
 	}
 
-	public List getAppUrls() {
-		ArrayList list = new ArrayList();
+	public List<NameValue> getAppUrls() {
+		ArrayList<NameValue> list = new ArrayList<NameValue>();
 		String as[] = listener.getInterfaces();
 		int ai[] = listener.getPorts();
 
 		IFactory ifactory;
-		for (Iterator iterator = factories.iterator(); iterator.hasNext();) {
-			ifactory = (IFactory) iterator.next();
+		for (Iterator<IFactory> iterator = factories.iterator(); iterator.hasNext();) {
+			ifactory = iterator.next();
 			String name = ifactory.getAppTitle();
 			if (ifactory instanceof AppFactory) {
 				AppFactory appFactory = (AppFactory) ifactory;
@@ -238,18 +238,18 @@ public class AppHost implements ILogger {
 		}
 	}
 
-	private void usage() {
-		System.out.println("usage: Main [options] class");
-		System.out.println();
-		System.out.println("Options:");
-		System.out.println(" --port <port>         listen on a specific port");
-		System.out.println(" --intf <interface>    listen on a specific interface");
-		System.out.println(" --nomdns <interface>  listen on a specific interface, without mdns");
-		System.out.println(" --launcher <file>     start factories listed in file");
-		System.out.println(" --jars <dir>          scan directory for HME app jar files");
-		System.out.println(" --jar <jarfile>       start factory for the given jar");
-		System.exit(1);
-	}
+//	private void usage() {
+//		System.out.println("usage: Main [options] class");
+//		System.out.println();
+//		System.out.println("Options:");
+//		System.out.println(" --port <port>         listen on a specific port");
+//		System.out.println(" --intf <interface>    listen on a specific interface");
+//		System.out.println(" --nomdns <interface>  listen on a specific interface, without mdns");
+//		System.out.println(" --launcher <file>     start factories listed in file");
+//		System.out.println(" --jars <dir>          scan directory for HME app jar files");
+//		System.out.println(" --jar <jarfile>       start factory for the given jar");
+//		System.exit(1);
+//	}
 
 	static boolean isIPAddress(String s) {
 		return isIPv4Address(s) || isIPv6Address(s);
@@ -283,12 +283,12 @@ public class AppHost implements ILogger {
 	}
 
 	void printNetworkInterfaces() throws IOException {
-		for (Enumeration enumeration = NetworkInterface.getNetworkInterfaces(); enumeration.hasMoreElements(); System.out
+		for (Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces(); enumeration.hasMoreElements(); System.out
 				.println()) {
 			NetworkInterface networkinterface = (NetworkInterface) enumeration.nextElement();
 			System.out.print("  " + networkinterface.getName());
 			InetAddress inetaddress;
-			for (Enumeration enumeration1 = networkinterface.getInetAddresses(); enumeration1.hasMoreElements(); System.out
+			for (Enumeration<InetAddress> enumeration1 = networkinterface.getInetAddresses(); enumeration1.hasMoreElements(); System.out
 					.print(" " + inetaddress.getHostAddress()))
 				inetaddress = (InetAddress) enumeration1.nextElement();
 
@@ -305,35 +305,35 @@ public class AppHost implements ILogger {
 		return stringbuffer;
 	}
 
-	private void loadJarFiles(String s) throws IOException {
-		File file = new File(s);
-		String as[] = file.list();
-		if (as == null)
-			return;
-		for (int i = 0; i < as.length; i++)
-			if (as[i].endsWith(".jar")) {
-				File file1 = new File(file, as[i]);
-				loadJarFile(file1);
-			}
+//	private void loadJarFiles(String s) throws IOException {
+//		File file = new File(s);
+//		String as[] = file.list();
+//		if (as == null)
+//			return;
+//		for (int i = 0; i < as.length; i++)
+//			if (as[i].endsWith(".jar")) {
+//				File file1 = new File(file, as[i]);
+//				loadJarFile(file1);
+//			}
+//
+//	}
 
-	}
-
-	private void loadJarFile(File file) throws IOException {
-		try {
-			JarFile jarfile = new JarFile(file, true);
-			Manifest manifest = jarfile.getManifest();
-			Attributes attributes = manifest.getMainAttributes();
-			StringBuffer stringbuffer = new StringBuffer(64);
-			addArg(stringbuffer, "--class", attributes.getValue("HME-Class"));
-			addArg(stringbuffer, null, attributes.getValue("HME-Arguments"));
-			createFactory(new ArgumentList(stringbuffer.toString()), new JarClassLoader(jarfile, this, null));
-		} catch (Exception exception) {
-			log(3, "Ignoring jar file: " + file);
-			log(3, "Exception occurred: " + exception);
-			if (Listener.DEBUG)
-				exception.printStackTrace();
-		}
-	}
+//	private void loadJarFile(File file) throws IOException {
+//		try {
+//			JarFile jarfile = new JarFile(file, true);
+//			Manifest manifest = jarfile.getManifest();
+//			Attributes attributes = manifest.getMainAttributes();
+//			StringBuffer stringbuffer = new StringBuffer(64);
+//			addArg(stringbuffer, "--class", attributes.getValue("HME-Class"));
+//			addArg(stringbuffer, null, attributes.getValue("HME-Arguments"));
+//			createFactory(new ArgumentList(stringbuffer.toString()), new JarClassLoader(jarfile, this, null));
+//		} catch (Exception exception) {
+//			log(3, "Ignoring jar file: " + file);
+//			log(3, "Exception occurred: " + exception);
+//			if (Listener.DEBUG)
+//				exception.printStackTrace();
+//		}
+//	}
 
 	public void loadLaunchFile(String s) throws IOException {
 		loadLaunchFile(s, ClassLoader.getSystemClassLoader());
@@ -355,6 +355,7 @@ public class AppHost implements ILogger {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public IFactory createFactory(ArgumentList argumentlist, ClassLoader classloader) {
 		try {
 			String s = argumentlist.getValue("--class", null);
@@ -441,7 +442,7 @@ public class AppHost implements ILogger {
 	}
 
 	protected ServiceInfo getServiceInfo(IFactory ifactory, int i) {
-		Hashtable hashtable = new Hashtable();
+		Hashtable<String, String> hashtable = new Hashtable<String, String>();
 		hashtable.put("path", ifactory.getAppName());
 		hashtable.put("version", (String) ifactory.getFactoryData().get("version"));
 		return new ServiceInfo("_tivo-hme._tcp.local.", ifactory.getAppTitle() + "." + "_tivo-hme._tcp.local.", i, 0,

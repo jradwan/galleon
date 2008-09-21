@@ -11,6 +11,7 @@ for i in \
   src/org/lnicholls/galleon/Server/Constants.java \
   conf/configure.xml.default \
   distro/osx/build-osx.sh \
+  distro/osx/Galleon.pmdoc/01galleon.xml \
   "distro/osx/bundles/Configure Galleon.app/Contents/Info.plist" \
   "distro/osx/bundles/Galleon Server.app/Contents/Info.plist" \
   distro/osx/Info.plist \

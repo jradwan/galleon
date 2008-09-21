@@ -93,9 +93,9 @@ public class ToGo {
 		mCalendar = new GregorianCalendar();
 	}
 
-	public ArrayList getRecordings(List tivos, ProgressListener progressIndicator) {
+	public ArrayList<Video> getRecordings(List<TiVo> tivos, ProgressListener progressIndicator) {
 		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
-		ArrayList videos = new ArrayList();
+		ArrayList<Video> videos = new ArrayList<Video>();
 		log.debug("getRecordings: " + tivos.size());
 		log.debug("mServerConfiguration.getMediaAccessKey()=" + serverConfiguration.getMediaAccessKey().length());
 
@@ -120,10 +120,10 @@ public class ToGo {
 
 		if (serverConfiguration.getMediaAccessKey().length() > 0) {
 			GetMethod get = null;
-			Iterator tivosIterator = tivos.iterator();
+			Iterator<TiVo> tivosIterator = tivos.iterator();
 			while (tivosIterator.hasNext()) {
-				TiVo tivo = (TiVo) tivosIterator.next();
-				HashMap shows = new HashMap();
+				TiVo tivo = tivosIterator.next();
+				HashMap<Video, String> shows = new HashMap<Video, String>();
 				try {
 					Protocol protocol = new Protocol("https", new TiVoSSLProtocolSocketFactory(), 443);
 					HttpClient client = new HttpClient();
@@ -179,10 +179,10 @@ public class ToGo {
 								// Nothing changed
 
 								synchronized (this) {
-									List recordings = VideoManager.listAll();
-									Iterator iterator = recordings.listIterator();
+									List<Video> recordings = VideoManager.listAll();
+									Iterator<Video> iterator = recordings.listIterator();
 									while (iterator.hasNext()) {
-										Video video = (Video) iterator.next();
+										Video video = iterator.next();
 										if (video.getUrl() != null && video.getUrl().indexOf(tivo.getAddress()) != -1)
 											videos.add(video);
 									}
@@ -190,8 +190,8 @@ public class ToGo {
 								break;
 							}
 
-							for (Iterator iterator = root.elementIterator(); iterator.hasNext();) {
-								Element child = (Element) iterator.next();
+							for (Iterator<Element> iterator = root.elementIterator(); iterator.hasNext();) {
+								Element child = iterator.next();
 								if (child.getName().equals("Item")) {
 									Video video = new Video();
 									video.setMimeType("mpeg");
@@ -301,8 +301,8 @@ public class ToGo {
 					} while (counter < total);
 
 					// Get video details
-					for (Iterator iterator = shows.keySet().iterator(); iterator.hasNext();) {
-						Video video = (Video) iterator.next();
+					for (Iterator<Video> iterator = shows.keySet().iterator(); iterator.hasNext();) {
+						Video video = iterator.next();
 						String url = (String) shows.get(video);
 						getvideoDetails(client, video, url);
 						videos.add(video);
@@ -360,6 +360,40 @@ public class ToGo {
 			    Matcher matcher = pattern.matcher(value);
 			    if (matcher.find()) {
 			    	video.setCallsign(matcher.group(9));
+			    } else {
+			    	// Lost - ''Collision'' (Recorded Nov 23, 2005, KGO).TiVo;
+					// SeriesTitle [- ''EpisodeTitle''] (DateRecorded, CallSign)
+					pattern = Pattern.compile("^(.*) - ''(.*)'' \\(Recorded (.*), ([^,]*)\\)$");
+					matcher = pattern.matcher(value);
+					if (matcher.find()) {
+						video.setCallsign(matcher.group(4));
+					} else {
+						// Perfect Proposal - Ryan & Carrie (Recorded Sun Oct 30 2005 04 30PM, TLC).TiVo
+						pattern = Pattern.compile("^(.*) - (.*) \\(Recorded (.*), ([^,]*)\\)$");
+					    matcher = pattern.matcher(value);
+					    if (matcher.find()) {
+							video.setCallsign(matcher.group(4));
+					    } else {
+							pattern = Pattern.compile("^(.*) \\(Recorded (.*), ([^,]*)\\)$");
+						    matcher = pattern.matcher(value);
+						    if (matcher.find()) {
+								video.setCallsign(matcher.group(3));
+						    } else {
+								// Battlestar Galactica - Resurrection Ship (Recorded Fri Jan 13 2006 10 00PM SCIFI).TiVo
+							    pattern = Pattern.compile("^(.*) \\(Recorded ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*) ([\\S]*)\\)$");
+							    matcher = pattern.matcher(value);
+							    if (matcher.find()) {
+									video.setCallsign(matcher.group(8));
+							    } else {
+								    pattern = Pattern.compile("^(.*) \\(Recorded (.*), ([^,]*)\\)$");
+								    matcher = pattern.matcher(value);
+								    if (matcher.find()) {
+										video.setCallsign(matcher.group(3));
+								    }
+							    }
+						    }
+					    }
+					}
 			    }
 			} catch (DocumentException e) {
 				// ignore
@@ -524,9 +558,9 @@ public class ToGo {
 			}
 			showing = root.element("vActualShowing");
 			if (showing != null) {
-				Iterator iterator = showing.elementIterator("element");
+				Iterator<Element> iterator = showing.elementIterator("element");
 				while (iterator.hasNext()) {
-					Element element = (Element)iterator.next();
+					Element element = iterator.next();
 					Element node = null;
 					Element channel = element.element("channel");
 					if (channel != null) {
@@ -680,8 +714,8 @@ public class ToGo {
 				 */
 				StringBuffer buffer = new StringBuffer();
 				int counter = 0;
-				for (Iterator iterator = node.elementIterator("element"); iterator.hasNext();) {
-					Element bookmarkElement = (Element) iterator.next();
+				for (Iterator<Element> iterator = node.elementIterator("element"); iterator.hasNext();) {
+					Element bookmarkElement = iterator.next();
 					if (counter++ > 0)
 						buffer.append(";");
 					buffer.append(Tools.getAttribute(bookmarkElement, "time"));
@@ -727,8 +761,8 @@ public class ToGo {
 	private static String getElements(Element node) {
 		StringBuffer buffer = new StringBuffer();
 		int counter = 0;
-		for (Iterator iterator = node.elementIterator("element"); iterator.hasNext();) {
-			Element element = (Element) iterator.next();
+		for (Iterator<Element> iterator = node.elementIterator("element"); iterator.hasNext();) {
+			Element element = iterator.next();
 			if (counter++ > 0)
 				buffer.append(";");
 			buffer.append(element.getTextTrim());
@@ -739,7 +773,6 @@ public class ToGo {
 	public boolean Download(Video video, CancelDownload cancelDownload) {
 		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
 		GoBackConfiguration goBackConfiguration = Server.getServer().getGoBackConfiguration();
-		ArrayList videos = new ArrayList();
 		GetMethod get = null;
 		try {
 			URL url = new URL(video.getUrl());
@@ -835,7 +868,7 @@ public class ToGo {
 						buf.put(bytes[index++]);
 					}
 					buf.flip();
-					int numWritten = channel.write(buf);
+					channel.write(buf);
 					if (buf.hasRemaining()) {
 						buf.compact();
 					} else {
@@ -924,10 +957,10 @@ public class ToGo {
 		Video next = null;
 
 		try {
-			List recordings = VideoManager.listAll();
+			List<Video> recordings = VideoManager.listAll();
 
 			// Sort by descending date
-			Collections.sort(recordings, new Comparator() {
+			Collections.sort(recordings, new Comparator<Object>() {
 				public int compare(Object o1, Object o2) {
 					Video contact1 = (Video) o1;
 					Video contact2 = (Video) o2;
@@ -944,9 +977,9 @@ public class ToGo {
 				}
 			});
 
-			Iterator downloadedIterator = recordings.iterator();
+			Iterator<Video> downloadedIterator = recordings.iterator();
 			while (downloadedIterator.hasNext()) {
-				Video downloadedvideo = (Video) downloadedIterator.next();
+				Video downloadedvideo = downloadedIterator.next();
 
 				if (downloadedvideo.getStatus() == Video.STATUS_DOWNLOADING) { // Interrupted
 																				// download
@@ -974,16 +1007,16 @@ public class ToGo {
 
 	public void applyRules() {
 		try {
-			List recordings = VideoManager.listAll();
+			List<Video> recordings = VideoManager.listAll();
 
 			// Use rules to pick recording
-			List rules = Server.getServer().getRules();
+			List<Rule> rules = Server.getServer().getRules();
 
-			List tivos = Server.getServer().getTiVos();
+			List<TiVo> tivos = Server.getServer().getTiVos();
 
-			Iterator iterator = recordings.iterator();
+			Iterator<Video> iterator = recordings.iterator();
 			while (iterator.hasNext()) {
-				Video video = (Video) iterator.next();
+				Video video = iterator.next();
 				if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED
 						&& video.getStatus() != Video.STATUS_USER_CANCELLED
 						&& video.getStatus() != Video.STATUS_INCOMPLETE
@@ -1003,9 +1036,9 @@ public class ToGo {
 
 					if (found) {
 						// Find a rule that restricts downloads
-						Iterator rulesIterator = rules.iterator();
+						Iterator<Rule> rulesIterator = rules.iterator();
 						while (rulesIterator.hasNext()) {
-							Rule rule = (Rule) rulesIterator.next();
+							Rule rule = rulesIterator.next();
 							if (rule.match(video) && !rule.getDownload()) {
 								prohibited = true;
 								break;

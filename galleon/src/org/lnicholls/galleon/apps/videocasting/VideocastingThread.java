@@ -59,7 +59,7 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 			try {
 				if (!mWaiting) {
 					log.debug("videocastingthread run");
-					List list = null;
+					List<Videocast> list = null;
 					synchronized (this) {
 						try {
 							list = VideocastManager.listAll();
@@ -68,19 +68,19 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 						}
 					}
 					if (list != null && list.size() > 0) {
-						for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-							mVideocast = (Videocast) i.next();
+						for (Iterator<Videocast> i = list.iterator(); i.hasNext(); /* Nothing */) {
+							mVideocast = i.next();
 
 							Thread.sleep(100); // give the CPU some breathing
 												// time
 
-							if (mVideocast.getStatus() == mVideocast.STATUS_ERROR) {
+							if (mVideocast.getStatus() == Videocast.STATUS_ERROR) {
 								Date current = new Date();
 								if (current.getTime() - mVideocast.getDateUpdated().getTime() > 1000 * 60 * 60) {
 									mVideocast.setStatus(Videocast.STATUS_SUBSCRIBED);
 									VideocastManager.updateVideocast(mVideocast);
 								}
-							} else if (mVideocast.getStatus() == mVideocast.STATUS_SUBSCRIBED) {
+							} else if (mVideocast.getStatus() == Videocast.STATUS_SUBSCRIBED) {
 								synchronized (this) {
 									try {
 										mVideocast = VideocastManager.retrieveVideocast(mVideocast);
@@ -89,12 +89,12 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 									}
 								}
 
-								List videocastTracks = mVideocast.getTracks();
+								List<VideocastTrack> videocastTracks = mVideocast.getTracks();
 								if (videocastTracks != null) {
 									VideocastTrack[] tracks = new VideocastTrack[videocastTracks.size()];
 									int pos = 0;
-									for (Iterator j = videocastTracks.iterator(); j.hasNext(); /* Nothing */) {
-										VideocastTrack track = (VideocastTrack) j.next();
+									for (Iterator<VideocastTrack> j = videocastTracks.iterator(); j.hasNext(); /* Nothing */) {
+										VideocastTrack track = j.next();
 										tracks[pos++] = track;
 									}
 
@@ -110,8 +110,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 										// Remove tracks that dont exist anymore
 										for (int k = 0; k < tracks.length; k++) {
 											boolean found = false;
-											for (Iterator l = mVideocast.getTracks().iterator(); l.hasNext(); /* Nothing */) {
-												VideocastTrack track = (VideocastTrack) l.next();
+											for (Iterator<VideocastTrack> l = mVideocast.getTracks().iterator(); l.hasNext(); /* Nothing */) {
+												VideocastTrack track = l.next();
 												if (tracks[k].getUrl() != null && track.getUrl() != null
 														&& tracks[k].getUrl().equals(track.getUrl())) {
 													found = true;
@@ -135,8 +135,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 										videocastTracks = mVideocast.getTracks();
 										tracks = new VideocastTrack[videocastTracks.size()];
 										pos = 0;
-										for (Iterator j = videocastTracks.iterator(); j.hasNext(); /* Nothing */) {
-											VideocastTrack track = (VideocastTrack) j.next();
+										for (Iterator<VideocastTrack> j = videocastTracks.iterator(); j.hasNext(); /* Nothing */) {
+											VideocastTrack track = j.next();
 											tracks[pos++] = track;
 										}
 									} else {
@@ -147,10 +147,8 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 									}
 
 									// Sort the tracks by date
-									Arrays.sort(tracks, new Comparator() {
-										public int compare(Object o1, Object o2) {
-											VideocastTrack track1 = (VideocastTrack) o1;
-											VideocastTrack track2 = (VideocastTrack) o2;
+									Arrays.sort(tracks, new Comparator<VideocastTrack>() {
+										public int compare(VideocastTrack track1, VideocastTrack track2) {
 											if (track1.getPublicationDate() != null
 													&& track2.getPublicationDate() != null)
 												return -(int) (track1.getPublicationDate().getTime() - track2
@@ -457,9 +455,9 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 				synchronized (this) {
 					try {
 						Video video = null;
-						List videos = VideoManager.findByPath(mDownload.getLocalFile().getCanonicalPath());
+						List<Video> videos = VideoManager.findByPath(mDownload.getLocalFile().getCanonicalPath());
 						if (videos != null && videos.size() > 0) {
-							video = (Video) videos.get(0);
+							video = videos.get(0);
 							if (video != null) {
 								video.setOrigen("Videocast");
 								if (mTrack.getDuration() != 0)
@@ -552,9 +550,10 @@ public class VideocastingThread extends Thread implements Constants, ProgressLis
 
 	private boolean mDownloadNext = false;
 
+	@SuppressWarnings("unused")
 	private long mStart = 0;
-
-	private long mLast = 0;
+//
+//	private long mLast = 0;
 
 	private Download mDownload;
 }

@@ -19,6 +19,7 @@ package org.lnicholls.galleon.apps.togo;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.lnicholls.galleon.app.AppConfiguration;
 
+@SuppressWarnings("serial")
 public class ToGoConfiguration implements AppConfiguration {
 
 	public static String SORT_DATE_OLDEST = "dateOldest";

@@ -67,13 +67,13 @@ public class ToGo extends DefaultApplication {
 
 	private Resource mYellowExclamationIcon;
 
-	private Resource mWhiteIcon;
+	//private Resource mWhiteIcon;
 
 	private Resource mGreenIcon;
 
 	private Resource mRedIcon;
 
-	private Resource mBlueIcon;
+	//private Resource mBlueIcon;
 
 	private Resource mEmptyIcon;
 
@@ -90,10 +90,10 @@ public class ToGo extends DefaultApplication {
 		mInfoBackground = getSkinImage("info", "background");
 		mYellowIcon = getSkinImage("menu", "expiresSoon");
 		mYellowExclamationIcon = getSkinImage("menu", "expired");
-		mWhiteIcon = getSkinImage("menu", "info");
+		//mWhiteIcon = getSkinImage("menu", "info");
 		mGreenIcon = getSkinImage("menu", "saveUntilDelete");
 		mRedIcon = getSkinImage("menu", "recording");
-		mBlueIcon = getSkinImage("menu", "suggestion");
+		//mBlueIcon = getSkinImage("menu", "suggestion");
 		mEmptyIcon = getSkinImage("menu", "empty");
 		mIcon = getSkinImage("menu", "icon");
 		mLockIcon = getSkinImage("menu", "lock");
@@ -190,8 +190,8 @@ public class ToGo extends DefaultApplication {
 
 			int start = TOP - 25;
 
-			final ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory())
-					.getAppContext().getConfiguration();
+//			final ToGoConfiguration togoConfiguration = (ToGoConfiguration) ((ToGoFactory) getFactory())
+//					.getAppContext().getConfiguration();
 			mCountText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
 			mCountText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
 			mCountText.setFont("default-18.font");
@@ -210,13 +210,11 @@ public class ToGo extends DefaultApplication {
 				mSort = togoConfiguration.getSort();
 				if (mSort == null)
 					mSort = ToGoConfiguration.SORT_DATE_LATEST;
-				List recordings = VideoManager.listAll();
+				List<Video> recordings = VideoManager.listAll();
 				Video[] videoArray = (Video[]) recordings.toArray(new Video[0]);
-				Arrays.sort(videoArray, new Comparator() {
-					public int compare(Object o1, Object o2) {
-						Video video1 = (Video) o1;
-						Video video2 = (Video) o2;
-
+				Arrays.sort(videoArray, new Comparator<Video>() {
+					public int compare(Video video1, Video video2) {
+						
 						if (video1.getTitle() != null && video2.getTitle() != null
 								&& mSort.equals(ToGoConfiguration.SORT_ALPHA))
 							return video1.getTitle().compareTo(video2.getTitle());
@@ -235,9 +233,9 @@ public class ToGo extends DefaultApplication {
 				mTotalTime = 0;
 				mTotalSize = 0;
 				mTotalCapacity = 0;
-				List tivos = Server.getServer().getTiVos();
+				List<TiVo> tivos = Server.getServer().getTiVos();
 				for (int i = 0; i < videoArray.length; i++) {
-					Video video = (Video) videoArray[i];
+					Video video = videoArray[i];
 					if (video.getStatus() != Video.STATUS_RECORDING) {
 						// Only display recordings that are still on the
 						// recorder
@@ -249,7 +247,7 @@ public class ToGo extends DefaultApplication {
 						boolean match = false;
 						if (video.getSource() != null) {
 							for (int j = 0; j < tivos.size(); j++) {
-								TiVo tivo = (TiVo) tivos.get(j);
+								TiVo tivo = tivos.get(j);
 								if (tivo.getAddress().equals(video.getSource())) {
 									match = true;
 									break;
@@ -268,10 +266,10 @@ public class ToGo extends DefaultApplication {
 				log.error("Getting recordings failed", ex);
 			}
 
-			List tivos = Server.getServer().getTiVos();
-			Iterator iterator = tivos.iterator();
+			List<TiVo> tivos = Server.getServer().getTiVos();
+			Iterator<TiVo> iterator = tivos.iterator();
 			while (iterator.hasNext()) {
-				TiVo tivo = (TiVo) iterator.next();
+				TiVo tivo = iterator.next();
 				mTotalCapacity = mTotalCapacity + tivo.getCapacity();
 			}
 			// setFooter("Press 0 for Sort by Date, 1 Group All, 2 Group

@@ -725,9 +725,9 @@ public class Tools {
 
 						Thumbnail thumbnail = null;
 						try {
-							List list = ThumbnailManager.findByKey(key);
+							List<Thumbnail> list = ThumbnailManager.findByKey(key);
 							if (list != null && list.size() > 0)
-								thumbnail = (Thumbnail) list.get(0);
+								thumbnail = list.get(0);
 						} catch (HibernateException ex) {
 							log.error("Thumbnail create failed", ex);
 						}
@@ -773,9 +773,9 @@ public class Tools {
 
 	public static void deleteCachedImage(String key) {
 		try {
-			List list = ThumbnailManager.findByKey(key);
+			List<Thumbnail> list = ThumbnailManager.findByKey(key);
 			if (list != null && list.size() > 0) {
-				Thumbnail thumbnail = (Thumbnail) list.get(0);
+				Thumbnail thumbnail = list.get(0);
 				ThumbnailManager.deleteThumbnail(thumbnail);
 			}
 		} catch (HibernateException ex) {

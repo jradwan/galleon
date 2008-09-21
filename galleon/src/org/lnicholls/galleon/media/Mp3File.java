@@ -866,9 +866,9 @@ public final class Mp3File {
 
 					Thumbnail thumbnail = null;
 					try {
-						List list = ThumbnailManager.findByKey(getKey(audio));
+						List<Thumbnail> list = ThumbnailManager.findByKey(getKey(audio));
 						if (list != null && list.size() > 0)
-							thumbnail = (Thumbnail) list.get(0);
+							thumbnail = list.get(0);
 					} catch (HibernateException ex) {
 						log.error("Cover create failed", ex);
 					}

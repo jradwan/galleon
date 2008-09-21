@@ -32,6 +32,7 @@ import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Constants;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.server.ServerConfiguration;
+import org.lnicholls.galleon.server.TiVo;
 import org.lnicholls.galleon.util.FileFilters;
 import org.lnicholls.galleon.util.FileSystemContainer;
 import org.lnicholls.galleon.util.ProgressListener;
@@ -53,7 +54,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
         while (true) {
             try {
                 ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
-                List tivos = (List) serverConfiguration.getTiVos();
+                List<TiVo> tivos = serverConfiguration.getTiVos();
                 log.debug("tivos=" + tivos.size());
 
                 ArrayList<Video> downloaded = null;
@@ -65,7 +66,7 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
                 if (downloaded!=null && downloaded.size()>0)
                 {
                     log.debug("downloaded.size()=" + downloaded.size());
-                    List recordings = null;
+                    List<Video> recordings = null;
                     synchronized(mToGo)
                     {
                         recordings = VideoManager.listAll();
@@ -224,16 +225,16 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
         }
     }
 
-    public List getRecordings() throws RemoteException
+    public List<Video> getRecordings() throws RemoteException
     {
         try
         {
-            List recordings = VideoManager.listAllTiVo();
+            List<Video> recordings = VideoManager.listAllTiVo();
 
             ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
             File directory = new File(serverConfiguration.getRecordingsPath());
 			FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(), true);
-			List files = fileSystemContainer.getItems(FileFilters.videoFilter);
+			List<Item> files = fileSystemContainer.getItems(FileFilters.videoFilter);
 
             // Try to resync video file with database if moved
             Iterator<Video> iterator = recordings.iterator();
@@ -274,7 +275,8 @@ public class ToGoThread extends Thread implements Constants, ProgressListener {
         return null;
     }
 
-    private Server mServer;
+    @SuppressWarnings("unused")
+	private Server mServer;
 
     private ToGo mToGo;
 }

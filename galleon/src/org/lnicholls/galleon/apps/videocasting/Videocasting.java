@@ -811,24 +811,24 @@ public class Videocasting extends DefaultApplication {
 
 			getBelow().setResource(mMenuBackground);
 
-			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
-					.getAppContext().getConfiguration();
+//			VideocastingConfiguration videocastingConfiguration = (VideocastingConfiguration) ((VideocastingFactory) getFactory())
+//					.getAppContext().getConfiguration();
 
-			List list = null;
+			List<Videocast> list = null;
 			try {
 				list = VideocastManager.listAll();
 			} catch (Exception ex) {
 				Tools.logException(Videocasting.class, ex);
 			}
 
-			mList = new ArrayList();
+			mList = new ArrayList<VideocastTrack>();
 			if (list != null && list.size() > 0) {
-				for (Iterator i = list.iterator(); i.hasNext();) {
-					Videocast videocast = (Videocast) i.next();
-					List tracks = videocast.getTracks();
+				for (Iterator<Videocast> i = list.iterator(); i.hasNext();) {
+					Videocast videocast = i.next();
+					List<VideocastTrack> tracks = videocast.getTracks();
 					if (tracks != null && tracks.size() > 0) {
-						for (Iterator trackIterator = tracks.iterator(); trackIterator.hasNext();) {
-							VideocastTrack videocastTrack = (VideocastTrack) trackIterator.next();
+						for (Iterator<VideocastTrack> trackIterator = tracks.iterator(); trackIterator.hasNext();) {
+							VideocastTrack videocastTrack = trackIterator.next();
 							if ((videocastTrack.getStatus() == VideocastTrack.STATUS_DOWNLOADED || videocastTrack
 									.getStatus() == VideocastTrack.STATUS_PLAYED)
 									&& videocastTrack.getTrack() != null) {
@@ -841,10 +841,8 @@ public class Videocasting extends DefaultApplication {
 
 			VideocastTrack[] videocastTrackArray = (VideocastTrack[]) mList.toArray(new VideocastTrack[0]);
 			mList.clear();
-			Arrays.sort(videocastTrackArray, new Comparator() {
-				public int compare(Object o1, Object o2) {
-					VideocastTrack videocastTrack1 = (VideocastTrack) o1;
-					VideocastTrack videocastTrack2 = (VideocastTrack) o2;
+			Arrays.sort(videocastTrackArray, new Comparator<VideocastTrack>() {
+				public int compare(VideocastTrack videocastTrack1, VideocastTrack videocastTrack2) {
 					if (videocastTrack1 != null && videocastTrack2 != null
 							&& videocastTrack1.getPublicationDate() != null
 							&& videocastTrack2.getPublicationDate() != null)
@@ -936,7 +934,7 @@ public class Videocasting extends DefaultApplication {
 			return super.handleKeyPress(code, rawcode);
 		}
 
-		List mList;
+		List<VideocastTrack> mList;
 
 		Tracker mTracker;
 
@@ -2477,12 +2475,12 @@ public class Videocasting extends DefaultApplication {
 							try {
 								Audio audio = ((DefaultApplication) getApp()).getCurrentAudio();
 								boolean found = false;
-								List list = VideocastManager.listAll();
-								for (Iterator i = list.iterator(); i.hasNext(); /* Nothing */) {
-									videocast = (Videocast) i.next();
-									List tracks = videocast.getTracks();
-									for (Iterator j = tracks.iterator(); j.hasNext(); /* Nothing */) {
-										VideocastTrack videocastTrack = (VideocastTrack) j.next();
+								List<Videocast> list = VideocastManager.listAll();
+								for (Iterator<Videocast> i = list.iterator(); i.hasNext(); /* Nothing */) {
+									videocast = i.next();
+									List<VideocastTrack> tracks = videocast.getTracks();
+									for (Iterator<VideocastTrack> j = tracks.iterator(); j.hasNext(); /* Nothing */) {
+										VideocastTrack videocastTrack = j.next();
 										if (videocastTrack.getTrack() != null
 												&& videocastTrack.getTrack().getId() == audio.getId()) {
 											track = videocastTrack;

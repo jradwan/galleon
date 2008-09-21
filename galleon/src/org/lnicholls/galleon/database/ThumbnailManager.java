@@ -21,19 +21,20 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
-import org.hibernate.classic.Session;
 import org.hibernate.Transaction;
-import org.apache.log4j.Logger;
+import org.hibernate.classic.Session;
 import org.lnicholls.galleon.util.Tools;
+
 import com.sun.image.codec.jpeg.ImageFormatException;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
 public class ThumbnailManager {
-	private static Logger log = Logger.getLogger(ThumbnailManager.class
-			.getName());
+//	private static Logger log = Logger.getLogger(ThumbnailManager.class
+//			.getName());
 	public static interface Callback {
 		public void visit(Session session, Thumbnail thumbnail);
 	}
@@ -142,8 +143,9 @@ public class ThumbnailManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Thumbnail> listAll() throws HibernateException {
+		List<Thumbnail> list = new ArrayList<Thumbnail>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -160,9 +162,9 @@ public class ThumbnailManager {
 		}
 		return list;
 	}
-	public static List listBetween(int start, int end)
+	public static List<Thumbnail> listBetween(int start, int end)
 			throws HibernateException {
-		List list = new ArrayList();
+		List<Thumbnail> list = new ArrayList<Thumbnail>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
@@ -214,12 +216,13 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
-	public static List findByKey(String key) throws HibernateException {
+	@SuppressWarnings("unchecked")
+	public static List<Thumbnail> findByKey(String key) throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Thumbnail> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?")
 					.setString(
@@ -234,20 +237,21 @@ public class ThumbnailManager {
 			HibernateUtil.closeSession();
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public static BufferedImage findImageByKey(String key)
 			throws HibernateException {
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List list = session
+			List<Thumbnail> list = session
 					.createQuery(
 							"from org.lnicholls.galleon.database.Thumbnail as thumbnail where thumbnail.keywords=?")
 					.setString(
 					0, key).list();
 			BufferedImage image = null;
 			if (list.size() > 0) {
-				Thumbnail thumbnail = (Thumbnail) list.get(0);
+				Thumbnail thumbnail = list.get(0);
 				Blob blob = thumbnail.getImage();
 				image = createImage(blob);
 			}

@@ -138,8 +138,9 @@ public class VideocastManager {
 			}
 		}
 	}
-	public static List listAll() throws HibernateException {
-		List list = new ArrayList();
+	@SuppressWarnings("unchecked")
+	public static List<Videocast> listAll() throws HibernateException {
+		List<Videocast> list = new ArrayList<Videocast>();
 		Session session = HibernateUtil.openSession();
 		Transaction tx = null;
 		try {

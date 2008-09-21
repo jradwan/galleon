@@ -15,22 +15,25 @@ package org.lnicholls.galleon.apps.togo;
  * See the file "COPYING" for more details.
  */
 import java.awt.GridLayout;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
-import org.apache.log4j.Logger;
+
 import org.lnicholls.galleon.app.AppConfiguration;
 import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.util.NameValue;
+
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+@SuppressWarnings("serial")
 public class ToGoOptionsPanel extends AppConfigurationPanel {
-	private static Logger log = Logger.getLogger(ToGoOptionsPanel.class
-			.getName());
+//	private static Logger log = Logger.getLogger(ToGoOptionsPanel.class
+//			.getName());
 	public ToGoOptionsPanel(AppConfiguration appConfiguration) {
 		super(appConfiguration);
 		setLayout(new GridLayout(0, 1));

@@ -1,9 +1,11 @@
 #!/bin/sh -x
 # TODO: do this all in ant?
 cd `dirname $0`/../..
+(cd distro/osx/bundles && cvs -q update)
 sudo rm -rf osx-dir
 mkdir osx-dir
 mkdir -p osx-dir/Galleon/Galleon
+chmod 775 osx-dir/Galleon/Galleon
 (cd distro/osx/bundles && tar -cf - --exclude=\*~ --exclude=CVS *.app)|(cd osx-dir/Galleon/Galleon && tar xpBf - )
 if [ $# -gt 0 ]; then
     rm -rf build.osx
@@ -18,7 +20,7 @@ for i in osx-dir/Galleon/Galleon/*.app; do
 ##echo     cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$i"/Contents/MacOS/galleon_java_stub >"$i"/Contents/MacOS/ORIGIN.txt
 ## done in postflight now
 ##    cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$i"/Contents/MacOS/galleon_java_stub
-    mkdir "$i"/Contents/Resources/Java/data/tmp
+    mkdir -p "$i"/Contents/Resources/Java/data/tmp
     /Developer/Tools/SetFile -a B "$i"
 done
 mv "osx-dir/Galleon/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/configure.xml "osx-dir/Galleon/Galleon/Galleon Server.app"/Contents/Resources/Java/conf/configure.xml-default
@@ -31,23 +33,32 @@ cp copying osx-dir/COPYING
 textutil -cat rtf -output osx-dir/MainResources/English.lproj/License.rtf distro/osx/License.fragment.rtf copying ThirdPartyLicenses.txt
 textutil -cat rtf -output osx-dir/MainResources/English.lproj/ReadMe.rtf distro/osx/ReadMe.fragment.rtf build.osx/ReleaseNotes.txt distro/osx/ReadMe.lastfragment.rtf 
 cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir/MainResources/English.lproj
-# ln -s /Applications osx-dir/Applications
+# ln -s /Applications/Galleon osx-dir/Galleon
 sudo chown -R root:admin osx-dir
 #/Developer/Tools/packagemaker -build -proj distro/osx/Galleon.pmproj -p distro/osx/Galleon.pkg -v
 VER="2.5.4"
 
-rm -rf Galleon.pkg
-# Backward compat builds on 10.5, may need to update to native commands?
-/Developer/usr/bin/packagemaker \
---root osx-dir/Galleon --target 10.4 --discard-forks --verbose \
---resources osx-dir/MainResources \
---info distro/osx/Info.plist \
---filter .DS_Store \
---out Galleon.pkg
+rm -rf Galleon.pkg Galleon.mpkg
+# Be very wary, the package builder/installer on 10.5 is too clever.
+# Installer will try to install over one of the .app bundles in
+# the sources, not in /Applications, if it thinks that's a better place.
+# And making a pmproj file seems to be unable to save the non-relocatable
+# checkbox.
+
+/Developer/Tools/SetFile -a B distro/osx/Galleon.pmdoc
+echo be sure to click the "no relocation" buttons in the build
+echo and set the owners to root:admin globally
+echo hit enter in this window when done
+osascript distro/osx/package.scpt
+read foo
+
+# Have to remove .app files to be sure installer for testing doesn't nuke it...
+#sudo rm -rf osx-dir
+#rm -rf distro/osx/bundles/*.app
 # ??? -d distro/osx/Description.plist
 
 VOL="Galleon"
-FILES="Galleon.pkg"
+FILES="Galleon.mpkg"
 DMG="tmp-$VOL.dmg"
 
 SIZE=`du -sk ${FILES} | awk '{print $1}'`

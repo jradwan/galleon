@@ -11,7 +11,9 @@
 #  wrapped Java applications on UNIX platforms.
 #
 # Source function library.
-. /etc/rc.d/init.d/functions
+if [ -e /etc/rc.d/init.d/functions ] ; then \
+    . /etc/rc.d/init.d/functions ; \
+fi
 
 #-----------------------------------------------------------------------------
 # These settings can be modified to fit the needs of your application

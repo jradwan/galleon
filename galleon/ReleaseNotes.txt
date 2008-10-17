@@ -15,7 +15,7 @@ Version 2.5.4:
   format as it comes from the TiVo, into a .xml file with the same prefix) 
 * Enabled latent store-by-show handling in GoBack server (available on
   GoBack preferences pane)
-* Fix for linux Makefile (1815568)
+* Fix for linux Makefile (1815568) and init script for distro independence
 
 Version 2.5.3:
 ----------------------

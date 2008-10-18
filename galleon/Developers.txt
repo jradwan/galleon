@@ -2,7 +2,7 @@ Notes for Galleon Developers
 ============================
 
 After sending an email request to become a Galleon developer to
-javahmo@users.sourceforge.net, you will also be added to two mailing lists:
+johnkohl@users.sourceforge.net, you will also be added to two mailing lists:
 galleon-developers@lists.sourceforge.net: used for developer issues,
 galleon-commits@lists.sourceforge.net: used by CVS to automatically post all checkins.
 Both these mailing lists are archived on the project development page.
@@ -11,11 +11,11 @@ To help us keep track of who is doing what, we use the project bug and
 feature trackers.  If you want to fix a particular bug or implement a
 feature, assign it to yourself. If there are any new features you want
 to work on, go ahead and add new features to the tracker.  If you decide
-to do any significant development changes to JavaHMO it is recommended
+to do any significant development changes to Galleon it is recommended
 that you use the mailing list to get feedback first.
 
 I suggest that you read through the developer documentation provided by
-Sourceforge.  Everything you will need to know to use CVS and the
+SourceForge.  Everything you will need to know to use CVS and the
 project tools are explained in detail.
 
 
@@ -92,15 +92,19 @@ To create a release:
 * Upload the Galleon-<release>.dmg, galleon-<release>.exe,
   galleon-<release>-linux.zip files, add them to the release
 
-* Create a new news item in galleon.sourceforge.net (admin->news) titled
+* Create a new news item on sourceforge.net (admin->news) titled
   "Galleon <release-number> for TiVo".
+  https://sourceforge.net/news/admin/?group_id=126291
 
   That news item will trigger existing galleon installations to notify
   the owners that there's a new release.
 
-* Update the top-level page at http://galleon.sourceforge.net/ (on
-  shell.sourceforge.net, go to /home/groups/g/ga/galleon/htdocs and do
-  something--help???)
+* Update the top-level page at http://galleon.sourceforge.net/ (log in
+  as a publishing account or the admin account at
+  http://galleon.sourceforge.net/administrator).
+
+* Update the download page:
+  http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=96&Itemid=57
 
 Winamp skins (text from ReleaseNotes.txt):
 

@@ -8,7 +8,8 @@ Version 2.5.4:
 * auto-subdirectory publishing for GoBack, avoids the need to do it yourself
   and also avoids bugs in TiVo folder navigation in older TiVo service
   releases (Series 3 and HD should be OK without this).
-  (XXX need to clean up some more for File.separator and DOS shortcuts)
+  (Probably needs some work to handle DOS shortcuts; should be OK on
+  UNIX and OS X.)
 
 * XML parsing of recording meta-data for non-Galleon-created video
   files in GoBack areas.  e.g. if you post-process .TiVo files into

@@ -1,7 +1,6 @@
-#!/bin/sh -x
+#!/bin/bash -x
 # TODO: do this all in ant?
-cd `dirname $0`/../..
-(cd distro/osx/bundles && cvs -q update)
+cd $(dirname $0)/../..
 sudo rm -rf osx-dir
 mkdir osx-dir
 mkdir -p osx-dir/Galleon/Galleon
@@ -12,9 +11,9 @@ if [ $# -gt 0 ]; then
     ant -Dplatform=osx package
     mv build build.osx
 fi
-    (cd build.osx && tar cf - *) | (cd  osx-dir/Galleon/Galleon/Galleon*.app/Contents/Resources && mkdir Java && cd Java && tar xpBf -) 
+    (cd build.osx && tar cf - *) | (cd  "osx-dir/Galleon/Galleon/Galleon Server.app"/Contents/Resources && mkdir Java && cd Java && tar xpBf -) 
 (cd osx-dir/Galleon/Galleon/Conf*.app/Contents/Resources && ln -s ../../../Galleon*.app/Contents/Resources/Java ./Java)
-for i in osx-dir/Galleon/Galleon/*.app; do
+for i in "osx-dir/Galleon/Galleon/Galleon Server.app" "osx-dir/Galleon/Galleon/Configure Galleon.app"; do
     mkdir "$i"/Contents/MacOS
 # You might be tempted to symlink this file, but that seems to make finder think both galleon & configure galleon are the same app.
 ##echo     cp /System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS/JavaApplicationStub "$i"/Contents/MacOS/galleon_java_stub >"$i"/Contents/MacOS/ORIGIN.txt
@@ -43,29 +42,35 @@ rm -rf Galleon.pkg Galleon.mpkg
 # Installer will try to install over one of the .app bundles in
 # the sources, not in /Applications, if it thinks that's a better place.
 # And making a pmproj file seems to be unable to save the non-relocatable
-# checkbox.
+# checkbox if it uses the relative paths.  So we have to copy a prototype
+# project (with /path/to/galleon absolute paths) into a build-time copy
+# recast with current on-disk paths.
 
-/Developer/Tools/SetFile -a B distro/osx/Galleon.pmdoc
-echo be sure to click the "no relocation" buttons in the build
-echo and set the owners to root:admin globally
-echo hit enter in this window when done
-osascript distro/osx/package.scpt
-read foo
+srcdir=distro/osx/Galleon.pmdoc
+blddir=distro/osx/Galleon-build.pmdoc
 
-# Have to remove .app files to be sure installer for testing doesn't nuke it...
-#sudo rm -rf osx-dir
-#rm -rf distro/osx/bundles/*.app
-# ??? -d distro/osx/Description.plist
+rm -rf $blddir
+mkdir -p $blddir
+mydir=$(pwd)
+sed -e s:/path/to/galleon:${mydir}:g $srcdir/01galleon-contents.xml > $blddir/01galleon-contents.xml
+sed -e s:/path/to/galleon:${mydir}:g $srcdir/01galleon.xml > $blddir/01galleon.xml
+sed -e s:/path/to/galleon:${mydir}:g $srcdir/index.xml > $blddir/index.xml
+/Developer/Tools/SetFile -a B $blddir
+
+/Developer/usr/bin/packagemaker --doc $blddir -o Galleon.pkg -v
+
+#rm -rf $blddir
+
 
 VOL="Galleon"
-FILES="Galleon.mpkg"
+FILES="Galleon.pkg"
 DMG="tmp-$VOL.dmg"
 
-SIZE=`du -sk ${FILES} | awk '{print $1}'`
+SIZE=$(du -sk ${FILES} | awk '{print $1}')
 SIZE=$((${SIZE}/1000+1))
 # default is UDIF
 hdiutil create "$DMG" -layout SPUD -megabytes ${SIZE} -ov -fs HFS+  -volname "${VOL}-${VER}"
-DISK=`hdid "$DMG" | awk ' /Apple_partition_scheme/ {print $1} ' | awk -F/ '{print $3}'`
+DISK=$(hdid "$DMG" | awk ' /Apple_partition_scheme/ {print $1} ' | awk -F/ '{print $3}')
 cp -R "${FILES}" "/Volumes/${VOL}-${VER}"
 hdiutil eject $DISK
 

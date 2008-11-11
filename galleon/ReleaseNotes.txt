@@ -11,10 +11,13 @@ Version 2.5.4:
   (Probably needs some work to handle DOS shortcuts; should be OK on
   UNIX and OS X.)
 
-* XML parsing of recording meta-data for non-Galleon-created video
-  files in GoBack areas.  e.g. if you post-process .TiVo files into
-  .mpg, just put the XML output containing the show details, in the same
-  format as it comes from the TiVo, into a .xml file with the same prefix) 
+* XML parsing of recording meta-data for non-Galleon-created video files
+  in GoBack areas.  e.g. if you post-process .TiVo files into .mpg, just
+  put the XML output containing the show details, in the same format as
+  it comes from the TiVo, into a .xml file with the same prefix.  If you
+  use tivodecode to unwrap .TiVo files, the metadata are in the
+  -02-0002.xml file generated with the -D (dump-metadata) option.
+
 * Enabled store-by-show handling in GoBack server (available on
   GoBack preferences pane).
 * Fix for linux Makefile (1815568) and init script for distro independence

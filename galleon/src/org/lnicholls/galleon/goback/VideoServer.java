@@ -926,8 +926,7 @@ public class VideoServer extends HttpServer {
 				if (n.length() != 0)
 					n = n + "/";
 				String fp = f.getCanonicalPath();
-				if (fp.startsWith(dstring + "/"))
-					// TODO: fix for DOS pname separator
+				if (fp.startsWith(dstring + File.separator))
 					n = n + fp.substring(dstring.length() + 1).replaceAll("\\\\", "/");
 				doPublish(buffer, n, f, serverConfiguration,
 						rootToken, false);
@@ -942,7 +941,7 @@ public class VideoServer extends HttpServer {
 		try {
 			FileSystemContainer fileSystemContainer =
 				new FileSystemContainer(dir.getCanonicalPath(), true);
-			List dirs = fileSystemContainer.getItemsSorted(FileFilters.directoryFilter);
+			List<Item> dirs = fileSystemContainer.getItemsSorted(FileFilters.directoryFilter);
 			counter += dirs.size();
 		} catch (IOException ex) {
 			// don't care, just ignore subdirs

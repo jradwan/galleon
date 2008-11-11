@@ -1568,7 +1568,7 @@ public class MainFrame extends JFrame {
 			mGroupByShow.setSelected(goBackConfiguration.isGroupByShow());
 			mPublishTiVoRecordings = new JCheckBox("Publish ToGo Recordings");
 			mPublishTiVoRecordings.setSelected(goBackConfiguration.isPublishTiVoRecordings());
-			mAutoSubdirectories = new JCheckBox("Automatically publish sub-folders separately to avoid TiVo bug");
+			mAutoSubdirectories = new JCheckBox("Automatically publish sub-folders separately to avoid TiVo Series2 bug");
 			mAutoSubdirectories.setSelected(goBackConfiguration.isAutoSubdirectories());
 			mConvertVideo = new JCheckBox("Convert Video");
 			mConvertVideo.setSelected(goBackConfiguration.isConvertVideo());

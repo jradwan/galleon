@@ -141,7 +141,7 @@ public class WeatherData implements Serializable {
 
         Server.getServer().scheduleShortTerm(new ReloadTask(new ReloadCallback() {
             public void reload() {
-            	log.debug("Weather");
+            	log.debug("Weather reload");
                 if (++mTimeCounter % 144 == 0) // every 720 mins
                 {
                     getAllWeather();
@@ -193,7 +193,8 @@ public class WeatherData implements Serializable {
             String page = Tools.getPage(url);
             if (page != null && page.length()>0)
             {
-	            log.debug("Locations: " + page);
+                    log.debug("Locations URL : " + url);
+	            log.debug("Locations data: " + page);
 	            StringReader stringReader = new StringReader(page);
 	            Document document = saxReader.read(stringReader);
 	            //Document document = saxReader.read(new File("d:/galleon/location.xml"));
@@ -275,12 +276,12 @@ public class WeatherData implements Serializable {
             }
 
             if (page != null) {
-                log.debug("AllWeather: " + page);
+                log.debug("AllWeather data: " + page);
                 parseWeather(page);
                 PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "id", mId);
             }
         } catch (Exception ex) {
-            log.error("Could not determine weather conditions", ex);
+            log.error("Could not determine weather conditions (AllWeather)", ex);
         }
         //parseWeather("");
     }
@@ -288,13 +289,14 @@ public class WeatherData implements Serializable {
     public void getCurrentWeather() {
         try {
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
-            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&prod=xoap&par=" + PARTNER_ID
+            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&link=xoap&prod=xoap&par=" + PARTNER_ID
                     + "&key=" + LICENSE_KEY);
             String page = Tools.getPage(url);
-            log.debug("CurrentWeather: " + page);
+            log.debug("CurrentWeather URL : " + url);
+            log.debug("CurrentWeather data: " + page);
             parseWeather(page);
         } catch (MalformedURLException ex) {
-            log.error("Could not determine weather conditions", ex);
+            log.error("Could not determine weather conditions (CurrentWeather)", ex);
         }
         //parseWeather("");
     }
@@ -303,16 +305,17 @@ public class WeatherData implements Serializable {
         try {
             SAXReader saxReader = new SAXReader();
             //http://xoap.weather.com/weather/local/USNH0156?cc=*&dayf=2&link=xoap&prod=xoap&par=1007257694&key=4521b6a53deec6b8
-            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&prod=xoap&par="
+            URL url = new URL("http://xoap.weather.com/weather/local/" + mId + "?cc=*&dayf=5&link=xoap&prod=xoap&par="
                     + PARTNER_ID + "&key=" + LICENSE_KEY);
             String page = Tools.getPage(url);
-            log.debug("ForecastWeather: " + page);
+            log.debug("ForecastWeather URL : " + url);
+            log.debug("ForecastWeather data: " + page);
             parseWeather(page);
             PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "id", mId);
         } catch (MalformedURLException ex) {
-            log.error("Could not determine weather conditions", ex);
+            log.error("Could not parse weather conditions (ForecastWeather)", ex);
         }
-        parseWeather("");
+        //parseWeather("");
     }
 
     public void parseWeather(String page) {
@@ -435,7 +438,7 @@ public class WeatherData implements Serializable {
 	                }
 	            }
 	        } catch (Exception ex) {
-	            log.error("Could not determine weather conditions", ex);
+	            log.error("Could not parse weather conditions", ex);
 	        }
         }
     }

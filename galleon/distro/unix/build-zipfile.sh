@@ -6,6 +6,6 @@ if [ $# -gt 0 ]; then
     ant -Dplatform=unix package
     mv build build.unix
 fi
-rm -f galleon-2.5.4-linux.zip
-(cd build.unix && zip -r ../galleon-2.5.4-linux.zip *)
+rm -f galleon-2.5.5-linux.zip
+(cd build.unix && zip -r ../galleon-2.5.5-linux.zip *)
 

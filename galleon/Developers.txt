@@ -96,8 +96,11 @@ To create a release:
   then "Add releases", name it x.y.z).  Copy the release notes section
   from ReleaseNotes.txt into the text box.
 
+  Mark some old file releases hidden.
+
 * Upload the Galleon-<release>.dmg, galleon-<release>.exe,
   galleon-<release>-linux.zip files, add them to the release
+  Click "I'm sure" and notify subscribers
 
 * Create a new news item on sourceforge.net (admin->news) titled
   "Galleon <release-number> for TiVo".

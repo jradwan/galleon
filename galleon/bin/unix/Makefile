@@ -62,7 +62,7 @@ install:
 	ln -sf ${VARDIR}/templates ${CONFDIR}/templates
 	ln -sf ${APPDIR}/bin/galleon /etc/init.d/galleon
 	if [ -e /usr/sbin/update-rc.d ] ; then \
-		/usr/sbin/update-rc.d galleon start 95 3 4 5 . stop 30 3 4 5 . ; \
+		/usr/sbin/update-rc.d galleon start 95 2 3 4 5 . stop 30 2 3 4 5 . ; \
 	else \
 		chkconfig --add galleon ;\
 	fi

@@ -1,6 +1,13 @@
 Galleon
 -------
 
+Version 2.5.5:
+----------------------
+* added java parameter to favor IPv4 (should eliminate the need for disabling
+  IPv6 on linux installs)
+* added runlevel 2 to linux Makefile (for distros that use update-rc.d)
+
+
 Version 2.5.4:
 ----------------------
 * Fix ToGo looping bug on null recording date (1811137)

@@ -116,6 +116,40 @@ To create a release:
 * Update the download page:
   http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=96&Itemid=57
 
+galleon.sourceforge.net
+-----------------------
+
+galleon.sourceforge.net is a Joomla site for documentation and content
+management.  It used to have forums but they're not working anymore.
+
+* To add a user to publishing rights on galleon.sourceforge.net:
+
+  visit http://galleon.sourceforge.net/administrator/
+  Log in as administrator account (admin)
+  Go to the user manager, find the user and/or add a new user as Registered.
+  have new user change password and confirm ability to log in
+  After confirmation, change user to Publisher privileges
+
+  Joomla PHP files are on the SourceForge web server.  The ones that
+  need to be writable (config files) are symlinked from the web server
+  default mount area to a specific area that is writable to the web
+  server account--the standard web pages are not writable.
+
+  See SourceForge documentation on copying files to/from the web server
+  <http://alexandria.wiki.sourceforge.net/Project+Web,+Shell,+VHOST+and+Database+Services>
+  to manage the Joomla files themselves.  Best done on a MacOS or Linux
+  host since they can replicate the necessary symlinks on your own disk.
+
+  The back-end is a MySQL database configured through SourceForge.
+
+  See SourceForge pages on the Galleon project page under Admin,
+  Shell/DB/Web area, for the database user names, passwords, and hosts.
+
+  [There is a stale VHOST for galleon.tv pointing to the old SourceForge
+  servers.  SourceForge moved servers recently and this got broken, just
+  after we converted references from galleon.tv to
+  galleon.sourceforge.net.]
+
 Winamp skins (text from ReleaseNotes.txt):
 
        The project has permission from the author of the Metrix Winamp classic

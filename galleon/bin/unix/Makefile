@@ -72,8 +72,8 @@ uninstall:
 		/usr/sbin/update-rc.d -f galleon remove ; \
 	else \
 		chkconfig --del galleon ; \
-		rm -f /etc/init.d/galleon ; \
 	fi
+	rm -f /etc/init.d/galleon
 	rm -f ${APPDIR}/apps
 	rm -f ${APPDIR}/conf
 	rm -f ${APPDIR}/data

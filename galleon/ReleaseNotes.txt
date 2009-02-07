@@ -6,6 +6,7 @@ Version 2.5.5:
 * added java parameter to favor IPv4 (should eliminate the need for disabling
   IPv6 on linux installs)
 * added runlevel 2 to linux Makefile (for distros that use update-rc.d)
+* fixed Movies app so it works again (2570997)
 
 
 Version 2.5.4:

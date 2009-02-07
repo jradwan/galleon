@@ -996,7 +996,7 @@ public class Movies extends DefaultApplication {
 						    	           String rating = null;
 						    	           String times = null;
 
-						    	           if (td.getAttribute("colspan")!=null && td.getAttribute("colspan").equals("6"))
+						    	           if (td.getAttribute("colspan")!=null && td.getAttribute("colspan").equals("4"))
 							        	   {
 							    	           //System.out.println("links="+linkList.size());
 									           for (int k = 0; k < linkList.size (); k++)

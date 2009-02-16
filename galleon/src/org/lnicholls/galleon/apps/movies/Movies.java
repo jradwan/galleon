@@ -55,7 +55,6 @@ import org.lnicholls.galleon.media.MovieFile;
 import org.lnicholls.galleon.server.Server;
 import org.lnicholls.galleon.util.Amazon;
 import org.lnicholls.galleon.util.IMDB;
-import org.lnicholls.galleon.util.Lyrics;
 import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.ReloadCallback;
 import org.lnicholls.galleon.util.ReloadTask;
@@ -90,8 +89,6 @@ public class Movies extends DefaultApplication {
 
 	private Resource mInfoBackground;
 
-	private Resource mLyricsBackground;
-
 	private Resource mImagesBackground;
 
 	private Resource mFolderIcon;
@@ -108,7 +105,6 @@ public class Movies extends DefaultApplication {
 
 		mMenuBackground = getSkinImage("menu", "background");
 		mInfoBackground = getSkinImage("info", "background");
-		mLyricsBackground = getSkinImage("lyrics", "background");
 		mImagesBackground = getSkinImage("images", "background");
 		mFolderIcon = getSkinImage("menu", "folder");
 		mCDIcon = getSkinImage("menu", "item");
@@ -597,155 +593,6 @@ public class Movies extends DefaultApplication {
 		private Resource mAnim = getResource("*1000");
 	}
 
-	public class LyricsScreen extends DefaultScreen {
-		private BList list;
-
-		public LyricsScreen(Movies app, Tracker tracker) {
-			super(app, "Lyrics", false);
-
-			getBelow().setResource(mLyricsBackground);
-
-			mTracker = tracker;
-
-			scrollText = new ScrollText(getNormal(), BORDER_LEFT, TOP, BODY_WIDTH - 10, getHeight() - SAFE_TITLE_V
-					- TOP - 70, "");
-			scrollText.setVisible(false);
-
-			// setFocusDefault(scrollText);
-
-			// setFooter("lyrc.com.ar");
-			setFooter("lyrictracker.com");
-
-			mBusy.setVisible(true);
-
-			/*
-			 * list = new DefaultOptionList(this.getNormal(), SAFE_TITLE_H + 10,
-			 * (getHeight() - SAFE_TITLE_V) - 60, (int) Math .round((getWidth() -
-			 * (SAFE_TITLE_H * 2)) / 2), 90, 35);
-			 * //list.setBarAndArrows(BAR_HANG, BAR_DEFAULT, H_LEFT, null);
-			 * list.add("Back to player"); setFocusDefault(list);
-			 */
-
-			BButton button = new BButton(getNormal(), SAFE_TITLE_H + 10, (getHeight() - SAFE_TITLE_V) - 40, (int) Math
-					.round((getWidth() - (SAFE_TITLE_H * 2)) / 2), 35);
-			button.setResource(createText("default-24.font", Color.white, "Return to player"));
-			button.setBarAndArrows(BAR_HANG, BAR_DEFAULT, "pop", null, null, null, true);
-			setFocus(button);
-		}
-
-		public void updateLyrics() {
-			try {
-				setPainting(false);
-				if (mLyricsThread != null && mLyricsThread.isAlive())
-					mLyricsThread.interrupt();
-			} finally {
-				setPainting(true);
-			}
-			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-			Audio audio = null;
-			try {
-				audio = AudioManager.findByItem(nameFile);
-			} catch (Exception ex) {
-				Tools.logException(Movies.class, ex);
-			}
-			if (audio.getLyrics() != null && audio.getLyrics().length() > 0) {
-				try {
-					setPainting(false);
-					mBusy.setVisible(false);
-					getBApp().flush();
-					scrollText.setVisible(true);
-					scrollText.setText(audio.getLyrics());
-					getBApp().flush();
-				} finally {
-					setPainting(true);
-				}
-			} else {
-				final Audio lyricsAudio = audio;
-
-				mLyricsThread = new Thread() {
-					public void run() {
-						try {
-							String lyrics = Lyrics.getLyrics(lyricsAudio.getTitle(), lyricsAudio.getArtist());
-							if (lyrics == null || lyrics.trim().length() == 0) {
-								lyrics = "Lyrics not found";
-							} else {
-								synchronized (this) {
-									try {
-										lyricsAudio.setLyrics(lyrics);
-										AudioManager.updateAudio(lyricsAudio);
-									} catch (Exception ex) {
-										Tools.logException(Movies.class, ex, "Could not update lyrics");
-									}
-								}
-							}
-							synchronized (this) {
-								try {
-									setPainting(false);
-									mBusy.setVisible(false);
-									getBApp().flush();
-									scrollText.setVisible(true);
-									scrollText.setText(lyrics);
-									getBApp().flush();
-								} finally {
-									setPainting(true);
-								}
-							}
-						} catch (Exception ex) {
-							Tools.logException(Movies.class, ex, "Could retrieve lyrics");
-						}
-					}
-
-					public void interrupt() {
-						synchronized (this) {
-							super.interrupt();
-						}
-					}
-				};
-				mLyricsThread.start();
-			}
-		}
-
-		public boolean handleEnter(java.lang.Object arg, boolean isReturn) {
-			updateLyrics();
-
-			return super.handleEnter(arg, isReturn);
-		}
-
-		public boolean handleExit() {
-			try {
-				setPainting(false);
-				if (mLyricsThread != null && mLyricsThread.isAlive()) {
-					mLyricsThread.interrupt();
-					mLyricsThread = null;
-				}
-			} finally {
-				setPainting(true);
-			}
-			return super.handleExit();
-		}
-
-		public boolean handleKeyPress(int code, long rawcode) {
-			switch (code) {
-			case KEY_SELECT:
-				postEvent(new BEvent.Action(this, "pop"));
-				return true;
-			case KEY_UP:
-			case KEY_DOWN:
-			case KEY_CHANNELUP:
-			case KEY_CHANNELDOWN:
-				scrollText.handleKeyPress(code, rawcode);
-				return true;
-			}
-			return super.handleKeyPress(code, rawcode);
-		}
-
-		private ScrollText scrollText;
-
-		private Thread mLyricsThread;
-
-		private Tracker mTracker;
-	}
-
 	public class ImagesScreen extends DefaultScreen {
 		private BList list;
 
@@ -792,14 +639,6 @@ public class Movies extends DefaultApplication {
 		}
 
 		public void updateImage() {
-			Item nameFile = (Item) mTracker.getList().get(mTracker.getPos());
-			Audio audio = null;
-			try {
-				audio = AudioManager.findByItem(nameFile);
-			} catch (Exception ex) {
-				Tools.logException(Movies.class, ex);
-			}
-			final Audio lyricsAudio = audio;
 
 			mImageThread = new Thread() {
 				public void run() {
@@ -810,7 +649,7 @@ public class Movies extends DefaultApplication {
 						}
 
 						if (mResults == null || mResults.size() == 0) {
-							mResults = Yahoo.getImages("\"" + lyricsAudio.getArtist() + "\" music");
+							// mResults = Yahoo.getImages("\"" + lyricsAudio.getArtist() + "\" music");
 							mPos = 0;
 						}
 						if (mResults.size() == 0) {

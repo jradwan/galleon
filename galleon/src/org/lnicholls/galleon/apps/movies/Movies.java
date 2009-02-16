@@ -1053,7 +1053,7 @@ public class Movies extends DefaultApplication {
 											        			   Node value = td.childAt(l);
 											        			   if (!(value instanceof Tag))
 											        			   {
-											        				   String text = value.getText().replaceAll("&nbsp;","").trim();  //2hr&nbsp;20min - Action/Adventure/SciFi/Fantasy -
+											        				   String text = value.getText().replaceAll("&#8206;","").replaceAll("&nbsp;","").trim();  //2hr&nbsp;20min - Action/Adventure/SciFi/Fantasy -
 											        				   String REGEX = "([^-]*) - Rated(.*) - (.*) -"; //1hr56min - RatedR - Comedy -
 														               Pattern p = Pattern.compile(REGEX);
 													                   Matcher m = p.matcher(text);

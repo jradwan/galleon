@@ -428,7 +428,7 @@ public class IMDB {
 							userRatingNext = false;
 						} else if (plotOutlineNext) {
 							if (plotOutline == null)
-								plotOutline = token.trim();
+								plotOutline = token.replace("|", " ").replaceAll("full synopsis", "").replaceAll("full summary", "").replaceAll("add synopsis", "").trim();
 							plotOutlineNext = false;
 						} else if (top250Next) {
 							if (top250 == null)
@@ -451,9 +451,9 @@ public class IMDB {
 																		// Coppola
 						} else if (lower.equals("directedby:") || lower.equals("directedby")) {
 							directedNext = true;
-						} else if (lower.startsWith("plotoutline") && lower.length() > 13) {
+						} else if (lower.startsWith("plot:") && lower.length() > 5) {
 							if (plotOutline == null)
-								plotOutline = token.substring(13).trim(); // Plot
+								plotOutline = token.substring(5).trim(); // Plot
 																			// Outline:
 																			// The
 																			// epic
@@ -468,7 +468,7 @@ public class IMDB {
 																			// (more)
 																			// (view
 																			// trailer)
-						} else if (lower.equals("plotoutline:") || lower.equals("plotoutline")) {
+						} else if (lower.equals("plot:")) {
 							plotOutlineNext = true;
 						} else if (lower.startsWith("userrating") && lower.length() > 12) {
 							if (rating == null)

@@ -12,3 +12,6 @@ ext
 logs
 data
 *.mpkg
+debug-data
+configure-photos.xml
+DIFFS

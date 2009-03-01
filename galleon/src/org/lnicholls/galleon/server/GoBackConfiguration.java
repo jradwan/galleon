@@ -56,7 +56,8 @@ public class GoBackConfiguration implements Serializable {
 	}
 
 	public boolean isAutoSubdirectories() {
-		return mAutoSubdirectories;
+		// return mAutoSubdirectories;
+		return false; // until fixing bug in published directory counts at root, plus it's not needed anymore anyway...
 	}
 	
 	public void setConvertVideo(boolean value) {

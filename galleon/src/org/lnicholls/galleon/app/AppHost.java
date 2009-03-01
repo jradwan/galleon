@@ -53,6 +53,7 @@ import com.tivo.hme.host.util.ArgumentList;
 import com.tivo.hme.host.util.Config;
 import com.tivo.hme.host.util.Misc;
 import com.tivo.hme.interfaces.IFactory;
+import com.tivo.hme.interfaces.IHmeConstants;
 import com.tivo.hme.interfaces.ILogger;
 
 public class AppHost implements ILogger {
@@ -407,8 +408,8 @@ public class AppHost implements ILogger {
 				}
 				if (dnssdrequest != null)
 					try {
-						dnssdrequest.registerService(ifactory.getAppTitle(), "_tivo-hme._tcp", s);
-						ifactory.getFactoryData().put("dnssd", dnssdrequest);
+						dnssdrequest.registerService(ifactory.getAppTitle(), IHmeConstants.MDNS_DNSSD_TYPE, s);
+						ifactory.getFactoryData().put(DNSSD_KEY, dnssdrequest);
 						continue;
 					} catch (IOException ioexception1) {
 						dnssdrequest.close();
@@ -429,7 +430,7 @@ public class AppHost implements ILogger {
 					log.info(s + " [no mdns]");
 				} else {
 					log.info("MDNS REMOVE: " + s);
-					DNSSDRequest dnssdrequest = (DNSSDRequest) ifactory.getFactoryData().get("dnssd");
+					DNSSDRequest dnssdrequest = (DNSSDRequest) ifactory.getFactoryData().get(DNSSD_KEY);
 					if (dnssdrequest != null)
 						dnssdrequest.close();
 					else
@@ -445,7 +446,7 @@ public class AppHost implements ILogger {
 		Hashtable<String, String> hashtable = new Hashtable<String, String>();
 		hashtable.put("path", ifactory.getAppName());
 		hashtable.put("version", (String) ifactory.getFactoryData().get("version"));
-		return new ServiceInfo("_tivo-hme._tcp.local.", ifactory.getAppTitle() + "." + "_tivo-hme._tcp.local.", i, 0,
+		return new ServiceInfo(IHmeConstants.MDNS_TYPE, ifactory.getAppTitle() + "." + IHmeConstants.MDNS_TYPE, i, 0,
 				0, hashtable);
 	}
 

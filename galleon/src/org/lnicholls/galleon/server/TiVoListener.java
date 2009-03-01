@@ -35,7 +35,6 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
     private static Logger log = Logger.getLogger(TiVoListener.class.getName());
 
     // TiVo with 7.1 software supports rendevouz and has a web server
-    private final static String HTTP_SERVICE = "_http._tcp.local.";
 
     private final static String TIVO_PLATFORM = "platform";
 
@@ -56,7 +55,7 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
                 inetAddress = InetAddress.getByName(address);
 
             mJmDNS = new JmDNS(inetAddress);
-            mJmDNS.addServiceListener(HTTP_SERVICE, this);
+            mJmDNS.addServiceListener(Constants.MDNS_HTTP_SERVICE, this);
             log.debug("Interface: "+mJmDNS.getInterface());
         } catch (IOException ex) {
             Tools.logException(TiVoListener.class, ex);
@@ -80,12 +79,11 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
         log.debug("addService: " + name);
 
         ServiceInfo service = jmdns.getServiceInfo(type, name);
-        if (service == null) {
-            log.error("Service not found: " + type + " (" + name + ")");
-        } else {
+        if (service != null) {
             if (!name.endsWith(".")) {
                 name = name + "." + type;
             }
+            log.debug("Updating service: " + type + " (" + name + ")");
             jmdns.requestServiceInfo(type, name);
         }
     }
@@ -99,6 +97,7 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
             name = name.substring(0, name.length() - (type.length() + 1));
         }
         log.debug("removeService: " + name);
+        // TODO: Should remove TiVo from list, if we knew about it...
     }
 	public void serviceTypeAdded(ServiceEvent arg0) {
 		String type = arg0.getType();
@@ -120,7 +119,7 @@ public class TiVoListener implements ServiceListener, ServiceTypeListener {
          * platform=tcd/Series2 TSN=24020348251AAB0 swversion=7.1.R1-01-2-240 path=/index.html
          */
 
-        if (type.equals(HTTP_SERVICE)) {
+        if (type.equals(Constants.MDNS_HTTP_SERVICE)) {
             if (info == null) {
                 log.error("Service not found: " + type + "(" + name + ")");
             } else {

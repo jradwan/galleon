@@ -32,6 +32,7 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +41,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 //import java.util.StringTokenizer;
 import java.rmi.RMISecurityManager;
+
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.AsyncAppender;
@@ -77,11 +81,15 @@ import com.tivo.hme.host.util.Config;
  */
 
 public class Server {
+
+	private JmDNS mJmDNS;
+
 	public Server() throws Exception {
 		if (mServer!=null)
 			throw new IllegalAccessException();
 
 		mServer = this;
+		mNoMDNS = false;
 
 		//System.setSecurityManager(new CustomSecurityManager());
 
@@ -135,7 +143,8 @@ public class Server {
 				System.setProperty("root", root);
 			else
 				root = System.getProperty("root");
-
+			mNoMDNS = "true".equals(System.getProperty("hme.nomdns"));
+				
 			File check = new File(System.getProperty("root"));
 			if (!check.exists() || !check.isDirectory())
 				errors.add("Invalid system propery: root=" + System.getProperty("root"));
@@ -387,8 +396,14 @@ public class Server {
 	        }
 	        else
 			{
-		        // TiVo Beacon API
-	            publishTiVoBeacon();
+	        	mPublished = false;
+	        	// Start with Bonjour publish
+	        	// TODO: Push this down into the GoBack publish layer (each GoBack configuration item should publish)
+	        	publishBonjour();
+	        	
+	        	if (!mPublished)
+	        		// TiVo Beacon API on Windows
+	        		publishTiVoBeacon();
 
 	            if (!mPublished) {
 	                mBeaconPort = Constants.TIVO_PORT;
@@ -462,6 +477,42 @@ public class Server {
 			return new Integer(1);
 		}
 		return null;
+	}
+
+	private void publishBonjour() {
+		// Publish our server via Bonjour (JmDNS)
+		mPublished = false;
+		if (mNoMDNS)
+			return;
+		mJmDNS = null;
+		log.debug("Registering with Bonjour");
+		try {
+			InetAddress inetAddress = null;
+			String address = mServerConfiguration.getIPAddress();
+			if (address.equals("Default"))
+				inetAddress = InetAddress.getLocalHost();
+			else
+				inetAddress = InetAddress.getByName(address);
+            mJmDNS = new JmDNS(inetAddress);
+            Hashtable<String,String> ht = new Hashtable<String,String>();
+            ht.put("protocol", "http");
+            ht.put("path", 
+            		"/TiVoConnect?Command=QueryContainer&Container=%2F");
+            ht.put("platform",
+            		Constants.PLATFORM_PC + '/' + System.getProperty("os.name"));
+            ht.put("swversion", Tools.getVersion());
+            ServiceInfo info = new ServiceInfo(Constants.MDNS_VIDEOS_SERVICE,
+            		mServerConfiguration.getName(),
+            		mHMOPort, 0, 0, ht);
+            mJmDNS.registerService(info);
+           
+            mPublished = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (mJmDNS != null)
+            	mJmDNS.close();
+            mJmDNS = null;
+        }
 	}
 
 	// Service wrapper required method
@@ -564,6 +615,11 @@ public class Server {
                 	Tools.logException(Server.class, ex);
                 }
                 mRegistry = null;
+            }
+			
+            if (mJmDNS != null) {
+            	mJmDNS.close();
+            	mJmDNS = null;
             }
 
 			if (mTiVoBeacon != null) {
@@ -1589,5 +1645,7 @@ public class Server {
 
     private static boolean mDemoMode;
     
-    protected static int mServerRMIPort = 1099;
+	private static boolean mNoMDNS;
+
+	protected static int mServerRMIPort = 1099;
 }

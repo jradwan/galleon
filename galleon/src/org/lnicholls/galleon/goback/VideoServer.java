@@ -414,6 +414,18 @@ public class VideoServer extends HttpServer {
 						}
 						if (mPublished.size() > 0)
 							counter = counter + mPublished.size();
+						/// TODO: limit the number returned based on PARAMETER_ITEM_COUNT,
+						/// otherwise the overflow seems to reboot the TiVo.
+//						if (itemURL.getParameter(Constants.PARAMETER_ITEM_COUNT) != null) {
+//							itemCount = Integer.parseInt(itemURL.getParameter(Constants.PARAMETER_ITEM_COUNT));
+//						}
+//						String anchorOffset = itemURL.getParameter(Constants.PARAMETER_ANCHOR_OFFSET);
+//						if (anchorOffset != null) {
+//							try {
+//								start = start + Integer.parseInt(anchorOffset) + 1;
+//							} catch (Exception ex) {
+//							}
+//						}
 
 						buffer.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
 						buffer.append("<TiVoContainer>\n");

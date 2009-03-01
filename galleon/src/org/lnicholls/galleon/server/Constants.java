@@ -107,4 +107,9 @@ public interface Constants {
     public static final String PARAMETER_ANCHOR_OFFSET = "AnchorOffset";
 
     public static final String PARAMETER_SEEK = "Seek";
+    
+    public static final String MDNS_VIDEOS_SERVICE = "_tivo-videos._tcp.local.";
+
+    public static final String MDNS_HTTP_SERVICE = "_http._tcp.local.";
+
 }

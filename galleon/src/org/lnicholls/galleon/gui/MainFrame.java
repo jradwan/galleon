@@ -84,6 +84,7 @@ import org.lnicholls.galleon.app.AppConfigurationPanel;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
 import org.lnicholls.galleon.app.ConfigurationPanel;
+import org.lnicholls.galleon.server.Constants;
 import org.lnicholls.galleon.server.MusicPlayerConfiguration;
 import org.lnicholls.galleon.server.DataConfiguration;
 import org.lnicholls.galleon.server.GoBackConfiguration;
@@ -1422,8 +1423,6 @@ public class MainFrame extends JFrame {
 
 		private final class TiVoListener implements ServiceListener, ServiceTypeListener {
 			// TiVo with 7.1 software supports rendevouz and has a web server
-			private final static String HTTP_SERVICE = "_http._tcp.local.";
-
 			private final static String TIVO_PLATFORM = "platform";
 
 			private final static String TIVO_PLATFORM_PREFIX = "tcd"; // platform=tcd/Series2
@@ -1443,7 +1442,7 @@ public class MainFrame extends JFrame {
 						inetAddress = InetAddress.getByName(address);
 
 					mJmDNS = new JmDNS(inetAddress);
-					mJmDNS.addServiceListener(HTTP_SERVICE, this);
+					mJmDNS.addServiceListener(Constants.MDNS_HTTP_SERVICE, this);
 					log.debug("Interface: " + mJmDNS.getInterface());
 				} catch (IOException ex) {
 					Tools.logException(TiVoListener.class, ex);
@@ -1497,7 +1496,7 @@ public class MainFrame extends JFrame {
 
 				log.debug("resolveService: " + type + " (" + name + ")");
 
-				if (type.equals(HTTP_SERVICE)) {
+				if (type.equals(Constants.MDNS_HTTP_SERVICE)) {
 					if (info == null) {
 						log.error("Service not found: " + type + "(" + name + ")");
 					} else {
@@ -1525,7 +1524,7 @@ public class MainFrame extends JFrame {
 
 			public void stop() {
 				if (mJmDNS!=null)
-					mJmDNS.removeServiceListener(HTTP_SERVICE, this);
+					mJmDNS.removeServiceListener(Constants.MDNS_HTTP_SERVICE, this);
 			}
 
 			public boolean found() {
@@ -1568,8 +1567,8 @@ public class MainFrame extends JFrame {
 			mGroupByShow.setSelected(goBackConfiguration.isGroupByShow());
 			mPublishTiVoRecordings = new JCheckBox("Publish ToGo Recordings");
 			mPublishTiVoRecordings.setSelected(goBackConfiguration.isPublishTiVoRecordings());
-			mAutoSubdirectories = new JCheckBox("Automatically publish sub-folders separately to avoid TiVo Series2 bug");
-			mAutoSubdirectories.setSelected(goBackConfiguration.isAutoSubdirectories());
+//			mAutoSubdirectories = new JCheckBox("Automatically publish sub-folders separately to avoid TiVo Series2 bug");
+//			mAutoSubdirectories.setSelected(goBackConfiguration.isAutoSubdirectories());
 			mConvertVideo = new JCheckBox("Convert Video");
 			mConvertVideo.setSelected(goBackConfiguration.isConvertVideo());
 			mConvertVideo.addItemListener(new ItemListener() {
@@ -1610,7 +1609,7 @@ public class MainFrame extends JFrame {
 			builder.add(mEnabled, cc.xyw(3, 3, 3));
 			builder.add(mGroupByShow, cc.xyw(3, 5, 3));
 			builder.add(mPublishTiVoRecordings, cc.xyw(3, 7, 3));
-			builder.add(mAutoSubdirectories, cc.xyw(3, 9, 3));
+//			builder.add(mAutoSubdirectories, cc.xyw(3, 9, 3));
 			builder.add(mConvertVideo, cc.xyw(3, 11, 3));
 			builder.addLabel("Conversion Tool", cc.xy(1, 13));
 			builder.add(mConversionTool, cc.xy(3, 13));

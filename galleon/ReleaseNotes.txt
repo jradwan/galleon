@@ -7,7 +7,11 @@ Version 2.5.5:
   IPv6 on linux installs)
 * added runlevel 2 to linux Makefile (for distros that use update-rc.d)
 * fixed Movies app so it works again (2570997, 2604157, 2604159)
-
+* Experimental Bonjour-based GoBack publishing removes dependence on
+  TiVo beacon code/service.  This still needs some work, it introduces
+  an extra level of folders in the Now Playing list.
+* Cleaned up some incorrect error messages in JmDNS
+* Removed auto-subdirectory publish, the bug in TiVo-side software is fixed.
 
 Version 2.5.4:
 ----------------------

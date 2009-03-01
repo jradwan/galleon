@@ -13,8 +13,6 @@
 * Scripting of install library list
 * OSX installer
 
-* Do a pyTivo-style automatic subdirectory export for dealing with
-  TiVo-side folder failure bug with TiVoToGoBack
 * Let user specify conversion filters and destination directories in
   ToGo
 
@@ -28,6 +26,8 @@
 * license verification on upcoming.jar
 
 HD stuff:
+
+* Switch to bananas-plus (http://code.google.com/p/bananas-plus/)
 
 * Improve layout, backgrounds of HD weather, music, etc.
 * Enlarge Fonts by 1.5x on HD screens, put literal font names into

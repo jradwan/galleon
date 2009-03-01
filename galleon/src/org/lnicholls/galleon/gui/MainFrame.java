@@ -1661,7 +1661,7 @@ public class MainFrame extends JFrame {
 					goBackConfiguration.setEnabled(mEnabled.isSelected());
 					goBackConfiguration.setGroupByShow(mGroupByShow.isSelected());
 					goBackConfiguration.setPublishTiVoRecordings(mPublishTiVoRecordings.isSelected());
-					goBackConfiguration.setAutoSubdirectories(mAutoSubdirectories.isSelected());
+//					goBackConfiguration.setAutoSubdirectories(mAutoSubdirectories.isSelected());
 					goBackConfiguration.setConvertVideo(mConvertVideo.isSelected());
 					goBackConfiguration.setConversionTool(mConversionTool.getText());
 					
@@ -1704,7 +1704,7 @@ public class MainFrame extends JFrame {
 
 		private JCheckBox mGroupByShow;
 		
-		private JCheckBox mAutoSubdirectories;
+//		private JCheckBox mAutoSubdirectories;
 
 		private JCheckBox mPublishTiVoRecordings;
 		

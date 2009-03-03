@@ -182,7 +182,7 @@
 
     <echo>Compiling Java sources</echo>
 
-    <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off" source="5" target="5">
+    <javac srcdir="${src}" destdir="${build}" debug="on" optimize="off" deprecation="off" verbose="off" source="5" target="5" encoding="8859_1">
       <include name="**/*.java" />
       <exclude name="**/apps/camera,**/util/CameraDevice.java" />
       <classpath>

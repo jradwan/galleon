@@ -58,8 +58,9 @@ import org.tritonus.share.sampled.file.TAudioFileFormat;
 import EDU.oswego.cs.dl.util.concurrent.Callable;
 import EDU.oswego.cs.dl.util.concurrent.TimedCallable;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+//import com.sun.image.codec.jpeg.JPEGCodec;
+//import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import javax.imageio.*;
 
 public final class Mp3File {
 	private static final Logger log = Logger.getLogger(Mp3File.class.getName());
@@ -855,8 +856,10 @@ public final class Mp3File {
 				// TODO What if not bufferedimage??
 				if (image instanceof BufferedImage) {
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-					JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
-					encoder.encode((BufferedImage) image);
+					//JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
+					ImageWriter encoder = (ImageWriter)ImageIO.getImageWritersByFormatName("JPEG").next();
+					//encoder.encode((BufferedImage) image);
+					encoder.setOutput(byteArrayOutputStream);
 					byteArrayOutputStream.close();
 
 					ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream

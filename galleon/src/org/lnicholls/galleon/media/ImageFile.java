@@ -36,8 +36,9 @@ import org.lnicholls.galleon.util.Tools;
 
 import EDU.oswego.cs.dl.util.concurrent.FIFOReadWriteLock;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+//import com.sun.image.codec.jpeg.JPEGCodec;
+//import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import javax.imageio.*;
 
 import dk.jdai.model.EXIFInfo;
 
@@ -123,9 +124,11 @@ public class ImageFile {
 
 							try {
 								ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-								JPEGImageEncoder encoder = JPEGCodec
-										.createJPEGEncoder(byteArrayOutputStream);
-								encoder.encode(thumbnailImage);
+								//JPEGImageEncoder encoder = JPEGCodec
+								//		.createJPEGEncoder(byteArrayOutputStream);
+	 							ImageWriter encoder = (ImageWriter)ImageIO.getImageWritersByFormatName("JPEG").next();
+								//encoder.encode(thumbnailImage);
+								encoder.setOutput(byteArrayOutputStream);
 								byteArrayOutputStream.close();
 
 								ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(

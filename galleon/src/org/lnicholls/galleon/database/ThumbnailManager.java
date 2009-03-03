@@ -29,9 +29,11 @@ import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 import org.lnicholls.galleon.util.Tools;
 
-import com.sun.image.codec.jpeg.ImageFormatException;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
+//import com.sun.image.codec.jpeg.ImageFormatException;
+//import com.sun.image.codec.jpeg.JPEGCodec;
+//import com.sun.image.codec.jpeg.JPEGImageDecoder;
+import javax.imageio.*;
+
 public class ThumbnailManager {
 //	private static Logger log = Logger.getLogger(ThumbnailManager.class
 //			.getName());
@@ -289,9 +291,11 @@ public class ThumbnailManager {
 		BufferedImage image = null;
 		try {
 			InputStream is = blob.getBinaryStream();
-			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(is);
-			image = decoder.decodeAsBufferedImage();
-		} catch (ImageFormatException ex) {
+			//JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(is);
+			//image = decoder.decodeAsBufferedImage();
+			image = ImageIO.read(is);
+		//} catch (ImageFormatException ex) {
+		} catch (IIOException ex) {
 			Tools.logException(ThumbnailManager.class, ex);
 		} catch (SQLException ex) {
 			Tools.logException(ThumbnailManager.class, ex);

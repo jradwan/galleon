@@ -27,7 +27,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import java.awt.peer.RobotPeer;
+//import java.awt.peer.RobotPeer;
 
 import org.apache.log4j.*;
 import org.lnicholls.galleon.app.AppFactory;
@@ -36,7 +36,7 @@ import org.lnicholls.galleon.util.Tools;
 import org.lnicholls.galleon.widget.DefaultApplication;
 import org.lnicholls.galleon.widget.DefaultScreen;
 
-import sun.awt.ComponentFactory;
+//import sun.awt.ComponentFactory;
 
 import com.tivo.hme.interfaces.IContext;
 

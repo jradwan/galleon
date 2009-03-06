@@ -16,7 +16,7 @@
 
 package org.lnicholls.galleon.util;
 
-import sun.security.util.SecurityConstants;
+//import sun.security.util.SecurityConstants;
 
 import java.lang.reflect.Member;
 
@@ -47,7 +47,8 @@ public class CustomSecurityManager extends SecurityManager {
 		     */
 		    if ((stack.length<4) || 
 			(stack[3].getClassLoader() != clazz.getClassLoader())) {
-			checkPermission(SecurityConstants.CHECK_MEMBER_ACCESS_PERMISSION);
+			//checkPermission(SecurityConstants.CHECK_MEMBER_ACCESS_PERMISSION);
+			checkPermission(new RuntimePermission("accessDeclaredMembers"));
 		    }
 		}
     }

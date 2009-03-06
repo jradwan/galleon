@@ -126,9 +126,10 @@ public class ImageFile {
 								ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 								//JPEGImageEncoder encoder = JPEGCodec
 								//		.createJPEGEncoder(byteArrayOutputStream);
-	 							ImageWriter encoder = (ImageWriter)ImageIO.getImageWritersByFormatName("JPEG").next();
+	 							ImageWriter encoder = (ImageWriter)ImageIO.getImageWritersByFormatName("jpg").next();
 								//encoder.encode(thumbnailImage);
-								encoder.setOutput(byteArrayOutputStream);
+								encoder.setOutput(ImageIO.createImageOutputStream(byteArrayOutputStream));
+ 								encoder.write(thumbnailImage);
 								byteArrayOutputStream.close();
 
 								ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(

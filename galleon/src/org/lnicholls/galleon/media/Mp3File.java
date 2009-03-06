@@ -857,9 +857,10 @@ public final class Mp3File {
 				if (image instanceof BufferedImage) {
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 					//JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(byteArrayOutputStream);
-					ImageWriter encoder = (ImageWriter)ImageIO.getImageWritersByFormatName("JPEG").next();
+					ImageWriter encoder = (ImageWriter)ImageIO.getImageWritersByFormatName("jpg").next();
 					//encoder.encode((BufferedImage) image);
-					encoder.setOutput(byteArrayOutputStream);
+					encoder.setOutput(ImageIO.createImageOutputStream(byteArrayOutputStream));
+ 					encoder.write((BufferedImage) image);
 					byteArrayOutputStream.close();
 
 					ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream

@@ -55,6 +55,8 @@ See the file "COPYING" for more details.
             return "Save Selected";
         case 256:
             return "Deleted";
+        case 512:
+            return "Copy-Protected";
         }
         return "Recorded";
     }
@@ -76,6 +78,8 @@ See the file "COPYING" for more details.
     public static int STATUS_USER_SELECTED = 128;
 
     public static int STATUS_DELETED = 256;
+    
+    public static int STATUS_PROTECTED = 512;
 
     public static int RECORDING_AVAILABLE = 1;
 
@@ -130,6 +134,7 @@ See the file "COPYING" for more details.
     <property name="channelMinorNumber" type="int" not-null="true"/>
     <property name="callsign" type="string"/>
     <property name="recordingQuality" type="string"/>
+    <property name="highDefinition" type="string"/>
     <property name="startTime" type="timestamp"/>
     <property name="stopTime" type="timestamp"/>
     <property name="expirationTime" type="timestamp"/>

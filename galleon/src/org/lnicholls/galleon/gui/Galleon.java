@@ -321,7 +321,7 @@ public final class Galleon implements Constants {
 			ServerControl serverControl = getServerControl();
 			return serverControl.getTiVos();
 		} catch (Exception ex) {
-			Tools.logException(Galleon.class, ex, "Could not get TiVo's from server: " + mServerAddress);
+			Tools.logException(Galleon.class, ex, "Could not get TiVos from server: " + mServerAddress);
 
 			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);
@@ -334,7 +334,7 @@ public final class Galleon implements Constants {
 			ServerControl serverControl = getServerControl();
 			serverControl.updateTiVos(tivos);
 		} catch (Exception ex) {
-			Tools.logException(Galleon.class, ex, "Could not update TiVo's on server: " + mServerAddress);
+			Tools.logException(Galleon.class, ex, "Could not update TiVos on server: " + mServerAddress);
 
 			JOptionPane.showMessageDialog(mMainFrame, "Could not connect to server. "+getErrorMessageSuffix(), "Error",
 					JOptionPane.ERROR_MESSAGE);

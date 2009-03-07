@@ -153,7 +153,7 @@ public class RecordedPanel extends JPanel {
                     if (!mUpdating) {
                         int selectedRow = lsm.getMinSelectionIndex();
                         mTitleField.setText((String) mTable.getModel().getValueAt(selectedRow, 1));
-                        mDescriptionField.setText((String) mTable.getModel().getValueAt(selectedRow, 7));
+                        mDescriptionField.setText((String) mTable.getModel().getValueAt(selectedRow, 8));
                         mDateField.setText((String) mTable.getModel().getValueAt(selectedRow, 3));
                         mChannelStationField.setText((String) mTable.getModel().getValueAt(selectedRow, 9));
                         mRatingField.setText((String) mTable.getModel().getValueAt(selectedRow, 10));
@@ -232,7 +232,7 @@ public class RecordedPanel extends JPanel {
             if (nCol == 0)
             {
                 Video show = (Video) mRecorded.get(nRow);
-                return show.getStatus()!=Video.STATUS_RECORDING && show.getStatus()!=Video.STATUS_DOWNLOADED;
+                return show.getStatus()!=Video.STATUS_RECORDING && show.getStatus()!=Video.STATUS_DOWNLOADED && show.getStatus()!=Video.STATUS_PROTECTED;
             }
             else
                 return false;
@@ -281,11 +281,28 @@ public class RecordedPanel extends JPanel {
             case 8:
                 return show.getDescription() == null ? " " : show.getDescription();
             case 9:
-                return show.getChannel() + " " + show.getStation();
+                String txtChannel = "";
+		String txtStation = "";
+ 		if (show.getChannel() != null)
+			txtChannel = show.getChannel();
+		
+		if (show.getStation() != null)
+			txtStation = show.getStation();
+
+                return txtChannel + " " + txtStation;
             case 10:
                 return (show.getRating()==null || show.getRating().length() != 0) ? show.getRating() : "N/A";
             case 11:
-                return show.getRecordingQuality()==null?"":show.getRecordingQuality();
+		if (show.getHighDefinition().equals("Yes"))
+			return "[HD]";
+		else if (show.getRecordingQuality() == null)
+			return "DIGITAL";
+		else if (show.getRecordingQuality().length() == 0)
+			return "UNKNOWN";
+		else if (show.getRecordingQuality().equalsIgnoreCase("good"))
+			return "BASIC";
+		else
+                	return show.getRecordingQuality();
             }
             return " ";
         }
@@ -447,6 +464,7 @@ public class RecordedPanel extends JPanel {
             mRedIcon = new ImageIcon(getClass().getClassLoader().getResource("redball.gif"));
             mBlueIcon = new ImageIcon(getClass().getClassLoader().getResource("blueball.gif"));
             mEmptyIcon = new ImageIcon(getClass().getClassLoader().getResource("empty.gif"));
+            mLockIcon = new ImageIcon(getClass().getClassLoader().getResource("lock.gif"));
         }
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -464,7 +482,9 @@ public class RecordedPanel extends JPanel {
                 Video show = (Video) mRecorded.get(row);
                 if (show.getIcon()!=null)
                 {
-                    if (show.getIcon().equals("in-progress-recording"))
+                    if (show.getStatus()==Video.STATUS_PROTECTED)
+                        setIcon(mLockIcon);
+                    else if (show.getIcon().equals("in-progress-recording"))
                         setIcon(mRedIcon);
                     else if (show.getIcon().equals("expires-soon-recording"))
                         setIcon(mYellowIcon);
@@ -472,12 +492,15 @@ public class RecordedPanel extends JPanel {
                         setIcon(mYellowExclamationIcon);
                     else if (show.getIcon().equals("save-until-i-delete-recording"))
                         setIcon(mGreenIcon);
+                    else if (show.getIcon().equals("suggestion-recording"))
+                        setIcon(mBlueIcon);
                     else
                         setIcon(mEmptyIcon);
                 }
-                else
+                else if (show.getStatus()==Video.STATUS_PROTECTED)
+                        setIcon(mLockIcon);
+		else
                     setIcon(mEmptyIcon);
-
             } else
                 setIcon(null);
             
@@ -506,6 +529,9 @@ public class RecordedPanel extends JPanel {
         private ImageIcon mBlueIcon;
         
         private ImageIcon mEmptyIcon;
+
+  	private ImageIcon mLockIcon;
+
     }
 
     public void activate() {

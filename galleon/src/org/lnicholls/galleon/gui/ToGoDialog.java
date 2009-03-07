@@ -74,7 +74,7 @@ public class ToGoDialog extends JDialog implements ActionListener {
         mDownloadedPanel = new DownloadedPanel();
         mRecordedPanel = new RecordedPanel();
         mRulesPanel = new RulesPanel(mRecordedPanel);
-        mTabbedPane.add(mTiVoPanel, "TiVo's");
+        mTabbedPane.add(mTiVoPanel, "TiVo(s)");
         mTabbedPane.add(mDownloadedPanel, "Downloaded");
         mTabbedPane.add(mRecordedPanel, "Recorded");
         mTabbedPane.add(mRulesPanel, "Rules");

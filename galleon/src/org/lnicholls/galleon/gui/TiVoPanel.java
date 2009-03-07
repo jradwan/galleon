@@ -83,7 +83,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     private static final ColumnData mColumns[] = { new ColumnData("Name", 50, JLabel.LEFT),
-            new ColumnData("IP Address", 50, JLabel.LEFT), new ColumnData("Capacity", 5, JLabel.RIGHT), new ColumnData("Space", 5, JLabel.RIGHT) };
+            new ColumnData("IP Address", 50, JLabel.LEFT), new ColumnData("Capacity (GB)", 5, JLabel.RIGHT), new ColumnData("Remaining (GB)", 5, JLabel.RIGHT) };
 
     public TiVoPanel() {
         super();
@@ -494,7 +494,7 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
             JOptionPane
                     .showMessageDialog(
                             this,
-                            "Galleon could not automatically find any TiVo's on your network. Add your TiVo information manually for ToGo downloading to work.",
+                            "Galleon could not automatically find any TiVos on your network. Add your TiVo information manually for ToGo downloading to work.",
                             "Error", JOptionPane.ERROR_MESSAGE);
         }
         
@@ -575,7 +575,10 @@ public class TiVoPanel extends JPanel implements ActionListener, KeyListener {
 	        while (iterator.hasNext())
 	        {
 	            Video video = (Video)iterator.next();
-	            size = size + video.getSize();
+                    // only add the size of the current recording if it's on the TiVo we are calculating for
+                    if (video.getTivo().equals(tivo.getName())) {
+	               size = size + video.getSize();
+                    }
 	        }
 	        return (int)(((tivo.getCapacity() * 1024) - size / (1024 * 1024)) / 1024);
     	}

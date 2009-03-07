@@ -73,7 +73,7 @@ public class ToGo extends DefaultApplication {
 
 	private Resource mRedIcon;
 
-	//private Resource mBlueIcon;
+	private Resource mBlueIcon;
 
 	private Resource mEmptyIcon;
 
@@ -93,7 +93,7 @@ public class ToGo extends DefaultApplication {
 		//mWhiteIcon = getSkinImage("menu", "info");
 		mGreenIcon = getSkinImage("menu", "saveUntilDelete");
 		mRedIcon = getSkinImage("menu", "recording");
-		//mBlueIcon = getSkinImage("menu", "suggestion");
+		mBlueIcon = getSkinImage("menu", "suggestion");
 		mEmptyIcon = getSkinImage("menu", "empty");
 		mIcon = getSkinImage("menu", "icon");
 		mLockIcon = getSkinImage("menu", "lock");
@@ -338,6 +338,8 @@ public class ToGo extends DefaultApplication {
 					icon.setResource(mYellowExclamationIcon);
 				else if (video.getIcon().equals("save-until-i-delete-recording"))
 					icon.setResource(mGreenIcon);
+				else if (video.getIcon().equals("suggestion-recording"))
+					icon.setResource(mBlueIcon);
 				else
 					icon.setResource(mEmptyIcon);
 			}
@@ -531,6 +533,8 @@ public class ToGo extends DefaultApplication {
 						icon.setResource(mYellowExclamationIcon);
 					else if (video.getIcon().equals("save-until-i-delete-recording"))
 						icon.setResource(mGreenIcon);
+					else if (video.getIcon().equals("suggestion-recording"))
+						icon.setResource(mBlueIcon);
 					else {
 						icon.setResource(mEmptyIcon);
 						location = 0;
@@ -587,10 +591,17 @@ public class ToGo extends DefaultApplication {
 				ratingText.setLabel("Rated:");
 				ratingText.setValue((video.getRating() == null ? "N/A" : video.getRating()));
 
-				videoText.setLabel("Video:");
+				videoText.setLabel("Quality:");
 				String txt = video.getRecordingQuality();
-				if (txt == null || txt.length() == 0 || txt.equalsIgnoreCase("good"))
-					txt = "Basic";
+                                String hd = video.getHighDefinition();
+                                if (hd.equals("Yes"))
+					txt = "[HD]";
+				else if (txt == null)
+					txt = "DIGITAL";
+				else if (txt.length() == 0)
+					txt = "UNKNOWN";
+				else if (txt.equalsIgnoreCase("good"))
+					txt = "BASIC";
 				videoText.setValue(txt);
 
 				genreText.setLabel("Genre:");
@@ -657,9 +668,17 @@ public class ToGo extends DefaultApplication {
 
 				Boolean status = new Boolean(video.getStatus() == Video.STATUS_RULE_MATCHED
 						|| video.getStatus() == Video.STATUS_USER_SELECTED
-						|| video.getStatus() == Video.STATUS_DOWNLOADING);
+						|| video.getStatus() == Video.STATUS_DOWNLOADING
+                                                || video.getStatus() == Video.STATUS_PROTECTED);
 				if (status.booleanValue())
-					list.set(0, "Don't save to computer");
+                                        if (video.getStatus() == Video.STATUS_PROTECTED) {
+						mLock.setVisible(true);
+						list.set(0, "Copy-Protected");
+					}
+					else {
+						mLock.setVisible(false);
+						list.set(0, "Don't save to computer");
+                                     	}
 				else
 					list.set(0, "Save to computer");
 			} finally {
@@ -777,9 +796,11 @@ public class ToGo extends DefaultApplication {
 				Video video = getVideo();
 				Boolean status = new Boolean(video.getStatus() == Video.STATUS_RULE_MATCHED
 						|| video.getStatus() == Video.STATUS_USER_SELECTED
-						|| video.getStatus() == Video.STATUS_DOWNLOADING);
+						|| video.getStatus() == Video.STATUS_DOWNLOADING
+                                                || video.getStatus() == Video.STATUS_PROTECTED);
 				if (status.booleanValue()) {
-					video.setStatus(Video.STATUS_USER_CANCELLED);
+                                        if (video.getStatus() != Video.STATUS_PROTECTED) 
+						video.setStatus(Video.STATUS_USER_CANCELLED);
 					getBApp().play("thumbsdown.snd");
 				} else {
 					video.setStatus(Video.STATUS_USER_SELECTED);

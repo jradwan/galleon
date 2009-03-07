@@ -210,9 +210,11 @@ public class ToGo {
 										String value = Tools.getAttribute(details, "CopyProtected"); // <CopyProtected>Yes</CopyProtected>
 										if (value != null) {
 											if (value.equalsIgnoreCase("yes"))
-												continue;
-										}
-
+											        video.setStatus(Video.STATUS_PROTECTED);
+										}	
+										value = Tools.getAttribute(details, "HighDefinition");
+										if (value != null)
+											video.setHighDefinition(value);
 										value = Tools.getAttribute(details, "Title");
 										if (value != null)
 											video.setTitle(value);
@@ -728,7 +730,7 @@ public class ToGo {
 				try {
 					video.setRecordingQualityValue(Integer.parseInt(quality.attribute("value").getText()));
 				} catch (Exception ex) {
-					log.error("Could not set rating value", ex);
+					log.error("Could not set quality value", ex);
 				}
 			}
 
@@ -1020,7 +1022,8 @@ public class ToGo {
 				if (video.getStatus() != Video.STATUS_RECORDING && video.getStatus() != Video.STATUS_DOWNLOADED
 						&& video.getStatus() != Video.STATUS_USER_CANCELLED
 						&& video.getStatus() != Video.STATUS_INCOMPLETE
-						&& video.getStatus() != Video.STATUS_DELETED) {
+						&& video.getStatus() != Video.STATUS_DELETED
+                                                && video.getStatus() != Video.STATUS_PROTECTED) {
 					boolean prohibited = false;
 
 					boolean found = false;

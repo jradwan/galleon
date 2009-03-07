@@ -336,11 +336,28 @@ public class DownloadedPanel extends JPanel implements ActionListener {
             case 6:
                 return (video.getDescription()!=null && video.getDescription().length() != 0) ? video.getDescription() : " ";
             case 7:
-                return video.getChannel()!=null?video.getChannel():""+ " " + video.getStation()!=null?video.getStation():"";
+                String txtChannel = "";
+                String txtStation = "";
+                if (video.getChannel() != null)
+                        txtChannel = video.getChannel();
+
+                if (video.getStation() != null)
+                        txtStation = video.getStation();
+
+                return txtChannel + " " + txtStation;
             case 8:
                 return (video.getRating()!=null && video.getRating().length() != 0) ? video.getRating() : "No rating";
             case 9:
-                return video.getRecordingQuality()!=null?video.getRecordingQuality():"";
+                if (video.getHighDefinition().equals("Yes"))
+                        return "[HD]";
+                else if (video.getRecordingQuality() == null)
+                        return "DIGITAL";
+                else if (video.getRecordingQuality().length() == 0)
+                        return "UNKNOWN";
+                else if (video.getRecordingQuality().equalsIgnoreCase("good"))
+                        return "BASIC";
+                else
+                        return video.getRecordingQuality();
             }
             return " ";
         }

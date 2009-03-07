@@ -12,6 +12,14 @@ Version 2.5.5:
   an extra level of folders in the Now Playing list.
 * Cleaned up some incorrect error messages in JmDNS
 * Removed auto-subdirectory publish, the bug in TiVo-side software is fixed.
+* various minor ToGo fixes and enhancements:
+  - corrected space remaining calculation 
+  - added blue ball icon to identify Suggestions
+  - properly display recording quality, added [HD], DIGITAL, and UNKNOWN types
+  - fixed channel/station display issue
+  - show copy-protected recordings (to be consistent with TiVo Desktop and other
+    Now Playing List applications); identify with lock icon
+
 
 Version 2.5.4:
 ----------------------

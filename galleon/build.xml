@@ -274,6 +274,7 @@ quiet="no">
       <fileset dir="./media/images" includes="redball.gif" />
       <fileset dir="./media/images" includes="blueball.gif" />
       <fileset dir="./media/images" includes="empty.gif" />
+      <fileset dir="./media/images" includes="lock.gif" />
       <fileset dir="./src" includes="**/*.hbm.xml" />
     </jar>
 

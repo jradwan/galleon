@@ -290,12 +290,13 @@ public class ToGo extends DefaultApplication {
 				if (available < 0)
 					available = 0;
 				DecimalFormat numberFormat = new DecimalFormat("###,###");
+				DecimalFormat minuteFormat = new DecimalFormat("00");
 				String value = "";
 				value = "Total: " + numberFormat.format(mTotalCount);
 				int duration = (int) Math.rint(mTotalTime / 1000 / 60.0); 
 				int total_hours = (int) Math.rint(duration / 60);
 				int total_mins = (int) Math.rint(duration % 60);
-				value = value + "   " + "Length: " + total_hours + ":" + total_mins;
+				value = value + "   " + "Length: " + total_hours + ":" + minuteFormat.format(total_mins);
 				// sizeText.setValue("Size: " + numberFormat.format(totalSize /
 				// (1024 * 1024)) + " MB");
 				value = value + "   " + "Size: " + numberFormat.format(mTotalSize / (1024 * 1024)) + " MB";

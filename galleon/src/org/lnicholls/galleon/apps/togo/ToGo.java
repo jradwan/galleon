@@ -289,16 +289,13 @@ public class ToGo extends DefaultApplication {
 				long available = (mTotalCapacity * 1024) - (mTotalSize / (1024 * 1024));
 				if (available < 0)
 					available = 0;
-				String value = "";
-				value = "Total: " + String.valueOf(mTotalCount);
-				SimpleDateFormat timeFormat = new SimpleDateFormat();
-				timeFormat.applyPattern("HH:mm");
-				int duration = (int) Math.rint(mTotalTime / 1000 / 60.0);
-				mCalendar.set(GregorianCalendar.HOUR_OF_DAY, (duration / 60));
-				mCalendar.set(GregorianCalendar.MINUTE, duration % 60);
-				mCalendar.set(GregorianCalendar.SECOND, 0);
-				value = value + "   " + "Length: " + timeFormat.format(mCalendar.getTime());
 				DecimalFormat numberFormat = new DecimalFormat("###,###");
+				String value = "";
+				value = "Total: " + numberFormat.format(mTotalCount);
+				int duration = (int) Math.rint(mTotalTime / 1000 / 60.0); 
+				int total_hours = (int) Math.rint(duration / 60);
+				int total_mins = (int) Math.rint(duration % 60);
+				value = value + "   " + "Length: " + total_hours + ":" + total_mins;
 				// sizeText.setValue("Size: " + numberFormat.format(totalSize /
 				// (1024 * 1024)) + " MB");
 				value = value + "   " + "Size: " + numberFormat.format(mTotalSize / (1024 * 1024)) + " MB";

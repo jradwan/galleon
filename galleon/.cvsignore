@@ -7,6 +7,7 @@ binary
 *.dmg
 *.pkg
 *.zip
+*.exe
 osx-dir
 ext
 logs

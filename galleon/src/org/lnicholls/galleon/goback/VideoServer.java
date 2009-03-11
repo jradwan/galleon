@@ -31,12 +31,16 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.database.PersistentValueManager;
@@ -67,7 +71,11 @@ public class VideoServer extends HttpServer {
 
 	private static Logger log = Logger.getLogger(VideoServer.class.getName());
 
-	public VideoServer(Config config) throws IOException {
+	private JmDNS mJmDNS;
+
+	private int mHMOPort;
+
+	public VideoServer(Config config, ServerConfiguration serverConfig, int HMOPort) throws IOException {
 		super(config);
 		config.put("http.acceptor.name", "VideoServer");
 
@@ -83,8 +91,23 @@ public class VideoServer extends HttpServer {
 		mDurationFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		mDurationFormat.applyPattern("'PT'HH'H'mm'M'"); // PT1H30M
 		//mCalendar = new GregorianCalendar();
-
+		mJmDNS = null;
+		mHMOPort = HMOPort;
+		
 		start();
+		GoBackConfiguration goBackConfig = serverConfig.getGoBackConfiguration();
+
+		publishBonjour(serverConfig, goBackConfig);
+		
+	}
+
+	public void publishBonjour(ServerConfiguration serverConfig, GoBackConfiguration goBackConfig) {
+		if (goBackConfig.isEnabled()) {
+			// Publish each top-level item via Bonjour.
+			publishAllTopLevel(serverConfig, goBackConfig, null, true);
+		} else {
+			unPublishAll();
+		}
 	}
 
 	protected void handleException(Object obj, Throwable throwable) {
@@ -392,28 +415,7 @@ public class VideoServer extends HttpServer {
 					else
 					if (goBackConfiguration.isEnabled()) {
 						
-						int counter = 0;
-						if (goBackConfiguration.isPublishTiVoRecordings()) {
-							counter++; // top-level
-							if (goBackConfiguration.isAutoSubdirectories())
-								counter += countSubdirs(directory);
-						}
-						if (goBackConfiguration.getPaths().size() > 0) {
-							if (goBackConfiguration.isAutoSubdirectories()) {
-								// Count directories underneath for auto-subdir mode
-								List<NameValue> paths = (List<NameValue>) goBackConfiguration.getPaths();
-								Iterator<NameValue> iterator = paths.iterator();
-								while (iterator.hasNext()) {
-									NameValue nameValue = iterator.next();
-									counter++; // directory itself
-									File dir = new File(nameValue.getValue());
-									counter += countSubdirs(dir);
-								}
-							} else
-								counter = counter + goBackConfiguration.getPaths().size();
-						}
-						if (mPublished.size() > 0)
-							counter = counter + mPublished.size();
+						int counter = countGoBackEntries(serverConfiguration, goBackConfiguration);
 						/// TODO: limit the number returned based on PARAMETER_ITEM_COUNT,
 						/// otherwise the overflow seems to reboot the TiVo.
 //						if (itemURL.getParameter(Constants.PARAMETER_ITEM_COUNT) != null) {
@@ -435,37 +437,8 @@ public class VideoServer extends HttpServer {
 						buffer.append("<SourceFormat>x-container/folder</SourceFormat>\n");
 						buffer.append("<TotalItems>" + counter + "</TotalItems>\n");
 						buffer.append("</Details>\n");
-						if (goBackConfiguration.isPublishTiVoRecordings()) {
-							String title = Tools.escapeXMLChars(mHost);
-							doPublish(buffer, title, null, directory, serverConfiguration,
-									"GalleonRecordings", false);
-							if (goBackConfiguration.isAutoSubdirectories()) {
-								publishSubdirs(directory, "", buffer, serverConfiguration,
-										"GalleonRecordings");
-								// TODO: DOS shortcuts vs. direct paths to GalleonRecordings ...
-							}
-
-						}
-						if (goBackConfiguration.getPaths().size() > 0) {
-							List paths = goBackConfiguration.getPaths();
-							Iterator iterator = paths.iterator();
-							while (iterator.hasNext()) {
-								NameValue nameValue = (NameValue) iterator.next();
-								doPublish(buffer, nameValue, serverConfiguration, "GalleonExtra");
-								if (goBackConfiguration.isAutoSubdirectories()) {
-									File dir = new File(nameValue.getValue());
-									publishSubdirs(dir, nameValue, buffer, serverConfiguration,
-											"GalleonExtra");
-								}
-							}
-						}
-						if (mPublished.size() > 0) {
-							Iterator iterator = mPublished.iterator();
-							while (iterator.hasNext()) {
-								NameValue nameValue = (NameValue) iterator.next();
-								doPublish(buffer, nameValue, serverConfiguration, "GalleonExtra");
-							}
-						}
+						publishAllTopLevel(serverConfiguration,
+								goBackConfiguration, buffer, false /* no bonjour */);
 
 						buffer.append("<ItemStart>0</ItemStart>\n");
 						buffer.append("<ItemCount>" + counter + "</ItemCount>\n");
@@ -521,8 +494,8 @@ public class VideoServer extends HttpServer {
 						}
 					}
 
-					boolean folders = false;
-					List files = new ArrayList();
+					//boolean folders = false;
+					List<Item> files = new ArrayList<Item>();
 					if (itemURL.getParameter(Constants.PARAMETER_RECURSE) != null)
 					{
 						FileSystemContainer fileSystemContainer = new FileSystemContainer(directory.getCanonicalPath(),
@@ -536,22 +509,22 @@ public class VideoServer extends HttpServer {
 						
 						files = fileSystemContainer.getItemsSorted(goBackConfiguration.isAutoSubdirectories() ? 
 								FileFilters.videoFilter : FileFilters.videoDirectoryFilter);
-						folders = true;
+					//	folders = true;
 					}
 
 					if (itemURL.getParameter(Constants.PARAMETER_SORT_ORDER) != null) {
 						if (!itemURL.getParameter(Constants.PARAMETER_SORT_ORDER)
 								.equals(Constants.PARAMETER_SORT_TITLE)) {
-							final HashMap dates = new HashMap();
-							Iterator iterator = files.iterator();
+							final HashMap<File, Long> dates = new HashMap<File, Long>();
+							Iterator<Item> iterator = files.iterator();
 							while (iterator.hasNext()) {
-								Item item = (Item) iterator.next();
+								Item item = iterator.next();
 								File file = (File) item.getValue();
 								Video video = null;
 								try {
-									List list = VideoManager.findByPath(file.getCanonicalPath());
+									List<Video> list = VideoManager.findByPath(file.getCanonicalPath());
 									if (list != null && list.size() > 0) {
-										video = (Video) list.get(0);
+										video = list.get(0);
 									} else {
 										String path = file.getAbsolutePath();
 										path = path.substring(0, 1).toLowerCase() + path.substring(1);
@@ -585,12 +558,10 @@ public class VideoServer extends HttpServer {
 
 							// sort by capture date
 							Item[] sortArray = (Item[]) files.toArray(new Item[0]);
-							Arrays.sort(sortArray, new Comparator() {
-								public int compare(Object o1, Object o2) {
-									Item item1 = (Item) o1;
-									File file1 = (File) item1.getValue();
-									Item item2 = (Item) o2;
-									File file2 = (File) item2.getValue();
+							Arrays.sort(sortArray, new Comparator<Item>() {
+								public int compare(Item o1, Item o2) {
+									File file1 = (File) o1.getValue();
+									File file2 = (File) o2.getValue();
 
 									Long date1 = (Long) dates.get(file1);
 									Long date2 = (Long) dates.get(file2);
@@ -599,9 +570,9 @@ public class VideoServer extends HttpServer {
 								}
 							});
 
-							files = new ArrayList();
+							files = new ArrayList<Item>();
 							for (int i = 0; i < sortArray.length; i++) {
-								Item item = (Item) sortArray[i];
+								Item item = sortArray[i];
 								files.add(item);
 							}
 						}
@@ -918,13 +889,92 @@ public class VideoServer extends HttpServer {
 		}
 		return "";
 	}
+
+	private void publishAllTopLevel(ServerConfiguration serverConfiguration,
+			GoBackConfiguration goBackConfiguration,
+			StringBuffer buffer, boolean bonjour)
+	{
+		if (bonjour) {
+			unPublishAll();
+		}
+		
+		File recordingsPath = new File(serverConfiguration.getRecordingsPath());
+		// I really should learn about callback functions/classes in Java
+		if (goBackConfiguration.isPublishTiVoRecordings()) {
+			String title = Tools.escapeXMLChars(mHost);
+			doPublish(buffer, title, null, recordingsPath, serverConfiguration,
+					"GalleonRecordings", false, bonjour);
+			if (goBackConfiguration.isAutoSubdirectories()) {
+				publishSubdirs(recordingsPath, "", buffer, serverConfiguration,
+						"GalleonRecordings", bonjour);
+				// TODO: DOS shortcuts vs. direct paths to GalleonRecordings ...
+			}
+
+		}
+		if (goBackConfiguration.getPaths().size() > 0) {
+			List paths = goBackConfiguration.getPaths();
+			Iterator iterator = paths.iterator();
+			while (iterator.hasNext()) {
+				NameValue nameValue = (NameValue) iterator.next();
+				doPublish(buffer, nameValue, serverConfiguration, "GalleonExtra", bonjour);
+				if (goBackConfiguration.isAutoSubdirectories()) {
+					File dir = new File(nameValue.getValue());
+					publishSubdirs(dir, nameValue, buffer, serverConfiguration,
+							"GalleonExtra", bonjour);
+				}
+			}
+		}
+		if (mPublished.size() > 0) {
+			Iterator iterator = mPublished.iterator();
+			while (iterator.hasNext()) {
+				NameValue nameValue = (NameValue) iterator.next();
+				doPublish(buffer, nameValue, serverConfiguration, "GalleonExtra", bonjour);
+			}
+		}
+	}
+
+	private void unPublishAll() {
+		log.debug("Canceling all GoBack published locations");
+		if (mJmDNS != null) {
+			mJmDNS.close();
+			mJmDNS = null;
+		}
+	}
+
+	private int countGoBackEntries(ServerConfiguration serverConfiguration,
+			GoBackConfiguration goBackConfiguration) {
+		File directory = new File(serverConfiguration.getRecordingsPath());
+		int counter = 0;
+		if (goBackConfiguration.isPublishTiVoRecordings()) {
+			counter++; // top-level
+			if (goBackConfiguration.isAutoSubdirectories())
+				counter += countSubdirs(directory);
+		}
+		if (goBackConfiguration.getPaths().size() > 0) {
+			if (goBackConfiguration.isAutoSubdirectories()) {
+				// Count directories underneath for auto-subdir mode
+				List<NameValue> paths = (List<NameValue>) goBackConfiguration.getPaths();
+				Iterator<NameValue> iterator = paths.iterator();
+				while (iterator.hasNext()) {
+					NameValue nameValue = iterator.next();
+					counter++; // directory itself
+					File dir = new File(nameValue.getValue());
+					counter += countSubdirs(dir);
+				}
+			} else
+				counter = counter + goBackConfiguration.getPaths().size();
+		}
+		if (mPublished.size() > 0)
+			counter = counter + mPublished.size();
+		return counter;
+	}
 	private void publishSubdirs(File dir, NameValue nameValue, 
-			StringBuffer buffer, ServerConfiguration serverConfiguration, String rootToken) {
+			StringBuffer buffer, ServerConfiguration serverConfiguration, String rootToken, boolean bonjour) {
 		String name = nameValue.getName();
-		publishSubdirs(dir, name, buffer, serverConfiguration, rootToken);
+		publishSubdirs(dir, name, buffer, serverConfiguration, rootToken, bonjour);
 	}
 	private void publishSubdirs(File dir, String name, 
-			StringBuffer buffer, ServerConfiguration serverConfiguration, String rootToken) {
+			StringBuffer buffer, ServerConfiguration serverConfiguration, String rootToken, boolean bonjour) {
 		try {
 			String dstring = dir.getCanonicalPath();
 			FileSystemContainer fileSystemContainer =
@@ -941,7 +991,7 @@ public class VideoServer extends HttpServer {
 				if (fp.startsWith(dstring + File.separator))
 					n = n + fp.substring(dstring.length() + 1).replaceAll("\\\\", "/");
 				doPublish(buffer, n, f, serverConfiguration,
-						rootToken, false);
+						rootToken, false, bonjour);
 			}
 		} catch (IOException ex) {
 			// don't care, just ignore subdirs
@@ -962,23 +1012,62 @@ public class VideoServer extends HttpServer {
 	}
 
 	private void doPublish(StringBuffer buffer, NameValue nameValue, ServerConfiguration serverConfiguration,
-			String containerName) {
-		doPublish(buffer, nameValue.getName(), nameValue.getValue(), serverConfiguration, "GalleonExtra");
+			String containerName, boolean bonjour) {
+		doPublish(buffer, nameValue.getName(), nameValue.getValue(), serverConfiguration, "GalleonExtra", bonjour);
 	}
 	
 	private void doPublish(StringBuffer buffer, String title, String dirpath, ServerConfiguration serverConfiguration,
-			String containerName) {
+			String containerName, boolean bonjour) {
 		File directory = new File(dirpath);
-		doPublish(buffer, title, directory, serverConfiguration, containerName, true);
+		doPublish(buffer, title, directory, serverConfiguration, containerName, true, bonjour);
 	}
 	private void doPublish(StringBuffer buffer, String title, File directory, ServerConfiguration serverConfiguration,
-			String containerName, boolean escapeContainer) {
+			String containerName, boolean escapeContainer, boolean bonjour) {
 		doPublish(buffer, Tools.escapeXMLChars(title), title, directory, serverConfiguration,
-			containerName, escapeContainer);
+			containerName, escapeContainer, bonjour);
 	}
 	private void doPublish(StringBuffer buffer, String title, String container, File directory, ServerConfiguration serverConfiguration,
-			String containerName, boolean escapeContainer) {
-	
+			String containerName, boolean escapeContainer, boolean bonjour) {
+		String urlhead = "http://" + serverConfiguration.getIPAddress() + ":"
+			+ Server.getServer().getHMOPort();
+		
+		String bonjoururl = "/TiVoConnect?Command=QueryContainer&Container=" + containerName;
+		String url = "/TiVoConnect?Command=QueryContainer&amp;Container=" + containerName;
+		if (container != null) {
+			String extra = "/" + (escapeContainer ? URLEncoder.encode(container) : container);
+			url += extra;
+			bonjoururl += extra;
+		}
+		if (bonjour) {
+			log.debug("Publish via bonjour: " + url);
+			try {
+				if (mJmDNS == null) {
+					InetAddress inetAddress = null;
+					String address = serverConfiguration.getIPAddress();
+					if (address.equals("Default"))
+						inetAddress = InetAddress.getLocalHost();
+					else
+						inetAddress = InetAddress.getByName(address);
+					mJmDNS = new JmDNS(inetAddress);
+				}
+	            Hashtable<String,String> ht = new Hashtable<String,String>();
+	            ht.put("protocol", "http");
+	            ht.put("path", bonjoururl);
+	            ht.put("platform",
+	            		Constants.PLATFORM_PC + '/' + System.getProperty("os.name"));
+	            ht.put("swversion", Tools.getVersion());
+	            ServiceInfo info = new ServiceInfo(Constants.MDNS_VIDEOS_SERVICE,
+	            		title, mHMOPort, 0, 0, ht);
+	            mJmDNS.registerService(info);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            if (mJmDNS != null)
+	            	mJmDNS.close();
+	            mJmDNS = null;
+	        }
+
+			return;
+		}
 		buffer.append("<Item>\n");
 		buffer.append("<Details>\n");
 		buffer.append("<Title>" + title + "</Title>\n");
@@ -989,12 +1078,7 @@ public class VideoServer extends HttpServer {
 		buffer.append("</Details>\n");
 		buffer.append("<Links>\n");
 		buffer.append("<Content>\n");
-		buffer.append("<Url>http://" + serverConfiguration.getIPAddress() + ":"
-				+ Server.getServer().getHMOPort()
-				+ "/TiVoConnect?Command=QueryContainer&amp;Container=" + containerName);
-		if (container != null)
-			buffer.append("/" + (escapeContainer ? URLEncoder.encode(container) : container));
-		buffer.append("</Url>\n");
+		buffer.append("<Url>" + urlhead + url + "</Url>\n");
 		buffer.append("<ContentType>x-container/tivo-videos</ContentType>\n");
 		buffer.append("</Content>\n");
 		buffer.append("</Links>\n");
@@ -1326,6 +1410,11 @@ public class VideoServer extends HttpServer {
 		{
 			mPublished.add(nameValue);
 		}
+
+		ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
+		GoBackConfiguration goBackConfiguration = serverConfiguration.getGoBackConfiguration();
+
+		publishAllTopLevel(serverConfiguration, goBackConfiguration, null, true);
 	}
 
 	private String getFilePath(File file, File directory) {
@@ -1354,4 +1443,9 @@ public class VideoServer extends HttpServer {
 	//private GregorianCalendar mCalendar;
 
 	private List<NameValue> mPublished = new ArrayList<NameValue>();
+
+	public void stop() {
+		drain();
+		unPublishAll();
+	}
 }

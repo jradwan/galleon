@@ -388,11 +388,11 @@ public class Server {
 			Config config = new Config();
 	        config.put("http.ports", String.valueOf(mHMOPort));
 	        config.put("http.interfaces", mServerConfiguration.getIPAddress());
-	        mVideoServer = new VideoServer(config);
+	        mVideoServer = new VideoServer(config, mServerConfiguration, mHMOPort);
 
-	        if (System.getProperty("disableBeacon") != null && System.getProperty("disableBeacon").equals("true"))
+	        if (true || System.getProperty("disableBeacon") != null && System.getProperty("disableBeacon").equals("true"))
 	        {
-	        	log.debug("Beacon disabled");
+	        	log.debug("Beacon disabled - using Bonjour");
 	        }
 	        else
 			{
@@ -672,7 +672,7 @@ public class Server {
             if (mVideoServer != null) {
             	try
                 {
-            		mVideoServer.drain();
+            		mVideoServer.stop();
                 }
                 catch (Throwable ex) {
                 	Tools.logException(Server.class, ex);
@@ -1186,6 +1186,7 @@ public class Server {
 				save();
 				if (mBroadcastThread!=null)
 					mBroadcastThread.enableHighFrequency();
+				mVideoServer.publishBonjour(mServerConfiguration,goBackConfiguration);
 			}
 		}
 		catch (Exception ex)

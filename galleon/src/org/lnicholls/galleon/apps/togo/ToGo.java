@@ -591,8 +591,8 @@ public class ToGo extends DefaultApplication {
 
 				videoText.setLabel("Quality:");
 				String txt = video.getRecordingQuality();
-                                String hd = video.getHighDefinition();
-                                if (hd.equals("Yes"))
+				String hd = video.getHighDefinition();
+				if (hd != null && hd.equals("Yes"))
 					txt = "[HD]";
 				else if (txt == null)
 					txt = "DIGITAL";

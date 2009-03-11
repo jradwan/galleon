@@ -20,7 +20,7 @@ project tools are explained in detail.
 
 
 Upgrading or adding Third-party components
---------
+------------------------------------------
 
 1. Update ThirdPartyLicenses.txt as appropriate.  If the license is a
    common one, just add the new item to the list for that license.
@@ -233,8 +233,47 @@ quite right, though:
 There are a few other classes that have public static void main()
 routines, feel free to add more for unit testing.
 
+Eclipse
+-------
+
 Eclipse makes a nice debug/development environment.
 http://www.eclipse.org/
+
+To check out Galleon in Eclipse through CVS:
+
+* in the Eclipse Workbench, select Window -> Open Perspective -> Other
+
+* select the "CVS Repository Exploring" perspective and click OK
+
+* right-click in the CVS Repositories window and select New -> Repository Location
+
+* in the "Add CVS Repository" dialog, fill in the following values
+  - host: galleon.cvs.sourceforge.net
+  - repository path: /cvsroot/galleon
+  - user/password: your CVS credentials
+  - connection type: ext
+
+* click the "Configure connection preferences..." link and then click the "SSH2"
+  link to configure your SSH connection
+
+* fill in the "SSH2 home" path with the location of your private key and add a new
+  private key filename if necessary
+
+* click OK, then click Finish
+
+* Eclipse will attempt to connect to the SourceForge CVS system and you should be
+  prompted for your CVS password
+
+* you should now be able to browse the Galleon CVS structure via the "CVS 
+  Repositories" window on the Eclipse Workbench
+
+* under HEAD, right click on galleon and select "Check Out"
+
+* Eclipse will now check out all the source code and copy it to your specified 
+  Eclipse workspace location
+
+* you can now browse, edit (commit, compare, etc.) the Galleon code through the
+  Package Explorer
 
 Weather
 -------

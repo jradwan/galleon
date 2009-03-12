@@ -1282,8 +1282,6 @@ quiet="no">
     <copy file="./lib/win32/Wrapper.dll" tofile="${build}/lib/Wrapper.dll" />
     <!-- copied by generic rule        <copy file="./lib/jawin.jar" tofile="${build}/lib/jawin.jar" /> -->
     <copy file="./lib/win32/jawin.dll" tofile="${build}/lib/jawin.dll" />
-    <copy file="./lib/win32/TiVoBeacon.exe" tofile="${build}/lib/TiVoBeacon.exe" />
-    <copy file="./lib/win32/TiVoBeaconApi.dll" tofile="${build}/lib/TiVoBeaconApi.dll" />
   </target>
 
   <target name="package-bin-win32">

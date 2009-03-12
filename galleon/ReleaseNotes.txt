@@ -20,7 +20,8 @@ Version 2.5.5:
   - show copy-protected recordings (to be consistent with TiVo Desktop and other
     Now Playing List applications); identify with lock icon
   - fixed display of Length statistic on main Now Playing screen
-
+* Updated GoBack publishing to use Bonjour, eliminated repackaging and
+  use of TiVo Beacon service on Windows.
 
 Version 2.5.4:
 ----------------------

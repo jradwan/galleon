@@ -32,7 +32,6 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,8 +42,6 @@ import java.util.TimerTask;
 import java.rmi.RMISecurityManager;
 
 import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceInfo;
-
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.AsyncAppender;
 import org.apache.log4j.Level;
@@ -390,58 +387,6 @@ public class Server {
 	        config.put("http.interfaces", mServerConfiguration.getIPAddress());
 	        mVideoServer = new VideoServer(config, mServerConfiguration, mHMOPort);
 
-	        if (true || System.getProperty("disableBeacon") != null && System.getProperty("disableBeacon").equals("true"))
-	        {
-	        	log.debug("Beacon disabled - using Bonjour");
-	        }
-	        else
-			{
-	        	mPublished = false;
-	        	// Start with Bonjour publish
-	        	// TODO: Push this down into the GoBack publish layer (each GoBack configuration item should publish)
-	        	publishBonjour();
-	        	
-	        	if (!mPublished)
-	        		// TiVo Beacon API on Windows
-	        		publishTiVoBeacon();
-
-	            if (!mPublished) {
-	                mBeaconPort = Constants.TIVO_PORT;
-	                // TODO
-	                int counter = 0;
-	                while (counter++<100) {
-	                    try {
-	                        if (log.isDebugEnabled())
-	                            log.debug("Using beacon port=" + mBeaconPort);
-	                        mBroadcastThread = new BroadcastThread(this, mBeaconPort);
-	                        mBroadcastThread.start();
-	                        break;
-	                    } catch (Throwable ex) {
-	                        Tools.logException(Server.class, ex);
-
-	                        if (mBroadcastThread != null)
-	                            mBroadcastThread.interrupt();
-
-	                        mBroadcastThread = null;
-	                        mBeaconPort = mBeaconPort + 1;
-	                    }
-	                }
-
-	                if (mBroadcastThread!=null)
-	                {
-		                log.info("Broadcast port=" + mBeaconPort);
-
-		                mListenThread = new ListenThread(this);
-		                mListenThread.start();
-	                }
-	                else
-	                	log.error("Cannot broadcast");
-
-	                mConnectionThread = new ConnectionThread(this);
-	                mConnectionThread.start();
-	            }
-			}
-
             //mDataUpdateThread = new DataUpdateThread();
             //mDataUpdateThread.start();
 
@@ -477,42 +422,6 @@ public class Server {
 			return new Integer(1);
 		}
 		return null;
-	}
-
-	private void publishBonjour() {
-		// Publish our server via Bonjour (JmDNS)
-		mPublished = false;
-		if (mNoMDNS)
-			return;
-		mJmDNS = null;
-		log.debug("Registering with Bonjour");
-		try {
-			InetAddress inetAddress = null;
-			String address = mServerConfiguration.getIPAddress();
-			if (address.equals("Default"))
-				inetAddress = InetAddress.getLocalHost();
-			else
-				inetAddress = InetAddress.getByName(address);
-            mJmDNS = new JmDNS(inetAddress);
-            Hashtable<String,String> ht = new Hashtable<String,String>();
-            ht.put("protocol", "http");
-            ht.put("path", 
-            		"/TiVoConnect?Command=QueryContainer&Container=%2F");
-            ht.put("platform",
-            		Constants.PLATFORM_PC + '/' + System.getProperty("os.name"));
-            ht.put("swversion", Tools.getVersion());
-            ServiceInfo info = new ServiceInfo(Constants.MDNS_VIDEOS_SERVICE,
-            		mServerConfiguration.getName(),
-            		mHMOPort, 0, 0, ht);
-            mJmDNS.registerService(info);
-           
-            mPublished = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (mJmDNS != null)
-            	mJmDNS.close();
-            mJmDNS = null;
-        }
 	}
 
 	// Service wrapper required method
@@ -1455,26 +1364,6 @@ public class Server {
         return mTCMs.iterator();
     }
 
-    private void publishTiVoBeacon() {
-        // TiVo Beacon API
-        mPublished = false;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            try {
-            	mTiVoBeacon = new TiVoBeacon(TiVoBeacon.CLSID);
-                mTiVoBeacon.PublishMediaServer(mHMOPort);
-                mPublished = true;
-                log.info("Using TiVo Beacon service");
-            } catch (Throwable ex) {
-            	if (ex.getCause()!=null)
-            		Tools.logException(Server.class, ex, ex.getCause().toString());
-            	else
-            		Tools.logException(Server.class, ex);
-                mTiVoBeacon = null;
-                log.info("Could not find TiVo Beacon service");
-            }
-        }
-    }
-
     public void publishVideo(NameValue nameValue)
     {
     	if (mVideoServer!=null)
@@ -1633,8 +1522,6 @@ public class Server {
     private ConnectionThread mConnectionThread;
 
     private LinkedList<TCM> mTCMs;
-
-    private boolean mPublished;
 
     private VideoServer mVideoServer;
 

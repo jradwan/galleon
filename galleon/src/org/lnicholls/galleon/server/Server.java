@@ -50,11 +50,9 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.lnicholls.galleon.app.AppContext;
 import org.lnicholls.galleon.app.AppDescriptor;
-//import org.lnicholls.galleon.app.AppHost;
 import org.lnicholls.galleon.app.AppManager;
 import org.lnicholls.galleon.database.HibernateUtil;
 import org.lnicholls.galleon.database.NetworkServerManager;
-//import org.lnicholls.galleon.database.Podcast;
 import org.lnicholls.galleon.database.PodcastManager;
 import org.lnicholls.galleon.database.VideocastManager;
 import org.lnicholls.galleon.database.Video;
@@ -86,7 +84,6 @@ public class Server {
 			throw new IllegalAccessException();
 
 		mServer = this;
-		mNoMDNS = false;
 
 		//System.setSecurityManager(new CustomSecurityManager());
 
@@ -140,7 +137,6 @@ public class Server {
 				System.setProperty("root", root);
 			else
 				root = System.getProperty("root");
-			mNoMDNS = "true".equals(System.getProperty("hme.nomdns"));
 				
 			File check = new File(System.getProperty("root"));
 			if (!check.exists() || !check.isDirectory())
@@ -531,53 +527,6 @@ public class Server {
             	mJmDNS = null;
             }
 
-			if (mTiVoBeacon != null) {
-                try
-                {
-                	mTiVoBeacon.RevokeMediaServer(getPort());
-                	mTiVoBeacon.Release();
-                }
-                catch (Throwable ex) {
-                	Tools.logException(Server.class, ex);
-                }
-                mTiVoBeacon = null;
-            }
-
-            if (mConnectionThread != null) {
-            	try
-                {
-            		mConnectionThread.interrupt();
-                }
-                catch (Throwable ex) {
-                	Tools.logException(Server.class, ex);
-                }
-                mConnectionThread = null;
-            }
-
-            if (mListenThread != null) {
-            	try
-                {
-            		mListenThread.interrupt();
-                }
-                catch (Throwable ex) {
-                	Tools.logException(Server.class, ex);
-                }
-                mListenThread = null;
-            }
-
-            if (mBroadcastThread != null) {
-            	try
-                {
-            		mBroadcastThread.interrupt();
-            		mBroadcastThread.sendPackets(true);
-                }
-                catch (Throwable ex) {
-                	Tools.logException(Server.class, ex);
-                }
-
-                mBroadcastThread = null;
-            }
-
             if (mVideoServer != null) {
             	try
                 {
@@ -642,10 +591,6 @@ public class Server {
 		finally {
 			mToGoThread = null;
 			mDownloadThread = null;
-			mBroadcastThread = null;
-            mListenThread = null;
-            mConnectionThread = null;
-            mTiVoBeacon = null;
 		}
 	}
 
@@ -1093,8 +1038,6 @@ public class Server {
 			{
 				mServerConfiguration.setGoBackConfiguration(goBackConfiguration);
 				save();
-				if (mBroadcastThread!=null)
-					mBroadcastThread.enableHighFrequency();
 				mVideoServer.publishBonjour(mServerConfiguration,goBackConfiguration);
 			}
 		}
@@ -1312,18 +1255,6 @@ public class Server {
 		mAppClassLoader = new URLClassLoader((URL[]) urls.toArray(new URL[0]));
 	}
 
-    public BroadcastThread getBroadcastThread() {
-        return mBroadcastThread;
-    }
-
-    public ListenThread getListenThread() {
-        return mListenThread;
-    }
-
-    public ConnectionThread getConnectionThread() {
-        return mConnectionThread;
-    }
-
     public void addTCM(TCM tcm) {
         mTCMs.add(tcm);
         if (!tcm.getBeacon().getIdentity().equals(Beacon.guid)
@@ -1513,14 +1444,6 @@ public class Server {
 
 	private ArrayList<TaskInfo> mDataTasks;
 
-	private BroadcastThread mBroadcastThread;
-
-    private TiVoBeacon mTiVoBeacon;
-
-    private ListenThread mListenThread;
-
-    private ConnectionThread mConnectionThread;
-
     private LinkedList<TCM> mTCMs;
 
     private VideoServer mVideoServer;
@@ -1533,7 +1456,5 @@ public class Server {
 
     private static boolean mDemoMode;
     
-	private static boolean mNoMDNS;
-
 	protected static int mServerRMIPort = 1099;
 }

@@ -7,10 +7,7 @@ Version 2.5.5:
   IPv6 on linux installs)
 * added runlevel 2 to linux Makefile (for distros that use update-rc.d)
 * fixed Movies app so it works again (2570997, 2604157, 2604159)
-* Experimental Bonjour-based GoBack publishing removes dependence on
-  TiVo beacon code/service.  This still needs some work, it introduces
-  an extra level of folders in the Now Playing list.
-* Cleaned up some incorrect error messages in JmDNS
+* Cleaned up some incorrect error messages in JmDNS code
 * Removed auto-subdirectory publish, the bug in TiVo-side software is fixed.
 * various minor ToGo fixes and enhancements:
   - corrected space remaining calculation 
@@ -20,8 +17,8 @@ Version 2.5.5:
   - show copy-protected recordings (to be consistent with TiVo Desktop and other
     Now Playing List applications); identify with lock icon
   - fixed display of Length statistic on main Now Playing screen
-* Updated GoBack publishing to use Bonjour, eliminated repackaging and
-  use of TiVo Beacon service on Windows.
+* Updated GoBack announcements to TiVos to use Bonjour, eliminating the
+  repackaging and use of TiVo Beacon service on Windows.
 
 Version 2.5.4:
 ----------------------

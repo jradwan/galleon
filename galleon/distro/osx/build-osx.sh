@@ -35,7 +35,7 @@ cp distro/osx/MainResources/English.lproj/Welcome.rtf osx-dir/MainResources/Engl
 # ln -s /Applications/Galleon osx-dir/Galleon
 sudo chown -R root:admin osx-dir
 #/Developer/Tools/packagemaker -build -proj distro/osx/Galleon.pmproj -p distro/osx/Galleon.pkg -v
-VER="2.5.5"
+VER="2.5.6"
 
 rm -rf Galleon.pkg Galleon.mpkg
 # Be very wary, the package builder/installer on 10.5 is too clever.

@@ -1,10 +1,10 @@
 #!/bin/sh -x
 VERS=2
 MINOR=5
-SUB=5
+SUB=6
 OVERS=2
 OMINOR=5
-OSUB=4
+OSUB=5
 for i in \
   distro/win32/galleon.nsi \
   distro/unix/build-zipfile.sh \

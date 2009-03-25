@@ -92,13 +92,15 @@ To create a release:
 
 * Tag the sources in the CVS repository (cvs rtag GALLEON_x_y_z galleon)
 
-* Create a new file release (sourceforge admin tasks "File releases",
-  then "Add releases", name it x.y.z).  Copy the release notes section
+* Create a new file release (sourceforge "Project admin" menu, "Downloads,
+  then "Add release", name it x.y.z).  Copy the release notes section
   from ReleaseNotes.txt into the text box.
 
   Mark some old file releases hidden.
 
-* Use the file management features at SourceForge (Admin->File releases)
+* Use the file management features at SourceForge to upload files.
+  Documentation is linked from the "add release" page.
+
   Upload the Galleon-<release>.dmg, galleon-<release>.exe,
   galleon-<release>-linux.zip files, add them to the release
   Click "I'm sure" and notify subscribers

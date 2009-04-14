@@ -134,6 +134,8 @@ public class ToGo {
 
 					int total = -1;
 					int counter = 0;
+					long startTime = System.currentTimeMillis();
+					long lastTime = 0;
 					do {
 						try {
 							String url = QUERY_CONTAINER + RECURSE + ITEM_COUNT + MAX + ANCHOR_OFFSET + counter;
@@ -142,6 +144,12 @@ public class ToGo {
 							client.executeMethod(get);
 
 							// log.debug(get.getResponseBodyAsString());
+
+							if ((System.currentTimeMillis()-lastTime) > 1000*30)
+							{
+								PersistentValueManager.savePersistentValue("ToGo.lastQuery", new Date().toString());
+								lastTime = System.currentTimeMillis();
+							}
 
 							SAXReader saxReader = new SAXReader();
 							Document document = saxReader.read(get.getResponseBodyAsStream());

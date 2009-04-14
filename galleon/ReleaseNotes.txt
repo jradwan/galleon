@@ -3,7 +3,9 @@ Galleon
 
 Version 2.5.6:
 ----------------------
-
+* Added warning message in ToGo application if Galleon isn't able to contact
+  TiVo (usually means TiVo HTTPS server is hung)
+  
 Version 2.5.5:
 ----------------------
 * added java parameter to favor IPv4 (should eliminate the need for disabling

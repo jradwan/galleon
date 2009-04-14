@@ -17,6 +17,7 @@ package org.lnicholls.galleon.apps.togo;
  */
 
 import java.awt.Color;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -31,6 +32,8 @@ import org.hibernate.HibernateException;
 
 import org.apache.log4j.Logger;
 import org.lnicholls.galleon.app.AppFactory;
+import org.lnicholls.galleon.database.PersistentValue;
+import org.lnicholls.galleon.database.PersistentValueManager;
 import org.lnicholls.galleon.database.Video;
 import org.lnicholls.galleon.database.VideoManager;
 import org.lnicholls.galleon.server.Server;
@@ -198,6 +201,13 @@ public class ToGo extends DefaultApplication {
 			mCountText.setColor(Color.GREEN);
 			mCountText.setShadow(true);
 
+			start += 20;
+			
+			mLastUpdateText = new BText(getNormal(), BORDER_LEFT, start, BODY_WIDTH, 20);
+			mLastUpdateText.setFlags(IHmeProtocol.RSRC_HALIGN_CENTER);
+			mLastUpdateText.setFont("default-18.font");
+			// no shadow for updateText
+
 			// TODO Update list
 			createMenu();
 		}
@@ -265,6 +275,31 @@ public class ToGo extends DefaultApplication {
 			} catch (HibernateException ex) {
 				log.error("Getting recordings failed", ex);
 			}
+			PersistentValue persistentValue = PersistentValueManager.loadPersistentValue("ToGo.lastQuery");
+			if (persistentValue != null) {
+				try
+				{
+					String value = persistentValue.getValue();
+					Date date = new Date(value);
+					Date now = new Date();
+					// If more than 30 minutes, show in red
+					if (now.getTime()-date.getTime() > 60*30*1000) {
+						mLastUpdateText.setColor(Color.RED);
+						mLastUpdateText.setValue("Reboot TiVo and Galleon? Last responded: " + value);
+					} else {
+						mLastUpdateText.setColor(Color.GREEN);
+						mLastUpdateText.setValue("Last updated: " + value);
+					}
+				}
+				catch (Throwable ex)
+				{
+					log.error("Could not retrieve video server last update", ex);
+					mLastUpdateText.setColor(Color.YELLOW);
+					mLastUpdateText.setValue("Could not retrieve video server last update");
+				}
+				mLastUpdateText.setVisible(true);
+			} else
+				mLastUpdateText.setVisible(false);
 
 			List<TiVo> tivos = Server.getServer().getTiVos();
 			Iterator<TiVo> iterator = tivos.iterator();
@@ -306,6 +341,7 @@ public class ToGo extends DefaultApplication {
 				mCountText.setVisible(true);
 			} else
 				mCountText.setVisible(false);
+
 			return super.handleEnter(arg, isReturn);
 		}
 
@@ -376,6 +412,8 @@ public class ToGo extends DefaultApplication {
 		protected GregorianCalendar mCalendar;
 
 		private BText mCountText;
+		
+		private BText mLastUpdateText;
 
 		private int mTotalCount = 0;
 

@@ -1886,7 +1886,7 @@ http://ws.apache.org/axis/
 http://ws.apache.org/axis/
 (log4j.jar)
 http://logging.apache.org/log4j/docs/index.html
-(commons-betwixt-0.6.jar)
+(commons-betwixt-0.8.jar)
 http://jakarta.apache.org/commons/betwixt/
 (commons-collections-3.2.jar)
 http://jakarta.apache.org/commons/collections/

@@ -44,7 +44,7 @@ import org.lnicholls.galleon.util.NameValue;
 import org.lnicholls.galleon.util.Tools;
 
 import com.tivo.hme.host.io.FastInputStream;
-import com.tivo.hme.host.sample.DNSSDRequest;
+//import com.tivo.hme.host.sample.DNSSDRequest;
 import com.tivo.hme.host.sample.HostingVersion;
 //import com.tivo.hme.host.sample.JarClassLoader;
 import com.tivo.hme.host.sample.Listener;
@@ -401,20 +401,20 @@ public class AppHost implements ILogger {
 					continue;
 				}
 				log.info("MDNS: " + s);
-				DNSSDRequest dnssdrequest = null;
-				try {
-					dnssdrequest = new DNSSDRequest();
-				} catch (IOException ioexception) {
-				}
-				if (dnssdrequest != null)
-					try {
-						dnssdrequest.registerService(ifactory.getAppTitle(), IHmeConstants.MDNS_DNSSD_TYPE, s);
-						ifactory.getFactoryData().put(DNSSD_KEY, dnssdrequest);
-						continue;
-					} catch (IOException ioexception1) {
-						dnssdrequest.close();
-						dnssdrequest = null;
-					}
+//				DNSSDRequest dnssdrequest = null;
+//				try {
+//					dnssdrequest = new DNSSDRequest();
+//				} catch (IOException ioexception) {
+//				}
+//				if (dnssdrequest != null)
+//					try {
+//						dnssdrequest.registerService(ifactory.getAppTitle(), IHmeConstants.MDNS_DNSSD_TYPE, s);
+//						ifactory.getFactoryData().put(DNSSD_KEY, dnssdrequest);
+//						continue;
+//					} catch (IOException ioexception1) {
+//						dnssdrequest.close();
+//						dnssdrequest = null;
+//					}
 				rv[j].registerService(getServiceInfo(ifactory, ai[j]));
 			}
 		}
@@ -430,10 +430,10 @@ public class AppHost implements ILogger {
 					log.info(s + " [no mdns]");
 				} else {
 					log.info("MDNS REMOVE: " + s);
-					DNSSDRequest dnssdrequest = (DNSSDRequest) ifactory.getFactoryData().get(DNSSD_KEY);
-					if (dnssdrequest != null)
-						dnssdrequest.close();
-					else
+//					DNSSDRequest dnssdrequest = (DNSSDRequest) ifactory.getFactoryData().get(DNSSD_KEY);
+//					if (dnssdrequest != null)
+//						dnssdrequest.close();
+//					else
 						rv[j].unregisterService(getServiceInfo(ifactory, ai[j]));
 				}
 			}
@@ -461,7 +461,7 @@ public class AppHost implements ILogger {
 
 	static final int DEFAULT_PORT = 7288;
 
-	public static final String DNSSD_KEY = "dnssd";
+//	public static final String DNSSD_KEY = "dnssd";
 
 	protected Config config;
 

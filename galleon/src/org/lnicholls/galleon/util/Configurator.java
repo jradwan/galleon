@@ -38,9 +38,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.betwixt.IntrospectionConfiguration;
 import org.apache.commons.betwixt.XMLIntrospector;
 import org.apache.commons.betwixt.io.BeanReader;
 import org.apache.commons.betwixt.io.BeanWriter;
+import org.apache.commons.betwixt.strategy.PropertySuppressionStrategy;
 import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
@@ -432,7 +434,7 @@ public class Configurator implements Constants {
                                         if (appContext.getConfiguration() != null) {
                                             try {
                                                 BeanReader beanReader = new BeanReader();
-                                                beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                                                beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                                                 beanReader.registerBeanClass("app", appContext.getConfiguration().getClass());
 
                                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -469,7 +471,7 @@ public class Configurator implements Constants {
                             log.debug("Found TiVo");
                         try {
                             BeanReader beanReader = new BeanReader();
-                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                             beanReader.registerBeanClass("tivo", TiVo.class);
 
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -495,7 +497,7 @@ public class Configurator implements Constants {
                             log.debug("Found Rule");
                         try {
                             BeanReader beanReader = new BeanReader();
-                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                             beanReader.registerBeanClass("rule", Rule.class);
 
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -521,7 +523,7 @@ public class Configurator implements Constants {
                             log.debug("Found Music Player Configuration");
                         try {
                             BeanReader beanReader = new BeanReader();
-                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                             beanReader.registerBeanClass("musicPlayerConfiguration", MusicPlayerConfiguration.class);
 
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -547,7 +549,7 @@ public class Configurator implements Constants {
                             log.debug("Found Data Configuration");
                         try {
                             BeanReader beanReader = new BeanReader();
-                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                             beanReader.registerBeanClass("dataConfiguration", DataConfiguration.class);
 
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -573,7 +575,7 @@ public class Configurator implements Constants {
                             log.debug("Found GoBack Configuration");
                         try {
                             BeanReader beanReader = new BeanReader();
-                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                             beanReader.registerBeanClass("goBackConfiguration", GoBackConfiguration.class);
 
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -612,7 +614,7 @@ public class Configurator implements Constants {
                             log.debug("Found Download Configuration");
                         try {
                             BeanReader beanReader = new BeanReader();
-                            beanReader.getXMLIntrospector().setAttributesForPrimitives(true);
+                            beanReader.getXMLIntrospector().getConfiguration().setAttributesForPrimitives(true);
                             beanReader.registerBeanClass("downloadConfiguration", DownloadConfiguration.class);
 
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -683,6 +685,25 @@ public class Configurator implements Constants {
         ServerConfiguration serverConfiguration = Server.getServer().getServerConfiguration();
         // Utility class to control the behavior of Commons Betwixt
         class AppXMLIntrospector extends XMLIntrospector {
+        	
+        	AppXMLIntrospector() {
+        		super();
+        		IntrospectionConfiguration appconfig = new IntrospectionConfiguration();
+            	// commons-betwixt-0.8 by default suppresses the class property, we need to
+            	// see the class property.
+        		appconfig.setPropertySuppressionStrategy(
+        				new PropertySuppressionStrategy() {
+        					@Override
+        					public boolean suppressProperty(Class arg0, Class arg1,
+        							String arg2) {
+        						// let everything pass!
+        						return false;
+        					}
+        				
+        				}
+        				);
+        		setConfiguration(appconfig);
+        	}
             public org.apache.commons.betwixt.Descriptor createXMLDescriptor(
                     org.apache.commons.betwixt.BeanProperty beanProperty) {
                 // Dont save the settings of the app interface methods
@@ -773,8 +794,9 @@ public class Configurator implements Constants {
                         BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                         AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                        appXMLIntrospector.setAttributesForPrimitives(true);
+                        appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                         beanWriter.setXMLIntrospector(appXMLIntrospector);
+                    	beanWriter.setWriteEmptyElements(true);
 
                         beanWriter.enablePrettyPrint();
 
@@ -799,7 +821,7 @@ public class Configurator implements Constants {
                         BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                         AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                        appXMLIntrospector.setAttributesForPrimitives(true);
+                        appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                         beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                         beanWriter.enablePrettyPrint();
@@ -825,7 +847,7 @@ public class Configurator implements Constants {
                         BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                         AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                        appXMLIntrospector.setAttributesForPrimitives(true);
+                        appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                         beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                         beanWriter.enablePrettyPrint();
@@ -849,7 +871,7 @@ public class Configurator implements Constants {
                     BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                     AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                     beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                     beanWriter.enablePrettyPrint();
@@ -872,7 +894,7 @@ public class Configurator implements Constants {
                     BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                     AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                     beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                     beanWriter.enablePrettyPrint();
@@ -895,7 +917,7 @@ public class Configurator implements Constants {
                     BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                     AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                     beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                     beanWriter.enablePrettyPrint();
@@ -932,7 +954,7 @@ public class Configurator implements Constants {
                     BeanWriter beanWriter = new BeanWriter(outputWriter);
 
                     AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
-                    appXMLIntrospector.setAttributesForPrimitives(true);
+                    appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                     beanWriter.setXMLIntrospector(appXMLIntrospector);
 
                     beanWriter.enablePrettyPrint();

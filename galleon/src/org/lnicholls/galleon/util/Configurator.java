@@ -696,7 +696,7 @@ public class Configurator implements Constants {
         					@Override
         					public boolean suppressProperty(Class arg0, Class arg1,
         							String arg2) {
-        						// let everything pass!
+        						// let everything pass
         						return false;
         					}
         				
@@ -796,7 +796,6 @@ public class Configurator implements Constants {
                         AppXMLIntrospector appXMLIntrospector = new AppXMLIntrospector();
                         appXMLIntrospector.getConfiguration().setAttributesForPrimitives(true);
                         beanWriter.setXMLIntrospector(appXMLIntrospector);
-                    	beanWriter.setWriteEmptyElements(true);
 
                         beanWriter.enablePrettyPrint();
 

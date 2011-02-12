@@ -63,6 +63,8 @@ install:
 	ln -sf ${APPDIR}/bin/galleon /etc/init.d/galleon
 	if [ -e /usr/sbin/update-rc.d ] ; then \
 		/usr/sbin/update-rc.d galleon start 95 2 3 4 5 . stop 30 2 3 4 5 . ; \
+	elif [ -e /sbin/rc-update ] ; then \
+		rc-update add galleon default ; \
 	else \
 		chkconfig --add galleon ;\
 	fi
@@ -70,6 +72,8 @@ install:
 uninstall:
 	if [ -e /usr/sbin/update-rc.d ] ; then \
 		/usr/sbin/update-rc.d -f galleon remove ; \
+	elif [ -e /sbin/rc-update ] ; then \
+		rc-update delete galleon default ; \
 	else \
 		chkconfig --del galleon ; \
 	fi

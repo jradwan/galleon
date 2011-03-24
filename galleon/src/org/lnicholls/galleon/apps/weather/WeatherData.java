@@ -474,7 +474,7 @@ public class WeatherData implements Serializable {
                 final String strGetResponseBody2 = get2.getResponseBodyAsString();
 
                 // now grab the URL of the actual radar image
-                String REGEX = "NAME=\"mapImg\" SRC=\"([^\"]*)\"";
+                String REGEX = "name=\"mapImg\" src=\"([^\"]*)\"";
                 Pattern p = Pattern.compile(REGEX);
                 Matcher m = p.matcher(strGetResponseBody2);
                 if (m.find()) {

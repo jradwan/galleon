@@ -53,7 +53,7 @@ ant compile
 
 To build Galleon packages:
 
-* Windows: run 'ant compile' then use NSIS (nsis.sourceforge.net) to compile
+* Windows: run 'ant package' then use NSIS (nsis.sourceforge.net) to compile
   distro/win32/galleon.nsi
   to create distro/win32/Setup.exe
   (Very nice to use the NSIS eclipse plugin)

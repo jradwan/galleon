@@ -117,7 +117,7 @@ To create a release:
   http://galleon.sourceforge.net/administrator).
 
 * Update the download page:
-  http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=96&Itemid=57
+  http://galleon.sourceforge.net/index.php?option=com_content&view=article&id=96&Itemid=57
 
 galleon.sourceforge.net
 -----------------------

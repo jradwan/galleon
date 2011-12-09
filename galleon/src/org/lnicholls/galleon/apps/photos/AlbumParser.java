@@ -245,7 +245,7 @@ public class AlbumParser {
          		   System.gc();
                 if (!mDebugging) {      // if debugging, go full tilt
                     try {
-                        Thread.sleep(50); // give the CPU some breathing time
+//                        Thread.sleep(50); // give the CPU some breathing time
                     } catch (Exception ex) {
                     }
                 }
@@ -590,7 +590,7 @@ public class AlbumParser {
                                 	
                                     if (!mDebugging)
                                         try { // only pause if not debugging
-                                        	Thread.sleep(50); // give the CPU some breathing time
+                           //             	Thread.sleep(50); // give the CPU some breathing time
                                         } catch (Exception ex) {
                                         }
                                 }

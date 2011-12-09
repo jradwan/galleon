@@ -111,7 +111,7 @@ public class ToGoDialog extends JDialog implements ActionListener {
         if ("help".equals(e.getActionCommand())) {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try {
-				BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=14&Itemid=29");
+				BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&view=article&id=14&Itemid=29");
 			} catch (Exception ex) {
 			}
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

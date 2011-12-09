@@ -114,7 +114,7 @@ public class MediaRefreshThread extends Thread {
                                 }
                                 if (++mCounter%100==0)
              	         		   System.gc();
-                                Thread.sleep(50); // give the CPU some breathing time
+//                                Thread.sleep(50); // give the CPU some breathing time
                             } catch (Exception ex) {
                                 Tools.logException(MediaRefreshThread.class, ex, file.getAbsolutePath());
                             }

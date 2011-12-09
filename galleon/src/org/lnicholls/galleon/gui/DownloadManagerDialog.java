@@ -283,7 +283,7 @@ public class DownloadManagerDialog extends JDialog implements ActionListener {
 		} else if ("help".equals(e.getActionCommand())) {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try {
-				BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&task=view&id=97&Itemid=45");
+				BrowserLauncher.openURL("http://galleon.sourceforge.net/index.php?option=com_content&view=article&id=97&Itemid=45");
 			} catch (Exception ex) {
 			}
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

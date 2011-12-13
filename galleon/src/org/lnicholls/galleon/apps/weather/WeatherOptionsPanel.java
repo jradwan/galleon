@@ -109,12 +109,12 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         mStateCombo.addItem(new ComboWrapper("Wyoming", "WY"));
         defaultCombo(mStateCombo, weatherConfiguration.getState());
         mZipField = new JTextField(weatherConfiguration.getZip());
-        mRangeCombo = new JComboBox();
-        mRangeCombo.addItem(new ComboWrapper("100 miles", "100"));
-        mRangeCombo.addItem(new ComboWrapper("300 miles", "300"));
-        mRangeCombo.addItem(new ComboWrapper("600 miles", "600"));
-        defaultCombo(mRangeCombo, weatherConfiguration.getRange());
-        mRangeCombo.setToolTipText("Range for local radar map");
+//        mRangeCombo = new JComboBox();
+//        mRangeCombo.addItem(new ComboWrapper("100 miles", "100"));
+//        mRangeCombo.addItem(new ComboWrapper("300 miles", "300"));
+//        mRangeCombo.addItem(new ComboWrapper("600 miles", "600"));
+//        defaultCombo(mRangeCombo, weatherConfiguration.getRange());
+//        mRangeCombo.setToolTipText("Range for local radar map");
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, 50dlu:g, right:pref:grow", "pref, " + // general
                 "9dlu, " + "pref, " + // title
@@ -122,14 +122,15 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
                 "9dlu, " + "pref, " + // location
                 "9dlu, " + "pref, " + // city
                 "3dlu, " + "pref, " + // state
-                "3dlu, " + "pref, " + // zip
-                "3dlu, " + "pref, " + // range
-                "9dlu, " + "pref, " + // links
-                "3dlu, " + "pref, " + // 1
-                "3dlu, " + "pref, " + // 2
-                "3dlu, " + "pref, " + // 3
-                "3dlu, " + "pref");
-
+                "3dlu, " + "pref, "// zip
+//                "3dlu, " + "pref, " + // range
+//                "9dlu, " + "pref, " + // links
+//                "3dlu, " + "pref, " + // 1
+//                "3dlu, " + "pref, " + // 2
+//                "3dlu, " + "pref, " + // 3
+//                "3dlu, " + "pref");
+        		);
+        
         PanelBuilder builder = new PanelBuilder(layout);
         //DefaultFormBuilder builder = new DefaultFormBuilder(new FormDebugPanel(), layout);
         builder.setDefaultDialogBorder();
@@ -147,63 +148,63 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         builder.add(mStateCombo, cc.xyw(3, 11, 1));
         builder.addLabel("Zip", cc.xy(1, 13));
         builder.add(mZipField, cc.xyw(3, 13, 1));
-        builder.addLabel("Range", cc.xy(1, 15));
-        builder.add(mRangeCombo, cc.xyw(3, 15, 1));
-        builder.addSeparator("Featured on weather.com®", cc.xyw(1, 17, 4));
+//        builder.addLabel("Range", cc.xy(1, 15));
+//        builder.add(mRangeCombo, cc.xyw(3, 15, 1));
+//        builder.addSeparator("Featured on weather.com®", cc.xyw(1, 17, 4));
         // TODO Add location id parameter
         // TODO Determine list dynamically
-        JLabel label = new JLabel("Pollen Reports");
-        label.setForeground(Color.blue);
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        label.setToolTipText("Open site in web browser");
-        label.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.weather.com/outlook/health/allergies/"+mZipField.getText()+"?par=xoap");
-                } catch (Exception ex) {
-                }
-            }
-        });
-        builder.add(label, cc.xyw(1, 19, 3));
-        label = new JLabel("Airport Delays");
-        label.setForeground(Color.blue);
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        label.setToolTipText("Open site in web browser");
-        label.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.weather.com/outlook/travel/flights/citywx/"+mZipField.getText()+"?par=xoap");
-                } catch (Exception ex) {
-                }
-            }
-        });
-        builder.add(label, cc.xyw(1, 21, 3));
-        label = new JLabel("Special Events");
-        label.setForeground(Color.blue);
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        label.setToolTipText("Open site in web browser");
-        label.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.weather.com/outlook/events/special/result/"+mZipField.getText()+"?par=xoap");
-                } catch (Exception ex) {
-                }
-            }
-        });
-        builder.add(label, cc.xyw(1, 23, 3));
-        label = new JLabel("Weather data provided by weather.com®");
-        label.setForeground(Color.blue);
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        label.setToolTipText("Open site in web browser");
-        label.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.weather.com");
-                } catch (Exception ex) {
-                }
-            }
-        });
-        builder.add(label, cc.xyw(1, 25, 3));
+//        JLabel label = new JLabel("Pollen Reports");
+//        label.setForeground(Color.blue);
+//        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+//        label.setToolTipText("Open site in web browser");
+//        label.addMouseListener(new MouseAdapter() {
+//            public void mousePressed(MouseEvent e) {
+//                try {
+//                    BrowserLauncher.openURL("http://www.weather.com/outlook/health/allergies/"+mZipField.getText()+"?par=xoap");
+//                } catch (Exception ex) {
+//                }
+//            }
+//        });
+//        builder.add(label, cc.xyw(1, 19, 3));
+//        label = new JLabel("Airport Delays");
+//        label.setForeground(Color.blue);
+//        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+//        label.setToolTipText("Open site in web browser");
+//        label.addMouseListener(new MouseAdapter() {
+//            public void mousePressed(MouseEvent e) {
+//                try {
+//                    BrowserLauncher.openURL("http://www.weather.com/outlook/travel/flights/citywx/"+mZipField.getText()+"?par=xoap");
+//                } catch (Exception ex) {
+//                }
+//            }
+//        });
+//        builder.add(label, cc.xyw(1, 21, 3));
+//        label = new JLabel("Special Events");
+//        label.setForeground(Color.blue);
+//        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+//        label.setToolTipText("Open site in web browser");
+//        label.addMouseListener(new MouseAdapter() {
+//            public void mousePressed(MouseEvent e) {
+//                try {
+//                    BrowserLauncher.openURL("http://www.weather.com/outlook/events/special/result/"+mZipField.getText()+"?par=xoap");
+//                } catch (Exception ex) {
+//                }
+//            }
+//        });
+//        builder.add(label, cc.xyw(1, 23, 3));
+//        label = new JLabel("Weather data provided by weather.com®");
+//        label.setForeground(Color.blue);
+//        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+//        label.setToolTipText("Open site in web browser");
+//        label.addMouseListener(new MouseAdapter() {
+//            public void mousePressed(MouseEvent e) {
+//                try {
+//                    BrowserLauncher.openURL("http://www.weather.com");
+//                } catch (Exception ex) {
+//                }
+//            }
+//        });
+//        builder.add(label, cc.xyw(1, 25, 3));
 
         JPanel panel = builder.getPanel();
         //FormDebugUtils.dumpAll(panel);
@@ -282,7 +283,9 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         weatherConfiguration.setState(((NameValue) mStateCombo.getSelectedItem()).getValue());
         weatherConfiguration.setZip(mZipField.getText());
         weatherConfiguration.setShared(mSharedField.isSelected());
-        weatherConfiguration.setRange(((NameValue) mRangeCombo.getSelectedItem()).getValue());
+        weatherConfiguration.setRange("600"
+//        		((NameValue) mRangeCombo.getSelectedItem()).getValue()
+        		);
     }
     
     private String mId;
@@ -299,5 +302,5 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
     
     private JCheckBox mSharedField;
 
-    private JComboBox mRangeCombo;
+//    private JComboBox mRangeCombo;
 }

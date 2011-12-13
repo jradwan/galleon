@@ -70,6 +70,7 @@ public class MediaRefreshThread extends Thread {
         FileGatherer.gatherDirectory(new File(pathInfo.mPath), pathInfo.mFilter, true,
                 new FileGatherer.GathererCallback() {
         			private int mCounter;
+					private boolean mQuickLoading = false; // TODO: update with preference
                     public void visit(File file, File originalFile) {
                         synchronized (this) {
                             try {
@@ -114,7 +115,8 @@ public class MediaRefreshThread extends Thread {
                                 }
                                 if (++mCounter%100==0)
              	         		   System.gc();
-//                                Thread.sleep(50); // give the CPU some breathing time
+                                if (!mQuickLoading )
+                                	Thread.sleep(50); // give the CPU some breathing time
                             } catch (Exception ex) {
                                 Tools.logException(MediaRefreshThread.class, ex, file.getAbsolutePath());
                             }

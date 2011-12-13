@@ -164,6 +164,7 @@ public class AlbumParser {
     		mKey = new StringBuffer(100);
     		mValue = new StringBuffer(100);
             mDebugging = debug;
+            mQuickLoading = false; // TODO: hook up to preference
             // Should be an easier way with Calendar, eh?
             try {
 				mEpochDate = mDateFormat.parse("2001-01-01T00:00:00Z");
@@ -243,9 +244,9 @@ public class AlbumParser {
 
                 if (++mCounter%100==0)
          		   System.gc();
-                if (!mDebugging) {      // if debugging, go full tilt
+                if (!mDebugging && !mQuickLoading) {      // if debugging, go full tilt
                     try {
-//                        Thread.sleep(50); // give the CPU some breathing time
+                        Thread.sleep(50); // give the CPU some breathing time
                     } catch (Exception ex) {
                     }
                 }
@@ -435,6 +436,8 @@ public class AlbumParser {
 	    private int mCounter;
 
         private boolean mDebugging;
+        
+        private boolean mQuickLoading;
 
         private String mImageId;
     }
@@ -449,6 +452,7 @@ public class AlbumParser {
     		mKey = new StringBuffer(100);
     		mValue = new StringBuffer(100);
             mDebugging = debugging;
+            mQuickLoading = false;  // TODO: hook up to some preference
     	}
     	
 	    /**
@@ -588,9 +592,9 @@ public class AlbumParser {
                                             plist.clear();
                                         }
                                 	
-                                    if (!mDebugging)
+                                    if (!mDebugging && !mQuickLoading)
                                         try { // only pause if not debugging
-                           //             	Thread.sleep(50); // give the CPU some breathing time
+                                        	Thread.sleep(50); // give the CPU some breathing time
                                         } catch (Exception ex) {
                                         }
                                 }
@@ -726,6 +730,8 @@ public class AlbumParser {
         private int mParsedAlbumCount;
         
         private boolean mDebugging;
+        
+        private boolean mQuickLoading;
 
         private List<String> mArray;
         

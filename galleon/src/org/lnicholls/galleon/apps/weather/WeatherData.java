@@ -495,6 +495,9 @@ public class WeatherData implements Serializable {
 	}
 
 	public void determineLocalRadar() {
+		return;
+	}
+	public void determineLocalRadarBroken() {
             if (mLocalRadar != null)
             return;
 
@@ -532,7 +535,7 @@ public class WeatherData implements Serializable {
                     if (radarurl.length() == 0) {
                         //    <iframe name="mapI" ID="mapI" width=600 height=560
                         // src="/maps/local/local/us_close_bos_ultra_bos/1b/index_large.html"
-                        REGEX = "src=\"/maps/local/local(.*)\"";
+                        REGEX = "[Ss][Rr][Cc]=\"/maps/local/local(.*)\"";
                         p = Pattern.compile(REGEX);
                         m = p.matcher(strGetResponseBody);
                         if (m.find()) {

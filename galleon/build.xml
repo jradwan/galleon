@@ -335,7 +335,7 @@ quiet="no">
       <attribute name="HME-Arguments" value=""/>
       <attribute name="Title" value="Weather"/>
       <attribute name="ReleaseDate" value="2011-12-12"/>
-      <attribute name="Description" value="The weather app displays the current forecast and any weather alerts."/>                    
+      <attribute name="Description" value="The weather app displays the current forecast, local and national radar, and any weather alerts."/>                    
       <attribute name="Documentation" value="http://galleon.sourceforge.net/index.php?option=com_content&amp;view=article&amp;id=15&amp;Itemid=46"/>                              
       <attribute name="Author" value="Leon Nicholls, John Kohl, Jeremy C. Radwan"/>                                        
       <attribute name="Email" value="javahmo@users.sourceforge.net, johnkohl@users.sourceforge.net, windracer@sourceforge.net"/>                                                  

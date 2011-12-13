@@ -494,10 +494,10 @@ public class WeatherData implements Serializable {
         return strGetResponseBody;
 	}
 
-	public void determineLocalRadar() {
+	public void determineLocalRadarBroken() {
 		return;
 	}
-	public void determineLocalRadarBroken() {
+	public void determineLocalRadar() {
             if (mLocalRadar != null)
             return;
 
@@ -648,7 +648,7 @@ public class WeatherData implements Serializable {
 
             //Get location/county mapping from census bureau:
             // http://quickfacts.census.gov/cgi-bin/qfd/lookup?state=33000&place=nashua,nh,03060
-            GetMethod get = new GetMethod("http://www.nws.noaa.gov/alerts/" + mState.toLowerCase() + ".cap");
+            GetMethod get = new GetMethod("http://www.nws.noaa.gov/alerts/" + mState.toLowerCase() + ".php?x=1");
             get.setFollowRedirects(true);
 
             try {

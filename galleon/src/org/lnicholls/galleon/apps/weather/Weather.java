@@ -60,9 +60,9 @@ public class Weather extends DefaultSDOnlyApplication {
 	private final static int FORECAST_TEXT = 0;
 //	private final static int CURRENT_CONDITIONS = 1;
 //	private final static int FORECAST_SUMMARY = 2;
-//	private final static int LOCAL_RADAR = 3;
-//	private final static int NATIONAL_RADAR = 4;
-	private final static int ALERTS = 1;
+	private final static int LOCAL_RADAR = 1;
+	private final static int NATIONAL_RADAR = 2;
+	private final static int ALERTS = 3;
 
     private int mCurrent = 0;
 
@@ -112,8 +112,8 @@ public class Weather extends DefaultSDOnlyApplication {
 //            mMenuList.add("Current Conditions");
 //			mMenuList.add("Forecast Summary");
 			mMenuList.add("Forecast as Text");
-//            mMenuList.add("Local Radar");
-//            mMenuList.add("National Radar");
+            mMenuList.add("Local Radar");
+            mMenuList.add("National Radar");
             if (weatherData.hasAlerts())
                 mMenuList.add("Alerts");
             
@@ -133,10 +133,10 @@ public class Weather extends DefaultSDOnlyApplication {
 //				else
 					if (mMenuList.getFocus() == FORECAST_TEXT)
 					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
-//				else if (mMenuList.getFocus() == LOCAL_RADAR)
-//					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
-//				else if (mMenuList.getFocus() == NATIONAL_RADAR)
-//					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				else if (mMenuList.getFocus() == LOCAL_RADAR)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
+				else if (mMenuList.getFocus() == NATIONAL_RADAR)
+					getBApp().push(mGenericWeatherScreen, TRANSITION_LEFT);
                 return true;
             }
             return super.handleAction(view, action);
@@ -246,7 +246,7 @@ public class Weather extends DefaultSDOnlyApplication {
         	}
         	else
         	{
-	        	if (++mScreen > FORECAST_TEXT)
+	        	if (++mScreen > NATIONAL_RADAR)
 	        		mScreen = 0;
         	}
 		}
@@ -260,7 +260,7 @@ public class Weather extends DefaultSDOnlyApplication {
 			else
 			{
 				if (--mScreen < 0)
-					mScreen = FORECAST_TEXT;
+					mScreen = NATIONAL_RADAR;
 			}
 		}        
         
@@ -314,30 +314,30 @@ public class Weather extends DefaultSDOnlyApplication {
 					mCurrentScreen = mForecastText;
 					setFooter("weather.gov");
 					break;
-//				case LOCAL_RADAR:
-//					setTitle(" ");
-//		            mCurrentConditions.setVisible(false);
-//		            mForecast.setVisible(false);
-//					mForecastText.setVisible(false);
-//		            mNationalRadar.setVisible(false);
-//		            mAlerts.setVisible(false);
-//		            mLocalRadar.setVisible(true);
-//		            mLocalRadar.updateImage();
-//		            mCurrentScreen = mLocalRadar;
-//		            setFooter(" ");				
-//					break;
-//				case NATIONAL_RADAR:
-//					setTitle(" ");
-//		            mCurrentConditions.setVisible(false);
-//		            mForecast.setVisible(false);
-//					mForecastText.setVisible(false);
-//		            mLocalRadar.setVisible(false);
-//		            mAlerts.setVisible(false);
-//		            mNationalRadar.setVisible(true);
-//		            mNationalRadar.updateImage();
-//		            mCurrentScreen = mNationalRadar;		            
-//		            setFooter(" ");				
-//					break;				
+				case LOCAL_RADAR:
+					setTitle(" ");
+		            mCurrentConditions.setVisible(false);
+		            mForecast.setVisible(false);
+					mForecastText.setVisible(false);
+		            mNationalRadar.setVisible(false);
+		            mAlerts.setVisible(false);
+		            mLocalRadar.setVisible(true);
+		            mLocalRadar.updateImage();
+		            mCurrentScreen = mLocalRadar;
+		            setFooter(" ");				
+					break;
+				case NATIONAL_RADAR:
+					setTitle(" ");
+		            mCurrentConditions.setVisible(false);
+		            mForecast.setVisible(false);
+					mForecastText.setVisible(false);
+		            mLocalRadar.setVisible(false);
+		            mAlerts.setVisible(false);
+		            mNationalRadar.setVisible(true);
+		            mNationalRadar.updateImage();
+		            mCurrentScreen = mNationalRadar;		            
+		            setFooter(" ");				
+					break;				
 				case ALERTS:
 					setTitle("Alerts");
 		            mCurrentConditions.setVisible(false);
@@ -737,7 +737,7 @@ public class Weather extends DefaultSDOnlyApplication {
         }
 
         public void updateImage() {
-            WeatherData.Forecasts forecasts = mWeatherData.getForecasts();
+//            WeatherData.Forecasts forecasts = mWeatherData.getForecasts();
 
             try {
                 if (mWeatherData.getNationalRadar() != null) {

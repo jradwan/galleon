@@ -192,7 +192,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
 //            }
 //        });
         builder.add(label, cc.xyw(1, 23, 3));
-        label = new JLabel("Weather data provided by weather.com");
+        label = new JLabel("Weather radar provided by weather.com");
         label.setForeground(Color.blue);
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
         label.setToolTipText("Open site in web browser");

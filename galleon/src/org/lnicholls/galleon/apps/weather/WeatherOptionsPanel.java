@@ -150,7 +150,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
         builder.add(mZipField, cc.xyw(3, 13, 1));
         builder.addLabel("Range", cc.xy(1, 15));
         builder.add(mRangeCombo, cc.xyw(3, 15, 1));
-        builder.addSeparator("Featured on weather.com¨", cc.xyw(1, 17, 4));
+        builder.addSeparator("Featured on weather.com", cc.xyw(1, 17, 4));
         // TODO Add location id parameter
         // TODO Determine list dynamically
         JLabel label = new JLabel("Pollen Reports");
@@ -192,7 +192,7 @@ public class WeatherOptionsPanel extends AppConfigurationPanel {
 //            }
 //        });
         builder.add(label, cc.xyw(1, 23, 3));
-        label = new JLabel("Weather data provided by weather.com¨");
+        label = new JLabel("Weather data provided by weather.com");
         label.setForeground(Color.blue);
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
         label.setToolTipText("Open site in web browser");

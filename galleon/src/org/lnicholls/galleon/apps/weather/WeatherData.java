@@ -119,7 +119,7 @@ public class WeatherData implements Serializable {
             public void run() {
                 getAllWeather();
                 determineForecast();
-                determineFip();
+                determineFip(false);
                 determineAlerts();
                 determineLocalRadar();
 
@@ -177,7 +177,7 @@ public class WeatherData implements Serializable {
 
                 if (mTimeCounter % 2 == 0) // every 10 mins
                 {
-                    determineFip();
+                    determineFip(false);
                     determineAlerts();
                 }
             }
@@ -562,7 +562,7 @@ public class WeatherData implements Serializable {
         log.error("Could not find local radar for: " + mCity + "," + mState + "," + mZip);
     }
 
-    public void determineFip() {
+    public void determineFip(boolean debug) {
         if (mFip != null)
             return;
 
@@ -592,7 +592,8 @@ public class WeatherData implements Serializable {
                         if (log.isDebugEnabled())
                             log.debug("FIP: " + m.group(1) + "(" + m.group(2) + ")");
                         mFip = m.group(1);
-                        PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
+                        if (!debug)
+                        	PersistentValueManager.savePersistentValue(this.getClass().getName() + "." + "fip", mFip);
                         return;
                     }
                 }
@@ -705,7 +706,7 @@ public class WeatherData implements Serializable {
 
     private static String CAP_ALERT = "alert";
 
-    private static String CAP_INFO = "info";
+    private static String CAP_ENTRY = "entry";
 
     private static String CAP_EVENT = "event";
 
@@ -713,13 +714,15 @@ public class WeatherData implements Serializable {
 
     private static String CAP_EXPIRES = "expires";
 
-    private static String CAP_HEADLINE = "headline";
+    private static String CAP_HEADLINE = "title";
 
-    private static String CAP_DESCRIPTION = "description";
+    private static String CAP_DESCRIPTION = "summary";
 
     private static String CAP_AREA = "area";
 
     private static String CAP_GEOCODE = "geocode";
+    private static String CAP_VALUENAME = "valueName";
+    private static String CAP_VALUEDATA = "value";
 
     private void parseAlerts(String value) {
         try {
@@ -739,7 +742,7 @@ public class WeatherData implements Serializable {
                 Date expires = null;
                 String headline = "";
                 String description = "";
-                if (element.getName().equals(CAP_INFO)) {
+                if (element.getName().equals(CAP_ENTRY)) {
                     for (Iterator elementIterator = element.elementIterator(); elementIterator.hasNext();) {
                         Element infoNode = (Element) elementIterator.next();
                         if (infoNode.getName().equals(CAP_EVENT)) {
@@ -766,24 +769,41 @@ public class WeatherData implements Serializable {
                             description = infoNode.getText();
                             if (log.isDebugEnabled())
                                 log.debug("description:" + description);
-                        } else if (infoNode.getName().equals(CAP_AREA)) {
-                            for (Iterator areaIterator = infoNode.elementIterator(); areaIterator.hasNext();) {
-                                Element areaNode = (Element) areaIterator.next();
+                        } else if (infoNode.getName().equals(CAP_GEOCODE)) {
+                        	//  sample format
+                        	// <cap:geocode>
+                        	// <valueName>FIPS6</valueName>
+                        	// <value>004015</value>
+                        	// <valueName>UGC</valueName>
+                        	// <value>AZZ003</value>
+                        	// </cap:geocode>
+                        	boolean inFIPS = false;
+                            for (Iterator geoCodeIterator = infoNode.elementIterator(); geoCodeIterator.hasNext();) {
+                                Element geocodeNode = (Element) geoCodeIterator.next();
                                 if (log.isDebugEnabled())
-                                    log.debug("areaNode:" + areaNode.getName());
-                                if (areaNode.getName().equals(CAP_GEOCODE)) {
-                                    String geoCode = areaNode.getText();
+                                    log.debug("areaNode:" + geocodeNode.getName());
+                                if (inFIPS && geocodeNode.getName().equals(CAP_VALUEDATA)) {
+                                    String valueStr = geocodeNode.getText();
                                     if (log.isDebugEnabled())
-                                        log.debug("geoCode:" + geoCode);
+                                        log.debug("geoCode value:" + valueStr);
                                     if (log.isDebugEnabled())
                                         log.debug("mFIP:" + mFip);
                                     if (mFip.endsWith("000")) // whole state
                                     {
                                         found = true;
-                                    } else if (geoCode.endsWith(mFip)) // specific county
+                                    } else if (valueStr.contains(mFip)) // specific county
                                     {
                                         found = true;
                                     }
+                                } else {
+                                	inFIPS = false;
+                                	if (geocodeNode.getName().equals(CAP_VALUENAME)) {
+                                		String valueStr = geocodeNode.getText();
+                                		if (log.isDebugEnabled())
+                                			log.debug("geoCode valueName:" + valueStr);
+                                		if (valueStr.equals("FIPS6"))
+                                			inFIPS = true;
+                                	}
                                 }
                             }
                         }
@@ -853,6 +873,8 @@ public class WeatherData implements Serializable {
     			512, 384, true);
     	wd.determineForecast();
     	wd.determineLocalRadar();
+    	wd.determineFip(true);
+    	wd.determineAlerts();
     }
     
     public void determineForecast() {
@@ -950,7 +972,7 @@ public class WeatherData implements Serializable {
                 Date expires = null;
                 String headline = "";
                 String description = "";
-                if (element.getName().equals(CAP_INFO)) {
+                if (element.getName().equals(CAP_ALERT)) {
                     for (Iterator elementIterator = element.elementIterator(); elementIterator.hasNext();) {
                         Element infoNode = (Element) elementIterator.next();
                         if (infoNode.getName().equals(CAP_EVENT)) {

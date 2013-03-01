@@ -801,6 +801,9 @@ public class ToGo {
 			//client.getState().setCredentials("TiVo DVR", url.getHost(), credentials);
 			client.getState().setCredentials(null, url.getHost(), credentials);
 			get = new GetMethod(video.getUrl());
+			// fix for expired TiVo cookie as of 02/16/13
+			// http://www.tivocommunity.com/tivo-vb/showthread.php?t=501069
+			get.setRequestHeader("Cookie", "sid=abc");
 			client.executeMethod(get);
 			if (get.getStatusCode() != 200)
 			{

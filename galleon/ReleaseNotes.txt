@@ -9,6 +9,7 @@ Version 2.5.6:
 * Upgraded to commons-betwixt-0.8
 * Fix for linux Makefile (3107228) and init script for Gentoo installs
 * Update weather application to remove parts that don't work and fix those that can be fixed.
+* Fix ToGo for expired TiVo cookie as of 02/16/13 (3605870)
   
 Version 2.5.5:
 ----------------------

@@ -31,6 +31,10 @@ _WinAmp Skin_
 
 ![WinAmp Skin](https://github.com/jradwan/galleon/blob/master/resources/32808.jpg)
 
+## Installation
+
+See my old instructions for installing Galleon on Ubuntu [here](https://www.tivocommunity.com/community/index.php?threads/need-galleon-linux-help.369945/page-3).
+
 ## Development
 
 I imported this repo from SourceForge (https://sourceforge.net/projects/galleon/) just for posterity since I contributed some code changes to it back in the day. It was originally developed as JavaHMO by Leon Nicholls, and then re-born as Galleon once TiVo switched from HMO (Home Media Options) to HME (Home Media Engine). It was later picked up by John Kohl and contributed to by many others including Alexei Strots, Brian Day, myself, John Teloh, Tom Gillispie, lrhorer, and s2kdave.

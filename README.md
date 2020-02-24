@@ -33,7 +33,7 @@ _WinAmp Skin_
 
 ## Installation
 
-See my old instructions for installing Galleon on Ubuntu [here](https://www.tivocommunity.com/community/index.php?threads/need-galleon-linux-help.369945/page-3).
+See my old instructions for installing Galleon on Ubuntu [here](https://www.tivocommunity.com/community/index.php?threads/need-galleon-linux-help.369945/#post-5601926).
 
 ## Development
 
